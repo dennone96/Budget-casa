@@ -9,6 +9,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root {
     --bg: #f5f4f0;
@@ -133,6 +134,19 @@
   .user-bar button { height: 32px; font-size: 13px; }
   .hidden { display: none !important; }
   .sync-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; background: var(--success); }
+
+  .import-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .import-row input[type="file"] { flex: 1; min-width: 200px; height: auto; padding: 8px; }
+  #import-preview-wrap { margin-top: 1rem; }
+  #import-preview-wrap table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  #import-preview-wrap th, #import-preview-wrap td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  #import-preview-wrap th { color: var(--text-secondary); font-weight: 500; }
+  .import-row-error { color: var(--danger); }
+  .import-row-ok { color: var(--text-secondary); }
+  #import-summary { font-size: 13px; margin: 10px 0; }
+  #import-actions { display: flex; gap: 8px; margin-top: 10px; }
+  .import-table-wrap { max-height: 280px; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--radius); }
+  #import-error-text { color: var(--danger); font-size: 13px; }
 </style>
 </head>
 <body>
@@ -190,6 +204,37 @@
   </div>
 
   <div class="row-between">
+    <h2>Importa da file Excel</h2>
+  </div>
+  <div class="panel">
+    <p style="font-size:13px; color:var(--text-secondary); margin-top:0;">
+      Il file deve avere queste colonne (in qualsiasi ordine, intestazioni nella prima riga):
+      <strong>Data</strong> (es. 2026-06-30 o 30/06/2026), <strong>Descrizione</strong>, <strong>Importo</strong>,
+      <strong>Categoria</strong>, <strong>Tipo</strong> (Entrata o Uscita).
+    </p>
+    <div class="import-row">
+      <input type="file" id="import-file" accept=".xlsx,.xls,.csv">
+      <button id="btn-download-template"><i class="ti ti-download" aria-hidden="true"></i> Scarica modello</button>
+    </div>
+    <p id="import-error-text"></p>
+    <div id="import-preview-wrap" class="hidden">
+      <p id="import-summary"></p>
+      <div class="import-table-wrap">
+        <table>
+          <thead>
+            <tr><th>Stato</th><th>Data</th><th>Descrizione</th><th>Importo</th><th>Categoria</th><th>Tipo</th></tr>
+          </thead>
+          <tbody id="import-preview-body"></tbody>
+        </table>
+      </div>
+      <div id="import-actions">
+        <button id="btn-import-confirm"><i class="ti ti-check" aria-hidden="true"></i> Importa righe valide</button>
+        <button id="btn-import-cancel">Annulla</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="row-between">
     <h2>Andamento mensile</h2>
     <select id="chart-month"></select>
   </div>
@@ -224,12 +269,12 @@
   // Sostituisci questi valori con quelli del TUO progetto Firebase
   // (li trovi in Impostazioni progetto > Generali > Le tue app > Configurazione SDK)
   const firebaseConfig = {
-    apiKey: "AIzaSyB9uuVOHnxBzX1XGHtA6adqLyR7Pp_N5jg",
-    authDomain: "budget-casa-6553c.firebaseapp.com",
-    projectId: "budget-casa-6553c",
-    storageBucket: "budget-casa-6553c.firebasestorage.app",
-    messagingSenderId: "513013339285",
-    appId: "1:513013339285:web:4ca0e49d3ede122e43779c"
+    apiKey: "INCOLLA_QUI_LA_TUA_API_KEY",
+    authDomain: "INCOLLA_QUI.firebaseapp.com",
+    projectId: "INCOLLA_QUI_IL_PROJECT_ID",
+    storageBucket: "INCOLLA_QUI.appspot.com",
+    messagingSenderId: "INCOLLA_QUI",
+    appId: "INCOLLA_QUI"
   };
 
   firebase.initializeApp(firebaseConfig);
@@ -536,6 +581,179 @@
 
   document.getElementById('tab-expense').addEventListener('click', () => setTab('expense'));
   document.getElementById('tab-income').addEventListener('click', () => setTab('income'));
+
+  // ====== IMPORTAZIONE DA EXCEL ======
+  let pendingImportRows = [];
+
+  function normalizeHeader(h){
+    return String(h || '').trim().toLowerCase();
+  }
+
+  function parseImportedDate(value){
+    if (value instanceof Date && !isNaN(value)) {
+      return value.toISOString().slice(0,10);
+    }
+    if (typeof value === 'number') {
+      // numero seriale Excel
+      const d = XLSX.SSF.parse_date_code(value);
+      if (d) return `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`;
+    }
+    const str = String(value || '').trim();
+    if (/^\d{4}-\d{2}-\d{2}/.test(str)) return str.slice(0,10);
+    const itMatch = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+    if (itMatch) {
+      const [, d, m, y] = itMatch;
+      return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
+    }
+    return null;
+  }
+
+  function parseImportedAmount(value){
+    if (typeof value === 'number') return value;
+    let str = String(value || '').trim().replace(/[€\s]/g, '');
+    if (str.includes(',') && str.includes('.')) {
+      str = str.replace(/\./g, '').replace(',', '.');
+    } else if (str.includes(',')) {
+      str = str.replace(',', '.');
+    }
+    const n = parseFloat(str);
+    return isNaN(n) ? null : n;
+  }
+
+  function parseImportedType(value){
+    const v = String(value || '').trim().toLowerCase();
+    if (['entrata', 'income', 'entrate'].includes(v)) return 'income';
+    if (['uscita', 'expense', 'uscite'].includes(v)) return 'expense';
+    return null;
+  }
+
+  function matchCategory(value, type){
+    const v = String(value || '').trim();
+    const list = state.categories[type] || [];
+    const found = list.find(c => c.toLowerCase() === v.toLowerCase());
+    return found || (list.includes('Altro') ? 'Altro' : list[0] || 'Altro');
+  }
+
+  document.getElementById('btn-download-template').addEventListener('click', () => {
+    const wsData = [
+      ['Data', 'Descrizione', 'Importo', 'Categoria', 'Tipo'],
+      ['2026-06-01', 'Spesa supermercato', 85.50, 'Spesa', 'Uscita'],
+      ['2026-06-01', 'Stipendio', 1800, 'Stipendio', 'Entrata']
+    ];
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Movimenti');
+    XLSX.writeFile(wb, 'modello-movimenti.xlsx');
+  });
+
+  document.getElementById('import-file').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const errorEl = document.getElementById('import-error-text');
+    errorEl.textContent = '';
+    document.getElementById('import-preview-wrap').classList.add('hidden');
+
+    try {
+      const buffer = await file.arrayBuffer();
+      const wb = XLSX.read(buffer, { type: 'array', cellDates: true });
+      const sheet = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+
+      if (rows.length === 0) {
+        errorEl.textContent = 'Il file non contiene righe da importare.';
+        return;
+      }
+
+      // mappa intestazioni in modo flessibile
+      const sample = rows[0];
+      const keys = Object.keys(sample);
+      const findKey = (names) => keys.find(k => names.includes(normalizeHeader(k)));
+      const kData = findKey(['data', 'date']);
+      const kDesc = findKey(['descrizione', 'description', 'desc']);
+      const kAmount = findKey(['importo', 'amount', 'importo €', 'importo euro']);
+      const kCategory = findKey(['categoria', 'category']);
+      const kType = findKey(['tipo', 'type']);
+
+      if (!kData || !kAmount || !kType) {
+        errorEl.textContent = 'Colonne mancanti: servono almeno Data, Importo e Tipo. Scarica il modello per il formato corretto.';
+        return;
+      }
+
+      pendingImportRows = rows.map((row) => {
+        const date = parseImportedDate(row[kData]);
+        const amount = parseImportedAmount(row[kAmount]);
+        const type = parseImportedType(row[kType]);
+        const desc = kDesc ? String(row[kDesc] || '').trim() : '';
+        const rawCategory = kCategory ? String(row[kCategory] || '').trim() : '';
+
+        const errors = [];
+        if (!date) errors.push('data non valida');
+        if (amount === null || amount <= 0) errors.push('importo non valido');
+        if (!type) errors.push('tipo non valido (usa Entrata/Uscita)');
+
+        const category = type ? matchCategory(rawCategory, type) : rawCategory;
+
+        return { date, description: desc, amount, category, type, rawCategory, valid: errors.length === 0, errors };
+      });
+
+      renderImportPreview();
+    } catch (err) {
+      errorEl.textContent = 'Impossibile leggere il file: ' + err.message;
+    }
+  });
+
+  function renderImportPreview(){
+    const wrap = document.getElementById('import-preview-wrap');
+    const body = document.getElementById('import-preview-body');
+    const summary = document.getElementById('import-summary');
+    body.innerHTML = '';
+
+    const validCount = pendingImportRows.filter(r => r.valid).length;
+    const invalidCount = pendingImportRows.length - validCount;
+    summary.textContent = `${pendingImportRows.length} righe trovate: ${validCount} valide, ${invalidCount} con errori.`;
+
+    pendingImportRows.forEach((r) => {
+      const tr = document.createElement('tr');
+      tr.className = r.valid ? 'import-row-ok' : 'import-row-error';
+      tr.innerHTML = `
+        <td>${r.valid ? '<i class="ti ti-check" aria-hidden="true"></i>' : '<i class="ti ti-x" aria-hidden="true"></i> ' + r.errors.join(', ')}</td>
+        <td>${r.date || '-'}</td>
+        <td>${escapeHtml(r.description) || '-'}</td>
+        <td>${r.amount !== null ? fmtEUR(r.amount) : '-'}</td>
+        <td>${escapeHtml(r.category) || '-'}</td>
+        <td>${r.type === 'income' ? 'Entrata' : r.type === 'expense' ? 'Uscita' : '-'}</td>`;
+      body.appendChild(tr);
+    });
+
+    document.getElementById('btn-import-confirm').disabled = validCount === 0;
+    wrap.classList.remove('hidden');
+  }
+
+  document.getElementById('btn-import-cancel').addEventListener('click', () => {
+    pendingImportRows = [];
+    document.getElementById('import-preview-wrap').classList.add('hidden');
+    document.getElementById('import-file').value = '';
+  });
+
+  document.getElementById('btn-import-confirm').addEventListener('click', async () => {
+    const validRows = pendingImportRows.filter(r => r.valid);
+    if (validRows.length === 0) return;
+    validRows.forEach((r) => {
+      state.transactions.push({
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2,7),
+        type: r.type,
+        description: r.description,
+        amount: Math.round(r.amount * 100) / 100,
+        category: r.category,
+        date: r.date
+      });
+    });
+    await saveTransactions();
+    pendingImportRows = [];
+    document.getElementById('import-preview-wrap').classList.add('hidden');
+    document.getElementById('import-file').value = '';
+    renderAll();
+  });
 
   document.getElementById('btn-add').addEventListener('click', async () => {
     const desc = document.getElementById('inp-desc').value.trim();
