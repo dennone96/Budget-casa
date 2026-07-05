@@ -445,7 +445,7 @@
           <div class="import-table-wrap">
             <table>
               <thead>
-                <tr><th>Stato</th><th>Data</th><th>Descrizione</th><th>Importo</th><th>Categoria</th><th>Tipo</th></tr>
+                <tr><th>Stato</th><th>Data</th><th>Descrizione</th><th>Importo</th><th>Tipo</th></tr>
               </thead>
               <tbody id="import-preview-body"></tbody>
             </table>
@@ -1044,7 +1044,10 @@
 
   function parseImportedDate(value) {
     if (value instanceof Date && !isNaN(value)) return value.toISOString().slice(0,10);
-    if (typeof value === 'number') { const d = XLSX.SSF.parse_date_code(value); if(d) return `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`; }
+    if (typeof value === 'number') {
+      const d = XLSX.SSF.parse_date_code(value);
+      if (d) return `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`;
+    }
     const str = String(value||'').trim();
     if (/^\d{4}-\d{2}-\d{2}/.test(str)) return str.slice(0,10);
     const m = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
@@ -1061,21 +1064,28 @@
     return isNaN(n) ? null : n;
   }
 
-  function parseImportedType(value) {
-    const v = String(value||'').trim().toLowerCase();
-    if (['entrata','income','entrate'].includes(v)) return 'income';
-    if (['uscita','expense','uscite'].includes(v)) return 'expense';
-    return null;
+  // Converte il nome del mese italiano in numero (1-12)
+  function parseMonthName(value) {
+    const months = {
+      'gennaio':1,'febbraio':2,'marzo':3,'aprile':4,'maggio':5,'giugno':6,
+      'luglio':7,'agosto':8,'settembre':9,'ottobre':10,'novembre':11,'dicembre':12,
+      'january':1,'february':2,'march':3,'april':4,'may':5,'june':6,
+      'july':7,'august':8,'september':9,'october':10,'november':11,'december':12
+    };
+    const str = String(value||'').trim().toLowerCase();
+    if (months[str]) return months[str];
+    const n = parseInt(str);
+    return (!isNaN(n) && n >= 1 && n <= 12) ? n : null;
   }
 
-  function matchCategory(value, type) {
-    const v = String(value||'').trim();
-    const list = state.categories[type]||[];
-    return list.find(c => c.toLowerCase()===v.toLowerCase()) || (list.includes('Altro')?'Altro':list[0]||'Altro');
-  }
-
+  // Scarica il nuovo modello aggiornato
   document.getElementById('btn-download-template').addEventListener('click', () => {
-    const ws = XLSX.utils.aoa_to_sheet([['Data','Descrizione','Importo','Categoria','Tipo'],['2026-06-01','Spesa supermercato',85.50,'Spesa','Uscita'],['2026-06-01','Stipendio',1800,'Stipendio','Entrata']]);
+    const ws = XLSX.utils.aoa_to_sheet([
+      ['Mese', 'Anno', 'Data Contabile', 'Descrizione', 'Importo'],
+      ['Giugno', 2026, '05/06/2026', 'Spesa supermercato', -85.50],
+      ['Giugno', 2026, '05/06/2026', 'Stipendio', 1800],
+      ['Luglio',  2026, '01/07/2026', 'Bolletta luce', -120]
+    ]);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Movimenti');
     XLSX.writeFile(wb, 'modello-movimenti.xlsx');
@@ -1091,23 +1101,62 @@
       const buffer = await file.arrayBuffer();
       const wb = XLSX.read(buffer, { type: 'array', cellDates: true });
       const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' });
-      if (rows.length === 0) { errorEl.textContent = 'File vuoto.'; return; }
-      const keys = Object.keys(rows[0]);
+
+      // Filtra righe completamente vuote
+      const nonEmptyRows = rows.filter(row => Object.values(row).some(v => v !== '' && v !== null && v !== undefined));
+      if (nonEmptyRows.length === 0) { errorEl.textContent = 'File vuoto.'; return; }
+
+      const keys = Object.keys(nonEmptyRows[0]);
       const fk = (names) => keys.find(k => names.includes(normalizeHeader(k)));
-      const kData = fk(['data','date']), kDesc = fk(['descrizione','description','desc']), kAmount = fk(['importo','amount','importo €']), kCategory = fk(['categoria','category']), kType = fk(['tipo','type']);
-      if (!kData || !kAmount || !kType) { errorEl.textContent = 'Colonne mancanti. Scarica il modello.'; return; }
-      pendingImportRows = rows.map(row => {
-        const date = parseImportedDate(row[kData]);
-        const amount = parseImportedAmount(row[kAmount]);
-        const type = parseImportedType(row[kType]);
-        const desc = kDesc ? String(row[kDesc]||'').trim() : '';
-        const rawCategory = kCategory ? String(row[kCategory]||'').trim() : '';
+
+      const kMese     = fk(['mese', 'month']);
+      const kAnno     = fk(['anno', 'year']);
+      const kData     = fk(['data contabile', 'data', 'date', 'data_contabile']);
+      const kDesc     = fk(['descrizione', 'description', 'desc']);
+      const kAmount   = fk(['importo', 'amount', 'importo €']);
+
+      if (!kAmount) { errorEl.textContent = 'Colonna "Importo" mancante.'; return; }
+      if (!kData && (!kMese || !kAnno)) { errorEl.textContent = 'Servono almeno "Data Contabile" oppure "Mese" + "Anno".'; return; }
+
+      pendingImportRows = nonEmptyRows.map(row => {
+        const rawAmount = parseImportedAmount(row[kAmount]);
         const errors = [];
+
+        // Determina tipo dal segno dell'importo
+        let type = null;
+        let amount = null;
+        if (rawAmount === null) {
+          errors.push('importo non valido');
+        } else {
+          amount = Math.abs(rawAmount);
+          type = rawAmount < 0 ? 'expense' : 'income';
+        }
+
+        // Determina la data
+        let date = null;
+        if (kData && row[kData] !== '') {
+          date = parseImportedDate(row[kData]);
+        }
+        // Se la data contabile manca o non è valida, costruiscila da Mese+Anno
+        if (!date && kMese && kAnno) {
+          const month = parseMonthName(row[kMese]);
+          const year  = parseInt(String(row[kAnno]||'').trim());
+          if (month && !isNaN(year) && year > 2000) {
+            date = `${year}-${String(month).padStart(2,'0')}-01`;
+          }
+        }
         if (!date) errors.push('data non valida');
-        if (amount===null||amount<=0) errors.push('importo non valido');
-        if (!type) errors.push('tipo non valido');
-        return { date, description: desc, amount, category: type ? matchCategory(rawCategory,type) : rawCategory, type, valid: errors.length===0, errors };
+
+        const desc = kDesc ? String(row[kDesc]||'').trim() : '';
+
+        // Categoria automatica basata sul tipo
+        const category = type
+          ? (state.categories[type].includes('Altro') ? 'Altro' : state.categories[type][0])
+          : '';
+
+        return { date, description: desc, amount, type, category, valid: errors.length === 0, errors };
       });
+
       renderImportPreview();
     } catch(err) { errorEl.textContent = 'Errore lettura file: ' + err.message; }
   });
@@ -1115,12 +1164,22 @@
   function renderImportPreview() {
     const body = document.getElementById('import-preview-body');
     body.innerHTML = '';
-    const vc = pendingImportRows.filter(r=>r.valid).length;
-    document.getElementById('import-summary').textContent = `${pendingImportRows.length} righe: ${vc} valide, ${pendingImportRows.length-vc} con errori.`;
+    const vc = pendingImportRows.filter(r => r.valid).length;
+    document.getElementById('import-summary').textContent =
+      `${pendingImportRows.length} righe trovate: ${vc} valide, ${pendingImportRows.length - vc} con errori.`;
     pendingImportRows.forEach(r => {
       const tr = document.createElement('tr');
       tr.className = r.valid ? 'import-row-ok' : 'import-row-error';
-      tr.innerHTML = `<td>${r.valid?'<i class="ti ti-check"></i>':'<i class="ti ti-x"></i> '+r.errors.join(', ')}</td><td>${r.date||'-'}</td><td>${escapeHtml(r.description)||'-'}</td><td>${r.amount!==null?fmtEUR(r.amount):'-'}</td><td>${escapeHtml(r.category)||'-'}</td><td>${r.type==='income'?'Entrata':r.type==='expense'?'Uscita':'-'}</td>`;
+      const tipoLabel = r.type === 'income' ? 'Entrata' : r.type === 'expense' ? 'Uscita' : '-';
+      const importoLabel = r.amount !== null
+        ? `<span style="color:${r.type==='income'?'var(--success)':'var(--danger)'};">${r.type==='income'?'+':'-'}${fmtEUR(r.amount)}</span>`
+        : '-';
+      tr.innerHTML = `
+        <td>${r.valid ? '<i class="ti ti-check"></i>' : '<i class="ti ti-x"></i> ' + r.errors.join(', ')}</td>
+        <td>${r.date || '-'}</td>
+        <td>${escapeHtml(r.description) || '-'}</td>
+        <td>${importoLabel}</td>
+        <td>${tipoLabel}</td>`;
       body.appendChild(tr);
     });
     document.getElementById('btn-import-confirm').disabled = vc === 0;
@@ -1134,14 +1193,23 @@
   });
 
   document.getElementById('btn-import-confirm').addEventListener('click', async () => {
-    const validRows = pendingImportRows.filter(r=>r.valid);
+    const validRows = pendingImportRows.filter(r => r.valid);
     if (!validRows.length) return;
-    validRows.forEach(r => { state.transactions.push({ id: Date.now().toString(36)+Math.random().toString(36).slice(2,7), type: r.type, description: r.description, amount: Math.round(r.amount*100)/100, category: r.category, date: r.date }); });
+    validRows.forEach(r => {
+      state.transactions.push({
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2,7),
+        type: r.type,
+        description: r.description,
+        amount: Math.round(r.amount * 100) / 100,
+        category: r.category,
+        date: r.date
+      });
+    });
+    renderAll();
     await saveTransactions();
     pendingImportRows = [];
     document.getElementById('import-preview-wrap').classList.add('hidden');
     document.getElementById('import-file').value = '';
-    renderAll();
   });
 
   // ====== PROMEMORIA ======
