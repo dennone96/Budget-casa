@@ -256,8 +256,9 @@
     align-items: center;
     justify-content: center;
     padding: 1rem;
+    pointer-events: none;
   }
-  #modal-overlay.open { display: flex; }
+  #modal-overlay.open { display: flex; pointer-events: all; }
   #modal-box {
     background: var(--surface);
     border-radius: 16px;
@@ -701,12 +702,20 @@
   }
 
   async function saveTransactions() {
-    try { await userDocRef().update({ transactions: state.transactions }); } catch(e) {
+    try {
+      await userDocRef().set({ transactions: state.transactions }, { merge: true });
+      document.getElementById('save-status').textContent = 'Salvato · ' + new Date().toLocaleTimeString('it-IT');
+    } catch(e) {
+      alert('Errore nel salvataggio: ' + e.message);
       document.getElementById('save-status').textContent = 'Errore: ' + e.message;
     }
   }
-  async function saveBudgets() { try { await userDocRef().update({ budgets: state.budgets }); } catch(e) {} }
-  async function saveReminders() { try { await userDocRef().update({ reminders: state.reminders }); } catch(e) {} }
+  async function saveBudgets() {
+    try { await userDocRef().set({ budgets: state.budgets }, { merge: true }); } catch(e) { alert('Errore budget: ' + e.message); }
+  }
+  async function saveReminders() {
+    try { await userDocRef().set({ reminders: state.reminders }, { merge: true }); } catch(e) { alert('Errore promemoria: ' + e.message); }
+  }
 
   // ====== TABS ENTRATA/USCITA ======
   function setTab(type) {
@@ -962,21 +971,25 @@
   document.getElementById('modal-save').addEventListener('click', async () => {
     if (!editingId) return;
     const amount = parseFloat(document.getElementById('modal-amount').value);
-    if (!amount || amount <= 0) return;
+    if (!amount || amount <= 0) {
+      alert('Inserisci un importo valido.');
+      return;
+    }
     const idx = state.transactions.findIndex(t => t.id === editingId);
-    if (idx === -1) return;
-    state.transactions[idx] = {
-      ...state.transactions[idx],
-      type: document.getElementById('modal-type').value,
-      description: document.getElementById('modal-desc').value.trim(),
-      amount: Math.round(amount * 100) / 100,
-      category: document.getElementById('modal-category').value,
-      date: document.getElementById('modal-date').value
-    };
-    await saveTransactions();
+    if (idx !== -1) {
+      state.transactions[idx] = {
+        ...state.transactions[idx],
+        type: document.getElementById('modal-type').value,
+        description: document.getElementById('modal-desc').value.trim(),
+        amount: Math.round(amount * 100) / 100,
+        category: document.getElementById('modal-category').value,
+        date: document.getElementById('modal-date').value
+      };
+    }
     document.getElementById('modal-overlay').classList.remove('open');
     editingId = null;
     renderAll();
+    await saveTransactions();
   });
 
   document.getElementById('btn-add').addEventListener('click', async () => {
@@ -984,12 +997,22 @@
     const amount = parseFloat(document.getElementById('inp-amount').value);
     const category = document.getElementById('inp-category').value;
     const date = document.getElementById('inp-date').value || todayISO();
-    if (!amount || amount <= 0) return;
-    state.transactions.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2,7), type: state.currentType, description: desc, amount: Math.round(amount*100)/100, category, date });
+    if (!amount || amount <= 0) {
+      alert('Inserisci un importo valido.');
+      return;
+    }
+    state.transactions.push({
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2,7),
+      type: state.currentType,
+      description: desc,
+      amount: Math.round(amount * 100) / 100,
+      category,
+      date
+    });
     document.getElementById('inp-desc').value = '';
     document.getElementById('inp-amount').value = '';
-    await saveTransactions();
     renderAll();
+    await saveTransactions();
   });
 
   // ====== IMPORT EXCEL ======
