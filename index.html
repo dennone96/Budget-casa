@@ -378,6 +378,9 @@
       <button class="nav-item" data-page="page-grafici">
         <i class="ti ti-chart-bar" aria-hidden="true"></i> Grafici
       </button>
+      <button class="nav-item" data-page="page-import">
+        <i class="ti ti-file-import" aria-hidden="true"></i> Importa Excel
+      </button>
       <button class="nav-item" data-page="page-promemoria">
         <i class="ti ti-bell" aria-hidden="true"></i> Promemoria
       </button>
@@ -428,34 +431,6 @@
         </div>
       </div>
 
-      <div class="row-between">
-        <h2>Importa da Excel</h2>
-      </div>
-      <div class="panel">
-        <p style="font-size:13px; color:var(--text-secondary); margin-top:0;">
-          Carica un file con le colonne: <strong>Mese</strong>, <strong>Anno</strong>, <strong>Data Contabile</strong>, <strong>Descrizione</strong>, <strong>Importo</strong> (negativo = Uscita, positivo = Entrata).
-        </p>
-        <div class="import-row">
-          <input type="file" id="import-file" accept=".xlsx,.xls,.csv">
-          <button id="btn-download-template"><i class="ti ti-download" aria-hidden="true"></i> Scarica modello</button>
-        </div>
-        <p id="import-error-text"></p>
-        <div id="import-preview-wrap" class="hidden">
-          <p id="import-summary"></p>
-          <div class="import-table-wrap">
-            <table>
-              <thead>
-                <tr><th>Stato</th><th>Data</th><th>Descrizione</th><th>Importo</th><th>Tipo</th></tr>
-              </thead>
-              <tbody id="import-preview-body"></tbody>
-            </table>
-          </div>
-          <div id="import-actions">
-            <button id="btn-import-confirm"><i class="ti ti-check" aria-hidden="true"></i> Importa righe valide</button>
-            <button id="btn-import-cancel">Annulla</button>
-          </div>
-        </div>
-      </div>
 
       <div class="row-between">
         <h2>Movimenti recenti</h2>
@@ -498,6 +473,37 @@
       <div class="panel" id="budget-panel">
         <div id="budget-edit-panel" style="display:none;"></div>
         <div id="budget-list"></div>
+      </div>
+    </div>
+
+    <!-- ══ IMPORTA EXCEL ══ -->
+    <div id="page-import" class="page">
+      <h1>Importa da Excel</h1>
+
+      <div class="panel">
+        <p style="font-size:13px; color:var(--text-secondary); margin-top:0;">
+          Carica un file con le colonne: <strong>Mese</strong>, <strong>Anno</strong>, <strong>Data Contabile</strong>, <strong>Descrizione</strong>, <strong>Importo</strong> (negativo = Uscita, positivo = Entrata).
+        </p>
+        <div class="import-row">
+          <input type="file" id="import-file" accept=".xlsx,.xls,.csv">
+          <button id="btn-download-template"><i class="ti ti-download" aria-hidden="true"></i> Scarica modello</button>
+        </div>
+        <p id="import-error-text"></p>
+        <div id="import-preview-wrap" class="hidden">
+          <p id="import-summary"></p>
+          <div class="import-table-wrap">
+            <table>
+              <thead>
+                <tr><th>Stato</th><th>Data</th><th>Descrizione</th><th>Importo</th><th>Tipo</th></tr>
+              </thead>
+              <tbody id="import-preview-body"></tbody>
+            </table>
+          </div>
+          <div id="import-actions">
+            <button id="btn-import-confirm"><i class="ti ti-check" aria-hidden="true"></i> Importa righe valide</button>
+            <button id="btn-import-cancel">Annulla</button>
+          </div>
+        </div>
       </div>
     </div>
 
