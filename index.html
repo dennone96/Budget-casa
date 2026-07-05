@@ -565,6 +565,40 @@
   </main>
 </div>
 
+<!-- MODAL MODIFICA MOVIMENTO -->
+<div id="modal-overlay">
+  <div id="modal-box">
+    <h3><i class="ti ti-pencil" aria-hidden="true"></i> Modifica movimento</h3>
+    <div class="modal-field">
+      <label>Tipo</label>
+      <select id="modal-type">
+        <option value="expense">Uscita</option>
+        <option value="income">Entrata</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label>Descrizione</label>
+      <input type="text" id="modal-desc" placeholder="Descrizione">
+    </div>
+    <div class="modal-field">
+      <label>Importo €</label>
+      <input type="number" id="modal-amount" min="0" step="0.01">
+    </div>
+    <div class="modal-field">
+      <label>Categoria</label>
+      <select id="modal-category"></select>
+    </div>
+    <div class="modal-field">
+      <label>Data</label>
+      <input type="date" id="modal-date">
+    </div>
+    <div class="modal-actions">
+      <button id="modal-cancel" style="background:var(--surface-2); border:1px solid var(--border); color:var(--text-secondary);">Annulla</button>
+      <button id="modal-save" style="background:var(--accent); color:#fff; border:none;">Salva</button>
+    </div>
+  </div>
+</div>
+
 <script>
 (function(){
   // ====== FIREBASE CONFIG ======
@@ -1198,39 +1232,6 @@
   document.getElementById('rem-date').value = todayISO();
 })();
 </script>
-<!-- MODAL MODIFICA MOVIMENTO -->
-<div id="modal-overlay">
-  <div id="modal-box">
-    <h3><i class="ti ti-pencil" aria-hidden="true"></i> Modifica movimento</h3>
-    <div class="modal-field">
-      <label>Tipo</label>
-      <select id="modal-type">
-        <option value="expense">Uscita</option>
-        <option value="income">Entrata</option>
-      </select>
-    </div>
-    <div class="modal-field">
-      <label>Descrizione</label>
-      <input type="text" id="modal-desc" placeholder="Descrizione">
-    </div>
-    <div class="modal-field">
-      <label>Importo €</label>
-      <input type="number" id="modal-amount" min="0" step="0.01">
-    </div>
-    <div class="modal-field">
-      <label>Categoria</label>
-      <select id="modal-category"></select>
-    </div>
-    <div class="modal-field">
-      <label>Data</label>
-      <input type="date" id="modal-date">
-    </div>
-    <div class="modal-actions">
-      <button id="modal-cancel" style="background:var(--surface-2); border:1px solid var(--border); color:var(--text-secondary);">Annulla</button>
-      <button id="modal-save" style="background:var(--accent); color:#fff; border:none;">Salva</button>
-    </div>
-  </div>
-</div>
 
 </body>
 </html>
