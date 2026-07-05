@@ -256,9 +256,8 @@
     align-items: center;
     justify-content: center;
     padding: 1rem;
-    pointer-events: none;
   }
-  #modal-overlay.open { display: flex; pointer-events: all; }
+  #modal-overlay.open { display: flex; }
   #modal-box {
     background: var(--surface);
     border-radius: 16px;
@@ -555,6 +554,40 @@
   </main>
 </div>
 
+<!-- MODAL MODIFICA MOVIMENTO -->
+<div id="modal-overlay">
+  <div id="modal-box">
+    <h3><i class="ti ti-pencil" aria-hidden="true"></i> Modifica movimento</h3>
+    <div class="modal-field">
+      <label>Tipo</label>
+      <select id="modal-type">
+        <option value="expense">Uscita</option>
+        <option value="income">Entrata</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label>Descrizione</label>
+      <input type="text" id="modal-desc" placeholder="Descrizione">
+    </div>
+    <div class="modal-field">
+      <label>Importo €</label>
+      <input type="number" id="modal-amount" min="0" step="0.01">
+    </div>
+    <div class="modal-field">
+      <label>Categoria</label>
+      <select id="modal-category"></select>
+    </div>
+    <div class="modal-field">
+      <label>Data</label>
+      <input type="date" id="modal-date">
+    </div>
+    <div class="modal-actions">
+      <button id="modal-cancel" style="background:var(--surface-2); border:1px solid var(--border); color:var(--text-secondary);">Annulla</button>
+      <button id="modal-save" style="background:var(--accent); color:#fff; border:none;">Salva</button>
+    </div>
+  </div>
+</div>
+
 <script>
 (function(){
   // ====== FIREBASE CONFIG ======
@@ -702,20 +735,12 @@
   }
 
   async function saveTransactions() {
-    try {
-      await userDocRef().set({ transactions: state.transactions }, { merge: true });
-      document.getElementById('save-status').textContent = 'Salvato · ' + new Date().toLocaleTimeString('it-IT');
-    } catch(e) {
-      alert('Errore nel salvataggio: ' + e.message);
+    try { await userDocRef().update({ transactions: state.transactions }); } catch(e) {
       document.getElementById('save-status').textContent = 'Errore: ' + e.message;
     }
   }
-  async function saveBudgets() {
-    try { await userDocRef().set({ budgets: state.budgets }, { merge: true }); } catch(e) { alert('Errore budget: ' + e.message); }
-  }
-  async function saveReminders() {
-    try { await userDocRef().set({ reminders: state.reminders }, { merge: true }); } catch(e) { alert('Errore promemoria: ' + e.message); }
-  }
+  async function saveBudgets() { try { await userDocRef().update({ budgets: state.budgets }); } catch(e) {} }
+  async function saveReminders() { try { await userDocRef().update({ reminders: state.reminders }); } catch(e) {} }
 
   // ====== TABS ENTRATA/USCITA ======
   function setTab(type) {
@@ -971,25 +996,21 @@
   document.getElementById('modal-save').addEventListener('click', async () => {
     if (!editingId) return;
     const amount = parseFloat(document.getElementById('modal-amount').value);
-    if (!amount || amount <= 0) {
-      alert('Inserisci un importo valido.');
-      return;
-    }
+    if (!amount || amount <= 0) return;
     const idx = state.transactions.findIndex(t => t.id === editingId);
-    if (idx !== -1) {
-      state.transactions[idx] = {
-        ...state.transactions[idx],
-        type: document.getElementById('modal-type').value,
-        description: document.getElementById('modal-desc').value.trim(),
-        amount: Math.round(amount * 100) / 100,
-        category: document.getElementById('modal-category').value,
-        date: document.getElementById('modal-date').value
-      };
-    }
+    if (idx === -1) return;
+    state.transactions[idx] = {
+      ...state.transactions[idx],
+      type: document.getElementById('modal-type').value,
+      description: document.getElementById('modal-desc').value.trim(),
+      amount: Math.round(amount * 100) / 100,
+      category: document.getElementById('modal-category').value,
+      date: document.getElementById('modal-date').value
+    };
+    await saveTransactions();
     document.getElementById('modal-overlay').classList.remove('open');
     editingId = null;
     renderAll();
-    await saveTransactions();
   });
 
   document.getElementById('btn-add').addEventListener('click', async () => {
@@ -997,22 +1018,12 @@
     const amount = parseFloat(document.getElementById('inp-amount').value);
     const category = document.getElementById('inp-category').value;
     const date = document.getElementById('inp-date').value || todayISO();
-    if (!amount || amount <= 0) {
-      alert('Inserisci un importo valido.');
-      return;
-    }
-    state.transactions.push({
-      id: Date.now().toString(36) + Math.random().toString(36).slice(2,7),
-      type: state.currentType,
-      description: desc,
-      amount: Math.round(amount * 100) / 100,
-      category,
-      date
-    });
+    if (!amount || amount <= 0) return;
+    state.transactions.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2,7), type: state.currentType, description: desc, amount: Math.round(amount*100)/100, category, date });
     document.getElementById('inp-desc').value = '';
     document.getElementById('inp-amount').value = '';
-    renderAll();
     await saveTransactions();
+    renderAll();
   });
 
   // ====== IMPORT EXCEL ======
@@ -1210,39 +1221,6 @@
   document.getElementById('rem-date').value = todayISO();
 })();
 </script>
-<!-- MODAL MODIFICA MOVIMENTO -->
-<div id="modal-overlay">
-  <div id="modal-box">
-    <h3><i class="ti ti-pencil" aria-hidden="true"></i> Modifica movimento</h3>
-    <div class="modal-field">
-      <label>Tipo</label>
-      <select id="modal-type">
-        <option value="expense">Uscita</option>
-        <option value="income">Entrata</option>
-      </select>
-    </div>
-    <div class="modal-field">
-      <label>Descrizione</label>
-      <input type="text" id="modal-desc" placeholder="Descrizione">
-    </div>
-    <div class="modal-field">
-      <label>Importo €</label>
-      <input type="number" id="modal-amount" min="0" step="0.01">
-    </div>
-    <div class="modal-field">
-      <label>Categoria</label>
-      <select id="modal-category"></select>
-    </div>
-    <div class="modal-field">
-      <label>Data</label>
-      <input type="date" id="modal-date">
-    </div>
-    <div class="modal-actions">
-      <button id="modal-cancel" style="background:var(--surface-2); border:1px solid var(--border); color:var(--text-secondary);">Annulla</button>
-      <button id="modal-save" style="background:var(--accent); color:#fff; border:none;">Salva</button>
-    </div>
-  </div>
-</div>
 
 </body>
 </html>
