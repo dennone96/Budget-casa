@@ -231,11 +231,39 @@
     padding: 8px 12px; background: var(--surface-2); border-radius: var(--radius);
     margin-bottom: 6px;
   }
-  .tx-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .tx-left {
+    display: flex; align-items: center; gap: 10px; min-width: 0;
+    flex: 1; cursor: pointer; padding: 4px 0;
+    border-radius: var(--radius);
+    transition: opacity 0.15s;
+  }
+  .tx-left:hover { opacity: 0.75; }
   .tx-left p { margin: 0; }
-  .tx-left p:first-child { font-size: 14px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tx-left p:first-child { font-size: 14px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 340px; }
   .tx-left p:last-child { font-size: 12px; color: var(--text-secondary); }
   .tx-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+  /* Modal dettaglio movimento */
+  #detail-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45); backdrop-filter: blur(3px);
+    z-index: 500; align-items: center; justify-content: center;
+    padding: 1rem; pointer-events: none;
+  }
+  #detail-overlay.open { display: flex; pointer-events: all; }
+  #detail-box {
+    background: var(--surface); border-radius: 16px;
+    padding: 1.5rem; width: 100%; max-width: 460px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+    animation: modalIn 0.2s ease;
+  }
+  #detail-box h3 { margin: 0 0 1rem; font-size: 17px; font-weight: 700; }
+  .detail-field { margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+  .detail-field:last-of-type { border-bottom: none; }
+  .detail-field label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-secondary); margin-bottom: 3px; }
+  .detail-field p { margin: 0; font-size: 14px; font-weight: 500; word-break: break-word; }
+  .detail-actions { display: flex; gap: 8px; margin-top: 1.25rem; }
+  .detail-actions button { flex: 1; height: 42px; font-size: 14px; font-weight: 600; border-radius: 999px; }
   .btn-delete {
     border: none; background: none; padding: 0;
     height: 40px; width: 40px; cursor: pointer;
@@ -569,6 +597,34 @@
     </div>
 
   </main>
+</div>
+
+<!-- MODAL DETTAGLIO MOVIMENTO -->
+<div id="detail-overlay">
+  <div id="detail-box">
+    <h3 id="detail-title">Dettaglio movimento</h3>
+    <div class="detail-field">
+      <label>Descrizione completa</label>
+      <p id="detail-desc"></p>
+    </div>
+    <div class="detail-field">
+      <label>Importo</label>
+      <p id="detail-amount"></p>
+    </div>
+    <div class="detail-field">
+      <label>Categoria</label>
+      <p id="detail-category"></p>
+    </div>
+    <div class="detail-field">
+      <label>Data</label>
+      <p id="detail-date"></p>
+    </div>
+    <div class="detail-actions">
+      <button id="detail-close" style="background:var(--surface-2); border:1px solid var(--border); color:var(--text-secondary);">Chiudi</button>
+      <button id="detail-edit" style="background:var(--accent); color:#fff; border:none;"><i class="ti ti-pencil"></i> Modifica</button>
+      <button id="detail-delete" style="background:var(--danger); color:#fff; border:none;"><i class="ti ti-trash"></i> Elimina</button>
+    </div>
+  </div>
 </div>
 
 <!-- MODAL MODIFICA MOVIMENTO -->
@@ -930,6 +986,9 @@
   });
 
   // ====== MOVIMENTI ======
+  const ICON_MATITA = 'data:image/svg+xml;base64,77u/PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsbGVkYnk9InRpdGxlIGRlc2MiPgogIDx0aXRsZSBpZD0idGl0bGUiPlB1bHNhbnRlIG1vZGlmaWNhPC90aXRsZT4KICA8ZGVzYyBpZD0iZGVzYyI+SWNvbmEgcGVyIHB1bHNhbnRlIG1vZGlmaWNhIGNvbiB1bmEgbWF0aXRhIGJpYW5jYSBzdSBzZm9uZG8gYmx1LjwvZGVzYz4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYnV0dG9uR3JhZGllbnQiIHgxPSI5NiIgeTE9IjcyIiB4Mj0iNDE2IiB5Mj0iNDQwIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzJGODBFRCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNTU4QzAiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8ZmlsdGVyIGlkPSJzb2Z0U2hhZG93IiB4PSI0NCIgeT0iNDQiIHdpZHRoPSI0MjQiIGhlaWdodD0iNDI0IiBmaWx0ZXJVbml0cz0idXNlclNwYWNlT25Vc2UiIGNvbG9yLWludGVycG9sYXRpb24tZmlsdGVycz0ic1JHQiI+CiAgICAgIDxmZURyb3BTaGFkb3cgZHg9IjAiIGR5PSIxOCIgc3RkRGV2aWF0aW9uPSIxOCIgZmxvb2QtY29sb3I9IiMwQjJFNjMiIGZsb29kLW9wYWNpdHk9IjAuMjQiLz4KICAgIDwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB4PSI3MiIgeT0iNzIiIHdpZHRoPSIzNjgiIGhlaWdodD0iMzY4IiByeD0iOTIiIGZpbGw9InVybCgjYnV0dG9uR3JhZGllbnQpIiBmaWx0ZXI9InVybCgjc29mdFNoYWRvdykiLz4KICA8cGF0aCBkPSJNMzM4LjcgMTMwLjhjMTIuNi0xMi42IDMzLjEtMTIuNiA0NS43IDBsMTcuOCAxNy44YzEyLjYgMTIuNiAxMi42IDMzLjEgMCA0NS43bC0yNC41IDI0LjUtNjMuNS02My41IDI0LjUtMjQuNVoiIGZpbGw9IiNGRkZGRkYiLz4KICA8cGF0aCBkPSJNMjg3LjcgMTgxLjggMTUxLjggMzE3LjdjLTMuMiAzLjItNS40IDcuMi02LjUgMTEuNmwtMTcuNSA2OS45Yy0yLjUgOS45IDYuNSAxOC45IDE2LjQgMTYuNGw2OS45LTE3LjVjNC40LTEuMSA4LjQtMy4zIDExLjYtNi41bDEzNS45LTEzNS45LTczLjktNzMuOVoiIGZpbGw9IiNGRkZGRkYiLz4KICA8cGF0aCBkPSJNMjg3LjcgMTgxLjggMzYxLjYgMjU1LjcgMzM4IDI3OS4zIDI2NC4xIDIwNS40bDIzLjYtMjMuNloiIGZpbGw9IiNEREVCRkYiLz4KICA8cGF0aCBkPSJNMTUxLjggMzE3LjdjLTMuMiAzLjItNS40IDcuMi02LjUgMTEuNmwtMTAuMyA0MSA0MC45IDQwLjkgNDAuOS0xMC4zYzQuNC0xLjEgOC40LTMuMyAxMS42LTYuNWwtNzYuNi03Ni43WiIgZmlsbD0iI0VBRjNGRiIvPgogIDxwYXRoIGQ9Ik0xMzUgMzcwLjMgMTI3LjggMzk5LjJjLTIuNSA5LjkgNi41IDE4LjkgMTYuNCAxNi40bDI4LjktNy4yTDEzNSAzNzAuM1oiIGZpbGw9IiMxMDJBNDMiLz4KPC9zdmc+DQo=';
+  const ICON_CESTINO = 'data:image/svg+xml;base64,77u/PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsbGVkYnk9InRpdGxlIGRlc2MiPgogIDx0aXRsZSBpZD0idGl0bGUiPlB1bHNhbnRlIGVsaW1pbmE8L3RpdGxlPgogIDxkZXNjIGlkPSJkZXNjIj5JY29uYSBwZXIgcHVsc2FudGUgZWxpbWluYSBjb24gdW4gY2VzdGlubyBiaWFuY28gc3Ugc2ZvbmRvIHJvc3NvLjwvZGVzYz4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYnV0dG9uR3JhZGllbnQiIHgxPSI5NiIgeTE9IjcyIiB4Mj0iNDE2IiB5Mj0iNDQwIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0YwNDQzOCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNCNDIzMTgiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8ZmlsdGVyIGlkPSJzb2Z0U2hhZG93IiB4PSI0NCIgeT0iNDQiIHdpZHRoPSI0MjQiIGhlaWdodD0iNDI0IiBmaWx0ZXJVbml0cz0idXNlclNwYWNlT25Vc2UiIGNvbG9yLWludGVycG9sYXRpb24tZmlsdGVycz0ic1JHQiI+CiAgICAgIDxmZURyb3BTaGFkb3cgZHg9IjAiIGR5PSIxOCIgc3RkRGV2aWF0aW9uPSIxOCIgZmxvb2QtY29sb3I9IiM2NTE2MEYiIGZsb29kLW9wYWNpdHk9IjAuMjQiLz4KICAgIDwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB4PSI3MiIgeT0iNzIiIHdpZHRoPSIzNjgiIGhlaWdodD0iMzY4IiByeD0iOTIiIGZpbGw9InVybCgjYnV0dG9uR3JhZGllbnQpIiBmaWx0ZXI9InVybCgjc29mdFNoYWRvdykiLz4KICA8cGF0aCBkPSJNMjAyIDE1NGMwLTE3LjcgMTQuMy0zMiAzMi0zMmg0NGMxNy43IDAgMzIgMTQuMyAzMiAzMnYxNGg1MmMxMSAwIDIwIDkgMjAgMjBzLTkgMjAtMjAgMjBIMTUwYy0xMSAwLTIwLTktMjAtMjBzOS0yMCAyMC0yMGg1MnYtMTRabTQwIDE0aDI4di02YzAtMy4zLTIuNy02LTYtNmgtMTZjLTMuMyAwLTYgMi43LTYgNnY2WiIgZmlsbD0iI0ZGRkZGRiIvPgogIDxwYXRoIGQ9Ik0xNzAgMjM4Yy0xLjEtMTMuOCA5LjgtMjUuNiAyMy42LTI1LjZoMTI0LjhjMTMuOCAwIDI0LjcgMTEuOCAyMy42IDI1LjZsLTEyLjIgMTQ0LjljLTEuNSAxNy41LTE2LjEgMzEuMS0zMy43IDMxLjFoLTgwLjJjLTE3LjYgMC0zMi4yLTEzLjYtMzMuNy0zMS4xTDE3MCAyMzhaIiBmaWxsPSIjRkZGRkZGIi8+CiAgPHBhdGggZD0iTTIyMiAyNTdjOC44IDAgMTYgNy4yIDE2IDE2djg2YzAgOC44LTcuMiAxNi0xNiAxNnMtMTYtNy4yLTE2LTE2di04NmMwLTguOCA3LjItMTYgMTYtMTZabTY4IDBjOC44IDAgMTYgNy4yIDE2IDE2djg2YzAgOC44LTcuMiAxNi0xNiAxNnMtMTYtNy4yLTE2LTE2di04NmMwLTguOCA3LjItMTYgMTYtMTZaIiBmaWxsPSIjRkJENUQxIi8+CiAgPHBhdGggZD0iTTE3OS40IDI2MGgxNTMuMmwtMi4yIDI2SDE4MS42bC0yLjItMjZaIiBmaWxsPSIjRkVFNEUyIi8+Cjwvc3ZnPg0K';
+
   function updateTransactionsList() {
     const month = document.getElementById('filter-month').value || monthKey(todayISO());
     const mt = state.transactions.filter(t => monthKey(t.date) === month).sort((a,b) => b.date.localeCompare(a.date));
@@ -941,32 +1000,81 @@
       row.className = 'tx-row';
       const isIncome = t.type === 'income';
       row.innerHTML = `
-        <div class="tx-left">
-          <i class="ti ti-${isIncome?'arrow-up':'arrow-down'}" aria-hidden="true" style="color:${isIncome?'var(--success)':'var(--danger)'}; font-size:18px;"></i>
-          <div>
+        <div class="tx-left" data-id="${t.id}" title="Tocca per i dettagli" role="button" tabindex="0">
+          <i class="ti ti-${isIncome?'arrow-up':'arrow-down'}" aria-hidden="true" style="color:${isIncome?'var(--success)':'var(--danger)'}; font-size:18px; flex-shrink:0;"></i>
+          <div style="min-width:0; overflow:hidden;">
             <p>${escapeHtml(t.description||t.category)}</p>
             <p>${escapeHtml(t.category)} · ${new Date(t.date).toLocaleDateString('it-IT')}</p>
           </div>
         </div>
         <div class="tx-right">
-          <span style="font-size:14px; font-weight:600; color:${isIncome?'var(--success)':'var(--danger)'};">${isIncome?'+':'-'}${fmtEUR(t.amount)}</span>
-          <button data-id="${t.id}" class="btn-edit-tx" aria-label="Modifica movimento"><img src="data:image/svg+xml;base64,77u/PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsbGVkYnk9InRpdGxlIGRlc2MiPgogIDx0aXRsZSBpZD0idGl0bGUiPlB1bHNhbnRlIG1vZGlmaWNhPC90aXRsZT4KICA8ZGVzYyBpZD0iZGVzYyI+SWNvbmEgcGVyIHB1bHNhbnRlIG1vZGlmaWNhIGNvbiB1bmEgbWF0aXRhIGJpYW5jYSBzdSBzZm9uZG8gYmx1LjwvZGVzYz4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYnV0dG9uR3JhZGllbnQiIHgxPSI5NiIgeTE9IjcyIiB4Mj0iNDE2IiB5Mj0iNDQwIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzJGODBFRCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNTU4QzAiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8ZmlsdGVyIGlkPSJzb2Z0U2hhZG93IiB4PSI0NCIgeT0iNDQiIHdpZHRoPSI0MjQiIGhlaWdodD0iNDI0IiBmaWx0ZXJVbml0cz0idXNlclNwYWNlT25Vc2UiIGNvbG9yLWludGVycG9sYXRpb24tZmlsdGVycz0ic1JHQiI+CiAgICAgIDxmZURyb3BTaGFkb3cgZHg9IjAiIGR5PSIxOCIgc3RkRGV2aWF0aW9uPSIxOCIgZmxvb2QtY29sb3I9IiMwQjJFNjMiIGZsb29kLW9wYWNpdHk9IjAuMjQiLz4KICAgIDwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB4PSI3MiIgeT0iNzIiIHdpZHRoPSIzNjgiIGhlaWdodD0iMzY4IiByeD0iOTIiIGZpbGw9InVybCgjYnV0dG9uR3JhZGllbnQpIiBmaWx0ZXI9InVybCgjc29mdFNoYWRvdykiLz4KICA8cGF0aCBkPSJNMzM4LjcgMTMwLjhjMTIuNi0xMi42IDMzLjEtMTIuNiA0NS43IDBsMTcuOCAxNy44YzEyLjYgMTIuNiAxMi42IDMzLjEgMCA0NS43bC0yNC41IDI0LjUtNjMuNS02My41IDI0LjUtMjQuNVoiIGZpbGw9IiNGRkZGRkYiLz4KICA8cGF0aCBkPSJNMjg3LjcgMTgxLjggMTUxLjggMzE3LjdjLTMuMiAzLjItNS40IDcuMi02LjUgMTEuNmwtMTcuNSA2OS45Yy0yLjUgOS45IDYuNSAxOC45IDE2LjQgMTYuNGw2OS45LTE3LjVjNC40LTEuMSA4LjQtMy4zIDExLjYtNi41bDEzNS45LTEzNS45LTczLjktNzMuOVoiIGZpbGw9IiNGRkZGRkYiLz4KICA8cGF0aCBkPSJNMjg3LjcgMTgxLjggMzYxLjYgMjU1LjcgMzM4IDI3OS4zIDI2NC4xIDIwNS40bDIzLjYtMjMuNloiIGZpbGw9IiNEREVCRkYiLz4KICA8cGF0aCBkPSJNMTUxLjggMzE3LjdjLTMuMiAzLjItNS40IDcuMi02LjUgMTEuNmwtMTAuMyA0MSA0MC45IDQwLjkgNDAuOS0xMC4zYzQuNC0xLjEgOC40LTMuMyAxMS42LTYuNWwtNzYuNi03Ni43WiIgZmlsbD0iI0VBRjNGRiIvPgogIDxwYXRoIGQ9Ik0xMzUgMzcwLjMgMTI3LjggMzk5LjJjLTIuNSA5LjkgNi41IDE4LjkgMTYuNCAxNi40bDI4LjktNy4yTDEzNSAzNzAuM1oiIGZpbGw9IiMxMDJBNDMiLz4KPC9zdmc+DQo=" class="icon-matita" alt="Modifica"></button>
-          <button data-id="${t.id}" class="btn-delete" aria-label="Elimina movimento"><img src="data:image/svg+xml;base64,77u/PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsbGVkYnk9InRpdGxlIGRlc2MiPgogIDx0aXRsZSBpZD0idGl0bGUiPlB1bHNhbnRlIGVsaW1pbmE8L3RpdGxlPgogIDxkZXNjIGlkPSJkZXNjIj5JY29uYSBwZXIgcHVsc2FudGUgZWxpbWluYSBjb24gdW4gY2VzdGlubyBiaWFuY28gc3Ugc2ZvbmRvIHJvc3NvLjwvZGVzYz4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYnV0dG9uR3JhZGllbnQiIHgxPSI5NiIgeTE9IjcyIiB4Mj0iNDE2IiB5Mj0iNDQwIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0YwNDQzOCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNCNDIzMTgiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8ZmlsdGVyIGlkPSJzb2Z0U2hhZG93IiB4PSI0NCIgeT0iNDQiIHdpZHRoPSI0MjQiIGhlaWdodD0iNDI0IiBmaWx0ZXJVbml0cz0idXNlclNwYWNlT25Vc2UiIGNvbG9yLWludGVycG9sYXRpb24tZmlsdGVycz0ic1JHQiI+CiAgICAgIDxmZURyb3BTaGFkb3cgZHg9IjAiIGR5PSIxOCIgc3RkRGV2aWF0aW9uPSIxOCIgZmxvb2QtY29sb3I9IiM2NTE2MEYiIGZsb29kLW9wYWNpdHk9IjAuMjQiLz4KICAgIDwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB4PSI3MiIgeT0iNzIiIHdpZHRoPSIzNjgiIGhlaWdodD0iMzY4IiByeD0iOTIiIGZpbGw9InVybCgjYnV0dG9uR3JhZGllbnQpIiBmaWx0ZXI9InVybCgjc29mdFNoYWRvdykiLz4KICA8cGF0aCBkPSJNMjAyIDE1NGMwLTE3LjcgMTQuMy0zMiAzMi0zMmg0NGMxNy43IDAgMzIgMTQuMyAzMiAzMnYxNGg1MmMxMSAwIDIwIDkgMjAgMjBzLTkgMjAtMjAgMjBIMTUwYy0xMSAwLTIwLTktMjAtMjBzOS0yMCAyMC0yMGg1MnYtMTRabTQwIDE0aDI4di02YzAtMy4zLTIuNy02LTYtNmgtMTZjLTMuMyAwLTYgMi43LTYgNnY2WiIgZmlsbD0iI0ZGRkZGRiIvPgogIDxwYXRoIGQ9Ik0xNzAgMjM4Yy0xLjEtMTMuOCA5LjgtMjUuNiAyMy42LTI1LjZoMTI0LjhjMTMuOCAwIDI0LjcgMTEuOCAyMy42IDI1LjZsLTEyLjIgMTQ0LjljLTEuNSAxNy41LTE2LjEgMzEuMS0zMy43IDMxLjFoLTgwLjJjLTE3LjYgMC0zMi4yLTEzLjYtMzMuNy0zMS4xTDE3MCAyMzhaIiBmaWxsPSIjRkZGRkZGIi8+CiAgPHBhdGggZD0iTTIyMiAyNTdjOC44IDAgMTYgNy4yIDE2IDE2djg2YzAgOC44LTcuMiAxNi0xNiAxNnMtMTYtNy4yLTE2LTE2di04NmMwLTguOCA3LjItMTYgMTYtMTZabTY4IDBjOC44IDAgMTYgNy4yIDE2IDE2djg2YzAgOC44LTcuMiAxNi0xNiAxNnMtMTYtNy4yLTE2LTE2di04NmMwLTguOCA3LjItMTYgMTYtMTZaIiBmaWxsPSIjRkJENUQxIi8+CiAgPHBhdGggZD0iTTE3OS40IDI2MGgxNTMuMmwtMi4yIDI2SDE4MS42bC0yLjItMjZaIiBmaWxsPSIjRkVFNEUyIi8+Cjwvc3ZnPg0K" class="icon-cestino" alt="Elimina"></button>
+          <span style="font-size:14px; font-weight:600; color:${isIncome?'var(--success)':'var(--danger)'}; white-space:nowrap;">${isIncome?'+':'-'}${fmtEUR(t.amount)}</span>
+          <button data-id="${t.id}" class="btn-edit-tx" aria-label="Modifica movimento"><img src="${ICON_MATITA}" class="icon-matita" alt="Modifica"></button>
+          <button data-id="${t.id}" class="btn-delete" aria-label="Elimina movimento"><img src="${ICON_CESTINO}" class="icon-cestino" alt="Elimina"></button>
         </div>`;
       list.appendChild(row);
     });
+    list.querySelectorAll('.tx-left').forEach(el => {
+      el.addEventListener('click', () => openDetailModal(el.getAttribute('data-id')));
+    });
     list.querySelectorAll('.btn-delete').forEach(btn => {
-      btn.addEventListener('click', async () => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
         if (!confirm('Eliminare questo movimento?')) return;
         state.transactions = state.transactions.filter(t => t.id !== btn.getAttribute('data-id'));
-        await saveTransactions();
         renderAll();
+        await saveTransactions();
       });
     });
     list.querySelectorAll('.btn-edit-tx').forEach(btn => {
-      btn.addEventListener('click', () => openEditModal(btn.getAttribute('data-id')));
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openEditModal(btn.getAttribute('data-id'));
+      });
     });
   }
+
+  
+  // ====== MODAL DETTAGLIO ======
+  let detailId = null;
+
+  function openDetailModal(id) {
+    const t = state.transactions.find(t => t.id === id);
+    if (!t) return;
+    detailId = id;
+    const isIncome = t.type === 'income';
+    document.getElementById('detail-title').textContent = isIncome ? '📈 Entrata' : '📉 Uscita';
+    document.getElementById('detail-desc').textContent = t.description || t.category || '—';
+    document.getElementById('detail-amount').innerHTML = `<span style="font-size:18px; font-weight:700; color:${isIncome?'var(--success)':'var(--danger)'};">${isIncome?'+':'-'}${fmtEUR(t.amount)}</span>`;
+    document.getElementById('detail-category').textContent = t.category || '—';
+    document.getElementById('detail-date').textContent = new Date(t.date).toLocaleDateString('it-IT', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+    document.getElementById('detail-overlay').classList.add('open');
+  }
+
+  document.getElementById('detail-close').addEventListener('click', () => {
+    document.getElementById('detail-overlay').classList.remove('open');
+    detailId = null;
+  });
+  document.getElementById('detail-overlay').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('detail-overlay')) {
+      document.getElementById('detail-overlay').classList.remove('open');
+      detailId = null;
+    }
+  });
+  document.getElementById('detail-edit').addEventListener('click', () => {
+    const id = detailId;
+    document.getElementById('detail-overlay').classList.remove('open');
+    detailId = null;
+    openEditModal(id);
+  });
+  document.getElementById('detail-delete').addEventListener('click', async () => {
+    if (!confirm('Eliminare questo movimento?')) return;
+    state.transactions = state.transactions.filter(t => t.id !== detailId);
+    document.getElementById('detail-overlay').classList.remove('open');
+    detailId = null;
+    renderAll();
+    await saveTransactions();
+  });
 
   // ====== MODAL MODIFICA ======
   let editingId = null;
