@@ -179,16 +179,98 @@
   h1 { font-size: 22px; font-weight: 600; margin: 0 0 1.25rem; }
   h2 { font-size: 17px; font-weight: 600; margin: 0; }
   h3 { font-size: 15px; font-weight: 600; margin: 0 0 0.75rem; }
-  .stats-row { display: flex; gap: 12px; margin-bottom: 1.25rem; flex-wrap: wrap; }
+  .home-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+  }
+  .home-header h1 { margin: 0; }
+  .home-date-filter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .home-date-field {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .home-date-field label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+  }
+  .home-date-field input {
+    width: 145px;
+  }
+  .home-date-field select {
+    min-width: 130px;
+  }
+  .filter-custom-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 38px;
+    padding: 0 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    font-size: 13px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .filter-custom-toggle input {
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    margin: 0;
+  }
+  .custom-date-range {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #btn-apply-range {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  #filter-label {
+    width: 100%;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin: 0;
+    text-align: right;
+  }
+  @media (max-width: 680px) {
+    .home-header { align-items: stretch; }
+    .home-date-filter { justify-content: flex-start; width: 100%; }
+    .home-date-field { flex: 1 1 130px; }
+    .home-date-field input,
+    .home-date-field select { width: 100%; }
+    .filter-custom-toggle { flex: 1 1 100%; justify-content: center; }
+    .custom-date-range { width: 100%; }
+    #btn-apply-range { flex: 1 1 100%; justify-content: center; }
+    #filter-label { text-align: left; }
+  }
+  .stats-row { display: flex; gap: 10px; margin-bottom: 1.25rem; flex-wrap: wrap; }
   .stat-card {
     background: var(--surface-2);
     border-radius: var(--radius);
-    padding: 1rem;
+    padding: 0.85rem 1rem;
     flex: 1;
-    min-width: 140px;
+    min-width: 120px;
   }
   .stat-card p:first-child { font-size: 13px; color: var(--text-secondary); margin: 0 0 4px; }
-  .stat-card p:last-child { font-size: 22px; font-weight: 600; margin: 0; }
+  .stat-card p:last-child { font-size: 20px; font-weight: 600; margin: 0; }
   .panel {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -336,19 +418,6 @@
   #import-actions { display: flex; gap: 8px; margin-top: 10px; }
   .import-table-wrap { max-height: 280px; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--radius); }
 
-  /* Filtro date preset */
-  .date-presets { display: flex; gap: 6px; flex-wrap: wrap; }
-  .preset-btn {
-    height: 30px; font-size: 12px; font-weight: 600;
-    border-radius: 999px; padding: 0 12px;
-    border: 1px solid var(--border);
-    background: var(--surface-2); color: var(--text-secondary);
-  }
-  .preset-btn.active {
-    background: var(--accent); color: #fff !important; border-color: var(--accent);
-  }
-  #custom-range { display: flex; }
-
   /* Badge source */
   .badge-source {
     display: inline-block;
@@ -465,40 +534,49 @@
 
     <!-- ══ HOME ══ -->
     <div id="page-home" class="page active">
-      <h1>Home</h1>
-
-      <!-- FILTRO INTERVALLO DATE -->
-      <div class="panel" style="margin-bottom:1.25rem; padding: 0.9rem 1.25rem;">
-        <div class="date-presets">
-          <button class="preset-btn active" data-preset="month">Questo mese</button>
-          <button class="preset-btn" data-preset="lastmonth">Mese scorso</button>
-          <button class="preset-btn" data-preset="30d">Ultimi 30gg</button>
-          <button class="preset-btn" data-preset="year">Quest'anno</button>
-          <button class="preset-btn" data-preset="custom">Personalizzato</button>
+      <div class="home-header">
+        <h1>Home</h1>
+        <div class="home-date-filter" aria-label="Filtro periodo">
+          <div class="home-date-field">
+            <label for="filter-month">Mese</label>
+            <select id="filter-month"></select>
+          </div>
+          <div class="home-date-field">
+            <label for="filter-year">Anno</label>
+            <select id="filter-year"></select>
+          </div>
+          <label class="filter-custom-toggle" for="filter-custom-toggle">
+            <input type="checkbox" id="filter-custom-toggle">
+            Date personalizzate
+          </label>
+          <div id="custom-range" class="custom-date-range hidden">
+            <div class="home-date-field">
+              <label for="filter-from">Dal</label>
+              <input type="date" id="filter-from">
+            </div>
+            <div class="home-date-field">
+              <label for="filter-to">Al</label>
+              <input type="date" id="filter-to">
+            </div>
+          </div>
+          <button id="btn-apply-range" type="button"><i class="ti ti-filter" aria-hidden="true"></i> Filtra</button>
+          <p id="filter-label"></p>
         </div>
-        <div id="custom-range" class="hidden" style="display:none; margin-top:10px; gap:8px; align-items:center; flex-wrap:wrap;">
-          <label style="font-size:13px; color:var(--text-secondary); flex-shrink:0;">Dal</label>
-          <input type="date" id="filter-from" style="flex:1; min-width:130px;">
-          <label style="font-size:13px; color:var(--text-secondary); flex-shrink:0;">Al</label>
-          <input type="date" id="filter-to" style="flex:1; min-width:130px;">
-          <button id="btn-apply-range" style="white-space:nowrap; height:38px; padding:0 14px;">Applica</button>
-        </div>
-        <p id="filter-label" style="font-size:12px; color:var(--text-muted); margin:6px 0 0;"></p>
       </div>
 
       <!-- STATISTICHE -->
       <div class="stats-row">
         <div class="stat-card">
           <p id="label-income">Entrate</p>
-          <p style="color: var(--success);" id="stat-income">€0</p>
+          <p style="color: var(--success);" id="stat-income">0,00 €</p>
         </div>
         <div class="stat-card">
           <p id="label-expense">Uscite</p>
-          <p style="color: var(--danger);" id="stat-expense">€0</p>
+          <p style="color: var(--danger);" id="stat-expense">0,00 €</p>
         </div>
         <div class="stat-card">
           <p>Saldo totale</p>
-          <p id="stat-balance">€0</p>
+          <p id="stat-balance">0,00 €</p>
         </div>
       </div>
 
@@ -761,14 +839,23 @@
   let unsubscribeSnapshot = null;
   let chartCategory = null;
   let chartYear = null;
+  let activeSourceFilter = 'all';
 
-  const todayISO = () => new Date().toISOString().slice(0,10);
+  const todayISO = () => fmtDate(new Date());
   const monthKey = (d) => d.slice(0,7);
   const monthLabel = (k) => {
     const [y,m] = k.split('-');
     return new Date(+y, +m-1, 1).toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
   };
-  const fmtEUR = (n) => '€' + n.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  function amountValue(value) {
+    if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
+    let s = String(value || '').trim().replace(/[\u20ac\s]/g, '');
+    if (s.includes(',') && s.includes('.')) s = s.replace(/\./g, '').replace(',', '.');
+    else if (s.includes(',')) s = s.replace(',', '.');
+    const n = parseFloat(s);
+    return Number.isFinite(n) ? n : 0;
+  }
+  const fmtEUR = (n) => amountValue(n).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: true }) + ' \u20ac';
   const CAT_COLORS = ['#378ADD','#1D9E75','#D85A30','#D4537E','#7F77DD','#BA7517','#888780','#639922'];
 
   // ====== NAVIGAZIONE ======
@@ -902,14 +989,18 @@
   document.getElementById('tab-income').addEventListener('click', () => setTab('income'));
 
   // ====== STATISTICHE ======
+  function matchesSourceFilter(t) {
+    return activeSourceFilter === 'all' || (t.source || 'cash') === activeSourceFilter;
+  }
+
   function updateStats() {
     const from = filterFrom || todayISO().slice(0,7) + '-01';
     const to   = filterTo   || todayISO();
-    const mt = state.transactions.filter(t => t.date >= from && t.date <= to);
-    const income  = mt.filter(t => t.type === 'income').reduce((s,t) => s + t.amount, 0);
-    const expense = mt.filter(t => t.type === 'expense').reduce((s,t) => s + t.amount, 0);
-    const ti = state.transactions.filter(t => t.type === 'income').reduce((s,t) => s + t.amount, 0);
-    const te = state.transactions.filter(t => t.type === 'expense').reduce((s,t) => s + t.amount, 0);
+    const mt = state.transactions.filter(t => t.date >= from && t.date <= to && matchesSourceFilter(t));
+    const income  = mt.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0);
+    const expense = mt.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0);
+    const ti = mt.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0);
+    const te = mt.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0);
     document.getElementById('stat-income').textContent  = fmtEUR(income);
     document.getElementById('stat-expense').textContent = fmtEUR(expense);
     document.getElementById('stat-balance').textContent = fmtEUR(ti - te);
@@ -921,57 +1012,69 @@
   // ====== FILTRO DATE RANGE ======
   let filterFrom = null;
   let filterTo = null;
+  let filterMode = 'month';
 
-  function getMonthStart(offset = 0) {
-    const d = new Date();
-    return new Date(d.getFullYear(), d.getMonth() + offset, 1);
+  const FILTER_MONTHS = [
+    'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
+    'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'
+  ];
+
+  function getMonthEnd(year, month) {
+    return new Date(year, month, 0);
   }
-  function getMonthEnd(offset = 0) {
-    const d = new Date();
-    return new Date(d.getFullYear(), d.getMonth() + offset + 1, 0);
+  function fmtDate(d) {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   }
-  function fmtDate(d) { return d.toISOString().slice(0,10); }
   function fmtDateLabel(d) { return d.toLocaleDateString('it-IT', { day:'2-digit', month:'long', year:'numeric' }); }
+  function currentRangeLabel() {
+    if (!filterFrom || !filterTo) return '';
+    return `${fmtDateLabel(new Date(filterFrom + 'T00:00:00'))} - ${fmtDateLabel(new Date(filterTo + 'T00:00:00'))}`;
+  }
 
-  function applyPreset(preset) {
-    const today = new Date();
-    document.querySelectorAll('.preset-btn').forEach(b => b.classList.toggle('active', b.dataset.preset === preset));
-    const custom = document.getElementById('custom-range');
-    if (preset === 'custom') {
-      custom.style.display = 'flex';
-      return; // non applicare ancora, aspetta "Applica"
-    }
-    custom.style.display = 'none';
-    if (preset === 'month') {
-      filterFrom = fmtDate(getMonthStart(0));
-      filterTo   = fmtDate(getMonthEnd(0));
-    } else if (preset === 'lastmonth') {
-      filterFrom = fmtDate(getMonthStart(-1));
-      filterTo   = fmtDate(getMonthEnd(-1));
-    } else if (preset === '30d') {
-      const from = new Date(today); from.setDate(today.getDate() - 29);
-      filterFrom = fmtDate(from);
-      filterTo   = fmtDate(today);
-    } else if (preset === 'year') {
-      filterFrom = `${today.getFullYear()}-01-01`;
-      filterTo   = `${today.getFullYear()}-12-31`;
-    }
+  function populateHomePeriodFilters() {
+    const monthSel = document.getElementById('filter-month');
+    const yearSel = document.getElementById('filter-year');
+    if (!monthSel || !yearSel) return;
+
+    const prevMonth = monthSel.value || String(new Date().getMonth() + 1);
+    const prevYear = yearSel.value || String(new Date().getFullYear());
+
+    monthSel.innerHTML = '';
+    FILTER_MONTHS.forEach((name, idx) => {
+      const opt = document.createElement('option');
+      opt.value = String(idx + 1);
+      opt.textContent = name;
+      monthSel.appendChild(opt);
+    });
+
+    const years = new Set(state.transactions.map(t => String(t.date || '').slice(0,4)).filter(Boolean));
+    years.add(String(new Date().getFullYear()));
+    yearSel.innerHTML = '';
+    Array.from(years).sort().reverse().forEach(year => {
+      const opt = document.createElement('option');
+      opt.value = year;
+      opt.textContent = year;
+      yearSel.appendChild(opt);
+    });
+
+    monthSel.value = [...monthSel.options].some(o => o.value === prevMonth) ? prevMonth : String(new Date().getMonth() + 1);
+    yearSel.value = [...yearSel.options].some(o => o.value === prevYear) ? prevYear : String(new Date().getFullYear());
+  }
+
+  function applyMonthYearFilter() {
+    filterMode = 'month';
+    const month = parseInt(document.getElementById('filter-month').value, 10);
+    const year = parseInt(document.getElementById('filter-year').value, 10);
+    if (!month || !year) return;
+    filterFrom = `${year}-${String(month).padStart(2,'0')}-01`;
+    filterTo = fmtDate(getMonthEnd(year, month));
     updateFilterLabel();
     updateStats();
     updateTransactionsList();
   }
 
-  function updateFilterLabel() {
-    const el = document.getElementById('filter-label');
-    if (!el || !filterFrom || !filterTo) return;
-    el.textContent = `Dal ${fmtDateLabel(new Date(filterFrom + 'T00:00:00'))} al ${fmtDateLabel(new Date(filterTo + 'T00:00:00'))}`;
-  }
-
-  document.querySelectorAll('.preset-btn').forEach(btn => {
-    btn.addEventListener('click', () => applyPreset(btn.dataset.preset));
-  });
-
-  document.getElementById('btn-apply-range').addEventListener('click', () => {
+  function applyCustomRangeFilter() {
+    filterMode = 'custom';
     const from = document.getElementById('filter-from').value;
     const to   = document.getElementById('filter-to').value;
     if (!from || !to || from > to) { alert('Seleziona un intervallo valido.'); return; }
@@ -980,9 +1083,53 @@
     updateFilterLabel();
     updateStats();
     updateTransactionsList();
+  }
+
+  function applyPreset(preset) {
+    const today = new Date();
+    if (preset === 'month') {
+      document.getElementById('filter-month').value = String(today.getMonth() + 1);
+      document.getElementById('filter-year').value = String(today.getFullYear());
+      applyMonthYearFilter();
+    } else if (preset === 'year') {
+      filterFrom = `${today.getFullYear()}-01-01`;
+      filterTo   = `${today.getFullYear()}-12-31`;
+      updateFilterLabel();
+      updateStats();
+      updateTransactionsList();
+    }
+  }
+
+  function updateFilterLabel() {
+    const el = document.getElementById('filter-label');
+    if (!el || !filterFrom || !filterTo) return;
+    if (filterMode === 'month') {
+      const month = document.getElementById('filter-month')?.selectedOptions[0]?.textContent || '';
+      const year = document.getElementById('filter-year')?.value || '';
+      el.textContent = `${month} ${year}`.trim();
+    } else {
+      el.textContent = `Dal ${fmtDateLabel(new Date(filterFrom + 'T00:00:00'))} al ${fmtDateLabel(new Date(filterTo + 'T00:00:00'))}`;
+    }
+  }
+
+  document.getElementById('btn-apply-range').addEventListener('click', () => {
+    if (document.getElementById('filter-custom-toggle').checked) applyCustomRangeFilter();
+    else applyMonthYearFilter();
+  });
+
+  document.getElementById('filter-custom-toggle').addEventListener('change', (e) => {
+    const customRange = document.getElementById('custom-range');
+    customRange.classList.toggle('hidden', !e.target.checked);
+    if (e.target.checked) {
+      document.getElementById('filter-from').value = filterFrom;
+      document.getElementById('filter-to').value = filterTo;
+    } else {
+      applyMonthYearFilter();
+    }
   });
 
   // Inizializza con "Questo mese"
+  populateHomePeriodFilters();
   applyPreset('month');
 
   // ====== GRAFICO CATEGORIE ======
@@ -1010,7 +1157,7 @@
       options: {
         responsive: true, maintainAspectRatio: false,
         plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmtEUR(ctx.parsed.y) } } },
-        scales: { y: { beginAtZero: true, ticks: { callback: v => '€' + v } }, x: { ticks: { autoSkip: false, maxRotation: 30 } } }
+        scales: { y: { beginAtZero: true, ticks: { callback: v => fmtEUR(v) } }, x: { ticks: { autoSkip: false, maxRotation: 30 } } }
       }
     });
   }
@@ -1019,8 +1166,8 @@
   function updateChartYear() {
     const year = document.getElementById('chart-year').value || new Date().getFullYear().toString();
     const months = Array.from({length:12}, (_,i) => `${year}-${String(i+1).padStart(2,'0')}`);
-    const incomes = months.map(m => state.transactions.filter(t => t.type==='income' && monthKey(t.date)===m).reduce((s,t)=>s+t.amount,0));
-    const expenses = months.map(m => state.transactions.filter(t => t.type==='expense' && monthKey(t.date)===m).reduce((s,t)=>s+t.amount,0));
+    const incomes = months.map(m => state.transactions.filter(t => t.type==='income' && monthKey(t.date)===m).reduce((s,t)=>s+amountValue(t.amount),0));
+    const expenses = months.map(m => state.transactions.filter(t => t.type==='expense' && monthKey(t.date)===m).reduce((s,t)=>s+amountValue(t.amount),0));
     const labels = months.map(m => new Date(+year, +m.split('-')[1]-1, 1).toLocaleDateString('it-IT',{month:'short'}));
     if (chartYear) chartYear.destroy();
     chartYear = new Chart(document.getElementById('yearChart'), {
@@ -1035,7 +1182,7 @@
       options: {
         responsive: true, maintainAspectRatio: false,
         plugins: { tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + fmtEUR(ctx.parsed.y) } } },
-        scales: { y: { beginAtZero: true, ticks: { callback: v => '€'+v } }, x: { stacked: false } }
+        scales: { y: { beginAtZero: true, ticks: { callback: v => fmtEUR(v) } }, x: { stacked: false } }
       }
     });
   }
@@ -1091,14 +1238,13 @@
   const ICON_MATITA = 'data:image/svg+xml;base64,77u/PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsbGVkYnk9InRpdGxlIGRlc2MiPgogIDx0aXRsZSBpZD0idGl0bGUiPlB1bHNhbnRlIG1vZGlmaWNhPC90aXRsZT4KICA8ZGVzYyBpZD0iZGVzYyI+SWNvbmEgcGVyIHB1bHNhbnRlIG1vZGlmaWNhIGNvbiB1bmEgbWF0aXRhIGJpYW5jYSBzdSBzZm9uZG8gYmx1LjwvZGVzYz4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYnV0dG9uR3JhZGllbnQiIHgxPSI5NiIgeTE9IjcyIiB4Mj0iNDE2IiB5Mj0iNDQwIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzJGODBFRCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNTU4QzAiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8ZmlsdGVyIGlkPSJzb2Z0U2hhZG93IiB4PSI0NCIgeT0iNDQiIHdpZHRoPSI0MjQiIGhlaWdodD0iNDI0IiBmaWx0ZXJVbml0cz0idXNlclNwYWNlT25Vc2UiIGNvbG9yLWludGVycG9sYXRpb24tZmlsdGVycz0ic1JHQiI+CiAgICAgIDxmZURyb3BTaGFkb3cgZHg9IjAiIGR5PSIxOCIgc3RkRGV2aWF0aW9uPSIxOCIgZmxvb2QtY29sb3I9IiMwQjJFNjMiIGZsb29kLW9wYWNpdHk9IjAuMjQiLz4KICAgIDwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB4PSI3MiIgeT0iNzIiIHdpZHRoPSIzNjgiIGhlaWdodD0iMzY4IiByeD0iOTIiIGZpbGw9InVybCgjYnV0dG9uR3JhZGllbnQpIiBmaWx0ZXI9InVybCgjc29mdFNoYWRvdykiLz4KICA8cGF0aCBkPSJNMzM4LjcgMTMwLjhjMTIuNi0xMi42IDMzLjEtMTIuNiA0NS43IDBsMTcuOCAxNy44YzEyLjYgMTIuNiAxMi42IDMzLjEgMCA0NS43bC0yNC41IDI0LjUtNjMuNS02My41IDI0LjUtMjQuNVoiIGZpbGw9IiNGRkZGRkYiLz4KICA8cGF0aCBkPSJNMjg3LjcgMTgxLjggMTUxLjggMzE3LjdjLTMuMiAzLjItNS40IDcuMi02LjUgMTEuNmwtMTcuNSA2OS45Yy0yLjUgOS45IDYuNSAxOC45IDE2LjQgMTYuNGw2OS45LTE3LjVjNC40LTEuMSA4LjQtMy4zIDExLjYtNi41bDEzNS45LTEzNS45LTczLjktNzMuOVoiIGZpbGw9IiNGRkZGRkYiLz4KICA8cGF0aCBkPSJNMjg3LjcgMTgxLjggMzYxLjYgMjU1LjcgMzM4IDI3OS4zIDI2NC4xIDIwNS40bDIzLjYtMjMuNloiIGZpbGw9IiNEREVCRkYiLz4KICA8cGF0aCBkPSJNMTUxLjggMzE3LjdjLTMuMiAzLjItNS40IDcuMi02LjUgMTEuNmwtMTAuMyA0MSA0MC45IDQwLjkgNDAuOS0xMC4zYzQuNC0xLjEgOC40LTMuMyAxMS42LTYuNWwtNzYuNi03Ni43WiIgZmlsbD0iI0VBRjNGRiIvPgogIDxwYXRoIGQ9Ik0xMzUgMzcwLjMgMTI3LjggMzk5LjJjLTIuNSA5LjkgNi41IDE4LjkgMTYuNCAxNi40bDI4LjktNy4yTDEzNSAzNzAuM1oiIGZpbGw9IiMxMDJBNDMiLz4KPC9zdmc+DQo=';
   const ICON_CESTINO = 'data:image/svg+xml;base64,77u/PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsbGVkYnk9InRpdGxlIGRlc2MiPgogIDx0aXRsZSBpZD0idGl0bGUiPlB1bHNhbnRlIGVsaW1pbmE8L3RpdGxlPgogIDxkZXNjIGlkPSJkZXNjIj5JY29uYSBwZXIgcHVsc2FudGUgZWxpbWluYSBjb24gdW4gY2VzdGlubyBiaWFuY28gc3Ugc2ZvbmRvIHJvc3NvLjwvZGVzYz4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYnV0dG9uR3JhZGllbnQiIHgxPSI5NiIgeTE9IjcyIiB4Mj0iNDE2IiB5Mj0iNDQwIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0YwNDQzOCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNCNDIzMTgiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8ZmlsdGVyIGlkPSJzb2Z0U2hhZG93IiB4PSI0NCIgeT0iNDQiIHdpZHRoPSI0MjQiIGhlaWdodD0iNDI0IiBmaWx0ZXJVbml0cz0idXNlclNwYWNlT25Vc2UiIGNvbG9yLWludGVycG9sYXRpb24tZmlsdGVycz0ic1JHQiI+CiAgICAgIDxmZURyb3BTaGFkb3cgZHg9IjAiIGR5PSIxOCIgc3RkRGV2aWF0aW9uPSIxOCIgZmxvb2QtY29sb3I9IiM2NTE2MEYiIGZsb29kLW9wYWNpdHk9IjAuMjQiLz4KICAgIDwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB4PSI3MiIgeT0iNzIiIHdpZHRoPSIzNjgiIGhlaWdodD0iMzY4IiByeD0iOTIiIGZpbGw9InVybCgjYnV0dG9uR3JhZGllbnQpIiBmaWx0ZXI9InVybCgjc29mdFNoYWRvdykiLz4KICA8cGF0aCBkPSJNMjAyIDE1NGMwLTE3LjcgMTQuMy0zMiAzMi0zMmg0NGMxNy43IDAgMzIgMTQuMyAzMiAzMnYxNGg1MmMxMSAwIDIwIDkgMjAgMjBzLTkgMjAtMjAgMjBIMTUwYy0xMSAwLTIwLTktMjAtMjBzOS0yMCAyMC0yMGg1MnYtMTRabTQwIDE0aDI4di02YzAtMy4zLTIuNy02LTYtNmgtMTZjLTMuMyAwLTYgMi43LTYgNnY2WiIgZmlsbD0iI0ZGRkZGRiIvPgogIDxwYXRoIGQ9Ik0xNzAgMjM4Yy0xLjEtMTMuOCA5LjgtMjUuNiAyMy42LTI1LjZoMTI0LjhjMTMuOCAwIDI0LjcgMTEuOCAyMy42IDI1LjZsLTEyLjIgMTQ0LjljLTEuNSAxNy41LTE2LjEgMzEuMS0zMy43IDMxLjFoLTgwLjJjLTE3LjYgMC0zMi4yLTEzLjYtMzMuNy0zMS4xTDE3MCAyMzhaIiBmaWxsPSIjRkZGRkZGIi8+CiAgPHBhdGggZD0iTTIyMiAyNTdjOC44IDAgMTYgNy4yIDE2IDE2djg2YzAgOC44LTcuMiAxNi0xNiAxNnMtMTYtNy4yLTE2LTE2di04NmMwLTguOCA3LjItMTYgMTYtMTZabTY4IDBjOC44IDAgMTYgNy4yIDE2IDE2djg2YzAgOC44LTcuMiAxNi0xNiAxNnMtMTYtNy4yLTE2LTE2di04NmMwLTguOCA3LjItMTYgMTYtMTZaIiBmaWxsPSIjRkJENUQxIi8+CiAgPHBhdGggZD0iTTE3OS40IDI2MGgxNTMuMmwtMi4yIDI2SDE4MS42bC0yLjItMjZaIiBmaWxsPSIjRkVFNEUyIi8+Cjwvc3ZnPg0K';
 
-  let activeSourceFilter = 'all';
-
   // Filtro rapido source
   document.querySelectorAll('.source-filter button').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.source-filter button').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       activeSourceFilter = btn.getAttribute('data-source');
+      updateStats();
       updateTransactionsList();
     });
   });
@@ -1107,13 +1253,8 @@
     const from = filterFrom || todayISO().slice(0,7) + '-01';
     const to   = filterTo   || todayISO();
     let mt = state.transactions
-      .filter(t => t.date >= from && t.date <= to)
+      .filter(t => t.date >= from && t.date <= to && matchesSourceFilter(t))
       .sort((a,b) => b.date.localeCompare(a.date));
-
-    // Applica filtro source
-    if (activeSourceFilter !== 'all') {
-      mt = mt.filter(t => (t.source || 'cash') === activeSourceFilter);
-    }
 
     const list = document.getElementById('transactions-list');
     list.innerHTML = '';
@@ -1531,7 +1672,6 @@
   // ====== UTILITY ======
   function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
 
-  function renderAll() {
   function populateMonthSelects() {
     const months = getMonthOptions ? getMonthOptions() : [];
     const chartMonthSel = document.getElementById('chart-month');
@@ -1572,6 +1712,7 @@
 
   function renderAll() {
     populateMonthSelects();
+    populateHomePeriodFilters();
     updateStats();
     updateFilterLabel();
     updateTransactionsList();
