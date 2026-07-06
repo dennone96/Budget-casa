@@ -335,6 +335,31 @@
   #import-summary { font-size: 13px; margin: 10px 0; }
   #import-actions { display: flex; gap: 8px; margin-top: 10px; }
   .import-table-wrap { max-height: 280px; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--radius); }
+
+  /* Badge source */
+  .badge-source {
+    display: inline-block;
+    font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.4px;
+    padding: 2px 7px; border-radius: 999px; flex-shrink: 0;
+  }
+  .badge-cash { background: #e8f5e9; color: #2e7d32; }
+  .badge-bank { background: #e3f2fd; color: #1565c0; }
+  @media (prefers-color-scheme: dark) {
+    .badge-cash { background: #1b3a1f; color: #66bb6a; }
+    .badge-bank { background: #0d2137; color: #64b5f6; }
+  }
+  /* Filtro rapido source */
+  .source-filter { display: flex; gap: 6px; margin-bottom: 0.75rem; flex-wrap: wrap; }
+  .source-filter button {
+    height: 32px; font-size: 12px; font-weight: 600;
+    border-radius: 999px; padding: 0 14px;
+    border: 1px solid var(--border);
+    background: var(--surface-2); color: var(--text-secondary);
+  }
+  .source-filter button.active {
+    background: var(--accent); color: #fff !important; border-color: var(--accent);
+  }
   #import-error-text { color: var(--danger); font-size: 13px; }
 
   /* ── PROFILO ── */
@@ -465,6 +490,11 @@
 
       <div style="margin-bottom: 0.75rem;">
         <h2>Movimenti</h2>
+      </div>
+      <div class="source-filter">
+        <button class="active" data-source="all">Tutti</button>
+        <button data-source="cash">💵 Contanti</button>
+        <button data-source="bank">🏦 Conto corrente</button>
       </div>
       <div id="transactions-list"></div>
 
@@ -1001,21 +1031,47 @@
   const ICON_MATITA = 'data:image/svg+xml;base64,77u/PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsbGVkYnk9InRpdGxlIGRlc2MiPgogIDx0aXRsZSBpZD0idGl0bGUiPlB1bHNhbnRlIG1vZGlmaWNhPC90aXRsZT4KICA8ZGVzYyBpZD0iZGVzYyI+SWNvbmEgcGVyIHB1bHNhbnRlIG1vZGlmaWNhIGNvbiB1bmEgbWF0aXRhIGJpYW5jYSBzdSBzZm9uZG8gYmx1LjwvZGVzYz4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYnV0dG9uR3JhZGllbnQiIHgxPSI5NiIgeTE9IjcyIiB4Mj0iNDE2IiB5Mj0iNDQwIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzJGODBFRCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNTU4QzAiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8ZmlsdGVyIGlkPSJzb2Z0U2hhZG93IiB4PSI0NCIgeT0iNDQiIHdpZHRoPSI0MjQiIGhlaWdodD0iNDI0IiBmaWx0ZXJVbml0cz0idXNlclNwYWNlT25Vc2UiIGNvbG9yLWludGVycG9sYXRpb24tZmlsdGVycz0ic1JHQiI+CiAgICAgIDxmZURyb3BTaGFkb3cgZHg9IjAiIGR5PSIxOCIgc3RkRGV2aWF0aW9uPSIxOCIgZmxvb2QtY29sb3I9IiMwQjJFNjMiIGZsb29kLW9wYWNpdHk9IjAuMjQiLz4KICAgIDwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB4PSI3MiIgeT0iNzIiIHdpZHRoPSIzNjgiIGhlaWdodD0iMzY4IiByeD0iOTIiIGZpbGw9InVybCgjYnV0dG9uR3JhZGllbnQpIiBmaWx0ZXI9InVybCgjc29mdFNoYWRvdykiLz4KICA8cGF0aCBkPSJNMzM4LjcgMTMwLjhjMTIuNi0xMi42IDMzLjEtMTIuNiA0NS43IDBsMTcuOCAxNy44YzEyLjYgMTIuNiAxMi42IDMzLjEgMCA0NS43bC0yNC41IDI0LjUtNjMuNS02My41IDI0LjUtMjQuNVoiIGZpbGw9IiNGRkZGRkYiLz4KICA8cGF0aCBkPSJNMjg3LjcgMTgxLjggMTUxLjggMzE3LjdjLTMuMiAzLjItNS40IDcuMi02LjUgMTEuNmwtMTcuNSA2OS45Yy0yLjUgOS45IDYuNSAxOC45IDE2LjQgMTYuNGw2OS45LTE3LjVjNC40LTEuMSA4LjQtMy4zIDExLjYtNi41bDEzNS45LTEzNS45LTczLjktNzMuOVoiIGZpbGw9IiNGRkZGRkYiLz4KICA8cGF0aCBkPSJNMjg3LjcgMTgxLjggMzYxLjYgMjU1LjcgMzM4IDI3OS4zIDI2NC4xIDIwNS40bDIzLjYtMjMuNloiIGZpbGw9IiNEREVCRkYiLz4KICA8cGF0aCBkPSJNMTUxLjggMzE3LjdjLTMuMiAzLjItNS40IDcuMi02LjUgMTEuNmwtMTAuMyA0MSA0MC45IDQwLjkgNDAuOS0xMC4zYzQuNC0xLjEgOC40LTMuMyAxMS42LTYuNWwtNzYuNi03Ni43WiIgZmlsbD0iI0VBRjNGRiIvPgogIDxwYXRoIGQ9Ik0xMzUgMzcwLjMgMTI3LjggMzk5LjJjLTIuNSA5LjkgNi41IDE4LjkgMTYuNCAxNi40bDI4LjktNy4yTDEzNSAzNzAuM1oiIGZpbGw9IiMxMDJBNDMiLz4KPC9zdmc+DQo=';
   const ICON_CESTINO = 'data:image/svg+xml;base64,77u/PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsbGVkYnk9InRpdGxlIGRlc2MiPgogIDx0aXRsZSBpZD0idGl0bGUiPlB1bHNhbnRlIGVsaW1pbmE8L3RpdGxlPgogIDxkZXNjIGlkPSJkZXNjIj5JY29uYSBwZXIgcHVsc2FudGUgZWxpbWluYSBjb24gdW4gY2VzdGlubyBiaWFuY28gc3Ugc2ZvbmRvIHJvc3NvLjwvZGVzYz4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYnV0dG9uR3JhZGllbnQiIHgxPSI5NiIgeTE9IjcyIiB4Mj0iNDE2IiB5Mj0iNDQwIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0YwNDQzOCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNCNDIzMTgiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8ZmlsdGVyIGlkPSJzb2Z0U2hhZG93IiB4PSI0NCIgeT0iNDQiIHdpZHRoPSI0MjQiIGhlaWdodD0iNDI0IiBmaWx0ZXJVbml0cz0idXNlclNwYWNlT25Vc2UiIGNvbG9yLWludGVycG9sYXRpb24tZmlsdGVycz0ic1JHQiI+CiAgICAgIDxmZURyb3BTaGFkb3cgZHg9IjAiIGR5PSIxOCIgc3RkRGV2aWF0aW9uPSIxOCIgZmxvb2QtY29sb3I9IiM2NTE2MEYiIGZsb29kLW9wYWNpdHk9IjAuMjQiLz4KICAgIDwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB4PSI3MiIgeT0iNzIiIHdpZHRoPSIzNjgiIGhlaWdodD0iMzY4IiByeD0iOTIiIGZpbGw9InVybCgjYnV0dG9uR3JhZGllbnQpIiBmaWx0ZXI9InVybCgjc29mdFNoYWRvdykiLz4KICA8cGF0aCBkPSJNMjAyIDE1NGMwLTE3LjcgMTQuMy0zMiAzMi0zMmg0NGMxNy43IDAgMzIgMTQuMyAzMiAzMnYxNGg1MmMxMSAwIDIwIDkgMjAgMjBzLTkgMjAtMjAgMjBIMTUwYy0xMSAwLTIwLTktMjAtMjBzOS0yMCAyMC0yMGg1MnYtMTRabTQwIDE0aDI4di02YzAtMy4zLTIuNy02LTYtNmgtMTZjLTMuMyAwLTYgMi43LTYgNnY2WiIgZmlsbD0iI0ZGRkZGRiIvPgogIDxwYXRoIGQ9Ik0xNzAgMjM4Yy0xLjEtMTMuOCA5LjgtMjUuNiAyMy42LTI1LjZoMTI0LjhjMTMuOCAwIDI0LjcgMTEuOCAyMy42IDI1LjZsLTEyLjIgMTQ0LjljLTEuNSAxNy41LTE2LjEgMzEuMS0zMy43IDMxLjFoLTgwLjJjLTE3LjYgMC0zMi4yLTEzLjYtMzMuNy0zMS4xTDE3MCAyMzhaIiBmaWxsPSIjRkZGRkZGIi8+CiAgPHBhdGggZD0iTTIyMiAyNTdjOC44IDAgMTYgNy4yIDE2IDE2djg2YzAgOC44LTcuMiAxNi0xNiAxNnMtMTYtNy4yLTE2LTE2di04NmMwLTguOCA3LjItMTYgMTYtMTZabTY4IDBjOC44IDAgMTYgNy4yIDE2IDE2djg2YzAgOC44LTcuMiAxNi0xNiAxNnMtMTYtNy4yLTE2LTE2di04NmMwLTguOCA3LjItMTYgMTYtMTZaIiBmaWxsPSIjRkJENUQxIi8+CiAgPHBhdGggZD0iTTE3OS40IDI2MGgxNTMuMmwtMi4yIDI2SDE4MS42bC0yLjItMjZaIiBmaWxsPSIjRkVFNEUyIi8+Cjwvc3ZnPg0K';
 
+  let activeSourceFilter = 'all';
+
+  // Filtro rapido source
+  document.querySelectorAll('.source-filter button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.source-filter button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeSourceFilter = btn.getAttribute('data-source');
+      updateTransactionsList();
+    });
+  });
+
   function updateTransactionsList() {
     const month = document.getElementById('filter-month').value || monthKey(todayISO());
-    const mt = state.transactions.filter(t => monthKey(t.date) === month).sort((a,b) => b.date.localeCompare(a.date));
+    let mt = state.transactions
+      .filter(t => monthKey(t.date) === month)
+      .sort((a,b) => b.date.localeCompare(a.date));
+
+    // Applica filtro source
+    if (activeSourceFilter !== 'all') {
+      mt = mt.filter(t => (t.source || 'cash') === activeSourceFilter);
+    }
+
     const list = document.getElementById('transactions-list');
     list.innerHTML = '';
-    if (mt.length === 0) { list.innerHTML = '<p class="empty-msg">Nessun movimento in questo mese.</p>'; return; }
+    if (mt.length === 0) { list.innerHTML = '<p class="empty-msg">Nessun movimento in questo periodo.</p>'; return; }
     mt.forEach(t => {
       const row = document.createElement('div');
       row.className = 'tx-row';
       const isIncome = t.type === 'income';
+      const src = t.source || 'cash';
+      const badgeLabel = src === 'bank' ? '🏦 C/C' : '💵 Cash';
+      const badgeCls = src === 'bank' ? 'badge-bank' : 'badge-cash';
       row.innerHTML = `
         <div class="tx-left" data-id="${t.id}" title="Tocca per i dettagli" role="button" tabindex="0">
           <i class="ti ti-${isIncome?'arrow-up':'arrow-down'}" aria-hidden="true" style="color:${isIncome?'var(--success)':'var(--danger)'}; font-size:18px; flex-shrink:0;"></i>
           <div style="min-width:0; overflow:hidden;">
-            <p>${escapeHtml(t.description||t.category)}</p>
+            <p style="display:flex; align-items:center; gap:6px;">
+              <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(t.description||t.category)}</span>
+              <span class="badge-source ${badgeCls}">${badgeLabel}</span>
+            </p>
             <p>${escapeHtml(t.category)} · ${new Date(t.date).toLocaleDateString('it-IT')}</p>
           </div>
         </div>
@@ -1059,7 +1115,8 @@
     document.getElementById('detail-desc').textContent = t.description || t.category || '—';
     document.getElementById('detail-amount').innerHTML = `<span style="font-size:18px; font-weight:700; color:${isIncome?'var(--success)':'var(--danger)'};">${isIncome?'+':'-'}${fmtEUR(t.amount)}</span>`;
     document.getElementById('detail-category').textContent = t.category || '—';
-    document.getElementById('detail-date').textContent = new Date(t.date).toLocaleDateString('it-IT', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+    const srcLabel = (t.source === 'bank') ? '🏦 Conto corrente' : '💵 Contanti';
+    document.getElementById('detail-date').textContent = new Date(t.date).toLocaleDateString('it-IT', {weekday:'long', year:'numeric', month:'long', day:'numeric'}) + ' · ' + srcLabel;
     document.getElementById('detail-overlay').classList.add('open');
   }
 
@@ -1156,7 +1213,7 @@
     const category = document.getElementById('inp-category').value;
     const date = document.getElementById('inp-date').value || todayISO();
     if (!amount || amount <= 0) return;
-    state.transactions.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2,7), type: state.currentType, description: desc, amount: Math.round(amount*100)/100, category, date });
+    state.transactions.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2,7), type: state.currentType, description: desc, amount: Math.round(amount*100)/100, category, date, source: 'cash' });
     document.getElementById('inp-desc').value = '';
     document.getElementById('inp-amount').value = '';
     await saveTransactions();
@@ -1328,7 +1385,8 @@
         description: r.description,
         amount: Math.round(r.amount * 100) / 100,
         category: r.category,
-        date: r.date
+        date: r.date,
+        source: 'bank'
       });
     });
     renderAll();
