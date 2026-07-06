@@ -336,6 +336,19 @@
   #import-actions { display: flex; gap: 8px; margin-top: 10px; }
   .import-table-wrap { max-height: 280px; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--radius); }
 
+  /* Filtro date preset */
+  .date-presets { display: flex; gap: 6px; flex-wrap: wrap; }
+  .preset-btn {
+    height: 30px; font-size: 12px; font-weight: 600;
+    border-radius: 999px; padding: 0 12px;
+    border: 1px solid var(--border);
+    background: var(--surface-2); color: var(--text-secondary);
+  }
+  .preset-btn.active {
+    background: var(--accent); color: #fff !important; border-color: var(--accent);
+  }
+  #custom-range { display: flex; }
+
   /* Badge source */
   .badge-source {
     display: inline-block;
@@ -452,11 +465,28 @@
 
     <!-- ══ HOME ══ -->
     <div id="page-home" class="page active">
-      <div class="row-between" style="margin-bottom: 1.25rem;">
-        <h1 style="margin:0;">Home</h1>
-        <select id="filter-month" style="font-size:14px; font-weight:600; border-radius:999px; padding: 6px 14px; height:auto; border: 1px solid var(--border); background: var(--surface);"></select>
+      <h1>Home</h1>
+
+      <!-- FILTRO INTERVALLO DATE -->
+      <div class="panel" style="margin-bottom:1.25rem; padding: 0.9rem 1.25rem;">
+        <div class="date-presets">
+          <button class="preset-btn active" data-preset="month">Questo mese</button>
+          <button class="preset-btn" data-preset="lastmonth">Mese scorso</button>
+          <button class="preset-btn" data-preset="30d">Ultimi 30gg</button>
+          <button class="preset-btn" data-preset="year">Quest'anno</button>
+          <button class="preset-btn" data-preset="custom">Personalizzato</button>
+        </div>
+        <div id="custom-range" class="hidden" style="display:none; margin-top:10px; gap:8px; align-items:center; flex-wrap:wrap;">
+          <label style="font-size:13px; color:var(--text-secondary); flex-shrink:0;">Dal</label>
+          <input type="date" id="filter-from" style="flex:1; min-width:130px;">
+          <label style="font-size:13px; color:var(--text-secondary); flex-shrink:0;">Al</label>
+          <input type="date" id="filter-to" style="flex:1; min-width:130px;">
+          <button id="btn-apply-range" style="white-space:nowrap; height:38px; padding:0 14px;">Applica</button>
+        </div>
+        <p id="filter-label" style="font-size:12px; color:var(--text-muted); margin:6px 0 0;"></p>
       </div>
 
+      <!-- STATISTICHE -->
       <div class="stats-row">
         <div class="stat-card">
           <p id="label-income">Entrate</p>
@@ -472,22 +502,27 @@
         </div>
       </div>
 
+      <!-- FORM NUOVO MOVIMENTO -->
       <div class="panel">
+        <h3 style="margin-bottom:12px;"><i class="ti ti-plus-circle" aria-hidden="true" style="color:var(--accent);"></i> Nuovo movimento</h3>
         <div class="tabs">
-          <button id="tab-expense" class="active"><i class="ti ti-arrow-down" aria-hidden="true" style="color: var(--danger);"></i> Uscita</button>
-          <button id="tab-income"><i class="ti ti-arrow-up" aria-hidden="true" style="color: var(--success);"></i> Entrata</button>
+          <button id="tab-expense" class="active"><i class="ti ti-arrow-down" aria-hidden="true" style="color:var(--danger);"></i> Uscita</button>
+          <button id="tab-income"><i class="ti ti-arrow-up" aria-hidden="true" style="color:var(--success);"></i> Entrata</button>
         </div>
-        <div class="form-row">
-          <input type="text" id="inp-desc" placeholder="Descrizione (es. Spesa Esselunga)">
-          <input type="number" id="inp-amount" placeholder="Importo €" min="0" step="0.01">
-          <select id="inp-category"></select>
-        </div>
-        <div class="form-row-2">
-          <input type="date" id="inp-date">
-          <button id="btn-add"><i class="ti ti-plus" aria-hidden="true"></i> Aggiungi</button>
+        <div style="display:flex; flex-direction:column; gap:8px; margin-top:4px;">
+          <input type="text" id="inp-desc" placeholder="Descrizione (es. Spesa Esselunga)" style="width:100%;">
+          <div style="display:flex; gap:8px;">
+            <input type="number" id="inp-amount" placeholder="Importo €" min="0" step="0.01" style="flex:1;">
+            <select id="inp-category" style="flex:1;"></select>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <input type="date" id="inp-date" style="flex:1;">
+            <button id="btn-add" style="white-space:nowrap;"><i class="ti ti-plus" aria-hidden="true"></i> Aggiungi</button>
+          </div>
         </div>
       </div>
 
+      <!-- LISTA MOVIMENTI -->
       <div style="margin-bottom: 0.75rem;">
         <h2>Movimenti</h2>
       </div>
@@ -868,58 +903,87 @@
 
   // ====== STATISTICHE ======
   function updateStats() {
-    const sel = document.getElementById('filter-month');
-    const cm = sel ? (sel.value || monthKey(todayISO())) : monthKey(todayISO());
-    const label = sel ? (sel.options[sel.selectedIndex]?.text || '') : '';
-    const mt = state.transactions.filter(t => monthKey(t.date) === cm);
-    const income = mt.filter(t => t.type === 'income').reduce((s,t) => s + t.amount, 0);
+    const from = filterFrom || todayISO().slice(0,7) + '-01';
+    const to   = filterTo   || todayISO();
+    const mt = state.transactions.filter(t => t.date >= from && t.date <= to);
+    const income  = mt.filter(t => t.type === 'income').reduce((s,t) => s + t.amount, 0);
     const expense = mt.filter(t => t.type === 'expense').reduce((s,t) => s + t.amount, 0);
     const ti = state.transactions.filter(t => t.type === 'income').reduce((s,t) => s + t.amount, 0);
     const te = state.transactions.filter(t => t.type === 'expense').reduce((s,t) => s + t.amount, 0);
-    document.getElementById('stat-income').textContent = fmtEUR(income);
+    document.getElementById('stat-income').textContent  = fmtEUR(income);
     document.getElementById('stat-expense').textContent = fmtEUR(expense);
     document.getElementById('stat-balance').textContent = fmtEUR(ti - te);
-    // Aggiorna le label con il mese selezionato
-    if (label) {
-      document.getElementById('label-income').textContent = 'Entrate · ' + label;
-      document.getElementById('label-expense').textContent = 'Uscite · ' + label;
-    }
+    document.getElementById('label-income').textContent  = 'Entrate';
+    document.getElementById('label-expense').textContent = 'Uscite';
   }
 
   // ====== SELEZIONE MESE/ANNO ======
-  function getMonthOptions() {
-    const keys = new Set(state.transactions.map(t => monthKey(t.date)));
-    keys.add(monthKey(todayISO()));
-    return Array.from(keys).sort().reverse();
+  // ====== FILTRO DATE RANGE ======
+  let filterFrom = null;
+  let filterTo = null;
+
+  function getMonthStart(offset = 0) {
+    const d = new Date();
+    return new Date(d.getFullYear(), d.getMonth() + offset, 1);
   }
-  function getYearOptions() {
-    const years = new Set(state.transactions.map(t => t.date.slice(0,4)));
-    years.add(new Date().getFullYear().toString());
-    return Array.from(years).sort().reverse();
+  function getMonthEnd(offset = 0) {
+    const d = new Date();
+    return new Date(d.getFullYear(), d.getMonth() + offset + 1, 0);
   }
-  function populateMonthSelects() {
-    const months = getMonthOptions();
-    [document.getElementById('chart-month'), document.getElementById('filter-month')].forEach(sel => {
-      const prev = sel.value;
-      sel.innerHTML = '';
-      months.forEach(m => {
-        const opt = document.createElement('option');
-        opt.value = m; opt.textContent = monthLabel(m);
-        sel.appendChild(opt);
-      });
-      if (months.includes(prev)) sel.value = prev;
-    });
-    const years = getYearOptions();
-    const ySel = document.getElementById('chart-year');
-    const prevY = ySel.value;
-    ySel.innerHTML = '';
-    years.forEach(y => {
-      const opt = document.createElement('option');
-      opt.value = y; opt.textContent = y;
-      ySel.appendChild(opt);
-    });
-    if (years.includes(prevY)) ySel.value = prevY;
+  function fmtDate(d) { return d.toISOString().slice(0,10); }
+  function fmtDateLabel(d) { return d.toLocaleDateString('it-IT', { day:'2-digit', month:'long', year:'numeric' }); }
+
+  function applyPreset(preset) {
+    const today = new Date();
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.toggle('active', b.dataset.preset === preset));
+    const custom = document.getElementById('custom-range');
+    if (preset === 'custom') {
+      custom.style.display = 'flex';
+      return; // non applicare ancora, aspetta "Applica"
+    }
+    custom.style.display = 'none';
+    if (preset === 'month') {
+      filterFrom = fmtDate(getMonthStart(0));
+      filterTo   = fmtDate(getMonthEnd(0));
+    } else if (preset === 'lastmonth') {
+      filterFrom = fmtDate(getMonthStart(-1));
+      filterTo   = fmtDate(getMonthEnd(-1));
+    } else if (preset === '30d') {
+      const from = new Date(today); from.setDate(today.getDate() - 29);
+      filterFrom = fmtDate(from);
+      filterTo   = fmtDate(today);
+    } else if (preset === 'year') {
+      filterFrom = `${today.getFullYear()}-01-01`;
+      filterTo   = `${today.getFullYear()}-12-31`;
+    }
+    updateFilterLabel();
+    updateStats();
+    updateTransactionsList();
   }
+
+  function updateFilterLabel() {
+    const el = document.getElementById('filter-label');
+    if (!el || !filterFrom || !filterTo) return;
+    el.textContent = `Dal ${fmtDateLabel(new Date(filterFrom + 'T00:00:00'))} al ${fmtDateLabel(new Date(filterTo + 'T00:00:00'))}`;
+  }
+
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.addEventListener('click', () => applyPreset(btn.dataset.preset));
+  });
+
+  document.getElementById('btn-apply-range').addEventListener('click', () => {
+    const from = document.getElementById('filter-from').value;
+    const to   = document.getElementById('filter-to').value;
+    if (!from || !to || from > to) { alert('Seleziona un intervallo valido.'); return; }
+    filterFrom = from;
+    filterTo   = to;
+    updateFilterLabel();
+    updateStats();
+    updateTransactionsList();
+  });
+
+  // Inizializza con "Questo mese"
+  applyPreset('month');
 
   // ====== GRAFICO CATEGORIE ======
   function updateChartCategory() {
@@ -978,10 +1042,6 @@
 
   document.getElementById('chart-month').addEventListener('change', updateChartCategory);
   document.getElementById('chart-year').addEventListener('change', updateChartYear);
-  document.getElementById('filter-month').addEventListener('change', () => {
-    updateStats();
-    updateTransactionsList();
-  });
 
   // ====== BUDGET ======
   function updateBudgetList() {
@@ -1044,9 +1104,10 @@
   });
 
   function updateTransactionsList() {
-    const month = document.getElementById('filter-month').value || monthKey(todayISO());
+    const from = filterFrom || todayISO().slice(0,7) + '-01';
+    const to   = filterTo   || todayISO();
     let mt = state.transactions
-      .filter(t => monthKey(t.date) === month)
+      .filter(t => t.date >= from && t.date <= to)
       .sort((a,b) => b.date.localeCompare(a.date));
 
     // Applica filtro source
@@ -1471,8 +1532,48 @@
   function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
 
   function renderAll() {
+  function populateMonthSelects() {
+    const months = getMonthOptions ? getMonthOptions() : [];
+    const chartMonthSel = document.getElementById('chart-month');
+    if (chartMonthSel) {
+      const prev = chartMonthSel.value;
+      chartMonthSel.innerHTML = '';
+      months.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m; opt.textContent = monthLabel(m);
+        chartMonthSel.appendChild(opt);
+      });
+      if (months.includes(prev)) chartMonthSel.value = prev;
+    }
+    const years = getYearOptions ? getYearOptions() : [];
+    const ySel = document.getElementById('chart-year');
+    if (ySel) {
+      const prevY = ySel.value;
+      ySel.innerHTML = '';
+      years.forEach(y => {
+        const opt = document.createElement('option');
+        opt.value = y; opt.textContent = y;
+        ySel.appendChild(opt);
+      });
+      if (years.includes(prevY)) ySel.value = prevY;
+    }
+  }
+
+  function getMonthOptions() {
+    const keys = new Set(state.transactions.map(t => monthKey(t.date)));
+    keys.add(monthKey(todayISO()));
+    return Array.from(keys).sort().reverse();
+  }
+  function getYearOptions() {
+    const years = new Set(state.transactions.map(t => t.date.slice(0,4)));
+    years.add(new Date().getFullYear().toString());
+    return Array.from(years).sort().reverse();
+  }
+
+  function renderAll() {
     populateMonthSelects();
     updateStats();
+    updateFilterLabel();
     updateTransactionsList();
     const activePage = document.querySelector('.page.active');
     if (activePage && activePage.id === 'page-grafici') { updateChartCategory(); updateChartYear(); updateBudgetList(); }
