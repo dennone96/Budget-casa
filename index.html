@@ -427,14 +427,18 @@
 
     <!-- ══ HOME ══ -->
     <div id="page-home" class="page active">
-      <h1>Home</h1>
+      <div class="row-between" style="margin-bottom: 1.25rem;">
+        <h1 style="margin:0;">Home</h1>
+        <select id="filter-month" style="font-size:14px; font-weight:600; border-radius:999px; padding: 6px 14px; height:auto; border: 1px solid var(--border); background: var(--surface);"></select>
+      </div>
+
       <div class="stats-row">
         <div class="stat-card">
-          <p>Entrate (mese)</p>
+          <p id="label-income">Entrate</p>
           <p style="color: var(--success);" id="stat-income">€0</p>
         </div>
         <div class="stat-card">
-          <p>Uscite (mese)</p>
+          <p id="label-expense">Uscite</p>
           <p style="color: var(--danger);" id="stat-expense">€0</p>
         </div>
         <div class="stat-card">
@@ -459,10 +463,8 @@
         </div>
       </div>
 
-
-      <div class="row-between">
-        <h2>Movimenti recenti</h2>
-        <select id="filter-month"></select>
+      <div style="margin-bottom: 0.75rem;">
+        <h2>Movimenti</h2>
       </div>
       <div id="transactions-list"></div>
 
@@ -836,7 +838,9 @@
 
   // ====== STATISTICHE ======
   function updateStats() {
-    const cm = monthKey(todayISO());
+    const sel = document.getElementById('filter-month');
+    const cm = sel ? (sel.value || monthKey(todayISO())) : monthKey(todayISO());
+    const label = sel ? (sel.options[sel.selectedIndex]?.text || '') : '';
     const mt = state.transactions.filter(t => monthKey(t.date) === cm);
     const income = mt.filter(t => t.type === 'income').reduce((s,t) => s + t.amount, 0);
     const expense = mt.filter(t => t.type === 'expense').reduce((s,t) => s + t.amount, 0);
@@ -845,6 +849,11 @@
     document.getElementById('stat-income').textContent = fmtEUR(income);
     document.getElementById('stat-expense').textContent = fmtEUR(expense);
     document.getElementById('stat-balance').textContent = fmtEUR(ti - te);
+    // Aggiorna le label con il mese selezionato
+    if (label) {
+      document.getElementById('label-income').textContent = 'Entrate · ' + label;
+      document.getElementById('label-expense').textContent = 'Uscite · ' + label;
+    }
   }
 
   // ====== SELEZIONE MESE/ANNO ======
@@ -939,7 +948,10 @@
 
   document.getElementById('chart-month').addEventListener('change', updateChartCategory);
   document.getElementById('chart-year').addEventListener('change', updateChartYear);
-  document.getElementById('filter-month').addEventListener('change', updateTransactionsList);
+  document.getElementById('filter-month').addEventListener('change', () => {
+    updateStats();
+    updateTransactionsList();
+  });
 
   // ====== BUDGET ======
   function updateBudgetList() {
