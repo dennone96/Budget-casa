@@ -459,6 +459,75 @@
   .source-filter button.active {
     background: var(--accent); color: #fff !important; border-color: var(--accent);
   }
+
+  /* Form stile iOS */
+  .ios-row {
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    min-height: 50px;
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+  }
+  .ios-label {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-primary);
+    flex-shrink: 0;
+    min-width: 100px;
+  }
+  .ios-input {
+    flex: 1;
+    border: none !important;
+    background: transparent !important;
+    font-size: 15px;
+    color: var(--text-secondary);
+    padding: 0 !important;
+    height: auto !important;
+    box-shadow: none !important;
+    outline: none !important;
+  }
+  .ios-input:focus {
+    box-shadow: none !important;
+    border: none !important;
+    outline: none !important;
+    color: var(--text-primary);
+  }
+  /* Campo con bordo azzurro, interno bianco */
+  .ios-input-field {
+    background: #ffffff !important;
+    border-radius: 8px !important;
+    padding: 5px 10px !important;
+    height: 34px !important;
+    color: var(--text-primary) !important;
+    border: 1.5px solid #3b82f6 !important;
+    font-size: 14px !important;
+  }
+  .ios-input-field:focus {
+    background: #ffffff !important;
+    border-color: #1d4ed8 !important;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.18) !important;
+    outline: none !important;
+  }
+  @media (prefers-color-scheme: dark) {
+    .ios-input-field { background: #1a2a3a !important; border-color: #3b82f6 !important; color: #e0f0ff !important; }
+    .ios-input-field:focus { background: #1a2a3a !important; border-color: #60a5fa !important; }
+  }
+  .ios-select {
+    flex: 1;
+    border: none !important;
+    background: transparent !important;
+    font-size: 15px;
+    color: var(--text-secondary);
+    padding: 0 !important;
+    height: auto !important;
+    text-align: right;
+    cursor: pointer;
+    outline: none !important;
+  }
+  .ios-select:focus { box-shadow: none !important; outline: none !important; }
+  .ios-row .tabs { padding: 2px; }
+  .ios-row .tabs button { height: 32px; font-size: 13px; }
   #import-error-text { color: var(--danger); font-size: 13px; }
 
   /* ── PROFILO ── */
@@ -554,29 +623,33 @@
       <div class="home-header">
         <h1>Home</h1>
         <div class="home-date-filter" aria-label="Filtro periodo">
-          <div class="home-date-field">
-            <label for="filter-month">Mese</label>
-            <select id="filter-month"></select>
-          </div>
-          <div class="home-date-field">
-            <label for="filter-year">Anno</label>
-            <select id="filter-year"></select>
-          </div>
-          <label class="filter-custom-toggle" for="filter-custom-toggle">
-            <input type="checkbox" id="filter-custom-toggle">
-            Date personalizzate
-          </label>
-          <div id="custom-range" class="custom-date-range hidden">
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
             <div class="home-date-field">
-              <label for="filter-from">Dal</label>
-              <input type="date" id="filter-from">
+              <label for="filter-month">Mese</label>
+              <select id="filter-month"></select>
             </div>
             <div class="home-date-field">
-              <label for="filter-to">Al</label>
-              <input type="date" id="filter-to">
+              <label for="filter-year">Anno</label>
+              <select id="filter-year"></select>
+            </div>
+            <button id="btn-apply-range" type="button"><i class="ti ti-filter" aria-hidden="true"></i> Filtra</button>
+          </div>
+          <div style="margin-top:6px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <label class="filter-custom-toggle" for="filter-custom-toggle" style="margin:0;">
+              <input type="checkbox" id="filter-custom-toggle">
+              Date personalizzate
+            </label>
+            <div id="custom-range" class="custom-date-range hidden">
+              <div class="home-date-field">
+                <label for="filter-from">Dal</label>
+                <input type="date" id="filter-from">
+              </div>
+              <div class="home-date-field">
+                <label for="filter-to">Al</label>
+                <input type="date" id="filter-to">
+              </div>
             </div>
           </div>
-          <button id="btn-apply-range" type="button"><i class="ti ti-filter" aria-hidden="true"></i> Filtra</button>
           <p id="filter-label"></p>
         </div>
       </div>
@@ -602,27 +675,48 @@
       </div>
 
       <!-- FORM NUOVO MOVIMENTO -->
-      <div class="panel">
-        <h3 style="margin-bottom:12px;"><i class="ti ti-plus-circle" aria-hidden="true" style="color:var(--accent);"></i> Nuovo movimento</h3>
-        <div class="tabs">
-          <button id="tab-expense" class="active"><i class="ti ti-arrow-down" aria-hidden="true" style="color:var(--danger);"></i> Uscita</button>
-          <button id="tab-income"><i class="ti ti-arrow-up" aria-hidden="true" style="color:var(--success);"></i> Entrata</button>
+      <div class="panel" style="padding:0; overflow:hidden; max-width:480px;">
+        <div style="padding: 11px 16px; border-bottom: 1px solid var(--border);">
+          <h3 style="margin:0; font-size:15px;"><i class="ti ti-plus-circle" aria-hidden="true" style="color:var(--accent);"></i> Nuovo movimento</h3>
         </div>
-        <div style="display:flex; flex-direction:column; gap:8px; margin-top:4px;">
-          <input type="text" id="inp-desc" placeholder="Descrizione (es. Spesa Esselunga)" style="width:100%;">
-          <div style="display:flex; gap:8px;">
-            <input type="number" id="inp-amount" placeholder="Importo €" min="0" step="0.01" style="flex:1;">
-            <select id="inp-category" style="flex:1;"></select>
+
+        <div class="ios-row">
+          <span class="ios-label">Tipo</span>
+          <div class="tabs" style="flex:1; margin:0; border:none; background:none; padding:2px 0;">
+            <button id="tab-expense" class="active"><i class="ti ti-arrow-down" style="color:var(--danger);"></i> Uscita</button>
+            <button id="tab-income"><i class="ti ti-arrow-up" style="color:var(--success);"></i> Entrata</button>
           </div>
-          <div style="display:flex; gap:8px; align-items:center;">
-            <input type="date" id="inp-date" style="flex:1;">
-            <button id="btn-add" style="white-space:nowrap;"><i class="ti ti-plus" aria-hidden="true"></i> Aggiungi</button>
-          </div>
+        </div>
+
+        <div class="ios-row">
+          <span class="ios-label">Descrizione</span>
+          <input type="text" id="inp-desc" placeholder="es. Spesa Esselunga" class="ios-input ios-input-field">
+        </div>
+
+        <div class="ios-row">
+          <span class="ios-label">Importo €</span>
+          <input type="number" id="inp-amount" placeholder="0,00" min="0" step="0.01" class="ios-input ios-input-field" style="text-align:right;">
+        </div>
+
+        <div class="ios-row">
+          <span class="ios-label">Categoria</span>
+          <select id="inp-category" class="ios-select ios-input-field"></select>
+        </div>
+
+        <div class="ios-row">
+          <span class="ios-label">Data</span>
+          <input type="date" id="inp-date" class="ios-input ios-input-field" style="text-align:right;">
+        </div>
+
+        <div style="padding: 12px 16px;">
+          <button id="btn-add" style="width:100%; height:44px; background:linear-gradient(135deg,#3b82f6,#2563eb); color:#fff; border:none; border-radius:999px; font-size:15px; font-weight:700; box-shadow:0 4px 14px rgba(37,99,235,0.35); cursor:pointer; letter-spacing:0.2px;">
+            <i class="ti ti-plus" aria-hidden="true"></i> Aggiungi movimento
+          </button>
         </div>
       </div>
 
       <!-- LISTA MOVIMENTI -->
-      <div style="margin-bottom: 0.5rem;">
+      <div style="margin-bottom: 0.5rem; margin-top:1.5rem;">
         <h2>Movimenti</h2>
       </div>
       <div class="source-filter">
@@ -1070,6 +1164,11 @@
     const prevYear = yearSel.value || String(new Date().getFullYear());
 
     monthSel.innerHTML = '';
+    // Prima opzione: Anno completo
+    const allOpt = document.createElement('option');
+    allOpt.value = '0';
+    allOpt.textContent = 'Anno completo';
+    monthSel.appendChild(allOpt);
     FILTER_MONTHS.forEach((name, idx) => {
       const opt = document.createElement('option');
       opt.value = String(idx + 1);
@@ -1095,9 +1194,15 @@
     filterMode = 'month';
     const month = parseInt(document.getElementById('filter-month').value, 10);
     const year = parseInt(document.getElementById('filter-year').value, 10);
-    if (!month || !year) return;
-    filterFrom = `${year}-${String(month).padStart(2,'0')}-01`;
-    filterTo = fmtDate(getMonthEnd(year, month));
+    if (!year) return;
+    if (month === 0) {
+      // Anno completo
+      filterFrom = `${year}-01-01`;
+      filterTo   = `${year}-12-31`;
+    } else {
+      filterFrom = `${year}-${String(month).padStart(2,'0')}-01`;
+      filterTo = fmtDate(getMonthEnd(year, month));
+    }
     updateFilterLabel();
     updateStats();
     updateTransactionsList();
@@ -1145,6 +1250,14 @@
   document.getElementById('btn-apply-range').addEventListener('click', () => {
     if (document.getElementById('filter-custom-toggle').checked) applyCustomRangeFilter();
     else applyMonthYearFilter();
+  });
+
+  // Aggiornamento automatico cambiando mese o anno
+  document.getElementById('filter-month').addEventListener('change', () => {
+    if (!document.getElementById('filter-custom-toggle').checked) applyMonthYearFilter();
+  });
+  document.getElementById('filter-year').addEventListener('change', () => {
+    if (!document.getElementById('filter-custom-toggle').checked) applyMonthYearFilter();
   });
 
   document.getElementById('filter-custom-toggle').addEventListener('change', (e) => {
