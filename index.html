@@ -597,7 +597,7 @@
         <i class="ti ti-layout-dashboard" aria-hidden="true"></i> Home
       </button>
       <button class="nav-item" data-page="page-grafici">
-        <i class="ti ti-chart-bar" aria-hidden="true"></i> Grafici
+        <i class="ti ti-chart-bar" aria-hidden="true"></i> Statistiche
       </button>
       <button class="nav-item" data-page="page-import">
         <i class="ti ti-file-import" aria-hidden="true"></i> Importa Excel
@@ -738,7 +738,7 @@
 
     <!-- ══ GRAFICI ══ -->
     <div id="page-grafici" class="page">
-      <h1>Grafici</h1>
+      <h1>Statistiche</h1>
 
       <div class="row-between">
         <h2>Spese per categoria</h2>
@@ -746,8 +746,8 @@
       </div>
       <div class="panel">
         <div class="legend" id="legend-categories"></div>
-        <div class="chart-wrap">
-          <canvas id="categoryChart" role="img" aria-label="Grafico a barre delle spese per categoria">Spese per categoria nel mese selezionato.</canvas>
+        <div class="chart-wrap" style="height:300px; display:flex; align-items:center; justify-content:center;">
+          <canvas id="categoryChart" role="img" aria-label="Grafico a torta delle spese per categoria">Spese per categoria nel mese selezionato.</canvas>
         </div>
       </div>
 
@@ -762,12 +762,14 @@
       </div>
 
       <div class="row-between">
-        <h2>Budget mensile per categoria</h2>
-        <button id="btn-edit-budget" style="height: 32px; font-size: 13px;"><i class="ti ti-edit" aria-hidden="true"></i> Modifica</button>
+        <h2>Residuo mensile</h2>
+        <select id="chart-residuo-year"></select>
       </div>
-      <div class="panel" id="budget-panel">
-        <div id="budget-edit-panel" style="display:none;"></div>
-        <div id="budget-list"></div>
+      <div class="panel">
+        <p style="font-size:12px; color:var(--text-secondary); margin:0 0 8px;">Andamento del residuo in cassa mese per mese (entrate - uscite cumulative).</p>
+        <div class="chart-wrap">
+          <canvas id="residuoChart" role="img" aria-label="Grafico andamento residuo mensile">Andamento del residuo mensile.</canvas>
+        </div>
       </div>
     </div>
 
@@ -988,7 +990,7 @@
     pages.forEach(p => p.classList.toggle('active', p.id === pageId));
     navItems.forEach(n => n.classList.toggle('active', n.dataset.page === pageId));
     closeSidebar();
-    if (pageId === 'page-grafici') { updateChartCategory(); updateChartYear(); updateBudgetList(); }
+    if (pageId === 'page-grafici') { populateResiduoYearSelect(); updateChartCategory(); updateChartYear(); updateChartResiduo(); }
     if (pageId === 'page-profilo') updateProfilePage();
     if (pageId === 'page-promemoria') renderReminders();
   }
@@ -1280,27 +1282,34 @@
     const month = document.getElementById('chart-month').value || monthKey(todayISO());
     const mt = state.transactions.filter(t => t.type === 'expense' && monthKey(t.date) === month);
     const byCategory = {};
-    mt.forEach(t => { byCategory[t.category] = (byCategory[t.category] || 0) + t.amount; });
-    const cats = state.categories.expense;
+    mt.forEach(t => { byCategory[t.category] = (byCategory[t.category] || 0) + amountValue(t.amount); });
+    const cats = state.categories.expense.filter(c => (byCategory[c] || 0) > 0);
     const data = cats.map(c => Math.round((byCategory[c] || 0) * 100) / 100);
     const colors = cats.map((c,i) => CAT_COLORS[i % CAT_COLORS.length]);
+
     const legend = document.getElementById('legend-categories');
     legend.innerHTML = '';
     cats.forEach((c,i) => {
-      if (data[i] > 0) {
-        const span = document.createElement('span');
-        span.innerHTML = '<span class="swatch" style="background:' + colors[i] + ';"></span>' + c + ' ' + fmtEUR(data[i]);
-        legend.appendChild(span);
-      }
+      const span = document.createElement('span');
+      span.innerHTML = '<span class="swatch" style="background:' + colors[i] + ';border-radius:50%;"></span>' + c + ' ' + fmtEUR(data[i]);
+      legend.appendChild(span);
     });
+
     if (chartCategory) chartCategory.destroy();
+    if (data.length === 0) {
+      legend.innerHTML = '<span style="color:var(--text-muted); font-size:13px;">Nessuna spesa in questo mese.</span>';
+      return;
+    }
     chartCategory = new Chart(document.getElementById('categoryChart'), {
-      type: 'bar',
-      data: { labels: cats, datasets: [{ data, backgroundColor: colors, borderRadius: 4 }] },
+      type: 'doughnut',
+      data: { labels: cats, datasets: [{ data, backgroundColor: colors, borderWidth: 2, borderColor: 'var(--surface)' }] },
       options: {
         responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmtEUR(ctx.parsed.y) } } },
-        scales: { y: { beginAtZero: true, ticks: { callback: v => fmtEUR(v) } }, x: { ticks: { autoSkip: false, maxRotation: 30 } } }
+        cutout: '60%',
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => ctx.label + ': ' + fmtEUR(ctx.parsed) + ' (' + Math.round(ctx.parsed / data.reduce((a,b)=>a+b,0) * 100) + '%)' } }
+        }
       }
     });
   }
@@ -1333,49 +1342,76 @@
   document.getElementById('chart-month').addEventListener('change', updateChartCategory);
   document.getElementById('chart-year').addEventListener('change', updateChartYear);
 
-  // ====== BUDGET ======
-  function updateBudgetList() {
-    const cm = monthKey(todayISO());
-    const mt = state.transactions.filter(t => t.type === 'expense' && monthKey(t.date) === cm);
-    const byCategory = {};
-    mt.forEach(t => { byCategory[t.category] = (byCategory[t.category] || 0) + t.amount; });
-    const list = document.getElementById('budget-list');
-    list.innerHTML = '';
-    state.categories.expense.forEach(c => {
-      const spent = byCategory[c] || 0;
-      const budget = state.budgets[c] || 0;
-      const pct = budget > 0 ? Math.min(100, Math.round((spent/budget)*100)) : 0;
-      const over = budget > 0 && spent > budget;
-      const row = document.createElement('div');
-      row.className = 'budget-row';
-      row.innerHTML = `<div class="top"><span>${c}</span><span style="color:${over?'var(--danger)':'var(--text-secondary)'};">${fmtEUR(spent)} / ${budget > 0 ? fmtEUR(budget) : 'nessun budget'}</span></div><div class="bar-bg"><div class="bar-fill" style="width:${pct}%; background:${over?'var(--danger)':'var(--accent)'};"></div></div>`;
-      list.appendChild(row);
+  // ====== GRAFICO RESIDUO MENSILE ======
+  let chartResiduo = null;
+
+  function populateResiduoYearSelect() {
+    const sel = document.getElementById('chart-residuo-year');
+    if (!sel) return;
+    const prev = sel.value;
+    const years = new Set(state.transactions.map(t => t.date.slice(0,4)));
+    years.add(String(new Date().getFullYear()));
+    sel.innerHTML = '';
+    Array.from(years).sort().reverse().forEach(y => {
+      const opt = document.createElement('option');
+      opt.value = y; opt.textContent = y;
+      sel.appendChild(opt);
+    });
+    if ([...sel.options].some(o => o.value === prev)) sel.value = prev;
+  }
+
+  function updateChartResiduo() {
+    const year = document.getElementById('chart-residuo-year')?.value || String(new Date().getFullYear());
+    const months = Array.from({length:12}, (_,i) => `${year}-${String(i+1).padStart(2,'0')}`);
+    const labels = months.map(m => new Date(+year, +m.split('-')[1]-1, 1).toLocaleDateString('it-IT',{month:'short'}));
+
+    // Calcola il residuo cumulativo fino a ogni mese (su tutti gli anni precedenti + mesi correnti)
+    let runningTotal = 0;
+    // Prima somma tutto ciò che è prima dell'anno selezionato
+    state.transactions.forEach(t => {
+      if (t.date.slice(0,4) < year) {
+        runningTotal += t.type === 'income' ? amountValue(t.amount) : -amountValue(t.amount);
+      }
+    });
+
+    const residuoData = months.map(m => {
+      const mt = state.transactions.filter(t => monthKey(t.date) === m);
+      const inc = mt.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0);
+      const exp = mt.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0);
+      runningTotal += inc - exp;
+      return Math.round(runningTotal * 100) / 100;
+    });
+
+    const colors = residuoData.map(v => v >= 0 ? '#3b82f6' : '#D85A30');
+    if (chartResiduo) chartResiduo.destroy();
+    chartResiduo = new Chart(document.getElementById('residuoChart'), {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Residuo in cassa',
+          data: residuoData,
+          borderColor: '#3b82f6',
+          backgroundColor: 'rgba(59,130,246,0.10)',
+          pointBackgroundColor: colors,
+          pointBorderColor: colors,
+          pointRadius: 5,
+          tension: 0.3,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => 'Residuo: ' + fmtEUR(ctx.parsed.y) } } },
+        scales: {
+          y: { ticks: { callback: v => fmtEUR(v) }, grid: { color: 'rgba(128,128,128,0.1)' } },
+          x: { grid: { display: false } }
+        }
+      }
     });
   }
 
-  document.getElementById('btn-edit-budget').addEventListener('click', () => {
-    const panel = document.getElementById('budget-edit-panel');
-    const isOpen = panel.style.display !== 'none';
-    if (isOpen) { panel.style.display = 'none'; panel.innerHTML = ''; return; }
-    panel.innerHTML = '';
-    state.categories.expense.forEach(c => {
-      const row = document.createElement('div');
-      row.className = 'budget-edit-row';
-      row.innerHTML = `<span>${escapeHtml(c)}</span><input type="number" min="0" step="10" value="${state.budgets[c]||0}" data-cat="${escapeHtml(c)}">`;
-      panel.appendChild(row);
-    });
-    const saveBtn = document.createElement('button');
-    saveBtn.textContent = 'Salva budget';
-    saveBtn.style.width = '100%';
-    saveBtn.addEventListener('click', async () => {
-      panel.querySelectorAll('input').forEach(inp => { state.budgets[inp.getAttribute('data-cat')] = parseFloat(inp.value)||0; });
-      await saveBudgets();
-      panel.style.display = 'none'; panel.innerHTML = '';
-      updateBudgetList();
-    });
-    panel.appendChild(saveBtn);
-    panel.style.display = 'block';
-  });
+  document.getElementById('chart-residuo-year')?.addEventListener('change', updateChartResiduo);
 
   // ====== MOVIMENTI ======
   const ICON_MATITA = 'data:image/svg+xml;base64,77u/PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsbGVkYnk9InRpdGxlIGRlc2MiPgogIDx0aXRsZSBpZD0idGl0bGUiPlB1bHNhbnRlIG1vZGlmaWNhPC90aXRsZT4KICA8ZGVzYyBpZD0iZGVzYyI+SWNvbmEgcGVyIHB1bHNhbnRlIG1vZGlmaWNhIGNvbiB1bmEgbWF0aXRhIGJpYW5jYSBzdSBzZm9uZG8gYmx1LjwvZGVzYz4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYnV0dG9uR3JhZGllbnQiIHgxPSI5NiIgeTE9IjcyIiB4Mj0iNDE2IiB5Mj0iNDQwIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzJGODBFRCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNTU4QzAiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8ZmlsdGVyIGlkPSJzb2Z0U2hhZG93IiB4PSI0NCIgeT0iNDQiIHdpZHRoPSI0MjQiIGhlaWdodD0iNDI0IiBmaWx0ZXJVbml0cz0idXNlclNwYWNlT25Vc2UiIGNvbG9yLWludGVycG9sYXRpb24tZmlsdGVycz0ic1JHQiI+CiAgICAgIDxmZURyb3BTaGFkb3cgZHg9IjAiIGR5PSIxOCIgc3RkRGV2aWF0aW9uPSIxOCIgZmxvb2QtY29sb3I9IiMwQjJFNjMiIGZsb29kLW9wYWNpdHk9IjAuMjQiLz4KICAgIDwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB4PSI3MiIgeT0iNzIiIHdpZHRoPSIzNjgiIGhlaWdodD0iMzY4IiByeD0iOTIiIGZpbGw9InVybCgjYnV0dG9uR3JhZGllbnQpIiBmaWx0ZXI9InVybCgjc29mdFNoYWRvdykiLz4KICA8cGF0aCBkPSJNMzM4LjcgMTMwLjhjMTIuNi0xMi42IDMzLjEtMTIuNiA0NS43IDBsMTcuOCAxNy44YzEyLjYgMTIuNiAxMi42IDMzLjEgMCA0NS43bC0yNC41IDI0LjUtNjMuNS02My41IDI0LjUtMjQuNVoiIGZpbGw9IiNGRkZGRkYiLz4KICA8cGF0aCBkPSJNMjg3LjcgMTgxLjggMTUxLjggMzE3LjdjLTMuMiAzLjItNS40IDcuMi02LjUgMTEuNmwtMTcuNSA2OS45Yy0yLjUgOS45IDYuNSAxOC45IDE2LjQgMTYuNGw2OS45LTE3LjVjNC40LTEuMSA4LjQtMy4zIDExLjYtNi41bDEzNS45LTEzNS45LTczLjktNzMuOVoiIGZpbGw9IiNGRkZGRkYiLz4KICA8cGF0aCBkPSJNMjg3LjcgMTgxLjggMzYxLjYgMjU1LjcgMzM4IDI3OS4zIDI2NC4xIDIwNS40bDIzLjYtMjMuNloiIGZpbGw9IiNEREVCRkYiLz4KICA8cGF0aCBkPSJNMTUxLjggMzE3LjdjLTMuMiAzLjItNS40IDcuMi02LjUgMTEuNmwtMTAuMyA0MSA0MC45IDQwLjkgNDAuOS0xMC4zYzQuNC0xLjEgOC40LTMuMyAxMS42LTYuNWwtNzYuNi03Ni43WiIgZmlsbD0iI0VBRjNGRiIvPgogIDxwYXRoIGQ9Ik0xMzUgMzcwLjMgMTI3LjggMzk5LjJjLTIuNSA5LjkgNi41IDE4LjkgMTYuNCAxNi40bDI4LjktNy4yTDEzNSAzNzAuM1oiIGZpbGw9IiMxMDJBNDMiLz4KPC9zdmc+DQo=';
@@ -1859,7 +1895,7 @@
     updateFilterLabel();
     updateTransactionsList();
     const activePage = document.querySelector('.page.active');
-    if (activePage && activePage.id === 'page-grafici') { updateChartCategory(); updateChartYear(); updateBudgetList(); }
+    if (activePage && activePage.id === 'page-grafici') { populateResiduoYearSelect(); updateChartCategory(); updateChartYear(); updateChartResiduo(); }
     if (activePage && activePage.id === 'page-profilo') updateProfilePage();
     if (activePage && activePage.id === 'page-promemoria') renderReminders();
   }
