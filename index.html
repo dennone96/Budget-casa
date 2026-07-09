@@ -611,6 +611,9 @@
       <button class="nav-item" data-page="page-profilo">
         <i class="ti ti-user-circle" aria-hidden="true"></i> Gestione profilo
       </button>
+      <button class="nav-item" data-page="page-categorie">
+        <i class="ti ti-tag" aria-hidden="true"></i> Categorie
+      </button>
     </nav>
     <div id="sidebar-footer">
       <span id="sidebar-user-email"></span>
@@ -722,6 +725,10 @@
       <div style="margin-bottom: 0.5rem; margin-top:1.5rem;">
         <h2>Movimenti</h2>
       </div>
+      <div style="position:relative; margin-bottom:10px;">
+        <i class="ti ti-search" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text-muted); font-size:15px; pointer-events:none;"></i>
+        <input type="text" id="search-input" placeholder="Cerca per descrizione o categoria..." style="width:100%; padding-left:36px; height:38px; border-radius:var(--radius); border:1px solid var(--border); background:var(--surface);">
+      </div>
       <div class="source-filter">
         <button class="active" data-source="all">Tutti</button>
         <button data-source="cash">💵 Contanti</button>
@@ -772,6 +779,26 @@
         <p style="font-size:12px; color:var(--text-secondary); margin:0 0 8px;">Andamento del residuo in cassa mese per mese (entrate - uscite cumulative).</p>
         <div class="chart-wrap">
           <canvas id="residuoChart" role="img" aria-label="Grafico andamento residuo mensile">Andamento del residuo mensile.</canvas>
+        </div>
+      </div>
+
+      <div class="row-between">
+        <h2>Confronto tra due mesi</h2>
+      </div>
+      <div class="panel">
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; align-items:center;">
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span style="width:12px;height:12px;border-radius:3px;background:#3b82f6;display:inline-block;"></span>
+            <select id="compare-month-a" style="height:34px; font-size:13px; border-radius:8px;"></select>
+          </div>
+          <span style="font-size:13px; color:var(--text-secondary);">vs</span>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span style="width:12px;height:12px;border-radius:3px;background:#10b981;display:inline-block;"></span>
+            <select id="compare-month-b" style="height:34px; font-size:13px; border-radius:8px;"></select>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="compareChart" role="img" aria-label="Grafico confronto tra due mesi">Confronto entrate e uscite tra due mesi.</canvas>
         </div>
       </div>
     </div>
@@ -902,6 +929,39 @@
       </div>
     </div>
 
+    <!-- ══ CATEGORIE ══ -->
+    <div id="page-categorie" class="page">
+      <h1>Categorie</h1>
+
+      <!-- CATEGORIE USCITE -->
+      <div class="row-between" style="margin-bottom:.75rem;">
+        <h2>📤 Uscite</h2>
+      </div>
+      <div class="panel" style="padding:0; overflow:hidden;">
+        <div id="cat-list-expense" style="display:flex; flex-direction:column;"></div>
+        <div style="padding:10px 16px; border-top:1px solid var(--border); display:flex; gap:8px;">
+          <input type="text" id="new-cat-expense" placeholder="Nuova categoria uscita..." style="flex:1; height:36px;">
+          <button id="btn-add-cat-expense" style="height:36px; padding:0 14px; background:var(--blue); color:#fff; border:none; border-radius:var(--radius-pill); font-size:13px; font-weight:600; white-space:nowrap;">
+            <i class="ti ti-plus"></i> Aggiungi
+          </button>
+        </div>
+      </div>
+
+      <!-- CATEGORIE ENTRATE -->
+      <div class="row-between" style="margin-bottom:.75rem; margin-top:.5rem;">
+        <h2>📥 Entrate</h2>
+      </div>
+      <div class="panel" style="padding:0; overflow:hidden;">
+        <div id="cat-list-income" style="display:flex; flex-direction:column;"></div>
+        <div style="padding:10px 16px; border-top:1px solid var(--border); display:flex; gap:8px;">
+          <input type="text" id="new-cat-income" placeholder="Nuova categoria entrata..." style="flex:1; height:36px;">
+          <button id="btn-add-cat-income" style="height:36px; padding:0 14px; background:var(--blue); color:#fff; border:none; border-radius:var(--radius-pill); font-size:13px; font-weight:600; white-space:nowrap;">
+            <i class="ti ti-plus"></i> Aggiungi
+          </button>
+        </div>
+      </div>
+    </div>
+
   </main>
 </div>
 
@@ -1027,9 +1087,10 @@
     pages.forEach(p => p.classList.toggle('active', p.id === pageId));
     navItems.forEach(n => n.classList.toggle('active', n.dataset.page === pageId));
     closeSidebar();
-    if (pageId === 'page-grafici') { populateResiduoYearSelect(); updateChartCategory(); updateChartYear(); updateChartResiduo(); }
+    if (pageId === 'page-grafici') { populateResiduoYearSelect(); populateCompareSelects(); updateChartCategory(); updateChartYear(); updateChartResiduo(); updateChartCompare(); }
     if (pageId === 'page-profilo') updateProfilePage();
     if (pageId === 'page-promemoria') renderReminders();
+    if (pageId === 'page-categorie') renderAllCategories();
   }
 
   navItems.forEach(btn => {
@@ -1450,6 +1511,169 @@
 
   document.getElementById('chart-residuo-year')?.addEventListener('change', updateChartResiduo);
 
+  // ====== RICERCA MOVIMENTI ======
+  let searchQuery = '';
+  document.getElementById('search-input').addEventListener('input', (e) => {
+    searchQuery = e.target.value.trim().toLowerCase();
+    updateTransactionsList();
+  });
+
+  // ====== CONFRONTO TRA DUE MESI ======
+  let chartCompare = null;
+
+  function populateCompareSelects() {
+    const months = [];
+    const keys = new Set(state.transactions.map(t => t.date.slice(0,7)));
+    keys.add(new Date().toISOString().slice(0,7));
+    Array.from(keys).sort().reverse().forEach(k => months.push(k));
+    ['compare-month-a','compare-month-b'].forEach((id, idx) => {
+      const sel = document.getElementById(id);
+      if (!sel) return;
+      const prev = sel.value;
+      sel.innerHTML = '';
+      months.forEach((m, i) => {
+        const opt = document.createElement('option');
+        opt.value = m;
+        opt.textContent = new Date(m + '-01').toLocaleDateString('it-IT',{month:'long', year:'numeric'});
+        sel.appendChild(opt);
+      });
+      // Seleziona mese corrente per A e mese scorso per B di default
+      if (months.includes(prev)) sel.value = prev;
+      else sel.value = months[idx] || months[0];
+    });
+  }
+
+  function updateChartCompare() {
+    const mA = document.getElementById('compare-month-a')?.value;
+    const mB = document.getElementById('compare-month-b')?.value;
+    if (!mA || !mB) return;
+
+    function monthStats(m) {
+      const mt = state.transactions.filter(t => t.date.slice(0,7) === m);
+      return {
+        income:  mt.filter(t => t.type==='income').reduce((s,t)=>s+amountValue(t.amount),0),
+        expense: mt.filter(t => t.type==='expense').reduce((s,t)=>s+amountValue(t.amount),0)
+      };
+    }
+    const sA = monthStats(mA);
+    const sB = monthStats(mB);
+    const labelA = new Date(mA+'-01').toLocaleDateString('it-IT',{month:'short',year:'2-digit'});
+    const labelB = new Date(mB+'-01').toLocaleDateString('it-IT',{month:'short',year:'2-digit'});
+
+    if (chartCompare) chartCompare.destroy();
+    chartCompare = new Chart(document.getElementById('compareChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Entrate', 'Uscite'],
+        datasets: [
+          { label: labelA, data: [sA.income, sA.expense], backgroundColor: '#3b82f6', borderRadius: 6, borderSkipped: false },
+          { label: labelB, data: [sB.income, sB.expense], backgroundColor: '#10b981', borderRadius: 6, borderSkipped: false }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + fmtEUR(ctx.parsed.y) } } },
+        scales: { y: { beginAtZero: true, ticks: { callback: v => fmtEUR(v) } } }
+      }
+    });
+  }
+
+  document.getElementById('compare-month-a')?.addEventListener('change', updateChartCompare);
+  document.getElementById('compare-month-b')?.addEventListener('change', updateChartCompare);
+
+  // ====== GESTIONE CATEGORIE ======
+  async function saveCategories() {
+    try { await userDocRef().set({ categories: state.categories }, { merge: true }); } catch(e) {}
+  }
+
+  function renderCategoryList(type) {
+    const listEl = document.getElementById('cat-list-' + type);
+    if (!listEl) return;
+    listEl.innerHTML = '';
+    (state.categories[type] || []).forEach((cat, idx) => {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex; align-items:center; gap:8px; padding:8px 16px; border-bottom:1px solid var(--border);';
+      row.innerHTML = `
+        <span style="flex:1; font-size:14px; font-weight:500;" id="cat-label-${type}-${idx}">${escapeHtml(cat)}</span>
+        <input type="text" id="cat-edit-${type}-${idx}" value="${escapeHtml(cat)}" style="flex:1; height:32px; display:none; font-size:13px;">
+        <button class="cat-btn-edit" data-type="${type}" data-idx="${idx}" style="height:32px; width:32px; padding:0; border:1px solid var(--border); border-radius:8px; background:var(--blue-light); display:flex; align-items:center; justify-content:center;" aria-label="Modifica">
+          <i class="ti ti-pencil" style="font-size:14px; color:var(--blue);"></i>
+        </button>
+        <button class="cat-btn-save" data-type="${type}" data-idx="${idx}" style="height:32px; padding:0 10px; border:none; border-radius:8px; background:var(--blue); color:#fff; font-size:12px; font-weight:600; display:none;">Salva</button>
+        <button class="cat-btn-delete" data-type="${type}" data-idx="${idx}" style="height:32px; width:32px; padding:0; border:1px solid #fecaca; border-radius:8px; background:var(--danger-bg); display:flex; align-items:center; justify-content:center;" aria-label="Elimina">
+          <i class="ti ti-trash" style="font-size:14px; color:var(--danger);"></i>
+        </button>`;
+      listEl.appendChild(row);
+    });
+
+    // Listener modifica
+    listEl.querySelectorAll('.cat-btn-edit').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const i = btn.dataset.idx; const t = btn.dataset.type;
+        document.getElementById(`cat-label-${t}-${i}`).style.display = 'none';
+        document.getElementById(`cat-edit-${t}-${i}`).style.display = '';
+        btn.style.display = 'none';
+        listEl.querySelector(`.cat-btn-save[data-idx="${i}"]`).style.display = '';
+      });
+    });
+
+    // Listener salva
+    listEl.querySelectorAll('.cat-btn-save').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const i = parseInt(btn.dataset.idx); const t = btn.dataset.type;
+        const newVal = document.getElementById(`cat-edit-${t}-${i}`).value.trim();
+        if (!newVal) return;
+        const old = state.categories[t][i];
+        state.categories[t][i] = newVal;
+        // Aggiorna anche le transazioni con la vecchia categoria
+        state.transactions.forEach(tx => { if (tx.type === t && tx.category === old) tx.category = newVal; });
+        await saveCategories();
+        await saveTransactions();
+        renderCategoryList(t);
+      });
+    });
+
+    // Listener elimina
+    listEl.querySelectorAll('.cat-btn-delete').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const i = parseInt(btn.dataset.idx); const t = btn.dataset.type;
+        if (!confirm(`Eliminare la categoria "${state.categories[t][i]}"?`)) return;
+        state.categories[t].splice(i, 1);
+        await saveCategories();
+        renderCategoryList(t);
+      });
+    });
+  }
+
+  function renderAllCategories() {
+    renderCategoryList('expense');
+    renderCategoryList('income');
+  }
+
+  document.getElementById('btn-add-cat-expense').addEventListener('click', async () => {
+    const inp = document.getElementById('new-cat-expense');
+    const val = inp.value.trim();
+    if (!val) return;
+    if (!state.categories.expense.includes(val)) {
+      state.categories.expense.push(val);
+      await saveCategories();
+      renderCategoryList('expense');
+    }
+    inp.value = '';
+  });
+
+  document.getElementById('btn-add-cat-income').addEventListener('click', async () => {
+    const inp = document.getElementById('new-cat-income');
+    const val = inp.value.trim();
+    if (!val) return;
+    if (!state.categories.income.includes(val)) {
+      state.categories.income.push(val);
+      await saveCategories();
+      renderCategoryList('income');
+    }
+    inp.value = '';
+  });
+
   // ====== MOVIMENTI ======
   const ICON_MATITA = 'data:image/svg+xml;base64,77u/PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsbGVkYnk9InRpdGxlIGRlc2MiPgogIDx0aXRsZSBpZD0idGl0bGUiPlB1bHNhbnRlIG1vZGlmaWNhPC90aXRsZT4KICA8ZGVzYyBpZD0iZGVzYyI+SWNvbmEgcGVyIHB1bHNhbnRlIG1vZGlmaWNhIGNvbiB1bmEgbWF0aXRhIGJpYW5jYSBzdSBzZm9uZG8gYmx1LjwvZGVzYz4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYnV0dG9uR3JhZGllbnQiIHgxPSI5NiIgeTE9IjcyIiB4Mj0iNDE2IiB5Mj0iNDQwIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzJGODBFRCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxNTU4QzAiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8ZmlsdGVyIGlkPSJzb2Z0U2hhZG93IiB4PSI0NCIgeT0iNDQiIHdpZHRoPSI0MjQiIGhlaWdodD0iNDI0IiBmaWx0ZXJVbml0cz0idXNlclNwYWNlT25Vc2UiIGNvbG9yLWludGVycG9sYXRpb24tZmlsdGVycz0ic1JHQiI+CiAgICAgIDxmZURyb3BTaGFkb3cgZHg9IjAiIGR5PSIxOCIgc3RkRGV2aWF0aW9uPSIxOCIgZmxvb2QtY29sb3I9IiMwQjJFNjMiIGZsb29kLW9wYWNpdHk9IjAuMjQiLz4KICAgIDwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB4PSI3MiIgeT0iNzIiIHdpZHRoPSIzNjgiIGhlaWdodD0iMzY4IiByeD0iOTIiIGZpbGw9InVybCgjYnV0dG9uR3JhZGllbnQpIiBmaWx0ZXI9InVybCgjc29mdFNoYWRvdykiLz4KICA8cGF0aCBkPSJNMzM4LjcgMTMwLjhjMTIuNi0xMi42IDMzLjEtMTIuNiA0NS43IDBsMTcuOCAxNy44YzEyLjYgMTIuNiAxMi42IDMzLjEgMCA0NS43bC0yNC41IDI0LjUtNjMuNS02My41IDI0LjUtMjQuNVoiIGZpbGw9IiNGRkZGRkYiLz4KICA8cGF0aCBkPSJNMjg3LjcgMTgxLjggMTUxLjggMzE3LjdjLTMuMiAzLjItNS40IDcuMi02LjUgMTEuNmwtMTcuNSA2OS45Yy0yLjUgOS45IDYuNSAxOC45IDE2LjQgMTYuNGw2OS45LTE3LjVjNC40LTEuMSA4LjQtMy4zIDExLjYtNi41bDEzNS45LTEzNS45LTczLjktNzMuOVoiIGZpbGw9IiNGRkZGRkYiLz4KICA8cGF0aCBkPSJNMjg3LjcgMTgxLjggMzYxLjYgMjU1LjcgMzM4IDI3OS4zIDI2NC4xIDIwNS40bDIzLjYtMjMuNloiIGZpbGw9IiNEREVCRkYiLz4KICA8cGF0aCBkPSJNMTUxLjggMzE3LjdjLTMuMiAzLjItNS40IDcuMi02LjUgMTEuNmwtMTAuMyA0MSA0MC45IDQwLjkgNDAuOS0xMC4zYzQuNC0xLjEgOC40LTMuMyAxMS42LTYuNWwtNzYuNi03Ni43WiIgZmlsbD0iI0VBRjNGRiIvPgogIDxwYXRoIGQ9Ik0xMzUgMzcwLjMgMTI3LjggMzk5LjJjLTIuNSA5LjkgNi41IDE4LjkgMTYuNCAxNi40bDI4LjktNy4yTDEzNSAzNzAuM1oiIGZpbGw9IiMxMDJBNDMiLz4KPC9zdmc+DQo=';
   const ICON_CESTINO = 'data:image/svg+xml;base64,77u/PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsbGVkYnk9InRpdGxlIGRlc2MiPgogIDx0aXRsZSBpZD0idGl0bGUiPlB1bHNhbnRlIGVsaW1pbmE8L3RpdGxlPgogIDxkZXNjIGlkPSJkZXNjIj5JY29uYSBwZXIgcHVsc2FudGUgZWxpbWluYSBjb24gdW4gY2VzdGlubyBiaWFuY28gc3Ugc2ZvbmRvIHJvc3NvLjwvZGVzYz4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYnV0dG9uR3JhZGllbnQiIHgxPSI5NiIgeTE9IjcyIiB4Mj0iNDE2IiB5Mj0iNDQwIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0YwNDQzOCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNCNDIzMTgiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8ZmlsdGVyIGlkPSJzb2Z0U2hhZG93IiB4PSI0NCIgeT0iNDQiIHdpZHRoPSI0MjQiIGhlaWdodD0iNDI0IiBmaWx0ZXJVbml0cz0idXNlclNwYWNlT25Vc2UiIGNvbG9yLWludGVycG9sYXRpb24tZmlsdGVycz0ic1JHQiI+CiAgICAgIDxmZURyb3BTaGFkb3cgZHg9IjAiIGR5PSIxOCIgc3RkRGV2aWF0aW9uPSIxOCIgZmxvb2QtY29sb3I9IiM2NTE2MEYiIGZsb29kLW9wYWNpdHk9IjAuMjQiLz4KICAgIDwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB4PSI3MiIgeT0iNzIiIHdpZHRoPSIzNjgiIGhlaWdodD0iMzY4IiByeD0iOTIiIGZpbGw9InVybCgjYnV0dG9uR3JhZGllbnQpIiBmaWx0ZXI9InVybCgjc29mdFNoYWRvdykiLz4KICA8cGF0aCBkPSJNMjAyIDE1NGMwLTE3LjcgMTQuMy0zMiAzMi0zMmg0NGMxNy43IDAgMzIgMTQuMyAzMiAzMnYxNGg1MmMxMSAwIDIwIDkgMjAgMjBzLTkgMjAtMjAgMjBIMTUwYy0xMSAwLTIwLTktMjAtMjBzOS0yMCAyMC0yMGg1MnYtMTRabTQwIDE0aDI4di02YzAtMy4zLTIuNy02LTYtNmgtMTZjLTMuMyAwLTYgMi43LTYgNnY2WiIgZmlsbD0iI0ZGRkZGRiIvPgogIDxwYXRoIGQ9Ik0xNzAgMjM4Yy0xLjEtMTMuOCA5LjgtMjUuNiAyMy42LTI1LjZoMTI0LjhjMTMuOCAwIDI0LjcgMTEuOCAyMy42IDI1LjZsLTEyLjIgMTQ0LjljLTEuNSAxNy41LTE2LjEgMzEuMS0zMy43IDMxLjFoLTgwLjJjLTE3LjYgMC0zMi4yLTEzLjYtMzMuNy0zMS4xTDE3MCAyMzhaIiBmaWxsPSIjRkZGRkZGIi8+CiAgPHBhdGggZD0iTTIyMiAyNTdjOC44IDAgMTYgNy4yIDE2IDE2djg2YzAgOC44LTcuMiAxNi0xNiAxNnMtMTYtNy4yLTE2LTE2di04NmMwLTguOCA3LjItMTYgMTYtMTZabTY4IDBjOC44IDAgMTYgNy4yIDE2IDE2djg2YzAgOC44LTcuMiAxNi0xNiAxNnMtMTYtNy4yLTE2LTE2di04NmMwLTguOCA3LjItMTYgMTYtMTZaIiBmaWxsPSIjRkJENUQxIi8+CiAgPHBhdGggZD0iTTE3OS40IDI2MGgxNTMuMmwtMi4yIDI2SDE4MS42bC0yLjItMjZaIiBmaWxsPSIjRkVFNEUyIi8+Cjwvc3ZnPg0K';
@@ -1471,6 +1695,14 @@
     let mt = state.transactions
       .filter(t => t.date >= from && t.date <= to && matchesSourceFilter(t))
       .sort((a,b) => b.date.localeCompare(a.date));
+
+    // Filtro ricerca testo
+    if (searchQuery) {
+      mt = mt.filter(t =>
+        (t.description || '').toLowerCase().includes(searchQuery) ||
+        (t.category || '').toLowerCase().includes(searchQuery)
+      );
+    }
 
     const list = document.getElementById('transactions-list');
     list.innerHTML = '';
@@ -1943,9 +2175,10 @@
     updateFilterLabel();
     updateTransactionsList();
     const activePage = document.querySelector('.page.active');
-    if (activePage && activePage.id === 'page-grafici') { populateResiduoYearSelect(); updateChartCategory(); updateChartYear(); updateChartResiduo(); }
+    if (activePage && activePage.id === 'page-grafici') { populateResiduoYearSelect(); populateCompareSelects(); updateChartCategory(); updateChartYear(); updateChartResiduo(); updateChartCompare(); }
     if (activePage && activePage.id === 'page-profilo') updateProfilePage();
     if (activePage && activePage.id === 'page-promemoria') renderReminders();
+    if (activePage && activePage.id === 'page-categorie') renderAllCategories();
   }
 
   document.getElementById('inp-date').value = todayISO();
