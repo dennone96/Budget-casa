@@ -780,28 +780,62 @@
     <div id="page-import" class="page">
       <h1>Importa da Excel</h1>
 
+      <!-- SEZIONE CONTO CORRENTE -->
+      <div class="row-between" style="margin-bottom:.75rem;">
+        <h2>🏦 Conto corrente</h2>
+      </div>
       <div class="panel">
         <p style="font-size:13px; color:var(--text-secondary); margin-top:0;">
-          Carica un file con le colonne: <strong>Mese</strong>, <strong>Anno</strong>, <strong>Data Contabile</strong>, <strong>Descrizione</strong>, <strong>Importo</strong>, <strong>Categoria</strong> (opzionale, negativo = Uscita, positivo = Entrata).
+          Movimenti bancari. Colonne: <strong>Mese</strong>, <strong>Anno</strong>, <strong>Data Contabile</strong>, <strong>Descrizione</strong>, <strong>Importo</strong>, <strong>Categoria</strong> (opzionale). Verranno classificati come <strong>Conto corrente</strong>.
         </p>
         <div class="import-row">
-          <input type="file" id="import-file" accept=".xlsx,.xls,.csv">
-          <button id="btn-download-template"><i class="ti ti-download" aria-hidden="true"></i> Scarica modello</button>
+          <input type="file" id="import-file-bank" accept=".xlsx,.xls,.csv">
+          <button id="btn-download-template-bank"><i class="ti ti-download" aria-hidden="true"></i> Scarica modello</button>
         </div>
-        <p id="import-error-text"></p>
-        <div id="import-preview-wrap" class="hidden">
-          <p id="import-summary"></p>
+        <p id="import-error-text-bank"></p>
+        <div id="import-preview-wrap-bank" class="hidden">
+          <p id="import-summary-bank"></p>
           <div class="import-table-wrap">
             <table>
               <thead>
                 <tr><th>Stato</th><th>Data</th><th>Descrizione</th><th>Importo</th><th>Categoria</th><th>Tipo</th></tr>
               </thead>
-              <tbody id="import-preview-body"></tbody>
+              <tbody id="import-preview-body-bank"></tbody>
             </table>
           </div>
-          <div id="import-actions">
-            <button id="btn-import-confirm"><i class="ti ti-check" aria-hidden="true"></i> Importa righe valide</button>
-            <button id="btn-import-cancel">Annulla</button>
+          <div id="import-actions-bank" class="import-actions">
+            <button id="btn-import-confirm-bank"><i class="ti ti-check" aria-hidden="true"></i> Importa righe valide</button>
+            <button id="btn-import-cancel-bank">Annulla</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEZIONE CONTANTI -->
+      <div class="row-between" style="margin-bottom:.75rem; margin-top:.5rem;">
+        <h2>💵 Contanti</h2>
+      </div>
+      <div class="panel">
+        <p style="font-size:13px; color:var(--text-secondary); margin-top:0;">
+          Movimenti in contanti. Stesse colonne del conto corrente. Verranno classificati come <strong>Contanti</strong>.
+        </p>
+        <div class="import-row">
+          <input type="file" id="import-file-cash" accept=".xlsx,.xls,.csv">
+          <button id="btn-download-template-cash"><i class="ti ti-download" aria-hidden="true"></i> Scarica modello</button>
+        </div>
+        <p id="import-error-text-cash"></p>
+        <div id="import-preview-wrap-cash" class="hidden">
+          <p id="import-summary-cash"></p>
+          <div class="import-table-wrap">
+            <table>
+              <thead>
+                <tr><th>Stato</th><th>Data</th><th>Descrizione</th><th>Importo</th><th>Categoria</th><th>Tipo</th></tr>
+              </thead>
+              <tbody id="import-preview-body-cash"></tbody>
+            </table>
+          </div>
+          <div id="import-actions-cash" class="import-actions">
+            <button id="btn-import-confirm-cash"><i class="ti ti-check" aria-hidden="true"></i> Importa righe valide</button>
+            <button id="btn-import-cancel-cash">Annulla</button>
           </div>
         </div>
       </div>
@@ -1644,8 +1678,8 @@
     return (!isNaN(n) && n >= 1 && n <= 12) ? n : null;
   }
 
-  // Scarica il nuovo modello aggiornato con la colonna Categoria
-  document.getElementById('btn-download-template').addEventListener('click', () => {
+  // Scarica il modello
+  function downloadTemplate(filename) {
     const ws = XLSX.utils.aoa_to_sheet([
       ['Mese', 'Anno', 'Data Contabile', 'Descrizione', 'Importo', 'Categoria'],
       ['Giugno', 2026, '05/06/2026', 'Spesa supermercato', -85.50, 'Spesa'],
@@ -1654,105 +1688,79 @@
     ]);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Movimenti');
-    XLSX.writeFile(wb, 'modello-movimenti.xlsx');
-  });
+    XLSX.writeFile(wb, filename);
+  }
 
-  document.getElementById('import-file').addEventListener('change', async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const errorEl = document.getElementById('import-error-text');
+  document.getElementById('btn-download-template-bank').addEventListener('click', () => downloadTemplate('modello-conto-corrente.xlsx'));
+  document.getElementById('btn-download-template-cash').addEventListener('click', () => downloadTemplate('modello-contanti.xlsx'));
+
+  // Parsing generico del file Excel
+  async function parseImportFile(file, source) {
+    const suffix = source === 'bank' ? '-bank' : '-cash';
+    const errorEl = document.getElementById('import-error-text' + suffix);
     errorEl.textContent = '';
-    document.getElementById('import-preview-wrap').classList.add('hidden');
+    document.getElementById('import-preview-wrap' + suffix).classList.add('hidden');
+
     try {
       const buffer = await file.arrayBuffer();
       const wb = XLSX.read(buffer, { type: 'array', cellDates: true });
       const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' });
-
-      // Filtra righe completamente vuote
       const nonEmptyRows = rows.filter(row => Object.values(row).some(v => v !== '' && v !== null && v !== undefined));
-      if (nonEmptyRows.length === 0) { errorEl.textContent = 'File vuoto.'; return; }
+      if (nonEmptyRows.length === 0) { errorEl.textContent = 'File vuoto.'; return []; }
 
       const keys = Object.keys(nonEmptyRows[0]);
       const fk = (names) => keys.find(k => names.includes(normalizeHeader(k)));
-
       const kMese     = fk(['mese', 'month']);
       const kAnno     = fk(['anno', 'year']);
       const kData     = fk(['data contabile', 'data', 'date', 'data_contabile']);
       const kDesc     = fk(['descrizione', 'description', 'desc']);
       const kAmount   = fk(['importo', 'amount', 'importo €']);
-      const kCategory = fk(['categoria', 'category', 'cat']); // <-- NUOVA COLONNA CATEGORIA
+      const kCategory = fk(['categoria', 'category', 'cat']);
 
-      if (!kAmount) { errorEl.textContent = 'Colonna "Importo" mancante.'; return; }
-      if (!kData && (!kMese || !kAnno)) { errorEl.textContent = 'Servono almeno "Data Contabile" oppure "Mese" + "Anno".'; return; }
+      if (!kAmount) { errorEl.textContent = 'Colonna "Importo" mancante.'; return []; }
+      if (!kData && (!kMese || !kAnno)) { errorEl.textContent = 'Servono "Data Contabile" oppure "Mese" + "Anno".'; return []; }
 
-      pendingImportRows = nonEmptyRows.map(row => {
+      return nonEmptyRows.map(row => {
         const rawAmount = parseImportedAmount(row[kAmount]);
         const errors = [];
+        let type = null, amount = null;
+        if (rawAmount === null) { errors.push('importo non valido'); }
+        else { amount = Math.abs(rawAmount); type = rawAmount < 0 ? 'expense' : 'income'; }
 
-        // Determina tipo dal segno dell'importo
-        let type = null;
-        let amount = null;
-        if (rawAmount === null) {
-          errors.push('importo non valido');
-        } else {
-          amount = Math.abs(rawAmount);
-          type = rawAmount < 0 ? 'expense' : 'income';
-        }
-
-        // Determina la data
         let date = null;
-        if (kData && row[kData] !== '') {
-          date = parseImportedDate(row[kData]);
-        }
-        // Se la data contabile manca o non è valida, costruiscila da Mese+Anno
+        if (kData && row[kData] !== '') date = parseImportedDate(row[kData]);
         if (!date && kMese && kAnno) {
           const month = parseMonthName(row[kMese]);
           const year  = parseInt(String(row[kAnno]||'').trim());
-          if (month && !isNaN(year) && year > 2000) {
+          if (month && !isNaN(year) && year > 2000)
             date = `${year}-${String(month).padStart(2,'0')}-01`;
-          }
         }
         if (!date) errors.push('data non valida');
 
         const desc = kDesc ? String(row[kDesc]||'').trim() : '';
-
-        // LETTURA CATEGORIA DAL FILE EXCEL
         let category = '';
         if (kCategory && row[kCategory] !== '') {
           category = String(row[kCategory]).trim();
-          // Verifica che la categoria letta esista nelle categorie disponibili per quel tipo
           if (type && !state.categories[type].includes(category)) {
-            // Se la categoria non esiste, la aggiungiamo dinamicamente
             state.categories[type].push(category);
-            // Salva le nuove categorie su Firebase
             saveCategories();
           }
         } else {
-          // Categoria automatica basata sul tipo (default)
-          category = type
-            ? (state.categories[type].includes('Altro') ? 'Altro' : state.categories[type][0])
-            : '';
+          category = type ? (state.categories[type].includes('Altro') ? 'Altro' : state.categories[type][0]) : '';
         }
-
-        return { date, description: desc, amount, type, category, valid: errors.length === 0, errors };
+        return { date, description: desc, amount, type, category, source, valid: errors.length === 0, errors };
       });
-
-      renderImportPreview();
-    } catch(err) { errorEl.textContent = 'Errore lettura file: ' + err.message; }
-  });
-
-  // Funzione per salvare le categorie su Firebase
-  async function saveCategories() {
-    try { await userDocRef().update({ categories: state.categories }); } catch(e) {}
+    } catch(err) { errorEl.textContent = 'Errore lettura file: ' + err.message; return []; }
   }
 
-  function renderImportPreview() {
-    const body = document.getElementById('import-preview-body');
+  function renderImportPreviewFor(rows, source) {
+    const suffix = source === 'bank' ? '-bank' : '-cash';
+    const body = document.getElementById('import-preview-body' + suffix);
     body.innerHTML = '';
-    const vc = pendingImportRows.filter(r => r.valid).length;
-    document.getElementById('import-summary').textContent =
-      `${pendingImportRows.length} righe trovate: ${vc} valide, ${pendingImportRows.length - vc} con errori.`;
-    pendingImportRows.forEach(r => {
+    const vc = rows.filter(r => r.valid).length;
+    document.getElementById('import-summary' + suffix).textContent =
+      `${rows.length} righe trovate: ${vc} valide, ${rows.length - vc} con errori.`;
+    rows.forEach(r => {
       const tr = document.createElement('tr');
       tr.className = r.valid ? 'import-row-ok' : 'import-row-error';
       const tipoLabel = r.type === 'income' ? 'Entrata' : r.type === 'expense' ? 'Uscita' : '-';
@@ -1768,35 +1776,52 @@
         <td>${tipoLabel}</td>`;
       body.appendChild(tr);
     });
-    document.getElementById('btn-import-confirm').disabled = vc === 0;
-    document.getElementById('import-preview-wrap').classList.remove('hidden');
+    document.getElementById('btn-import-confirm' + suffix).disabled = vc === 0;
+    document.getElementById('import-preview-wrap' + suffix).classList.remove('hidden');
   }
 
-  document.getElementById('btn-import-cancel').addEventListener('click', () => {
-    pendingImportRows = [];
-    document.getElementById('import-preview-wrap').classList.add('hidden');
-    document.getElementById('import-file').value = '';
+  // BANK
+  let pendingBankRows = [];
+  document.getElementById('import-file-bank').addEventListener('change', async (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    pendingBankRows = await parseImportFile(file, 'bank');
+    if (pendingBankRows.length) renderImportPreviewFor(pendingBankRows, 'bank');
+  });
+  document.getElementById('btn-import-cancel-bank').addEventListener('click', () => {
+    pendingBankRows = [];
+    document.getElementById('import-preview-wrap-bank').classList.add('hidden');
+    document.getElementById('import-file-bank').value = '';
+  });
+  document.getElementById('btn-import-confirm-bank').addEventListener('click', async () => {
+    const valid = pendingBankRows.filter(r => r.valid);
+    if (!valid.length) return;
+    valid.forEach(r => { state.transactions.push({ id: Date.now().toString(36)+Math.random().toString(36).slice(2,7), type: r.type, description: r.description, amount: Math.round(r.amount*100)/100, category: r.category, date: r.date, source: 'bank' }); });
+    renderAll(); await saveTransactions();
+    pendingBankRows = [];
+    document.getElementById('import-preview-wrap-bank').classList.add('hidden');
+    document.getElementById('import-file-bank').value = '';
   });
 
-  document.getElementById('btn-import-confirm').addEventListener('click', async () => {
-    const validRows = pendingImportRows.filter(r => r.valid);
-    if (!validRows.length) return;
-    validRows.forEach(r => {
-      state.transactions.push({
-        id: Date.now().toString(36) + Math.random().toString(36).slice(2,7),
-        type: r.type,
-        description: r.description,
-        amount: Math.round(r.amount * 100) / 100,
-        category: r.category,
-        date: r.date,
-        source: 'bank'
-      });
-    });
-    renderAll();
-    await saveTransactions();
-    pendingImportRows = [];
-    document.getElementById('import-preview-wrap').classList.add('hidden');
-    document.getElementById('import-file').value = '';
+  // CASH
+  let pendingCashRows = [];
+  document.getElementById('import-file-cash').addEventListener('change', async (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    pendingCashRows = await parseImportFile(file, 'cash');
+    if (pendingCashRows.length) renderImportPreviewFor(pendingCashRows, 'cash');
+  });
+  document.getElementById('btn-import-cancel-cash').addEventListener('click', () => {
+    pendingCashRows = [];
+    document.getElementById('import-preview-wrap-cash').classList.add('hidden');
+    document.getElementById('import-file-cash').value = '';
+  });
+  document.getElementById('btn-import-confirm-cash').addEventListener('click', async () => {
+    const valid = pendingCashRows.filter(r => r.valid);
+    if (!valid.length) return;
+    valid.forEach(r => { state.transactions.push({ id: Date.now().toString(36)+Math.random().toString(36).slice(2,7), type: r.type, description: r.description, amount: Math.round(r.amount*100)/100, category: r.category, date: r.date, source: 'cash' }); });
+    renderAll(); await saveTransactions();
+    pendingCashRows = [];
+    document.getElementById('import-preview-wrap-cash').classList.add('hidden');
+    document.getElementById('import-file-cash').value = '';
   });
 
   // ====== PROMEMORIA ======
