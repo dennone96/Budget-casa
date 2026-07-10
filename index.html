@@ -18,7 +18,9 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-storage-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
   :root {
     --bg: #f5f4f0; --surface: #ffffff; --surface-2: #f0efe9;
@@ -118,7 +120,7 @@
   @media (max-width: 560px) { .tx-row, .tx-header { grid-template-columns: 70px 1fr 80px 0 80px; } .tx-col-type { display: none; } }
   #detail-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); backdrop-filter: blur(3px); z-index: 500; align-items: center; justify-content: center; padding: 1rem; pointer-events: none; }
   #detail-overlay.open { display: flex; pointer-events: all; }
-  #detail-box { background: var(--surface); border-radius: 16px; padding: 1.5rem; width: 100%; max-width: 460px; box-shadow: 0 8px 40px rgba(0,0,0,0.2); animation: modalIn 0.2s ease; }
+  #detail-box { background: var(--surface); border-radius: 16px; padding: 1.5rem; width: 100%; max-width: 460px; box-shadow: 0 8px 40px rgba(0,0,0,0.2); animation: modalIn 0.2s ease; max-height: 90vh; overflow-y: auto; }
   #detail-box h3 { margin: 0 0 1rem; font-size: 17px; font-weight: 700; }
   .detail-field { margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
   .detail-field:last-of-type { border-bottom: none; }
@@ -127,8 +129,10 @@
   .detail-actions { display: flex; gap: 8px; margin-top: 1.25rem; }
   .detail-actions button { flex: 1; height: 42px; font-size: 14px; font-weight: 600; border-radius: 999px; }
   .btn-delete, .btn-edit-tx { border: none; background: none; padding: 0; height: 40px; width: 40px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; transition: transform 0.15s, opacity 0.15s; }
-  .btn-delete:hover, .btn-edit-tx:hover { opacity: 0.8; transform: scale(1.08); }
-  .icon-matita, .icon-cestino { width: 34px; height: 34px; pointer-events: none; }
+  .btn-delete:hover, .btn-edit-tx:hover { opacity: 0.8; transform: scale(1.08); background: none !important; }
+  .btn-delete i, .btn-edit-tx i { font-size: 20px; color: var(--text-secondary); }
+  .btn-delete:hover i { color: var(--danger); }
+  .btn-edit-tx:hover i { color: var(--accent); }
   #modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); backdrop-filter: blur(3px); z-index: 500; align-items: center; justify-content: center; padding: 1rem; }
   #modal-overlay.open { display: flex; }
   #modal-box { background: var(--surface); border-radius: 16px; padding: 1.5rem; width: 100%; max-width: 400px; box-shadow: 0 8px 40px rgba(0,0,0,0.2); animation: modalIn 0.2s ease; }
@@ -185,10 +189,73 @@
   .import-section-divider { margin: 2rem 0 1.5rem; padding-top: 1.5rem; border-top: 2px dashed var(--border); }
   .import-section-title { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 600; margin-bottom: 1rem; }
   .cat-list { list-style: none; padding: 0; margin: 0; }
-  .cat-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .cat-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
   .cat-item:last-child { border-bottom: none; }
+  .cat-item span { flex: 1; font-size: 14px; font-weight: 500; }
+  .cat-item .cat-actions { display: flex; gap: 4px; }
   .cat-input-row { display: flex; gap: 8px; margin-top: 10px; }
   .cat-input-row input { flex: 1; }
+  .btn-pdf { display: inline-flex; align-items: center; gap: 6px; height: 38px; padding: 0 14px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff !important; border: none; border-radius: 999px; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3); }
+  .btn-pdf:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
+  .btn-pdf i { font-size: 16px; }
+  #pdf-loading { display: none; position: fixed; top: 20px; right: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); z-index: 1000; font-size: 13px; font-weight: 500; }
+  #pdf-loading.show { display: flex; align-items: center; gap: 8px; }
+  .spinner { width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #pdf-container { position: absolute; left: -9999px; top: 0; width: 800px; background: #fff; color: #1a1a1a; font-family: 'Inter', -apple-system, sans-serif; }
+  .pdf-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; padding: 40px 50px; }
+  .pdf-header h1 { margin: 0; font-size: 32px; font-weight: 700; }
+  .pdf-header p { margin: 8px 0 0; font-size: 14px; opacity: 0.9; }
+  .pdf-body { padding: 40px 50px; }
+  .pdf-section-title { font-size: 18px; font-weight: 700; color: #1a1a1a; margin: 30px 0 16px; padding-bottom: 8px; border-bottom: 3px solid #667eea; }
+  .pdf-stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 30px; }
+  .pdf-stat-card { background: #f8f9fc; border-radius: 12px; padding: 20px; border-left: 4px solid #667eea; }
+  .pdf-stat-card.income { border-left-color: #1D9E75; }
+  .pdf-stat-card.expense { border-left-color: #D85A30; }
+  .pdf-stat-card.balance { border-left-color: #378ADD; }
+  .pdf-stat-card.residuo { border-left-color: #764ba2; }
+  .pdf-stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #6b7280; font-weight: 600; margin-bottom: 6px; }
+  .pdf-stat-value { font-size: 22px; font-weight: 700; color: #1a1a1a; }
+  .pdf-stat-card.income .pdf-stat-value { color: #1D9E75; }
+  .pdf-stat-card.expense .pdf-stat-value { color: #D85A30; }
+  .pdf-stat-card.balance .pdf-stat-value { color: #378ADD; }
+  .pdf-stat-card.residuo .pdf-stat-value { color: #764ba2; }
+  .pdf-table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
+  .pdf-table thead th { background: #f3f4f6; padding: 12px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #6b7280; font-weight: 700; border-bottom: 2px solid #e5e7eb; }
+  .pdf-table tbody td { padding: 12px; border-bottom: 1px solid #f3f4f6; }
+  .pdf-table tbody tr:nth-child(even) { background: #fafbfc; }
+  .pdf-table .amount-income { color: #1D9E75; font-weight: 700; }
+  .pdf-table .amount-expense { color: #D85A30; font-weight: 700; }
+  .pdf-footer { padding: 30px 50px; text-align: center; font-size: 11px; color: #9ca3af; border-top: 1px solid #e5e7eb; margin-top: 40px; }
+  .pdf-badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+  .pdf-badge-bank { background: #e3f2fd; color: #1565c0; }
+  .pdf-badge-cash { background: #e8f5e9; color: #2e7d32; }
+  
+  /* Stili per allegati */
+  .attachment-section { margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border); }
+  .attachment-section label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-secondary); margin-bottom: 8px; }
+  .btn-attachment { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px; background: var(--surface-2); border: 1px dashed var(--border); border-radius: var(--radius); font-size: 13px; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; }
+  .btn-attachment:hover { background: var(--surface); border-color: var(--accent); color: var(--accent); }
+  .btn-attachment i { font-size: 16px; }
+  .attachment-preview { margin-top: 12px; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); background: var(--surface-2); }
+  .attachment-preview img { width: 100%; max-height: 300px; object-fit: contain; display: block; background: #fff; }
+  .attachment-file-info { display: flex; align-items: center; gap: 10px; padding: 12px; background: var(--surface-2); border-radius: var(--radius); margin-top: 12px; }
+  .attachment-file-icon { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: var(--accent); color: #fff; border-radius: 8px; font-size: 20px; }
+  .attachment-file-details { flex: 1; min-width: 0; }
+  .attachment-file-name { font-size: 13px; font-weight: 600; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .attachment-file-size { font-size: 11px; color: var(--text-muted); }
+  .attachment-actions { display: flex; gap: 6px; }
+  .btn-download-attachment, .btn-remove-attachment { width: 36px; height: 36px; border: none; background: var(--surface); border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all 0.15s; }
+  .btn-download-attachment:hover { background: var(--accent); color: #fff; }
+  .btn-download-attachment:hover i { color: #fff; }
+  .btn-remove-attachment:hover { background: var(--danger); color: #fff; }
+  .btn-remove-attachment:hover i { color: #fff; }
+  .btn-download-attachment i, .btn-remove-attachment i { font-size: 18px; color: var(--text-secondary); }
+  .upload-progress { margin-top: 10px; }
+  .progress-bar { width: 100%; height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: var(--accent); transition: width 0.3s ease; }
+  .progress-text { font-size: 11px; color: var(--text-muted); margin-top: 4px; text-align: center; }
+  .attachment-hidden-input { display: none; }
 </style>
 </head>
 <body>
@@ -231,6 +298,7 @@
       <div class="home-header">
         <h1>Home</h1>
         <div class="home-date-filter" aria-label="Filtro periodo">
+          <button id="btn-pdf-home" class="btn-pdf"><i class="ti ti-file-type-pdf"></i> Scarica PDF</button>
           <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
             <div class="home-date-field"><label for="filter-month">Mese</label><select id="filter-month"></select></div>
             <div class="home-date-field"><label for="filter-year">Anno</label><select id="filter-year"></select></div>
@@ -273,7 +341,10 @@
     </div>
 
     <div id="page-grafici" class="page">
-      <h1>Statistiche</h1>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:10px;">
+        <h1 style="margin:0;">Statistiche</h1>
+        <button id="btn-pdf-stats" class="btn-pdf"><i class="ti ti-file-type-pdf"></i> Scarica PDF</button>
+      </div>
       <div class="row-between"><h2>Spese per categoria</h2><select id="chart-month"></select></div>
       <div class="panel"><div class="legend" id="legend-categories"></div><div class="chart-wrap" style="height:300px; display:flex; align-items:center; justify-content:center;"><canvas id="categoryChart"></canvas></div></div>
       <div class="row-between"><h2>Entrate vs Uscite (anno)</h2><select id="chart-year"></select></div>
@@ -358,7 +429,7 @@
     <div id="page-categorie" class="page">
       <h1>Gestione Categorie</h1>
       <div class="panel">
-        <h3> Uscite</h3>
+        <h3>📤 Uscite</h3>
         <ul id="cat-list-expense" class="cat-list"></ul>
         <div class="cat-input-row">
           <input type="text" id="new-cat-expense" placeholder="Nuova categoria uscita">
@@ -384,6 +455,21 @@
     <div class="detail-field"><label>Importo</label><p id="detail-amount"></p></div>
     <div class="detail-field"><label>Categoria</label><p id="detail-category"></p></div>
     <div class="detail-field"><label>Data</label><p id="detail-date"></p></div>
+    
+    <!-- Sezione Allegati -->
+    <div class="attachment-section">
+      <label>📎 Allegato</label>
+      <input type="file" id="attachment-input" class="attachment-hidden-input" accept="image/*,.pdf,.doc,.docx">
+      <div id="attachment-content"></div>
+      <div id="attachment-upload-area">
+        <button id="btn-add-attachment" class="btn-attachment"><i class="ti ti-paperclip"></i> Aggiungi allegato</button>
+      </div>
+      <div id="attachment-progress" class="upload-progress hidden">
+        <div class="progress-bar"><div class="progress-bar-fill" id="progress-fill" style="width: 0%"></div></div>
+        <div class="progress-text" id="progress-text">Caricamento... 0%</div>
+      </div>
+    </div>
+
     <div class="detail-actions">
       <button id="detail-close" style="background:var(--surface-2); border:1px solid var(--border); color:var(--text-secondary);">Chiudi</button>
       <button id="detail-edit" style="background:var(--accent); color:#fff; border:none;"><i class="ti ti-pencil"></i> Modifica</button>
@@ -407,6 +493,20 @@
   </div>
 </div>
 
+<div id="cat-edit-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); backdrop-filter:blur(3px); z-index:600; align-items:center; justify-content:center; padding:1rem;">
+  <div style="background:var(--surface); border-radius:16px; padding:1.5rem; width:100%; max-width:400px; box-shadow:0 8px 40px rgba(0,0,0,0.2);">
+    <h3><i class="ti ti-pencil"></i> Modifica categoria</h3>
+    <div class="modal-field"><label>Nuovo nome</label><input type="text" id="cat-edit-input"></div>
+    <div class="modal-actions">
+      <button id="cat-edit-cancel" style="background:var(--surface-2); border:1px solid var(--border); color:var(--text-secondary);">Annulla</button>
+      <button id="cat-edit-save" style="background:var(--accent); color:#fff; border:none;">Salva</button>
+    </div>
+  </div>
+</div>
+
+<div id="pdf-loading"><div class="spinner"></div><span>Generazione PDF in corso...</span></div>
+<div id="pdf-container"></div>
+
 <script>
 (function(){
   const firebaseConfig = {
@@ -420,6 +520,7 @@
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db = firebase.firestore();
+  const storage = firebase.storage();
 
   const DEFAULT_CATEGORIES = {
     expense: ['Spesa', 'Bollette', 'Affitto/Mutuo', 'Trasporti', 'Salute', 'Svago', 'Istruzione', 'Altro'],
@@ -432,6 +533,7 @@
   let chartCategory = null, chartYear = null, chartResiduo = null, chartCompare = null;
   let activeSourceFilter = 'all';
   let filterFrom = null, filterTo = null, filterMode = 'month';
+  let editingCat = { type: null, index: null };
 
   const FILTER_MONTHS = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
 
@@ -454,7 +556,6 @@
   function fmtDateLabel(d) { return d.toLocaleDateString('it-IT', { day:'2-digit', month:'long', year:'numeric' }); }
   function getMonthEnd(year, month) { return new Date(year, month, 0); }
 
-  // NAVIGAZIONE
   const navItems = document.querySelectorAll('.nav-item');
   const pages = document.querySelectorAll('.page');
   function showPage(pageId) {
@@ -475,7 +576,6 @@
   overlay.addEventListener('click', closeSidebar);
   function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('open'); }
 
-  // AUTENTICAZIONE
   let isRegisterMode = false;
   document.getElementById('login-toggle').addEventListener('click', () => {
     isRegisterMode = !isRegisterMode;
@@ -519,7 +619,6 @@
     }
   });
 
-  // FIRESTORE
   function userDocRef() { return db.collection('famiglie').doc(currentUser.uid); }
   function attachFirestoreListener() {
     unsubscribeSnapshot = userDocRef().onSnapshot((doc) => {
@@ -541,7 +640,6 @@
   async function saveCategories() { try { await userDocRef().update({ categories: state.categories }); } catch(e) {} }
   async function saveReminders() { try { await userDocRef().update({ reminders: state.reminders }); } catch(e) {} }
 
-  // TABS
   function setTab(type) {
     state.currentType = type;
     document.getElementById('tab-expense').classList.toggle('active', type === 'expense');
@@ -556,7 +654,6 @@
   document.getElementById('tab-expense').addEventListener('click', () => setTab('expense'));
   document.getElementById('tab-income').addEventListener('click', () => setTab('income'));
 
-  // STATISTICHE
   function matchesSourceFilter(t) { return activeSourceFilter === 'all' || (t.source || 'cash') === activeSourceFilter; }
   function updateStats() {
     const from = filterFrom || todayISO().slice(0,7) + '-01';
@@ -572,7 +669,6 @@
     document.getElementById('stat-residuo').textContent = fmtEUR(ti - te);
   }
 
-  // FILTRI DATA
   function populateHomePeriodFilters() {
     const monthSel = document.getElementById('filter-month');
     const yearSel = document.getElementById('filter-year');
@@ -619,7 +715,6 @@
   populateHomePeriodFilters();
   applyMonthYearFilter();
 
-  // GRAFICI
   function updateChartCategory() {
     const month = document.getElementById('chart-month').value || monthKey(todayISO());
     const mt = state.transactions.filter(t => t.type === 'expense' && monthKey(t.date) === month);
@@ -633,7 +728,7 @@
     cats.forEach((c,i) => { const span = document.createElement('span'); span.innerHTML = '<span class="swatch" style="background:' + colors[i] + ';border-radius:50%;"></span>' + c + ' ' + fmtEUR(data[i]); legend.appendChild(span); });
     if (chartCategory) chartCategory.destroy();
     if (data.length === 0) { legend.innerHTML = '<span style="color:var(--text-muted); font-size:13px;">Nessuna spesa in questo mese.</span>'; return; }
-    chartCategory = new Chart(document.getElementById('categoryChart'), { type: 'doughnut', data: { labels: cats, datasets: [{ data, backgroundColor: colors, borderWidth: 2, borderColor: 'var(--surface)' }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.label + ': ' + fmtEUR(ctx.parsed) } } } } });
+    chartCategory = new Chart(document.getElementById('categoryChart'), { type: 'doughnut', data: { labels: cats, datasets: [{ data, backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.label + ': ' + fmtEUR(ctx.parsed) } } } } });
   }
   function updateChartYear() {
     const year = document.getElementById('chart-year').value || new Date().getFullYear().toString();
@@ -681,7 +776,6 @@
   document.getElementById('compare-month-1').addEventListener('change', updateChartCompare);
   document.getElementById('compare-month-2').addEventListener('change', updateChartCompare);
 
-  // MOVIMENTI
   document.querySelectorAll('.source-filter button').forEach(btn => { btn.addEventListener('click', () => { document.querySelectorAll('.source-filter button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); activeSourceFilter = btn.getAttribute('data-source'); updateStats(); updateTransactionsList(); }); });
   function updateTransactionsList() {
     const from = filterFrom || todayISO().slice(0,7) + '-01';
@@ -694,12 +788,13 @@
       const row = document.createElement('div'); row.className = 'tx-row';
       const isIncome = t.type === 'income';
       const src = t.source || 'cash';
-      const badgeLabel = src === 'bank' ? '🏦 C/C' : ' Cash';
+      const badgeLabel = src === 'bank' ? '🏦 C/C' : '💵 Cash';
       const badgeCls = src === 'bank' ? 'badge-bank' : 'badge-cash';
       const dateLabel = new Date(t.date).toLocaleDateString('it-IT', { day:'2-digit', month:'2-digit', year:'2-digit' });
       const amountColor = isIncome ? 'var(--success)' : 'var(--danger)';
       const amountSign = isIncome ? '+' : '-';
-      row.innerHTML = `<div class="tx-col-date">${dateLabel}</div><div class="tx-col-desc" data-id="${t.id}" title="Dettagli" role="button" tabindex="0"><span class="tx-desc-text">${escapeHtml(t.description || t.category)}</span><span style="font-size:11px; color:var(--text-muted);">${escapeHtml(t.category)}</span></div><div class="tx-col-amount" style="color:${amountColor};">${amountSign}${fmtEUR(amountValue(t.amount))}</div><div class="tx-col-type"><span class="badge-source ${badgeCls}">${badgeLabel}</span></div><div class="tx-col-actions"><button data-id="${t.id}" class="btn-edit-tx" aria-label="Modifica"><i class="ti ti-pencil"></i></button><button data-id="${t.id}" class="btn-delete" aria-label="Elimina"><i class="ti ti-trash"></i></button></div>`;
+      const hasAttachment = t.attachment ? ' 📎' : '';
+      row.innerHTML = `<div class="tx-col-date">${dateLabel}</div><div class="tx-col-desc" data-id="${t.id}" title="Dettagli" role="button" tabindex="0"><span class="tx-desc-text">${escapeHtml(t.description || t.category)}${hasAttachment}</span><span style="font-size:11px; color:var(--text-muted);">${escapeHtml(t.category)}</span></div><div class="tx-col-amount" style="color:${amountColor};">${amountSign}${fmtEUR(amountValue(t.amount))}</div><div class="tx-col-type"><span class="badge-source ${badgeCls}">${badgeLabel}</span></div><div class="tx-col-actions"><button data-id="${t.id}" class="btn-edit-tx" aria-label="Modifica"><i class="ti ti-pencil"></i></button><button data-id="${t.id}" class="btn-delete" aria-label="Elimina"><i class="ti ti-trash"></i></button></div>`;
       list.appendChild(row);
     });
     list.querySelectorAll('.tx-col-desc').forEach(el => el.addEventListener('click', () => openDetailModal(el.getAttribute('data-id'))));
@@ -707,26 +802,220 @@
     list.querySelectorAll('.btn-edit-tx').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); openEditModal(btn.getAttribute('data-id')); }));
   }
 
-  // MODAL DETTAGLIO
   let detailId = null;
   function openDetailModal(id) {
     const t = state.transactions.find(t => t.id === id); if (!t) return;
     detailId = id;
     const isIncome = t.type === 'income';
-    document.getElementById('detail-title').textContent = isIncome ? '📈 Entrata' : '📉 Uscita';
+    document.getElementById('detail-title').textContent = isIncome ? '📈 Entrata' : ' Uscita';
     document.getElementById('detail-desc').textContent = t.description || t.category || '—';
     document.getElementById('detail-amount').innerHTML = `<span style="font-size:18px; font-weight:700; color:${isIncome?'var(--success)':'var(--danger)'};">${isIncome?'+':'-'}${fmtEUR(t.amount)}</span>`;
     document.getElementById('detail-category').textContent = t.category || '—';
     const srcLabel = (t.source === 'bank') ? '🏦 Conto corrente' : '💵 Contanti';
     document.getElementById('detail-date').textContent = new Date(t.date).toLocaleDateString('it-IT', {weekday:'long', year:'numeric', month:'long', day:'numeric'}) + ' · ' + srcLabel;
+    
+    // Mostra allegato se presente
+    renderAttachment(t);
+    
     document.getElementById('detail-overlay').classList.add('open');
   }
+  
+  function renderAttachment(t) {
+    const contentDiv = document.getElementById('attachment-content');
+    const uploadArea = document.getElementById('attachment-upload-area');
+    
+    if (t.attachment) {
+      uploadArea.classList.add('hidden');
+      contentDiv.innerHTML = '';
+      
+      if (t.attachment.type && t.attachment.type.startsWith('image/')) {
+        // Mostra immagine
+        const img = document.createElement('img');
+        img.src = t.attachment.url;
+        img.alt = t.attachment.name;
+        img.style.cssText = 'width:100%; max-height:300px; object-fit:contain; border-radius:8px; margin-top:8px;';
+        contentDiv.appendChild(img);
+        
+        // Info file
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'attachment-file-info';
+        infoDiv.innerHTML = `
+          <div class="attachment-file-details" style="flex:1;">
+            <div class="attachment-file-name">${escapeHtml(t.attachment.name)}</div>
+            <div class="attachment-file-size">${formatFileSize(t.attachment.size)}</div>
+          </div>
+          <div class="attachment-actions">
+            <button class="btn-download-attachment" onclick="downloadAttachment('${t.id}')" title="Scarica"><i class="ti ti-download"></i></button>
+            <button class="btn-remove-attachment" onclick="removeAttachment('${t.id}')" title="Rimuovi"><i class="ti ti-trash"></i></button>
+          </div>
+        `;
+        contentDiv.appendChild(infoDiv);
+      } else {
+        // Mostra info file non immagine
+        const icon = getFileIcon(t.attachment.type);
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'attachment-file-info';
+        infoDiv.innerHTML = `
+          <div class="attachment-file-icon">${icon}</div>
+          <div class="attachment-file-details">
+            <div class="attachment-file-name">${escapeHtml(t.attachment.name)}</div>
+            <div class="attachment-file-size">${formatFileSize(t.attachment.size)}</div>
+          </div>
+          <div class="attachment-actions">
+            <button class="btn-download-attachment" onclick="downloadAttachment('${t.id}')" title="Scarica"><i class="ti ti-download"></i></button>
+            <button class="btn-remove-attachment" onclick="removeAttachment('${t.id}')" title="Rimuovi"><i class="ti ti-trash"></i></button>
+          </div>
+        `;
+        contentDiv.appendChild(infoDiv);
+      }
+    } else {
+      contentDiv.innerHTML = '';
+      uploadArea.classList.remove('hidden');
+    }
+  }
+  
+  function formatFileSize(bytes) {
+    if (!bytes) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+  
+  function getFileIcon(mimeType) {
+    if (!mimeType) return '📄';
+    if (mimeType.includes('pdf')) return '📕';
+    if (mimeType.includes('word') || mimeType.includes('document')) return '';
+    if (mimeType.includes('sheet') || mimeType.includes('excel')) return '📗';
+    if (mimeType.includes('text')) return '📄';
+    return '';
+  }
+  
+  window.downloadAttachment = async function(txId) {
+    const t = state.transactions.find(t => t.id === txId);
+    if (!t || !t.attachment) return;
+    
+    try {
+      if (t.attachment.url) {
+        // Crea link per download
+        const link = document.createElement('a');
+        link.href = t.attachment.url;
+        link.download = t.attachment.name;
+        link.target = '_blank';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    } catch (err) {
+      alert('Errore nel download: ' + err.message);
+    }
+  };
+  
+  window.removeAttachment = async function(txId) {
+    if (!confirm('Rimuovere questo allegato?')) return;
+    
+    const t = state.transactions.find(t => t.id === txId);
+    if (!t) return;
+    
+    try {
+      // Elimina file da Storage
+      if (t.attachment.storagePath) {
+        const fileRef = storage.ref().child(t.attachment.storagePath);
+        await fileRef.delete();
+      }
+      
+      // Rimuovi riferimento dal movimento
+      const idx = state.transactions.findIndex(tx => tx.id === txId);
+      if (idx !== -1) {
+        delete state.transactions[idx].attachment;
+        await saveTransactions();
+        renderAttachment(state.transactions[idx]);
+      }
+    } catch (err) {
+      alert('Errore nella rimozione: ' + err.message);
+    }
+  };
+  
+  document.getElementById('btn-add-attachment').addEventListener('click', () => {
+    document.getElementById('attachment-input').click();
+  });
+  
+  document.getElementById('attachment-input').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file || !detailId) return;
+    
+    // Limita a 10MB
+    if (file.size > 10 * 1024 * 1024) {
+      alert('Il file è troppo grande. Dimensione massima: 10MB');
+      return;
+    }
+    
+    const t = state.transactions.find(t => t.id === detailId);
+    if (!t) return;
+    
+    const progressDiv = document.getElementById('attachment-progress');
+    const progressFill = document.getElementById('progress-fill');
+    const progressText = document.getElementById('progress-text');
+    const uploadArea = document.getElementById('attachment-upload-area');
+    
+    try {
+      progressDiv.classList.remove('hidden');
+      uploadArea.classList.add('hidden');
+      
+      // Crea path unico per il file
+      const timestamp = Date.now();
+      const storagePath = `attachments/${currentUser.uid}/${detailId}/${timestamp}_${file.name}`;
+      const fileRef = storage.ref().child(storagePath);
+      
+      // Upload con progresso
+      const uploadTask = fileRef.put(file);
+      
+      uploadTask.on('state_changed', 
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          progressFill.style.width = progress + '%';
+          progressText.textContent = `Caricamento... ${Math.round(progress)}%`;
+        },
+        (error) => {
+          throw error;
+        },
+        async () => {
+          // Upload completato, ottieni URL
+          const downloadUrl = await uploadTask.snapshot.ref.getDownloadURL();
+          
+          // Aggiorna movimento
+          const idx = state.transactions.findIndex(tx => tx.id === detailId);
+          if (idx !== -1) {
+            state.transactions[idx].attachment = {
+              name: file.name,
+              type: file.type,
+              size: file.size,
+              storagePath: storagePath,
+              url: downloadUrl
+            };
+            await saveTransactions();
+            renderAttachment(state.transactions[idx]);
+          }
+          
+          progressDiv.classList.add('hidden');
+          progressFill.style.width = '0%';
+        }
+      );
+    } catch (err) {
+      alert('Errore nel caricamento: ' + err.message);
+      progressDiv.classList.add('hidden');
+      uploadArea.classList.remove('hidden');
+    }
+    
+    // Reset input
+    e.target.value = '';
+  });
+  
   document.getElementById('detail-close').addEventListener('click', () => { document.getElementById('detail-overlay').classList.remove('open'); detailId = null; });
   document.getElementById('detail-overlay').addEventListener('click', (e) => { if (e.target === document.getElementById('detail-overlay')) { document.getElementById('detail-overlay').classList.remove('open'); detailId = null; } });
   document.getElementById('detail-edit').addEventListener('click', () => { const id = detailId; document.getElementById('detail-overlay').classList.remove('open'); detailId = null; openEditModal(id); });
   document.getElementById('detail-delete').addEventListener('click', async () => { if (!confirm('Eliminare questo movimento?')) return; state.transactions = state.transactions.filter(t => t.id !== detailId); document.getElementById('detail-overlay').classList.remove('open'); detailId = null; renderAll(); await saveTransactions(); });
 
-  // MODAL MODIFICA
   let editingId = null;
   function populateModalCategories(type) { const sel = document.getElementById('modal-category'); sel.innerHTML = ''; (state.categories[type] || []).forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.textContent = c; sel.appendChild(opt); }); }
   function openEditModal(id) {
@@ -765,7 +1054,6 @@
     await saveTransactions(); renderAll();
   });
 
-  // IMPORT EXCEL
   function normalizeHeader(h) { return String(h||'').trim().toLowerCase(); }
   function parseImportedDate(value) {
     if (value instanceof Date && !isNaN(value)) return value.toISOString().slice(0,10);
@@ -861,7 +1149,6 @@
   setupImportSection('import-file-bank', 'btn-download-template-bank', 'import-error-text-bank', 'import-preview-wrap-bank', 'import-summary-bank', 'import-preview-body-bank', 'btn-import-confirm-bank', 'btn-import-cancel-bank', 'bank');
   setupImportSection('import-file-cash', 'btn-download-template-cash', 'import-error-text-cash', 'import-preview-wrap-cash', 'import-summary-cash', 'import-preview-body-cash', 'btn-import-confirm-cash', 'btn-import-cancel-cash', 'cash');
 
-  // PROMEMORIA
   function reminderStatus(dateStr) {
     const today = todayISO(); const diff = Math.ceil((new Date(dateStr) - new Date(today)) / 86400000);
     if (diff < 0) return { label: 'Scaduto', cls: 'overdue' };
@@ -889,7 +1176,6 @@
     await saveReminders(); renderReminders(); updateProfilePage();
   });
 
-  // PROFILO
   function updateProfilePage() {
     if (!currentUser) return;
     document.getElementById('profile-email-display').value = currentUser.email;
@@ -905,24 +1191,61 @@
     try { await auth.sendPasswordResetEmail(currentUser.email); msgEl.style.color = 'var(--success)'; msgEl.textContent = 'Email inviata!'; } catch(e) { msgEl.style.color = 'var(--danger)'; msgEl.textContent = 'Errore: ' + e.message; }
   });
 
-  // CATEGORIE
   function renderCategories() {
     const renderList = (type, listId) => {
       const ul = document.getElementById(listId); ul.innerHTML = '';
       state.categories[type].forEach((cat, idx) => {
         const li = document.createElement('li'); li.className = 'cat-item';
-        li.innerHTML = `<span>${escapeHtml(cat)}</span><button class="btn-delete" data-idx="${idx}" style="width:30px;height:30px;"><i class="ti ti-trash"></i></button>`;
+        li.innerHTML = `<span>${escapeHtml(cat)}</span><div class="cat-actions"><button class="btn-edit-tx" data-type="${type}" data-idx="${idx}" title="Modifica"><i class="ti ti-pencil"></i></button><button class="btn-delete" data-type="${type}" data-idx="${idx}" title="Elimina"><i class="ti ti-trash"></i></button></div>`;
         ul.appendChild(li);
       });
       ul.querySelectorAll('.btn-delete').forEach(btn => btn.addEventListener('click', async () => {
+        const type = btn.getAttribute('data-type');
+        const idx = parseInt(btn.getAttribute('data-idx'));
         if (state.categories[type].length <= 1) { alert('Deve esserci almeno una categoria.'); return; }
-        state.categories[type].splice(parseInt(btn.getAttribute('data-idx')), 1);
+        if (!confirm(`Eliminare la categoria "${state.categories[type][idx]}"?`)) return;
+        state.categories[type].splice(idx, 1);
         await saveCategories(); renderCategories(); populateCategorySelect();
+      }));
+      ul.querySelectorAll('.btn-edit-tx').forEach(btn => btn.addEventListener('click', () => {
+        const type = btn.getAttribute('data-type');
+        const idx = parseInt(btn.getAttribute('data-idx'));
+        openCatEditModal(type, idx);
       }));
     };
     renderList('expense', 'cat-list-expense');
     renderList('income', 'cat-list-income');
   }
+
+  function openCatEditModal(type, idx) {
+    editingCat = { type, index: idx };
+    document.getElementById('cat-edit-input').value = state.categories[type][idx];
+    document.getElementById('cat-edit-modal').style.display = 'flex';
+  }
+
+  document.getElementById('cat-edit-cancel').addEventListener('click', () => {
+    document.getElementById('cat-edit-modal').style.display = 'none';
+    editingCat = { type: null, index: null };
+  });
+
+  document.getElementById('cat-edit-save').addEventListener('click', async () => {
+    const newName = document.getElementById('cat-edit-input').value.trim();
+    if (!newName) { alert('Inserisci un nome valido.'); return; }
+    if (editingCat.type && state.categories[editingCat.type].includes(newName) && newName !== state.categories[editingCat.type][editingCat.index]) {
+      alert('Categoria già esistente.'); return;
+    }
+    state.categories[editingCat.type][editingCat.index] = newName;
+    await saveCategories(); renderCategories(); populateCategorySelect();
+    document.getElementById('cat-edit-modal').style.display = 'none';
+  });
+
+  document.getElementById('cat-edit-modal').addEventListener('click', (e) => {
+    if (e.target.id === 'cat-edit-modal') {
+      document.getElementById('cat-edit-modal').style.display = 'none';
+      editingCat = { type: null, index: null };
+    }
+  });
+
   document.getElementById('btn-add-cat-expense').addEventListener('click', async () => {
     const val = document.getElementById('new-cat-expense').value.trim(); if (!val) return;
     if (state.categories.expense.includes(val)) { alert('Categoria già esistente.'); return; }
@@ -936,7 +1259,6 @@
     await saveCategories(); renderCategories(); populateCategorySelect();
   });
 
-  // UTILITY
   function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
   function populateMonthSelects() {
     const months = Array.from(new Set(state.transactions.map(t => monthKey(t.date)))); months.push(monthKey(todayISO()));
@@ -954,6 +1276,202 @@
 
   document.getElementById('inp-date').value = todayISO();
   document.getElementById('rem-date').value = todayISO();
+
+  function showLoading(show) { document.getElementById('pdf-loading').classList.toggle('show', show); }
+
+  async function generateHomePDF() {
+    showLoading(true);
+    const container = document.getElementById('pdf-container');
+    const from = filterFrom || todayISO().slice(0,7) + '-01';
+    const to = filterTo || todayISO();
+    const mt = state.transactions.filter(t => t.date >= from && t.date <= to && matchesSourceFilter(t)).sort((a,b) => b.date.localeCompare(a.date));
+    const income = mt.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0);
+    const expense = mt.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0);
+    const ti = state.transactions.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0);
+    const te = state.transactions.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0);
+    const periodLabel = filterMode === 'month' 
+      ? `${document.getElementById('filter-month')?.selectedOptions[0]?.textContent || ''} ${document.getElementById('filter-year')?.value || ''}`
+      : `Dal ${fmtDateLabel(new Date(filterFrom + 'T00:00:00'))} al ${fmtDateLabel(new Date(filterTo + 'T00:00:00'))}`;
+    const generatedDate = new Date().toLocaleDateString('it-IT', { day:'2-digit', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' });
+
+    let transactionsRows = '';
+    if (mt.length === 0) {
+      transactionsRows = '<tr><td colspan="5" style="text-align:center; padding:30px; color:#9ca3af;">Nessun movimento nel periodo selezionato</td></tr>';
+    } else {
+      mt.forEach(t => {
+        const isIncome = t.type === 'income';
+        const src = t.source || 'cash';
+        const badgeLabel = src === 'bank' ? 'Conto corrente' : 'Contanti';
+        const badgeCls = src === 'bank' ? 'pdf-badge-bank' : 'pdf-badge-cash';
+        const dateLabel = new Date(t.date).toLocaleDateString('it-IT', { day:'2-digit', month:'2-digit', year:'2-digit' });
+        const amountClass = isIncome ? 'amount-income' : 'amount-expense';
+        const amountSign = isIncome ? '+' : '-';
+        const attachmentIcon = t.attachment ? ' 📎' : '';
+        transactionsRows += `<tr>
+          <td>${dateLabel}</td>
+          <td><strong>${escapeHtml(t.description || t.category)}${attachmentIcon}</strong><br><span style="font-size:11px; color:#6b7280;">${escapeHtml(t.category)}</span></td>
+          <td class="${amountClass}">${amountSign}${fmtEUR(amountValue(t.amount))}</td>
+          <td><span class="pdf-badge ${badgeCls}">${badgeLabel}</span></td>
+          <td>${isIncome ? 'Entrata' : 'Uscita'}</td>
+        </tr>`;
+      });
+    }
+
+    container.innerHTML = `
+      <div class="pdf-header">
+        <h1>📊 Budget di Famiglia</h1>
+        <p>Report finanziario · ${periodLabel}</p>
+      </div>
+      <div class="pdf-body">
+        <div class="pdf-section-title">Riepilogo finanziario</div>
+        <div class="pdf-stats-grid">
+          <div class="pdf-stat-card income">
+            <div class="pdf-stat-label">Entrate</div>
+            <div class="pdf-stat-value">${fmtEUR(income)}</div>
+          </div>
+          <div class="pdf-stat-card expense">
+            <div class="pdf-stat-label">Uscite</div>
+            <div class="pdf-stat-value">${fmtEUR(expense)}</div>
+          </div>
+          <div class="pdf-stat-card balance">
+            <div class="pdf-stat-label">Saldo periodo</div>
+            <div class="pdf-stat-value">${fmtEUR(income - expense)}</div>
+          </div>
+          <div class="pdf-stat-card residuo">
+            <div class="pdf-stat-label">Residuo totale</div>
+            <div class="pdf-stat-value">${fmtEUR(ti - te)}</div>
+          </div>
+        </div>
+        <div class="pdf-section-title">Movimenti (${mt.length})</div>
+        <table class="pdf-table">
+          <thead>
+            <tr><th>Data</th><th>Movimento</th><th>Importo</th><th>Fonte</th><th>Tipo</th></tr>
+          </thead>
+          <tbody>${transactionsRows}</tbody>
+        </table>
+      </div>
+      <div class="pdf-footer">
+        Generato il ${generatedDate} · Budget di Famiglia App
+      </div>
+    `;
+
+    await new Promise(r => setTimeout(r, 100));
+    const opt = {
+      margin: 0,
+      filename: `budget-famiglia-${todayISO()}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    await html2pdf().set(opt).from(container).save();
+    showLoading(false);
+  }
+
+  async function generateStatsPDF() {
+    showLoading(true);
+    const container = document.getElementById('pdf-container');
+    const generatedDate = new Date().toLocaleDateString('it-IT', { day:'2-digit', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' });
+    const year = document.getElementById('chart-year')?.value || new Date().getFullYear().toString();
+    const month = document.getElementById('chart-month')?.value || monthKey(todayISO());
+
+    const months = Array.from({length:12}, (_,i) => `${year}-${String(i+1).padStart(2,'0')}`);
+    const incomes = months.map(m => state.transactions.filter(t => t.type==='income' && monthKey(t.date)===m).reduce((s,t)=>s+amountValue(t.amount),0));
+    const expenses = months.map(m => state.transactions.filter(t => t.type==='expense' && monthKey(t.date)===m).reduce((s,t)=>s+amountValue(t.amount),0));
+    const totalIncome = incomes.reduce((a,b)=>a+b,0);
+    const totalExpense = expenses.reduce((a,b)=>a+b,0);
+
+    const byCategory = {};
+    state.transactions.filter(t => t.type === 'expense' && monthKey(t.date) === month).forEach(t => {
+      byCategory[t.category] = (byCategory[t.category] || 0) + amountValue(t.amount);
+    });
+    const cats = Object.keys(byCategory).sort((a,b) => byCategory[b] - byCategory[a]);
+
+    let categoryRows = '';
+    if (cats.length === 0) {
+      categoryRows = '<tr><td colspan="3" style="text-align:center; padding:20px; color:#9ca3af;">Nessuna spesa nel mese selezionato</td></tr>';
+    } else {
+      const total = cats.reduce((s,c) => s + byCategory[c], 0);
+      cats.forEach((c, i) => {
+        const pct = Math.round((byCategory[c] / total) * 100);
+        categoryRows += `<tr>
+          <td><span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:${CAT_COLORS[i % CAT_COLORS.length]}; margin-right:8px;"></span>${escapeHtml(c)}</td>
+          <td style="font-weight:600;">${fmtEUR(byCategory[c])}</td>
+          <td>${pct}%</td>
+        </tr>`;
+      });
+    }
+
+    let monthlyRows = '';
+    months.forEach((m, i) => {
+      const mLabel = new Date(+year, i, 1).toLocaleDateString('it-IT', { month:'long' });
+      const bal = incomes[i] - expenses[i];
+      const balClass = bal >= 0 ? 'amount-income' : 'amount-expense';
+      monthlyRows += `<tr>
+        <td style="text-transform:capitalize;">${mLabel}</td>
+        <td class="amount-income">${fmtEUR(incomes[i])}</td>
+        <td class="amount-expense">${fmtEUR(expenses[i])}</td>
+        <td class="${balClass}">${fmtEUR(bal)}</td>
+      </tr>`;
+    });
+
+    container.innerHTML = `
+      <div class="pdf-header">
+        <h1>📈 Statistiche Finanziarie</h1>
+        <p>Analisi anno ${year} · Report dettagliato</p>
+      </div>
+      <div class="pdf-body">
+        <div class="pdf-section-title">Riepilogo annuale ${year}</div>
+        <div class="pdf-stats-grid">
+          <div class="pdf-stat-card income">
+            <div class="pdf-stat-label">Entrate totali</div>
+            <div class="pdf-stat-value">${fmtEUR(totalIncome)}</div>
+          </div>
+          <div class="pdf-stat-card expense">
+            <div class="pdf-stat-label">Uscite totali</div>
+            <div class="pdf-stat-value">${fmtEUR(totalExpense)}</div>
+          </div>
+          <div class="pdf-stat-card balance">
+            <div class="pdf-stat-label">Risparmio annuale</div>
+            <div class="pdf-stat-value">${fmtEUR(totalIncome - totalExpense)}</div>
+          </div>
+          <div class="pdf-stat-card residuo">
+            <div class="pdf-stat-label">Categorie spese</div>
+            <div class="pdf-stat-value">${Object.keys(byCategory).length}</div>
+          </div>
+        </div>
+
+        <div class="pdf-section-title">Dettaglio mensile ${year}</div>
+        <table class="pdf-table">
+          <thead><tr><th>Mese</th><th>Entrate</th><th>Uscite</th><th>Saldo</th></tr></thead>
+          <tbody>${monthlyRows}</tbody>
+        </table>
+
+        <div class="pdf-section-title">Spese per categoria · ${monthLabel(month)}</div>
+        <table class="pdf-table">
+          <thead><tr><th>Categoria</th><th>Importo</th><th>% sul totale</th></tr></thead>
+          <tbody>${categoryRows}</tbody>
+        </table>
+      </div>
+      <div class="pdf-footer">
+        Generato il ${generatedDate} · Budget di Famiglia App
+      </div>
+    `;
+
+    await new Promise(r => setTimeout(r, 100));
+    const opt = {
+      margin: 0,
+      filename: `statistiche-${year}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    await html2pdf().set(opt).from(container).save();
+    showLoading(false);
+  }
+
+  document.getElementById('btn-pdf-home').addEventListener('click', generateHomePDF);
+  document.getElementById('btn-pdf-stats').addEventListener('click', generateStatsPDF);
+
 })();
 </script>
 </body>
