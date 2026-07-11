@@ -203,18 +203,22 @@
   .spinner { width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
   
-  /* FIX PDF: Container posizionato correttamente per html2canvas */
+  /* FIX PDF: Container nascosto ma renderizzabile */
   #pdf-container { 
     position: fixed; 
-    top: 0; 
+    top: -10000px; 
     left: 0; 
     width: 800px; 
-    z-index: -1; 
-    opacity: 0; 
-    pointer-events: none;
     background: #fff; 
     color: #1a1a1a; 
     font-family: 'Inter', -apple-system, sans-serif; 
+    visibility: hidden;
+  }
+  #pdf-container.pdf-generating {
+    visibility: visible;
+    top: 0;
+    left: 0;
+    z-index: 9999;
   }
   
   .pdf-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; padding: 40px 50px; }
@@ -346,7 +350,7 @@
       <div class="source-filter">
         <button class="active" data-source="all">Tutti</button>
         <button data-source="cash">💵 Contanti</button>
-        <button data-source="bank">🏦 Conto corrente</button>
+        <button data-source="bank"> Conto corrente</button>
       </div>
       <div class="tx-header"><span>Data</span><span>Movimento</span><span style="text-align:right;">Importo</span><span style="text-align:center;">Tipologia</span><span></span></div>
       <div id="transactions-list"></div>
@@ -442,7 +446,7 @@
     <div id="page-categorie" class="page">
       <h1>Gestione Categorie</h1>
       <div class="panel">
-        <h3>📤 Uscite</h3>
+        <h3> Uscite</h3>
         <ul id="cat-list-expense" class="cat-list"></ul>
         <div class="cat-input-row">
           <input type="text" id="new-cat-expense" placeholder="Nuova categoria uscita">
@@ -800,7 +804,7 @@
       const row = document.createElement('div'); row.className = 'tx-row';
       const isIncome = t.type === 'income';
       const src = t.source || 'cash';
-      const badgeLabel = src === 'bank' ? ' C/C' : '💵 Cash';
+      const badgeLabel = src === 'bank' ? '🏦 C/C' : '💵 Cash';
       const badgeCls = src === 'bank' ? 'badge-bank' : 'badge-cash';
       const dateLabel = new Date(t.date).toLocaleDateString('it-IT', { day:'2-digit', month:'2-digit', year:'2-digit' });
       const amountColor = isIncome ? 'var(--success)' : 'var(--danger)';
@@ -892,9 +896,9 @@
     if (!mimeType) return '📄';
     if (mimeType.includes('pdf')) return '📕';
     if (mimeType.includes('word') || mimeType.includes('document')) return '📘';
-    if (mimeType.includes('sheet') || mimeType.includes('excel')) return '';
+    if (mimeType.includes('sheet') || mimeType.includes('excel')) return '📗';
     if (mimeType.includes('text')) return '📄';
-    return '';
+    return '📄';
   }
   
   window.downloadAttachment = async function(txId) {
@@ -1233,22 +1237,7 @@
 
   function showLoading(show) { document.getElementById('pdf-loading').classList.toggle('show', show); }
 
-  // FIX PDF: Funzione helper per convertire canvas in immagini
-  async function convertCanvasesToImages(container) {
-    const canvases = container.querySelectorAll('canvas');
-    for (const canvas of canvases) {
-      try {
-        const img = document.createElement('img');
-        img.src = canvas.toDataURL('image/png');
-        img.style.width = canvas.offsetWidth + 'px';
-        img.style.height = canvas.offsetHeight + 'px';
-        img.style.display = 'block';
-        img.style.maxWidth = '100%';
-        canvas.parentNode.replaceChild(img, canvas);
-      } catch(e) { console.warn('Errore conversione canvas:', e); }
-    }
-  }
-
+  // FIX PDF: Rendi visibile il container durante la generazione
   async function generateHomePDF() {
     showLoading(true);
     const container = document.getElementById('pdf-container');
@@ -1309,16 +1298,32 @@
       <div class="pdf-footer">Generato il ${generatedDate} · Budget di Famiglia App</div>
     `;
 
-    await new Promise(r => setTimeout(r, 300));
+    // FIX: Rendi visibile il container prima della generazione
+    container.classList.add('pdf-generating');
+    await new Promise(r => setTimeout(r, 500));
+    
     const opt = {
       margin: 0,
       filename: `budget-famiglia-${todayISO()}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false },
+      html2canvas: { 
+        scale: 2, 
+        useCORS: true, 
+        backgroundColor: '#ffffff',
+        windowWidth: 800,
+        logging: false 
+      },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
-    await html2pdf().set(opt).from(container).save();
-    showLoading(false);
+    
+    try {
+      await html2pdf().set(opt).from(container).save();
+    } catch(err) {
+      alert('Errore nella generazione PDF: ' + err.message);
+    } finally {
+      container.classList.remove('pdf-generating');
+      showLoading(false);
+    }
   }
 
   async function generateStatsPDF() {
@@ -1393,16 +1398,32 @@
       <div class="pdf-footer">Generato il ${generatedDate} · Budget di Famiglia App</div>
     `;
 
-    await new Promise(r => setTimeout(r, 300));
+    // FIX: Rendi visibile il container prima della generazione
+    container.classList.add('pdf-generating');
+    await new Promise(r => setTimeout(r, 500));
+    
     const opt = {
       margin: 0,
       filename: `statistiche-${year}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false },
+      html2canvas: { 
+        scale: 2, 
+        useCORS: true, 
+        backgroundColor: '#ffffff',
+        windowWidth: 800,
+        logging: false 
+      },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
-    await html2pdf().set(opt).from(container).save();
-    showLoading(false);
+    
+    try {
+      await html2pdf().set(opt).from(container).save();
+    } catch(err) {
+      alert('Errore nella generazione PDF: ' + err.message);
+    } finally {
+      container.classList.remove('pdf-generating');
+      showLoading(false);
+    }
   }
 
   document.getElementById('btn-pdf-home').addEventListener('click', generateHomePDF);
