@@ -129,11 +129,31 @@
   .detail-field p { margin: 0; font-size: 14px; font-weight: 500; word-break: break-word; }
   .detail-actions { display: flex; gap: 8px; margin-top: 1.25rem; }
   .detail-actions button { flex: 1; height: 42px; font-size: 14px; font-weight: 600; border-radius: 999px; }
-  .btn-delete, .btn-edit-tx { border: none; background: none; padding: 0; height: 40px; width: 40px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; transition: transform 0.15s, opacity 0.15s; }
-  .btn-delete:hover, .btn-edit-tx:hover { opacity: 0.8; transform: scale(1.08); background: none !important; }
-  .btn-delete i, .btn-edit-tx i { font-size: 20px; color: var(--text-secondary); }
-  .btn-delete:hover i { color: var(--danger); }
-  .btn-edit-tx:hover i { color: var(--accent); }
+  
+  /* Pulsanti con icone SVG personalizzate */
+  .btn-delete, .btn-edit-tx {
+    border: none;
+    background: none;
+    padding: 0;
+    height: 40px;
+    width: 40px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    transition: transform 0.15s, opacity 0.15s;
+  }
+  .btn-delete:hover, .btn-edit-tx:hover {
+    opacity: 0.85;
+    transform: scale(1.08);
+    background: none !important;
+  }
+  .btn-delete svg, .btn-edit-tx svg {
+    width: 40px;
+    height: 40px;
+  }
+  
   #modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); backdrop-filter: blur(3px); z-index: 500; align-items: center; justify-content: center; padding: 1rem; }
   #modal-overlay.open { display: flex; }
   #modal-box { background: var(--surface); border-radius: 16px; padding: 1.5rem; width: 100%; max-width: 400px; box-shadow: 0 8px 40px rgba(0,0,0,0.2); animation: modalIn 0.2s ease; }
@@ -203,6 +223,28 @@
   #pdf-loading.show { display: flex; align-items: center; gap: 8px; }
   .spinner { width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
+  
+  /* Tab per le statistiche */
+  .stats-tabs { display: flex; gap: 8px; margin-bottom: 1.5rem; border-bottom: 2px solid var(--border); padding-bottom: 0; }
+  .stats-tab {
+    padding: 10px 20px;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+  }
+  .stats-tab:hover { color: var(--text-primary); }
+  .stats-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+  .stats-tab-content { display: none; }
+  .stats-tab-content.active { display: block; }
   
   .attachment-section { margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border); }
   .attachment-section label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-secondary); margin-bottom: 8px; }
@@ -315,21 +357,45 @@
         <h1 style="margin:0;">Statistiche</h1>
         <button id="btn-pdf-stats" class="btn-pdf"><i class="ti ti-file-type-pdf"></i> Scarica PDF</button>
       </div>
-      <div class="row-between"><h2>Spese per categoria</h2><select id="chart-month"></select></div>
-      <div class="panel"><div class="legend" id="legend-categories"></div><div class="chart-wrap" style="height:300px; display:flex; align-items:center; justify-content:center;"><canvas id="categoryChart"></canvas></div></div>
-      <div class="row-between"><h2>Entrate vs Uscite (anno)</h2><select id="chart-year"></select></div>
-      <div class="panel"><div class="chart-wrap"><canvas id="yearChart"></canvas></div></div>
-      <div class="row-between"><h2>Residuo mensile</h2><select id="chart-residuo-year"></select></div>
-      <div class="panel"><p style="font-size:12px; color:var(--text-secondary); margin:0 0 8px;">Andamento del residuo in cassa mese per mese.</p><div class="chart-wrap"><canvas id="residuoChart"></canvas></div></div>
-      <div class="row-between" style="margin-top: 1.5rem;">
-        <h2>Confronto tra due mesi</h2>
-        <div style="display:flex; gap:8px; align-items:center;">
-          <select id="compare-month-1"></select>
-          <span>vs</span>
-          <select id="compare-month-2"></select>
-        </div>
+      
+      <!-- Tab per le statistiche -->
+      <div class="stats-tabs">
+        <button class="stats-tab active" data-tab="tab-categorie">Spese per categoria</button>
+        <button class="stats-tab" data-tab="tab-entrate-uscite">Entrate vs Uscite</button>
+        <button class="stats-tab" data-tab="tab-residuo">Residuo mensile</button>
+        <button class="stats-tab" data-tab="tab-confronto">Confronto mesi</button>
       </div>
-      <div class="panel"><p style="font-size:12px; color:var(--text-secondary); margin:0 0 8px;">Confronto entrate e uscite tra due mesi.</p><div class="chart-wrap"><canvas id="compareChart"></canvas></div></div>
+      
+      <!-- Contenuto tab: Spese per categoria -->
+      <div id="tab-categorie" class="stats-tab-content active">
+        <div class="row-between"><h2>Spese per categoria</h2><select id="chart-month"></select></div>
+        <div class="panel"><div class="legend" id="legend-categories"></div><div class="chart-wrap" style="height:300px; display:flex; align-items:center; justify-content:center;"><canvas id="categoryChart"></canvas></div></div>
+      </div>
+      
+      <!-- Contenuto tab: Entrate vs Uscite -->
+      <div id="tab-entrate-uscite" class="stats-tab-content">
+        <div class="row-between"><h2>Entrate vs Uscite (anno)</h2><select id="chart-year"></select></div>
+        <div class="panel"><div class="chart-wrap"><canvas id="yearChart"></canvas></div></div>
+      </div>
+      
+      <!-- Contenuto tab: Residuo mensile -->
+      <div id="tab-residuo" class="stats-tab-content">
+        <div class="row-between"><h2>Residuo mensile</h2><select id="chart-residuo-year"></select></div>
+        <div class="panel"><p style="font-size:12px; color:var(--text-secondary); margin:0 0 8px;">Andamento del residuo in cassa mese per mese (entrate - uscite cumulative).</p><div class="chart-wrap"><canvas id="residuoChart"></canvas></div></div>
+      </div>
+      
+      <!-- Contenuto tab: Confronto tra due mesi -->
+      <div id="tab-confronto" class="stats-tab-content">
+        <div class="row-between" style="margin-top: 1.5rem;">
+          <h2>Confronto tra due mesi</h2>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <select id="compare-month-1"></select>
+            <span>vs</span>
+            <select id="compare-month-2"></select>
+          </div>
+        </div>
+        <div class="panel"><p style="font-size:12px; color:var(--text-secondary); margin:0 0 8px;">Confronto entrate e uscite tra due mesi.</p><div class="chart-wrap"><canvas id="compareChart"></canvas></div></div>
+      </div>
     </div>
 
     <div id="page-import" class="page">
@@ -473,6 +539,43 @@
 
 <div id="pdf-loading"><div class="spinner"></div><span>Generazione PDF in corso...</span></div>
 
+<!-- SVG Icons inline -->
+<svg style="display:none;">
+  <symbol id="icon-delete" viewBox="0 0 512 512">
+    <defs>
+      <linearGradient id="buttonGradient" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#F04438"/>
+        <stop offset="1" stop-color="#B42318"/>
+      </linearGradient>
+      <filter id="softShadow" x="44" y="44" width="424" height="424" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#65160F" flood-opacity="0.24"/>
+      </filter>
+    </defs>
+    <rect x="72" y="72" width="368" height="368" rx="92" fill="url(#buttonGradient)" filter="url(#softShadow)"/>
+    <path d="M202 154c0-17.7 14.3-32 32-32h44c17.7 0 32 14.3 32 32v14h52c11 0 20 9 20 20s-9 20-20 20H150c-11 0-20-9-20-20s9-20 20-20h52v-14Zm40 14h28v-6c0-3.3-2.7-6-6-6h-16c-3.3 0-6 2.7-6 6v6Z" fill="#FFFFFF"/>
+    <path d="M170 238c-1.1-13.8 9.8-25.6 23.6-25.6h124.8c13.8 0 24.7 11.8 23.6 25.6l-12.2 144.9c-1.5 17.5-16.1 31.1-33.7 31.1h-80.2c-17.6 0-32.2-13.6-33.7-31.1L170 238Z" fill="#FFFFFF"/>
+    <path d="M222 257c8.8 0 16 7.2 16 16v86c0 8.8-7.2 16-16 16s-16-7.2-16-16v-86c0-8.8 7.2-16 16-16Zm68 0c8.8 0 16 7.2 16 16v86c0 8.8-7.2 16-16 16s-16-7.2-16-16v-86c0-8.8 7.2-16 16-16Z" fill="#FBD5D1"/>
+    <path d="M179.4 260h153.2l-2.2 26H181.6l-2.2-26Z" fill="#FEE4E2"/>
+  </symbol>
+  <symbol id="icon-edit" viewBox="0 0 512 512">
+    <defs>
+      <linearGradient id="buttonGradientEdit" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#2F80ED"/>
+        <stop offset="1" stop-color="#1558C0"/>
+      </linearGradient>
+      <filter id="softShadowEdit" x="44" y="44" width="424" height="424" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#0B2E63" flood-opacity="0.24"/>
+      </filter>
+    </defs>
+    <rect x="72" y="72" width="368" height="368" rx="92" fill="url(#buttonGradientEdit)" filter="url(#softShadowEdit)"/>
+    <path d="M338.7 130.8c12.6-12.6 33.1-12.6 45.7 0l17.8 17.8c12.6 12.6 12.6 33.1 0 45.7l-24.5 24.5-63.5-63.5 24.5-24.5Z" fill="#FFFFFF"/>
+    <path d="M287.7 181.8 151.8 317.7c-3.2 3.2-5.4 7.2-6.5 11.6l-17.5 69.9c-2.5 9.9 6.5 18.9 16.4 16.4l69.9-17.5c4.4-1.1 8.4-3.3 11.6-6.5l135.9-135.9-73.9-73.9Z" fill="#FFFFFF"/>
+    <path d="M287.7 181.8 361.6 255.7 338 279.3 264.1 205.4l23.6-23.6Z" fill="#DDEBFF"/>
+    <path d="M151.8 317.7c-3.2 3.2-5.4 7.2-6.5 11.6l-10.3 41 40.9 40.9 40.9-10.3c4.4-1.1 8.4-3.3 11.6-6.5l-76.6-76.7Z" fill="#EAF3FF"/>
+    <path d="M135 370.3 127.8 399.2c-2.5 9.9 6.5 18.9 16.4 16.4l28.9-7.2L135 370.3Z" fill="#102A43"/>
+  </symbol>
+</svg>
+
 <script>
 (function(){
   const firebaseConfig = {
@@ -528,12 +631,36 @@
     pages.forEach(p => p.classList.toggle('active', p.id === pageId));
     navItems.forEach(n => n.classList.toggle('active', n.dataset.page === pageId));
     closeSidebar();
-    if (pageId === 'page-grafici') { populateCompareSelects(); updateChartCategory(); updateChartYear(); updateChartResiduo(); updateChartCompare(); }
+    if (pageId === 'page-grafici') { 
+      populateCompareSelects(); 
+      updateChartCategory(); 
+      updateChartYear(); 
+      updateChartResiduo(); 
+      updateChartCompare(); 
+    }
     if (pageId === 'page-profilo') updateProfilePage();
     if (pageId === 'page-promemoria') renderReminders();
     if (pageId === 'page-categorie') renderCategories();
   }
   navItems.forEach(btn => btn.addEventListener('click', () => showPage(btn.dataset.page)));
+
+  // Gestione tab statistiche
+  document.querySelectorAll('.stats-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.stats-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.stats-tab-content').forEach(c => c.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.tab).classList.add('active');
+      
+      // Aggiorna il grafico attivo dopo un breve delay
+      setTimeout(() => {
+        if (tab.dataset.tab === 'tab-categorie') updateChartCategory();
+        else if (tab.dataset.tab === 'tab-entrate-uscite') updateChartYear();
+        else if (tab.dataset.tab === 'tab-residuo') updateChartResiduo();
+        else if (tab.dataset.tab === 'tab-confronto') updateChartCompare();
+      }, 100);
+    });
+  });
 
   const hamburger = document.getElementById('hamburger');
   const sidebar = document.getElementById('sidebar');
@@ -754,13 +881,16 @@
       const row = document.createElement('div'); row.className = 'tx-row';
       const isIncome = t.type === 'income';
       const src = t.source || 'cash';
-      const badgeLabel = src === 'bank' ? '🏦 C/C' : '💵 Cash';
+      const badgeLabel = src === 'bank' ? ' C/C' : '💵 Cash';
       const badgeCls = src === 'bank' ? 'badge-bank' : 'badge-cash';
       const dateLabel = new Date(t.date).toLocaleDateString('it-IT', { day:'2-digit', month:'2-digit', year:'2-digit' });
       const amountColor = isIncome ? 'var(--success)' : 'var(--danger)';
       const amountSign = isIncome ? '+' : '-';
       const hasAttachment = t.attachment ? ' 📎' : '';
-      row.innerHTML = `<div class="tx-col-date">${dateLabel}</div><div class="tx-col-desc" data-id="${t.id}" title="Dettagli" role="button" tabindex="0"><span class="tx-desc-text">${escapeHtml(t.description || t.category)}${hasAttachment}</span><span style="font-size:11px; color:var(--text-muted);">${escapeHtml(t.category)}</span></div><div class="tx-col-amount" style="color:${amountColor};">${amountSign}${fmtEUR(amountValue(t.amount))}</div><div class="tx-col-type"><span class="badge-source ${badgeCls}">${badgeLabel}</span></div><div class="tx-col-actions"><button data-id="${t.id}" class="btn-edit-tx" aria-label="Modifica"><i class="ti ti-pencil"></i></button><button data-id="${t.id}" class="btn-delete" aria-label="Elimina"><i class="ti ti-trash"></i></button></div>`;
+      row.innerHTML = `<div class="tx-col-date">${dateLabel}</div><div class="tx-col-desc" data-id="${t.id}" title="Dettagli" role="button" tabindex="0"><span class="tx-desc-text">${escapeHtml(t.description || t.category)}${hasAttachment}</span><span style="font-size:11px; color:var(--text-muted);">${escapeHtml(t.category)}</span></div><div class="tx-col-amount" style="color:${amountColor};">${amountSign}${fmtEUR(amountValue(t.amount))}</div><div class="tx-col-type"><span class="badge-source ${badgeCls}">${badgeLabel}</span></div><div class="tx-col-actions">
+        <button data-id="${t.id}" class="btn-edit-tx" aria-label="Modifica"><svg><use href="#icon-edit"></use></svg></button>
+        <button data-id="${t.id}" class="btn-delete" aria-label="Elimina"><svg><use href="#icon-delete"></use></svg></button>
+      </div>`;
       list.appendChild(row);
     });
     list.querySelectorAll('.tx-col-desc').forEach(el => el.addEventListener('click', () => openDetailModal(el.getAttribute('data-id'))));
@@ -1058,7 +1188,7 @@
     sorted.forEach(r => {
       const status = reminderStatus(r.date);
       const row = document.createElement('div'); row.className = 'reminder-row';
-      row.innerHTML = `<div class="reminder-left"><p>${escapeHtml(r.title)}</p><p>${r.note ? escapeHtml(r.note) : '&nbsp;'}</p></div><span class="reminder-badge ${status.cls}">${status.label}</span><button class="btn-delete rem-del" data-id="${r.id}"><i class="ti ti-trash"></i></button>`;
+      row.innerHTML = `<div class="reminder-left"><p>${escapeHtml(r.title)}</p><p>${r.note ? escapeHtml(r.note) : '&nbsp;'}</p></div><span class="reminder-badge ${status.cls}">${status.label}</span><button class="btn-delete rem-del" data-id="${r.id}"><svg style="width:32px;height:32px;"><use href="#icon-delete"></use></svg></button>`;
       list.appendChild(row);
     });
     list.querySelectorAll('.rem-del').forEach(btn => btn.addEventListener('click', async () => { state.reminders = state.reminders.filter(r => r.id !== btn.getAttribute('data-id')); await saveReminders(); renderReminders(); updateProfilePage(); }));
@@ -1091,7 +1221,10 @@
       const ul = document.getElementById(listId); ul.innerHTML = '';
       state.categories[type].forEach((cat, idx) => {
         const li = document.createElement('li'); li.className = 'cat-item';
-        li.innerHTML = `<span>${escapeHtml(cat)}</span><div class="cat-actions"><button class="btn-edit-tx" data-type="${type}" data-idx="${idx}" title="Modifica"><i class="ti ti-pencil"></i></button><button class="btn-delete" data-type="${type}" data-idx="${idx}" title="Elimina"><i class="ti ti-trash"></i></button></div>`;
+        li.innerHTML = `<span>${escapeHtml(cat)}</span><div class="cat-actions">
+          <button class="btn-edit-tx" data-type="${type}" data-idx="${idx}" title="Modifica"><svg style="width:32px;height:32px;"><use href="#icon-edit"></use></svg></button>
+          <button class="btn-delete" data-type="${type}" data-idx="${idx}" title="Elimina"><svg style="width:32px;height:32px;"><use href="#icon-delete"></use></svg></button>
+        </div>`;
         ul.appendChild(li);
       });
       ul.querySelectorAll('.btn-delete').forEach(btn => btn.addEventListener('click', async () => {
