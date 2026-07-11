@@ -198,27 +198,25 @@
   .btn-pdf { display: inline-flex; align-items: center; gap: 6px; height: 38px; padding: 0 14px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff !important; border: none; border-radius: 999px; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3); }
   .btn-pdf:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
   .btn-pdf i { font-size: 16px; }
-  #pdf-loading { display: none; position: fixed; top: 20px; right: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); z-index: 1000; font-size: 13px; font-weight: 500; }
+  #pdf-loading { display: none; position: fixed; top: 20px; right: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); z-index: 10000; font-size: 13px; font-weight: 500; }
   #pdf-loading.show { display: flex; align-items: center; gap: 8px; }
   .spinner { width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
   
-  /* FIX PDF: Container nascosto ma renderizzabile */
-  #pdf-container { 
-    position: fixed; 
-    top: -10000px; 
-    left: 0; 
-    width: 800px; 
-    background: #fff; 
-    color: #1a1a1a; 
-    font-family: 'Inter', -apple-system, sans-serif; 
-    visibility: hidden;
-  }
-  #pdf-container.pdf-generating {
-    visibility: visible;
+  /* Container temporaneo per PDF - visibile durante la generazione */
+  #pdf-temp-container {
+    position: fixed;
     top: 0;
     left: 0;
-    z-index: 9999;
+    width: 800px;
+    background: #fff;
+    color: #1a1a1a;
+    font-family: 'Inter', -apple-system, sans-serif;
+    z-index: 99999;
+    display: none;
+  }
+  #pdf-temp-container.active {
+    display: block;
   }
   
   .pdf-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; padding: 40px 50px; }
@@ -254,8 +252,6 @@
   .btn-attachment { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px; background: var(--surface-2); border: 1px dashed var(--border); border-radius: var(--radius); font-size: 13px; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; }
   .btn-attachment:hover { background: var(--surface); border-color: var(--accent); color: var(--accent); }
   .btn-attachment i { font-size: 16px; }
-  .attachment-preview { margin-top: 12px; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); background: var(--surface-2); }
-  .attachment-preview img { width: 100%; max-height: 300px; object-fit: contain; display: block; background: #fff; }
   .attachment-file-info { display: flex; align-items: center; gap: 10px; padding: 12px; background: var(--surface-2); border-radius: var(--radius); margin-top: 12px; }
   .attachment-file-icon { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: var(--accent); color: #fff; border-radius: 8px; font-size: 20px; }
   .attachment-file-details { flex: 1; min-width: 0; }
@@ -446,7 +442,7 @@
     <div id="page-categorie" class="page">
       <h1>Gestione Categorie</h1>
       <div class="panel">
-        <h3> Uscite</h3>
+        <h3>📤 Uscite</h3>
         <ul id="cat-list-expense" class="cat-list"></ul>
         <div class="cat-input-row">
           <input type="text" id="new-cat-expense" placeholder="Nuova categoria uscita">
@@ -472,7 +468,6 @@
     <div class="detail-field"><label>Importo</label><p id="detail-amount"></p></div>
     <div class="detail-field"><label>Categoria</label><p id="detail-category"></p></div>
     <div class="detail-field"><label>Data</label><p id="detail-date"></p></div>
-    
     <div class="attachment-section">
       <label>📎 Allegato</label>
       <input type="file" id="attachment-input" class="attachment-hidden-input" accept="image/*,.pdf,.doc,.docx">
@@ -485,7 +480,6 @@
         <div class="progress-text" id="progress-text">Caricamento... 0%</div>
       </div>
     </div>
-
     <div class="detail-actions">
       <button id="detail-close" style="background:var(--surface-2); border:1px solid var(--border); color:var(--text-secondary);">Chiudi</button>
       <button id="detail-edit" style="background:var(--accent); color:#fff; border:none;"><i class="ti ti-pencil"></i> Modifica</button>
@@ -521,7 +515,7 @@
 </div>
 
 <div id="pdf-loading"><div class="spinner"></div><span>Generazione PDF in corso...</span></div>
-<div id="pdf-container"></div>
+<div id="pdf-temp-container"></div>
 
 <script>
 (function(){
@@ -823,11 +817,11 @@
     const t = state.transactions.find(t => t.id === id); if (!t) return;
     detailId = id;
     const isIncome = t.type === 'income';
-    document.getElementById('detail-title').textContent = isIncome ? '📈 Entrata' : ' Uscita';
+    document.getElementById('detail-title').textContent = isIncome ? '📈 Entrata' : '📉 Uscita';
     document.getElementById('detail-desc').textContent = t.description || t.category || '—';
     document.getElementById('detail-amount').innerHTML = `<span style="font-size:18px; font-weight:700; color:${isIncome?'var(--success)':'var(--danger)'};">${isIncome?'+':'-'}${fmtEUR(t.amount)}</span>`;
     document.getElementById('detail-category').textContent = t.category || '—';
-    const srcLabel = (t.source === 'bank') ? ' Conto corrente' : '💵 Contanti';
+    const srcLabel = (t.source === 'bank') ? '🏦 Conto corrente' : ' Contanti';
     document.getElementById('detail-date').textContent = new Date(t.date).toLocaleDateString('it-IT', {weekday:'long', year:'numeric', month:'long', day:'numeric'}) + ' · ' + srcLabel;
     renderAttachment(t);
     document.getElementById('detail-overlay').classList.add('open');
@@ -895,9 +889,8 @@
   function getFileIcon(mimeType) {
     if (!mimeType) return '📄';
     if (mimeType.includes('pdf')) return '📕';
-    if (mimeType.includes('word') || mimeType.includes('document')) return '📘';
+    if (mimeType.includes('word') || mimeType.includes('document')) return '';
     if (mimeType.includes('sheet') || mimeType.includes('excel')) return '📗';
-    if (mimeType.includes('text')) return '📄';
     return '📄';
   }
   
@@ -905,15 +898,13 @@
     const t = state.transactions.find(t => t.id === txId);
     if (!t || !t.attachment) return;
     try {
-      if (t.attachment.url) {
-        const link = document.createElement('a');
-        link.href = t.attachment.url;
-        link.download = t.attachment.name;
-        link.target = '_blank';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
+      const link = document.createElement('a');
+      link.href = t.attachment.url;
+      link.download = t.attachment.name;
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     } catch (err) {
       alert('Errore nel download: ' + err.message);
     }
@@ -939,17 +930,12 @@
     }
   };
   
-  document.getElementById('btn-add-attachment').addEventListener('click', () => {
-    document.getElementById('attachment-input').click();
-  });
+  document.getElementById('btn-add-attachment').addEventListener('click', () => { document.getElementById('attachment-input').click(); });
   
   document.getElementById('attachment-input').addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file || !detailId) return;
-    if (file.size > 10 * 1024 * 1024) {
-      alert('Il file è troppo grande. Dimensione massima: 10MB');
-      return;
-    }
+    if (file.size > 10 * 1024 * 1024) { alert('Il file è troppo grande. Dimensione massima: 10MB'); return; }
     const t = state.transactions.find(t => t.id === detailId);
     if (!t) return;
     const progressDiv = document.getElementById('attachment-progress');
@@ -974,10 +960,7 @@
           const downloadUrl = await uploadTask.snapshot.ref.getDownloadURL();
           const idx = state.transactions.findIndex(tx => tx.id === detailId);
           if (idx !== -1) {
-            state.transactions[idx].attachment = {
-              name: file.name, type: file.type, size: file.size,
-              storagePath: storagePath, url: downloadUrl
-            };
+            state.transactions[idx].attachment = { name: file.name, type: file.type, size: file.size, storagePath: storagePath, url: downloadUrl };
             await saveTransactions();
             renderAttachment(state.transactions[idx]);
           }
@@ -1237,10 +1220,10 @@
 
   function showLoading(show) { document.getElementById('pdf-loading').classList.toggle('show', show); }
 
-  // FIX PDF: Rendi visibile il container durante la generazione
+  // ========== PDF CON APPROCCIO TEMPORANEO ==========
   async function generateHomePDF() {
     showLoading(true);
-    const container = document.getElementById('pdf-container');
+    const container = document.getElementById('pdf-temp-container');
     const from = filterFrom || todayISO().slice(0,7) + '-01';
     const to = filterTo || todayISO();
     const mt = state.transactions.filter(t => t.date >= from && t.date <= to && matchesSourceFilter(t)).sort((a,b) => b.date.localeCompare(a.date));
@@ -1298,19 +1281,18 @@
       <div class="pdf-footer">Generato il ${generatedDate} · Budget di Famiglia App</div>
     `;
 
-    // FIX: Rendi visibile il container prima della generazione
-    container.classList.add('pdf-generating');
-    await new Promise(r => setTimeout(r, 500));
+    // FIX: Rendi visibile il container TEMPORANEO
+    container.classList.add('active');
+    await new Promise(r => setTimeout(r, 800));
     
     const opt = {
-      margin: 0,
+      margin: [10, 10, 10, 10],
       filename: `budget-famiglia-${todayISO()}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { 
         scale: 2, 
         useCORS: true, 
         backgroundColor: '#ffffff',
-        windowWidth: 800,
         logging: false 
       },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -1321,14 +1303,14 @@
     } catch(err) {
       alert('Errore nella generazione PDF: ' + err.message);
     } finally {
-      container.classList.remove('pdf-generating');
+      container.classList.remove('active');
       showLoading(false);
     }
   }
 
   async function generateStatsPDF() {
     showLoading(true);
-    const container = document.getElementById('pdf-container');
+    const container = document.getElementById('pdf-temp-container');
     const generatedDate = new Date().toLocaleDateString('it-IT', { day:'2-digit', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' });
     const year = document.getElementById('chart-year')?.value || new Date().getFullYear().toString();
     const month = document.getElementById('chart-month')?.value || monthKey(todayISO());
@@ -1398,19 +1380,18 @@
       <div class="pdf-footer">Generato il ${generatedDate} · Budget di Famiglia App</div>
     `;
 
-    // FIX: Rendi visibile il container prima della generazione
-    container.classList.add('pdf-generating');
-    await new Promise(r => setTimeout(r, 500));
+    // FIX: Rendi visibile il container TEMPORANEO
+    container.classList.add('active');
+    await new Promise(r => setTimeout(r, 800));
     
     const opt = {
-      margin: 0,
+      margin: [10, 10, 10, 10],
       filename: `statistiche-${year}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { 
         scale: 2, 
         useCORS: true, 
         backgroundColor: '#ffffff',
-        windowWidth: 800,
         logging: false 
       },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -1421,7 +1402,7 @@
     } catch(err) {
       alert('Errore nella generazione PDF: ' + err.message);
     } finally {
-      container.classList.remove('pdf-generating');
+      container.classList.remove('active');
       showLoading(false);
     }
   }
