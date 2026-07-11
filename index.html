@@ -148,14 +148,14 @@
   .hidden { display: none !important; }
   .import-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
   .import-row input[type="file"] { flex: 1; min-width: 200px; height: auto; padding: 8px; }
-  #import-preview-wrap, #import-preview-wrap-cash { margin-top: 1rem; }
-  #import-preview-wrap table, #import-preview-wrap-cash table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  #import-preview-wrap th, #import-preview-wrap td, #import-preview-wrap-cash th, #import-preview-wrap-cash td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); }
-  #import-preview-wrap th, #import-preview-wrap-cash th { color: var(--text-secondary); font-weight: 500; }
+  #import-preview-wrap-bank, #import-preview-wrap-cash { margin-top: 1rem; }
+  #import-preview-wrap-bank table, #import-preview-wrap-cash table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  #import-preview-wrap-bank th, #import-preview-wrap-bank td, #import-preview-wrap-cash th, #import-preview-wrap-cash td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  #import-preview-wrap-bank th, #import-preview-wrap-cash th { color: var(--text-secondary); font-weight: 500; }
   .import-row-error { color: var(--danger); }
   .import-row-ok { color: var(--text-secondary); }
-  #import-summary, #import-summary-cash { font-size: 13px; margin: 10px 0; }
-  #import-actions, #import-actions-cash { display: flex; gap: 8px; margin-top: 10px; }
+  #import-summary-bank, #import-summary-cash { font-size: 13px; margin: 10px 0; }
+  #import-actions-bank, #import-actions-cash { display: flex; gap: 8px; margin-top: 10px; }
   .import-table-wrap { max-height: 280px; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--radius); }
   .badge-source { display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; padding: 2px 7px; border-radius: 999px; flex-shrink: 0; }
   .badge-cash { background: #e8f5e9; color: #2e7d32; }
@@ -184,7 +184,7 @@
   .reminder-badge.today { background: #e0f2ee; color: var(--success); border-color: var(--success); }
   .reminder-badge.soon { background: #fef3e0; color: #BA7517; border-color: #BA7517; }
   .reminder-form { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .reminder-form input, .reminder-form select { width: 100%; }
+  .reminder-form input { width: 100%; }
   .reminder-form-note { grid-column: 1 / -1; }
   .import-section-divider { margin: 2rem 0 1.5rem; padding-top: 1.5rem; border-top: 2px dashed var(--border); }
   .import-section-title { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 600; margin-bottom: 1rem; }
@@ -202,7 +202,21 @@
   #pdf-loading.show { display: flex; align-items: center; gap: 8px; }
   .spinner { width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  #pdf-container { position: absolute; left: -9999px; top: 0; width: 800px; background: #fff; color: #1a1a1a; font-family: 'Inter', -apple-system, sans-serif; }
+  
+  /* FIX PDF: Container posizionato correttamente per html2canvas */
+  #pdf-container { 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 800px; 
+    z-index: -1; 
+    opacity: 0; 
+    pointer-events: none;
+    background: #fff; 
+    color: #1a1a1a; 
+    font-family: 'Inter', -apple-system, sans-serif; 
+  }
+  
   .pdf-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; padding: 40px 50px; }
   .pdf-header h1 { margin: 0; font-size: 32px; font-weight: 700; }
   .pdf-header p { margin: 8px 0 0; font-size: 14px; opacity: 0.9; }
@@ -231,7 +245,6 @@
   .pdf-badge-bank { background: #e3f2fd; color: #1565c0; }
   .pdf-badge-cash { background: #e8f5e9; color: #2e7d32; }
   
-  /* Stili per allegati */
   .attachment-section { margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border); }
   .attachment-section label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-secondary); margin-bottom: 8px; }
   .btn-attachment { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px; background: var(--surface-2); border: 1px dashed var(--border); border-radius: var(--radius); font-size: 13px; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; }
@@ -246,9 +259,9 @@
   .attachment-file-size { font-size: 11px; color: var(--text-muted); }
   .attachment-actions { display: flex; gap: 6px; }
   .btn-download-attachment, .btn-remove-attachment { width: 36px; height: 36px; border: none; background: var(--surface); border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all 0.15s; }
-  .btn-download-attachment:hover { background: var(--accent); color: #fff; }
+  .btn-download-attachment:hover { background: var(--accent); }
   .btn-download-attachment:hover i { color: #fff; }
-  .btn-remove-attachment:hover { background: var(--danger); color: #fff; }
+  .btn-remove-attachment:hover { background: var(--danger); }
   .btn-remove-attachment:hover i { color: #fff; }
   .btn-download-attachment i, .btn-remove-attachment i { font-size: 18px; color: var(--text-secondary); }
   .upload-progress { margin-top: 10px; }
@@ -437,7 +450,7 @@
         </div>
       </div>
       <div class="panel">
-        <h3> Entrate</h3>
+        <h3>📥 Entrate</h3>
         <ul id="cat-list-income" class="cat-list"></ul>
         <div class="cat-input-row">
           <input type="text" id="new-cat-income" placeholder="Nuova categoria entrata">
@@ -456,7 +469,6 @@
     <div class="detail-field"><label>Categoria</label><p id="detail-category"></p></div>
     <div class="detail-field"><label>Data</label><p id="detail-date"></p></div>
     
-    <!-- Sezione Allegati -->
     <div class="attachment-section">
       <label>📎 Allegato</label>
       <input type="file" id="attachment-input" class="attachment-hidden-input" accept="image/*,.pdf,.doc,.docx">
@@ -788,7 +800,7 @@
       const row = document.createElement('div'); row.className = 'tx-row';
       const isIncome = t.type === 'income';
       const src = t.source || 'cash';
-      const badgeLabel = src === 'bank' ? '🏦 C/C' : '💵 Cash';
+      const badgeLabel = src === 'bank' ? ' C/C' : '💵 Cash';
       const badgeCls = src === 'bank' ? 'badge-bank' : 'badge-cash';
       const dateLabel = new Date(t.date).toLocaleDateString('it-IT', { day:'2-digit', month:'2-digit', year:'2-digit' });
       const amountColor = isIncome ? 'var(--success)' : 'var(--danger)';
@@ -811,12 +823,9 @@
     document.getElementById('detail-desc').textContent = t.description || t.category || '—';
     document.getElementById('detail-amount').innerHTML = `<span style="font-size:18px; font-weight:700; color:${isIncome?'var(--success)':'var(--danger)'};">${isIncome?'+':'-'}${fmtEUR(t.amount)}</span>`;
     document.getElementById('detail-category').textContent = t.category || '—';
-    const srcLabel = (t.source === 'bank') ? '🏦 Conto corrente' : '💵 Contanti';
+    const srcLabel = (t.source === 'bank') ? ' Conto corrente' : '💵 Contanti';
     document.getElementById('detail-date').textContent = new Date(t.date).toLocaleDateString('it-IT', {weekday:'long', year:'numeric', month:'long', day:'numeric'}) + ' · ' + srcLabel;
-    
-    // Mostra allegato se presente
     renderAttachment(t);
-    
     document.getElementById('detail-overlay').classList.add('open');
   }
   
@@ -829,14 +838,12 @@
       contentDiv.innerHTML = '';
       
       if (t.attachment.type && t.attachment.type.startsWith('image/')) {
-        // Mostra immagine
         const img = document.createElement('img');
         img.src = t.attachment.url;
         img.alt = t.attachment.name;
         img.style.cssText = 'width:100%; max-height:300px; object-fit:contain; border-radius:8px; margin-top:8px;';
         contentDiv.appendChild(img);
         
-        // Info file
         const infoDiv = document.createElement('div');
         infoDiv.className = 'attachment-file-info';
         infoDiv.innerHTML = `
@@ -851,7 +858,6 @@
         `;
         contentDiv.appendChild(infoDiv);
       } else {
-        // Mostra info file non immagine
         const icon = getFileIcon(t.attachment.type);
         const infoDiv = document.createElement('div');
         infoDiv.className = 'attachment-file-info';
@@ -885,8 +891,8 @@
   function getFileIcon(mimeType) {
     if (!mimeType) return '📄';
     if (mimeType.includes('pdf')) return '📕';
-    if (mimeType.includes('word') || mimeType.includes('document')) return '';
-    if (mimeType.includes('sheet') || mimeType.includes('excel')) return '📗';
+    if (mimeType.includes('word') || mimeType.includes('document')) return '📘';
+    if (mimeType.includes('sheet') || mimeType.includes('excel')) return '';
     if (mimeType.includes('text')) return '📄';
     return '';
   }
@@ -894,10 +900,8 @@
   window.downloadAttachment = async function(txId) {
     const t = state.transactions.find(t => t.id === txId);
     if (!t || !t.attachment) return;
-    
     try {
       if (t.attachment.url) {
-        // Crea link per download
         const link = document.createElement('a');
         link.href = t.attachment.url;
         link.download = t.attachment.name;
@@ -913,18 +917,13 @@
   
   window.removeAttachment = async function(txId) {
     if (!confirm('Rimuovere questo allegato?')) return;
-    
     const t = state.transactions.find(t => t.id === txId);
     if (!t) return;
-    
     try {
-      // Elimina file da Storage
       if (t.attachment.storagePath) {
         const fileRef = storage.ref().child(t.attachment.storagePath);
         await fileRef.delete();
       }
-      
-      // Rimuovi riferimento dal movimento
       const idx = state.transactions.findIndex(tx => tx.id === txId);
       if (idx !== -1) {
         delete state.transactions[idx].attachment;
@@ -943,60 +942,41 @@
   document.getElementById('attachment-input').addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file || !detailId) return;
-    
-    // Limita a 10MB
     if (file.size > 10 * 1024 * 1024) {
       alert('Il file è troppo grande. Dimensione massima: 10MB');
       return;
     }
-    
     const t = state.transactions.find(t => t.id === detailId);
     if (!t) return;
-    
     const progressDiv = document.getElementById('attachment-progress');
     const progressFill = document.getElementById('progress-fill');
     const progressText = document.getElementById('progress-text');
     const uploadArea = document.getElementById('attachment-upload-area');
-    
     try {
       progressDiv.classList.remove('hidden');
       uploadArea.classList.add('hidden');
-      
-      // Crea path unico per il file
       const timestamp = Date.now();
       const storagePath = `attachments/${currentUser.uid}/${detailId}/${timestamp}_${file.name}`;
       const fileRef = storage.ref().child(storagePath);
-      
-      // Upload con progresso
       const uploadTask = fileRef.put(file);
-      
       uploadTask.on('state_changed', 
         (snapshot) => {
           const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
           progressFill.style.width = progress + '%';
           progressText.textContent = `Caricamento... ${Math.round(progress)}%`;
         },
-        (error) => {
-          throw error;
-        },
+        (error) => { throw error; },
         async () => {
-          // Upload completato, ottieni URL
           const downloadUrl = await uploadTask.snapshot.ref.getDownloadURL();
-          
-          // Aggiorna movimento
           const idx = state.transactions.findIndex(tx => tx.id === detailId);
           if (idx !== -1) {
             state.transactions[idx].attachment = {
-              name: file.name,
-              type: file.type,
-              size: file.size,
-              storagePath: storagePath,
-              url: downloadUrl
+              name: file.name, type: file.type, size: file.size,
+              storagePath: storagePath, url: downloadUrl
             };
             await saveTransactions();
             renderAttachment(state.transactions[idx]);
           }
-          
           progressDiv.classList.add('hidden');
           progressFill.style.width = '0%';
         }
@@ -1006,8 +986,6 @@
       progressDiv.classList.add('hidden');
       uploadArea.classList.remove('hidden');
     }
-    
-    // Reset input
     e.target.value = '';
   });
   
@@ -1222,42 +1200,18 @@
     document.getElementById('cat-edit-input').value = state.categories[type][idx];
     document.getElementById('cat-edit-modal').style.display = 'flex';
   }
-
-  document.getElementById('cat-edit-cancel').addEventListener('click', () => {
-    document.getElementById('cat-edit-modal').style.display = 'none';
-    editingCat = { type: null, index: null };
-  });
-
+  document.getElementById('cat-edit-cancel').addEventListener('click', () => { document.getElementById('cat-edit-modal').style.display = 'none'; editingCat = { type: null, index: null }; });
   document.getElementById('cat-edit-save').addEventListener('click', async () => {
     const newName = document.getElementById('cat-edit-input').value.trim();
     if (!newName) { alert('Inserisci un nome valido.'); return; }
-    if (editingCat.type && state.categories[editingCat.type].includes(newName) && newName !== state.categories[editingCat.type][editingCat.index]) {
-      alert('Categoria già esistente.'); return;
-    }
+    if (editingCat.type && state.categories[editingCat.type].includes(newName) && newName !== state.categories[editingCat.type][editingCat.index]) { alert('Categoria già esistente.'); return; }
     state.categories[editingCat.type][editingCat.index] = newName;
     await saveCategories(); renderCategories(); populateCategorySelect();
     document.getElementById('cat-edit-modal').style.display = 'none';
   });
-
-  document.getElementById('cat-edit-modal').addEventListener('click', (e) => {
-    if (e.target.id === 'cat-edit-modal') {
-      document.getElementById('cat-edit-modal').style.display = 'none';
-      editingCat = { type: null, index: null };
-    }
-  });
-
-  document.getElementById('btn-add-cat-expense').addEventListener('click', async () => {
-    const val = document.getElementById('new-cat-expense').value.trim(); if (!val) return;
-    if (state.categories.expense.includes(val)) { alert('Categoria già esistente.'); return; }
-    state.categories.expense.push(val); document.getElementById('new-cat-expense').value = '';
-    await saveCategories(); renderCategories(); populateCategorySelect();
-  });
-  document.getElementById('btn-add-cat-income').addEventListener('click', async () => {
-    const val = document.getElementById('new-cat-income').value.trim(); if (!val) return;
-    if (state.categories.income.includes(val)) { alert('Categoria già esistente.'); return; }
-    state.categories.income.push(val); document.getElementById('new-cat-income').value = '';
-    await saveCategories(); renderCategories(); populateCategorySelect();
-  });
+  document.getElementById('cat-edit-modal').addEventListener('click', (e) => { if (e.target.id === 'cat-edit-modal') { document.getElementById('cat-edit-modal').style.display = 'none'; editingCat = { type: null, index: null }; } });
+  document.getElementById('btn-add-cat-expense').addEventListener('click', async () => { const val = document.getElementById('new-cat-expense').value.trim(); if (!val) return; if (state.categories.expense.includes(val)) { alert('Categoria già esistente.'); return; } state.categories.expense.push(val); document.getElementById('new-cat-expense').value = ''; await saveCategories(); renderCategories(); populateCategorySelect(); });
+  document.getElementById('btn-add-cat-income').addEventListener('click', async () => { const val = document.getElementById('new-cat-income').value.trim(); if (!val) return; if (state.categories.income.includes(val)) { alert('Categoria già esistente.'); return; } state.categories.income.push(val); document.getElementById('new-cat-income').value = ''; await saveCategories(); renderCategories(); populateCategorySelect(); });
 
   function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
   function populateMonthSelects() {
@@ -1278,6 +1232,22 @@
   document.getElementById('rem-date').value = todayISO();
 
   function showLoading(show) { document.getElementById('pdf-loading').classList.toggle('show', show); }
+
+  // FIX PDF: Funzione helper per convertire canvas in immagini
+  async function convertCanvasesToImages(container) {
+    const canvases = container.querySelectorAll('canvas');
+    for (const canvas of canvases) {
+      try {
+        const img = document.createElement('img');
+        img.src = canvas.toDataURL('image/png');
+        img.style.width = canvas.offsetWidth + 'px';
+        img.style.height = canvas.offsetHeight + 'px';
+        img.style.display = 'block';
+        img.style.maxWidth = '100%';
+        canvas.parentNode.replaceChild(img, canvas);
+      } catch(e) { console.warn('Errore conversione canvas:', e); }
+    }
+  }
 
   async function generateHomePDF() {
     showLoading(true);
@@ -1325,42 +1295,26 @@
       <div class="pdf-body">
         <div class="pdf-section-title">Riepilogo finanziario</div>
         <div class="pdf-stats-grid">
-          <div class="pdf-stat-card income">
-            <div class="pdf-stat-label">Entrate</div>
-            <div class="pdf-stat-value">${fmtEUR(income)}</div>
-          </div>
-          <div class="pdf-stat-card expense">
-            <div class="pdf-stat-label">Uscite</div>
-            <div class="pdf-stat-value">${fmtEUR(expense)}</div>
-          </div>
-          <div class="pdf-stat-card balance">
-            <div class="pdf-stat-label">Saldo periodo</div>
-            <div class="pdf-stat-value">${fmtEUR(income - expense)}</div>
-          </div>
-          <div class="pdf-stat-card residuo">
-            <div class="pdf-stat-label">Residuo totale</div>
-            <div class="pdf-stat-value">${fmtEUR(ti - te)}</div>
-          </div>
+          <div class="pdf-stat-card income"><div class="pdf-stat-label">Entrate</div><div class="pdf-stat-value">${fmtEUR(income)}</div></div>
+          <div class="pdf-stat-card expense"><div class="pdf-stat-label">Uscite</div><div class="pdf-stat-value">${fmtEUR(expense)}</div></div>
+          <div class="pdf-stat-card balance"><div class="pdf-stat-label">Saldo periodo</div><div class="pdf-stat-value">${fmtEUR(income - expense)}</div></div>
+          <div class="pdf-stat-card residuo"><div class="pdf-stat-label">Residuo totale</div><div class="pdf-stat-value">${fmtEUR(ti - te)}</div></div>
         </div>
         <div class="pdf-section-title">Movimenti (${mt.length})</div>
         <table class="pdf-table">
-          <thead>
-            <tr><th>Data</th><th>Movimento</th><th>Importo</th><th>Fonte</th><th>Tipo</th></tr>
-          </thead>
+          <thead><tr><th>Data</th><th>Movimento</th><th>Importo</th><th>Fonte</th><th>Tipo</th></tr></thead>
           <tbody>${transactionsRows}</tbody>
         </table>
       </div>
-      <div class="pdf-footer">
-        Generato il ${generatedDate} · Budget di Famiglia App
-      </div>
+      <div class="pdf-footer">Generato il ${generatedDate} · Budget di Famiglia App</div>
     `;
 
-    await new Promise(r => setTimeout(r, 100));
+    await new Promise(r => setTimeout(r, 300));
     const opt = {
       margin: 0,
       filename: `budget-famiglia-${todayISO()}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
     await html2pdf().set(opt).from(container).save();
@@ -1381,9 +1335,7 @@
     const totalExpense = expenses.reduce((a,b)=>a+b,0);
 
     const byCategory = {};
-    state.transactions.filter(t => t.type === 'expense' && monthKey(t.date) === month).forEach(t => {
-      byCategory[t.category] = (byCategory[t.category] || 0) + amountValue(t.amount);
-    });
+    state.transactions.filter(t => t.type === 'expense' && monthKey(t.date) === month).forEach(t => { byCategory[t.category] = (byCategory[t.category] || 0) + amountValue(t.amount); });
     const cats = Object.keys(byCategory).sort((a,b) => byCategory[b] - byCategory[a]);
 
     let categoryRows = '';
@@ -1422,47 +1374,31 @@
       <div class="pdf-body">
         <div class="pdf-section-title">Riepilogo annuale ${year}</div>
         <div class="pdf-stats-grid">
-          <div class="pdf-stat-card income">
-            <div class="pdf-stat-label">Entrate totali</div>
-            <div class="pdf-stat-value">${fmtEUR(totalIncome)}</div>
-          </div>
-          <div class="pdf-stat-card expense">
-            <div class="pdf-stat-label">Uscite totali</div>
-            <div class="pdf-stat-value">${fmtEUR(totalExpense)}</div>
-          </div>
-          <div class="pdf-stat-card balance">
-            <div class="pdf-stat-label">Risparmio annuale</div>
-            <div class="pdf-stat-value">${fmtEUR(totalIncome - totalExpense)}</div>
-          </div>
-          <div class="pdf-stat-card residuo">
-            <div class="pdf-stat-label">Categorie spese</div>
-            <div class="pdf-stat-value">${Object.keys(byCategory).length}</div>
-          </div>
+          <div class="pdf-stat-card income"><div class="pdf-stat-label">Entrate totali</div><div class="pdf-stat-value">${fmtEUR(totalIncome)}</div></div>
+          <div class="pdf-stat-card expense"><div class="pdf-stat-label">Uscite totali</div><div class="pdf-stat-value">${fmtEUR(totalExpense)}</div></div>
+          <div class="pdf-stat-card balance"><div class="pdf-stat-label">Risparmio annuale</div><div class="pdf-stat-value">${fmtEUR(totalIncome - totalExpense)}</div></div>
+          <div class="pdf-stat-card residuo"><div class="pdf-stat-label">Categorie spese</div><div class="pdf-stat-value">${Object.keys(byCategory).length}</div></div>
         </div>
-
         <div class="pdf-section-title">Dettaglio mensile ${year}</div>
         <table class="pdf-table">
           <thead><tr><th>Mese</th><th>Entrate</th><th>Uscite</th><th>Saldo</th></tr></thead>
           <tbody>${monthlyRows}</tbody>
         </table>
-
         <div class="pdf-section-title">Spese per categoria · ${monthLabel(month)}</div>
         <table class="pdf-table">
           <thead><tr><th>Categoria</th><th>Importo</th><th>% sul totale</th></tr></thead>
           <tbody>${categoryRows}</tbody>
         </table>
       </div>
-      <div class="pdf-footer">
-        Generato il ${generatedDate} · Budget di Famiglia App
-      </div>
+      <div class="pdf-footer">Generato il ${generatedDate} · Budget di Famiglia App</div>
     `;
 
-    await new Promise(r => setTimeout(r, 100));
+    await new Promise(r => setTimeout(r, 300));
     const opt = {
       margin: 0,
       filename: `statistiche-${year}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
     await html2pdf().set(opt).from(container).save();
