@@ -302,12 +302,26 @@
   .attachment-file-name { font-size: 13px; font-weight: 600; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .attachment-file-size { font-size: 11px; color: var(--text-muted); }
   .attachment-actions { display: flex; gap: 6px; }
-  .btn-download-attachment, .btn-remove-attachment { width: 36px; height: 36px; border: none; background: var(--surface); border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all 0.15s; }
-  .btn-download-attachment:hover { background: var(--accent); }
-  .btn-download-attachment:hover i { color: #fff; }
-  .btn-remove-attachment:hover { background: var(--danger); }
-  .btn-remove-attachment:hover i { color: #fff; }
-  .btn-download-attachment i, .btn-remove-attachment i { font-size: 18px; color: var(--text-secondary); }
+  .btn-download-attachment, .btn-remove-attachment {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    padding: 0;
+  }
+  .btn-download-attachment:hover, .btn-remove-attachment:hover {
+    opacity: 0.85;
+    transform: scale(1.08);
+  }
+  .btn-download-attachment svg, .btn-remove-attachment svg {
+    width: 20px;
+    height: 20px;
+  }
   .upload-progress { margin-top: 10px; }
   .progress-bar { width: 100%; height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden; }
   .progress-bar-fill { height: 100%; background: var(--accent); transition: width 0.3s ease; }
@@ -389,7 +403,7 @@
       <div style="margin-bottom: 0.5rem; margin-top:1.5rem;"><h2>Movimenti</h2></div>
       <div class="source-filter">
         <button class="active" data-source="all">Tutti</button>
-        <button data-source="cash"> Contanti</button>
+        <button data-source="cash">💵 Contanti</button>
         <button data-source="bank">🏦 Conto corrente</button>
       </div>
       <div class="tx-header"><span>Data</span><span>Movimento</span><span style="text-align:right;">Importo</span><span style="text-align:center;">Tipologia</span><span></span></div>
@@ -1017,7 +1031,6 @@
       return cats;
     };
     
-    // 1. TOTALE ENTRATE
     let tr = document.createElement('tr');
     tr.className = 'total-row';
     let diff = totalInc2 - totalInc1;
@@ -1031,7 +1044,6 @@
     `;
     tbody.appendChild(tr);
     
-    // 2. DETTAGLIO ENTRATE PER CATEGORIA
     const catsInc1 = getCategoriesByType(m1, 'income');
     const catsInc2 = getCategoriesByType(m2, 'income');
     const allCatsInc = [...new Set([...Object.keys(catsInc1), ...Object.keys(catsInc2)])];
@@ -1059,7 +1071,6 @@
       });
     }
     
-    // 3. TOTALE USCITE
     tr = document.createElement('tr');
     tr.className = 'total-row';
     diff = totalExp2 - totalExp1;
@@ -1073,7 +1084,6 @@
     `;
     tbody.appendChild(tr);
     
-    // 4. DETTAGLIO USCITE PER CATEGORIA
     const catsExp1 = getCategoriesByType(m1, 'expense');
     const catsExp2 = getCategoriesByType(m2, 'expense');
     const allCatsExp = [...new Set([...Object.keys(catsExp1), ...Object.keys(catsExp2)])];
@@ -1101,7 +1111,6 @@
       });
     }
     
-    // 5. SALDO FINALE
     tr = document.createElement('tr');
     tr.className = 'total-row';
     diff = saldo2 - saldo1;
@@ -1134,7 +1143,7 @@
       const row = document.createElement('div'); row.className = 'tx-row';
       const isIncome = t.type === 'income';
       const src = t.source || 'cash';
-      const badgeLabel = src === 'bank' ? ' C/C' : '💵 Cash';
+      const badgeLabel = src === 'bank' ? '🏦 C/C' : ' Cash';
       const badgeCls = src === 'bank' ? 'badge-bank' : 'badge-cash';
       const dateLabel = new Date(t.date).toLocaleDateString('it-IT', { day:'2-digit', month:'2-digit', year:'2-digit' });
       const amountColor = isIncome ? 'var(--success)' : 'var(--danger)';
@@ -1156,11 +1165,11 @@
     const t = state.transactions.find(t => t.id === id); if (!t) return;
     detailId = id;
     const isIncome = t.type === 'income';
-    document.getElementById('detail-title').textContent = isIncome ? ' Entrata' : '📉 Uscita';
+    document.getElementById('detail-title').textContent = isIncome ? '📈 Entrata' : ' Uscita';
     document.getElementById('detail-desc').textContent = t.description || t.category || '—';
     document.getElementById('detail-amount').innerHTML = `<span style="font-size:18px; font-weight:700; color:${isIncome?'var(--success)':'var(--danger)'};">${isIncome?'+':'-'}${fmtEUR(t.amount)}</span>`;
     document.getElementById('detail-category').textContent = t.category || '—';
-    const srcLabel = (t.source === 'bank') ? '🏦 Conto corrente' : '💵 Contanti';
+    const srcLabel = (t.source === 'bank') ? ' Conto corrente' : '💵 Contanti';
     document.getElementById('detail-date').textContent = new Date(t.date).toLocaleDateString('it-IT', {weekday:'long', year:'numeric', month:'long', day:'numeric'}) + ' · ' + srcLabel;
     renderAttachment(t);
     document.getElementById('detail-overlay').classList.add('open');
@@ -1178,17 +1187,18 @@
         img.alt = t.attachment.name;
         img.style.cssText = 'width:100%; max-height:300px; object-fit:contain; border-radius:8px; margin-top:8px;';
         contentDiv.appendChild(img);
-        const infoDiv = document.createElement('div');
-        infoDiv.className = 'attachment-file-info';
-        infoDiv.innerHTML = `<div class="attachment-file-details" style="flex:1;"><div class="attachment-file-name">${escapeHtml(t.attachment.name)}</div><div class="attachment-file-size">${formatFileSize(t.attachment.size)}</div></div><div class="attachment-actions"><button class="btn-download-attachment" onclick="downloadAttachment('${t.id}')" title="Scarica"><i class="ti ti-download"></i></button><button class="btn-remove-attachment" onclick="removeAttachment('${t.id}')" title="Rimuovi"><i class="ti ti-trash"></i></button></div>`;
-        contentDiv.appendChild(infoDiv);
-      } else {
-        const icon = getFileIcon(t.attachment.type);
-        const infoDiv = document.createElement('div');
-        infoDiv.className = 'attachment-file-info';
-        infoDiv.innerHTML = `<div class="attachment-file-icon">${icon}</div><div class="attachment-file-details"><div class="attachment-file-name">${escapeHtml(t.attachment.name)}</div><div class="attachment-file-size">${formatFileSize(t.attachment.size)}</div></div><div class="attachment-actions"><button class="btn-download-attachment" onclick="downloadAttachment('${t.id}')" title="Scarica"><i class="ti ti-download"></i></button><button class="btn-remove-attachment" onclick="removeAttachment('${t.id}')" title="Rimuovi"><i class="ti ti-trash"></i></button></div>`;
-        contentDiv.appendChild(infoDiv);
       }
+      const infoDiv = document.createElement('div');
+      infoDiv.className = 'attachment-file-info';
+      infoDiv.innerHTML = `<div class="attachment-file-details" style="flex:1;"><div class="attachment-file-name">${escapeHtml(t.attachment.name)}</div><div class="attachment-file-size">${formatFileSize(t.attachment.size)}</div></div><div class="attachment-actions">
+<button class="btn-download-attachment" onclick="downloadAttachment('${t.id}')" title="Scarica" style="background: linear-gradient(135deg, #2F80ED 0%, #1558C0 100%); border-radius: 8px;">
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+</button>
+<button class="btn-remove-attachment" onclick="removeAttachment('${t.id}')" title="Rimuovi" style="background: linear-gradient(135deg, #F04438 0%, #B42318 100%); border-radius: 8px;">
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+</button>
+</div>`;
+      contentDiv.appendChild(infoDiv);
     } else {
       contentDiv.innerHTML = '';
       uploadArea.classList.remove('hidden');
@@ -1207,7 +1217,7 @@
     if (!mimeType) return '📄';
     if (mimeType.includes('pdf')) return '📕';
     if (mimeType.includes('word') || mimeType.includes('document')) return '📘';
-    if (mimeType.includes('sheet') || mimeType.includes('excel')) return '📗';
+    if (mimeType.includes('sheet') || mimeType.includes('excel')) return '';
     return '📄';
   }
   
@@ -1475,8 +1485,12 @@
       state.categories[type].forEach((cat, idx) => {
         const li = document.createElement('li'); li.className = 'cat-item';
         li.innerHTML = `<span>${escapeHtml(cat)}</span><div class="cat-actions">
-          <button class="btn-edit-tx" data-type="${type}" data-idx="${idx}" title="Modifica"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512"><defs><linearGradient id="buttonGradientEdit" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#2F80ED"/><stop offset="1" stop-color="#1558C0"/></linearGradient><filter id="softShadowEdit" x="44" y="44" width="424" height="424" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#0B2E63" flood-opacity="0.24"/></filter></defs><rect x="72" y="72" width="368" height="368" rx="92" fill="url(#buttonGradientEdit)" filter="url(#softShadowEdit)"/><path d="M338.7 130.8c12.6-12.6 33.1-12.6 45.7 0l17.8 17.8c12.6 12.6 12.6 33.1 0 45.7l-24.5 24.5-63.5-63.5 24.5-24.5Z" fill="#FFFFFF"/><path d="M287.7 181.8 151.8 317.7c-3.2 3.2-5.4 7.2-6.5 11.6l-17.5 69.9c-2.5 9.9 6.5 18.9 16.4 16.4l69.9-17.5c4.4-1.1 8.4-3.3 11.6-6.5l135.9-135.9-73.9-73.9Z" fill="#FFFFFF"/></svg></button>
-          <button class="btn-delete" data-type="${type}" data-idx="${idx}" title="Elimina"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512"><defs><linearGradient id="buttonGradient" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#F04438"/><stop offset="1" stop-color="#B42318"/></linearGradient><filter id="softShadow" x="44" y="44" width="424" height="424" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#65160F" flood-opacity="0.24"/></filter></defs><rect x="72" y="72" width="368" height="368" rx="92" fill="url(#buttonGradient)" filter="url(#softShadow)"/><path d="M202 154c0-17.7 14.3-32 32-32h44c17.7 0 32 14.3 32 32v14h52c11 0 20 9 20 20s-9 20-20 20H150c-11 0-20-9-20-20s9-20 20-20h52v-14Zm40 14h28v-6c0-3.3-2.7-6-6-6h-16c-3.3 0-6 2.7-6 6v6Z" fill="#FFFFFF"/><path d="M170 238c-1.1-13.8 9.8-25.6 23.6-25.6h124.8c13.8 0 24.7 11.8 23.6 25.6l-12.2 144.9c-1.5 17.5-16.1 31.1-33.7 31.1h-80.2c-17.6 0-32.2-13.6-33.7-31.1L170 238Z" fill="#FFFFFF"/></svg></button>
+          <button class="btn-edit-tx" data-type="${type}" data-idx="${idx}" title="Modifica" style="background: linear-gradient(135deg, #2F80ED 0%, #1558C0 100%); border-radius: 8px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512"><defs><linearGradient id="buttonGradientEdit" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#2F80ED"/><stop offset="1" stop-color="#1558C0"/></linearGradient><filter id="softShadowEdit" x="44" y="44" width="424" height="424" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#0B2E63" flood-opacity="0.24"/></filter></defs><rect x="72" y="72" width="368" height="368" rx="92" fill="url(#buttonGradientEdit)" filter="url(#softShadowEdit)"/><path d="M338.7 130.8c12.6-12.6 33.1-12.6 45.7 0l17.8 17.8c12.6 12.6 12.6 33.1 0 45.7l-24.5 24.5-63.5-63.5 24.5-24.5Z" fill="#FFFFFF"/><path d="M287.7 181.8 151.8 317.7c-3.2 3.2-5.4 7.2-6.5 11.6l-17.5 69.9c-2.5 9.9 6.5 18.9 16.4 16.4l69.9-17.5c4.4-1.1 8.4-3.3 11.6-6.5l135.9-135.9-73.9-73.9Z" fill="#FFFFFF"/><path d="M287.7 181.8 361.6 255.7 338 279.3 264.1 205.4l23.6-23.6Z" fill="#DDEBFF"/><path d="M151.8 317.7c-3.2 3.2-5.4 7.2-6.5 11.6l-10.3 41 40.9 40.9 40.9-10.3c4.4-1.1 8.4-3.3 11.6-6.5l-76.6-76.7Z" fill="#EAF3FF"/><path d="M135 370.3 127.8 399.2c-2.5 9.9 6.5 18.9 16.4 16.4l28.9-7.2L135 370.3Z" fill="#102A43"/></svg>
+          </button>
+          <button class="btn-delete" data-type="${type}" data-idx="${idx}" title="Elimina" style="background: linear-gradient(135deg, #F04438 0%, #B42318 100%); border-radius: 8px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512"><defs><linearGradient id="buttonGradient" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#F04438"/><stop offset="1" stop-color="#B42318"/></linearGradient><filter id="softShadow" x="44" y="44" width="424" height="424" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#65160F" flood-opacity="0.24"/></filter></defs><rect x="72" y="72" width="368" height="368" rx="92" fill="url(#buttonGradient)" filter="url(#softShadow)"/><path d="M202 154c0-17.7 14.3-32 32-32h44c17.7 0 32 14.3 32 32v14h52c11 0 20 9 20 20s-9 20-20 20H150c-11 0-20-9-20-20s9-20 20-20h52v-14Zm40 14h28v-6c0-3.3-2.7-6-6-6h-16c-3.3 0-6 2.7-6 6v6Z" fill="#FFFFFF"/><path d="M170 238c-1.1-13.8 9.8-25.6 23.6-25.6h124.8c13.8 0 24.7 11.8 23.6 25.6l-12.2 144.9c-1.5 17.5-16.1 31.1-33.7 31.1h-80.2c-17.6 0-32.2-13.6-33.7-31.1L170 238Z" fill="#FFFFFF"/></svg>
+          </button>
         </div>`;
         ul.appendChild(li);
       });
