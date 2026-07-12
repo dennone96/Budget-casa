@@ -466,14 +466,15 @@
           </div>
         </div>
         <div class="panel">
-          <h3>Dati dettagliati</h3>
+          <h3>Andamento residuo mensile</h3>
           <table class="data-table" id="table-residuo">
             <thead>
               <tr>
                 <th>Mese</th>
                 <th class="text-right">Entrate</th>
                 <th class="text-right">Uscite</th>
-                <th class="text-right">Residuo</th>
+                <th class="text-right">Saldo mese</th>
+                <th class="text-right">Residuo cumulativo</th>
               </tr>
             </thead>
             <tbody id="table-residuo-body"></tbody>
@@ -580,7 +581,7 @@
     <div id="page-categorie" class="page">
       <h1>Gestione Categorie</h1>
       <div class="panel">
-        <h3> Uscite</h3>
+        <h3>📤 Uscite</h3>
         <ul id="cat-list-expense" class="cat-list"></ul>
         <div class="cat-input-row">
           <input type="text" id="new-cat-expense" placeholder="Nuova categoria uscita">
@@ -953,20 +954,24 @@
     if (chartResiduo) chartResiduo.destroy();
     chartResiduo = new Chart(document.getElementById('residuoChart'), { type: 'line', data: { labels, datasets: [{ label: 'Residuo in cassa', data: residuoData, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.10)', pointBackgroundColor: colors, pointRadius: 5, tension: 0.3, fill: true }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => 'Residuo: ' + fmtEUR(ctx.parsed.y) } } }, scales: { y: { ticks: { callback: v => fmtEUR(v) } } } } });
     
+    // Popola tabella residuo
     const tbody = document.getElementById('table-residuo-body');
     tbody.innerHTML = '';
     runningTotal = 0;
+    state.transactions.forEach(t => { if (t.date.slice(0,4) < year) runningTotal += t.type === 'income' ? amountValue(t.amount) : -amountValue(t.amount); });
     months.forEach((m, i) => {
       const mt = state.transactions.filter(t => monthKey(t.date) === m);
       const inc = mt.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0);
       const exp = mt.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0);
-      runningTotal += inc - exp;
+      const saldoMese = inc - exp;
+      runningTotal += saldoMese;
       const row = document.createElement('tr');
       row.innerHTML = `
         <td style="text-transform: capitalize;">${labels[i]}</td>
         <td class="text-right text-success">${fmtEUR(inc)}</td>
         <td class="text-right text-danger">${fmtEUR(exp)}</td>
-        <td class="text-right" style="font-weight: 600; color: ${runningTotal >= 0 ? 'var(--success)' : 'var(--danger)'}">${fmtEUR(runningTotal)}</td>
+        <td class="text-right" style="font-weight: 600; color: ${saldoMese >= 0 ? 'var(--success)' : 'var(--danger)'}">${fmtEUR(saldoMese)}</td>
+        <td class="text-right" style="font-weight: 700; color: ${runningTotal >= 0 ? 'var(--success)' : 'var(--danger)'}">${fmtEUR(runningTotal)}</td>
       `;
       tbody.appendChild(row);
     });
@@ -1007,7 +1012,6 @@
     const saldo1 = totalInc1 - totalExp1;
     const saldo2 = totalInc2 - totalExp2;
     
-    // Sezione Totali
     const totalRows = [
       { label: '💰 Totale Entrate', v1: totalInc1, v2: totalInc2, color: 'var(--success)' },
       { label: '💸 Totale Uscite', v1: totalExp1, v2: totalExp2, color: 'var(--danger)' },
@@ -1029,7 +1033,6 @@
       tbody.appendChild(tr);
     });
     
-    // Sezione Dettaglio per categoria (uscite)
     const getAllCategories = (month) => {
       const mt = state.transactions.filter(t => monthKey(t.date) === month && t.type === 'expense');
       const cats = {};
@@ -1042,7 +1045,6 @@
     const allCats = [...new Set([...Object.keys(cats1), ...Object.keys(cats2)])];
     
     if (allCats.length > 0) {
-      // Header sezione
       const sectionRow = document.createElement('tr');
       sectionRow.className = 'section-header';
       sectionRow.innerHTML = `<td colspan="4">Dettaglio uscite per categoria</td>`;
@@ -1106,7 +1108,7 @@
     const t = state.transactions.find(t => t.id === id); if (!t) return;
     detailId = id;
     const isIncome = t.type === 'income';
-    document.getElementById('detail-title').textContent = isIncome ? ' Entrata' : '📉 Uscita';
+    document.getElementById('detail-title').textContent = isIncome ? '📈 Entrata' : '📉 Uscita';
     document.getElementById('detail-desc').textContent = t.description || t.category || '—';
     document.getElementById('detail-amount').innerHTML = `<span style="font-size:18px; font-weight:700; color:${isIncome?'var(--success)':'var(--danger)'};">${isIncome?'+':'-'}${fmtEUR(t.amount)}</span>`;
     document.getElementById('detail-category').textContent = t.category || '—';
@@ -1157,7 +1159,7 @@
     if (!mimeType) return '📄';
     if (mimeType.includes('pdf')) return '📕';
     if (mimeType.includes('word') || mimeType.includes('document')) return '📘';
-    if (mimeType.includes('sheet') || mimeType.includes('excel')) return '';
+    if (mimeType.includes('sheet') || mimeType.includes('excel')) return '📗';
     return '📄';
   }
   
@@ -1486,12 +1488,10 @@
 
   function showLoading(show) { document.getElementById('pdf-loading').classList.toggle('show', show); }
 
-  // Helper per disegnare una tabella nel PDF
   function drawPDFTable(doc, headers, rows, margin, startY, colWidths, pageWidth) {
     let y = startY;
     const lineHeight = 7;
     
-    // Header
     doc.setFillColor(243, 244, 246);
     doc.rect(margin, y, pageWidth - 2*margin, lineHeight, 'F');
     doc.setFontSize(9);
@@ -1504,7 +1504,6 @@
     });
     y += lineHeight + 2;
     
-    // Righe
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
     rows.forEach((row, idx) => {
@@ -1538,7 +1537,6 @@
     return y + 5;
   }
 
-  // ========== PDF HOME ==========
   async function generateHomePDF() {
     showLoading(true);
     try {
@@ -1646,7 +1644,6 @@
     }
   }
 
-  // ========== PDF STATISTICHE CON GRAFICI E TABELLE ==========
   async function generateStatsPDF() {
     showLoading(true);
     try {
@@ -1731,7 +1728,6 @@
       
       y = drawPDFTable(doc, yearHeaders, yearRows, margin, y, yearColWidths, pageWidth);
 
-      // Mostra tutti i tab temporaneamente per catturare i grafici
       const tabContents = document.querySelectorAll('.stats-tab-content');
       const originalDisplay = [];
       tabContents.forEach((tab, idx) => {
@@ -1786,6 +1782,39 @@
         y += chartHeight + 10;
       }
 
+      // NUOVA TABELLA RESIDUO MENSILE NEL PDF
+      if (y > 180) { doc.addPage(); y = 20; }
+      y += 5;
+      doc.setTextColor(30, 30, 30);
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`Andamento residuo mensile`, margin, y);
+      y += 5;
+
+      const residuoColWidths = [30, 35, 35, 35, 40];
+      const residuoHeaders = ['Mese', 'Entrate', 'Uscite', 'Saldo', 'Residuo'];
+      let runningTotalPDF = 0;
+      state.transactions.forEach(t => { if (t.date.slice(0,4) < year) runningTotalPDF += t.type === 'income' ? amountValue(t.amount) : -amountValue(t.amount); });
+      const residuoRows = months.map((m, i) => {
+        const mt = state.transactions.filter(t => monthKey(t.date) === m);
+        const inc = mt.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0);
+        const exp = mt.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0);
+        const saldoMese = inc - exp;
+        runningTotalPDF += saldoMese;
+        const mLabel = new Date(+year, i, 1).toLocaleDateString('it-IT', { month:'short' });
+        return {
+          cells: [
+            { text: mLabel.charAt(0).toUpperCase() + mLabel.slice(1) },
+            { text: fmtEUR(inc), color: [29, 158, 117] },
+            { text: fmtEUR(exp), color: [216, 90, 48] },
+            { text: fmtEUR(saldoMese), color: saldoMese >= 0 ? [29, 158, 117] : [216, 90, 48] },
+            { text: fmtEUR(runningTotalPDF), color: runningTotalPDF >= 0 ? [29, 158, 117] : [216, 90, 48] }
+          ]
+        };
+      });
+      
+      y = drawPDFTable(doc, residuoHeaders, residuoRows, margin, y, residuoColWidths, pageWidth);
+
       if (y > 200) { doc.addPage(); y = 20; }
 
       doc.setTextColor(30, 30, 30);
@@ -1801,7 +1830,6 @@
         y += chartHeight + 10;
       }
 
-      // Tabella spese per categoria
       if (y > 200) { doc.addPage(); y = 20; }
       y += 5;
       doc.setTextColor(30, 30, 30);
@@ -1836,7 +1864,6 @@
         y += 15;
       }
 
-      // Confronto mesi
       const m1 = document.getElementById('compare-month-1')?.value;
       const m2 = document.getElementById('compare-month-2')?.value;
       if (m1 && m2 && compareChartImg) {
@@ -1853,7 +1880,6 @@
         doc.addImage(compareChartImg, 'PNG', margin, y, chartWidth, chartHeight);
         y += chartHeight + 10;
         
-        // Tabella confronto
         const calc = (m) => { const mt = state.transactions.filter(t => monthKey(t.date) === m); return { inc: mt.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0), exp: mt.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0) }; };
         const d1 = calc(m1); const d2 = calc(m2);
         const saldo1 = d1.inc - d1.exp;
@@ -1882,7 +1908,6 @@
           ]}
         ];
         
-        // Dettaglio per categoria
         const getAllCategories = (m) => {
           const mt = state.transactions.filter(t => monthKey(t.date) === m && t.type === 'expense');
           const cats = {};
