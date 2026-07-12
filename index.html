@@ -244,6 +244,40 @@
   .stats-tab-content { display: none; }
   .stats-tab-content.active { display: block; }
   
+  /* Stili per le tabelle dati */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-top: 10px;
+  }
+  .data-table th {
+    text-align: left;
+    padding: 10px;
+    background: var(--surface-2);
+    border-bottom: 2px solid var(--border);
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+  .data-table td {
+    padding: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .data-table tr:last-child td {
+    border-bottom: none;
+  }
+  .data-table .text-right {
+    text-align: right;
+  }
+  .data-table .text-success {
+    color: var(--success);
+    font-weight: 600;
+  }
+  .data-table .text-danger {
+    color: var(--danger);
+    font-weight: 600;
+  }
+  
   .attachment-section { margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border); }
   .attachment-section label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-secondary); margin-bottom: 8px; }
   .btn-attachment { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px; background: var(--surface-2); border: 1px dashed var(--border); border-radius: var(--radius); font-size: 13px; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; }
@@ -365,17 +399,72 @@
       
       <div id="tab-categorie" class="stats-tab-content active">
         <div class="row-between"><h2>Spese per categoria</h2><select id="chart-month"></select></div>
-        <div class="panel"><div class="legend" id="legend-categories"></div><div class="chart-wrap" style="height:300px; display:flex; align-items:center; justify-content:center;"><canvas id="categoryChart"></canvas></div></div>
+        <div class="panel">
+          <div class="legend" id="legend-categories"></div>
+          <div class="chart-wrap" style="height:300px; display:flex; align-items:center; justify-content:center;">
+            <canvas id="categoryChart"></canvas>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Dati dettagliati</h3>
+          <table class="data-table" id="table-category">
+            <thead>
+              <tr>
+                <th>Categoria</th>
+                <th class="text-right">Importo</th>
+                <th class="text-right">%</th>
+              </tr>
+            </thead>
+            <tbody id="table-category-body"></tbody>
+          </table>
+        </div>
       </div>
       
       <div id="tab-entrate-uscite" class="stats-tab-content">
         <div class="row-between"><h2>Entrate vs Uscite (anno)</h2><select id="chart-year"></select></div>
-        <div class="panel"><div class="chart-wrap"><canvas id="yearChart"></canvas></div></div>
+        <div class="panel">
+          <div class="chart-wrap">
+            <canvas id="yearChart"></canvas>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Dati dettagliati</h3>
+          <table class="data-table" id="table-year">
+            <thead>
+              <tr>
+                <th>Mese</th>
+                <th class="text-right">Entrate</th>
+                <th class="text-right">Uscite</th>
+                <th class="text-right">Saldo</th>
+              </tr>
+            </thead>
+            <tbody id="table-year-body"></tbody>
+          </table>
+        </div>
       </div>
       
       <div id="tab-residuo" class="stats-tab-content">
         <div class="row-between"><h2>Residuo mensile</h2><select id="chart-residuo-year"></select></div>
-        <div class="panel"><p style="font-size:12px; color:var(--text-secondary); margin:0 0 8px;">Andamento del residuo in cassa mese per mese (entrate - uscite cumulative).</p><div class="chart-wrap"><canvas id="residuoChart"></canvas></div></div>
+        <div class="panel">
+          <p style="font-size:12px; color:var(--text-secondary); margin:0 0 8px;">Andamento del residuo in cassa mese per mese (entrate - uscite cumulative).</p>
+          <div class="chart-wrap">
+            <canvas id="residuoChart"></canvas>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Dati dettagliati</h3>
+          <table class="data-table" id="table-residuo">
+            <thead>
+              <tr>
+                <th>Mese</th>
+                <th class="text-right">Entrate</th>
+                <th class="text-right">Uscite</th>
+                <th class="text-right">Residuo</th>
+              </tr>
+            </thead>
+            <tbody id="table-residuo-body"></tbody>
+          </table>
+        </div>
       </div>
       
       <div id="tab-confronto" class="stats-tab-content">
@@ -387,7 +476,26 @@
             <select id="compare-month-2"></select>
           </div>
         </div>
-        <div class="panel"><p style="font-size:12px; color:var(--text-secondary); margin:0 0 8px;">Confronto entrate e uscite tra due mesi.</p><div class="chart-wrap"><canvas id="compareChart"></canvas></div></div>
+        <div class="panel">
+          <p style="font-size:12px; color:var(--text-secondary); margin:0 0 8px;">Confronto entrate e uscite tra due mesi.</p>
+          <div class="chart-wrap">
+            <canvas id="compareChart"></canvas>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Dati dettagliati</h3>
+          <table class="data-table" id="table-compare">
+            <thead>
+              <tr>
+                <th>Categoria</th>
+                <th class="text-right" id="compare-header-1">Mese 1</th>
+                <th class="text-right" id="compare-header-2">Mese 2</th>
+                <th class="text-right">Differenza</th>
+              </tr>
+            </thead>
+            <tbody id="table-compare-body"></tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -466,7 +574,7 @@
         </div>
       </div>
       <div class="panel">
-        <h3>📥 Entrate</h3>
+        <h3> Entrate</h3>
         <ul id="cat-list-income" class="cat-list"></ul>
         <div class="cat-input-row">
           <input type="text" id="new-cat-income" placeholder="Nuova categoria entrata">
@@ -774,9 +882,29 @@
     legend.innerHTML = '';
     cats.forEach((c,i) => { const span = document.createElement('span'); span.innerHTML = '<span class="swatch" style="background:' + colors[i] + ';border-radius:50%;"></span>' + c + ' ' + fmtEUR(data[i]); legend.appendChild(span); });
     if (chartCategory) chartCategory.destroy();
-    if (data.length === 0) { legend.innerHTML = '<span style="color:var(--text-muted); font-size:13px;">Nessuna spesa in questo mese.</span>'; return; }
+    if (data.length === 0) { 
+      legend.innerHTML = '<span style="color:var(--text-muted); font-size:13px;">Nessuna spesa in questo mese.</span>';
+      document.getElementById('table-category-body').innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 20px; color: var(--text-muted);">Nessuna spesa in questo mese</td></tr>';
+      return; 
+    }
     chartCategory = new Chart(document.getElementById('categoryChart'), { type: 'doughnut', data: { labels: cats, datasets: [{ data, backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.label + ': ' + fmtEUR(ctx.parsed) } } } } });
+    
+    // Popola tabella
+    const tbody = document.getElementById('table-category-body');
+    tbody.innerHTML = '';
+    const total = data.reduce((a, b) => a + b, 0);
+    cats.forEach((c, i) => {
+      const pct = ((data[i] / total) * 100).toFixed(1);
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td><span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: ${colors[i]}; margin-right: 8px;"></span>${escapeHtml(c)}</td>
+        <td class="text-right" style="font-weight: 600;">${fmtEUR(data[i])}</td>
+        <td class="text-right" style="color: var(--text-secondary);">${pct}%</td>
+      `;
+      tbody.appendChild(row);
+    });
   }
+
   function updateChartYear() {
     const year = document.getElementById('chart-year').value || new Date().getFullYear().toString();
     const months = Array.from({length:12}, (_,i) => `${year}-${String(i+1).padStart(2,'0')}`);
@@ -785,7 +913,23 @@
     const labels = months.map(m => new Date(+year, +m.split('-')[1]-1, 1).toLocaleDateString('it-IT',{month:'short'}));
     if (chartYear) chartYear.destroy();
     chartYear = new Chart(document.getElementById('yearChart'), { type: 'bar', data: { labels, datasets: [{ label: 'Entrate', data: incomes, backgroundColor: '#1D9E75', borderRadius: 4 }, { label: 'Uscite', data: expenses, backgroundColor: '#D85A30', borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + fmtEUR(ctx.parsed.y) } } }, scales: { y: { beginAtZero: true, ticks: { callback: v => fmtEUR(v) } } } } });
+    
+    // Popola tabella
+    const tbody = document.getElementById('table-year-body');
+    tbody.innerHTML = '';
+    months.forEach((m, i) => {
+      const bal = incomes[i] - expenses[i];
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td style="text-transform: capitalize;">${labels[i]}</td>
+        <td class="text-right text-success">${fmtEUR(incomes[i])}</td>
+        <td class="text-right text-danger">${fmtEUR(expenses[i])}</td>
+        <td class="text-right" style="font-weight: 600; color: ${bal >= 0 ? 'var(--success)' : 'var(--danger)'}">${fmtEUR(bal)}</td>
+      `;
+      tbody.appendChild(row);
+    });
   }
+
   function updateChartResiduo() {
     const year = document.getElementById('chart-residuo-year')?.value || String(new Date().getFullYear());
     const months = Array.from({length:12}, (_,i) => `${year}-${String(i+1).padStart(2,'0')}`);
@@ -796,7 +940,27 @@
     const colors = residuoData.map(v => v >= 0 ? '#3b82f6' : '#D85A30');
     if (chartResiduo) chartResiduo.destroy();
     chartResiduo = new Chart(document.getElementById('residuoChart'), { type: 'line', data: { labels, datasets: [{ label: 'Residuo in cassa', data: residuoData, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.10)', pointBackgroundColor: colors, pointRadius: 5, tension: 0.3, fill: true }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => 'Residuo: ' + fmtEUR(ctx.parsed.y) } } }, scales: { y: { ticks: { callback: v => fmtEUR(v) } } } } });
+    
+    // Popola tabella
+    const tbody = document.getElementById('table-residuo-body');
+    tbody.innerHTML = '';
+    runningTotal = 0;
+    months.forEach((m, i) => {
+      const mt = state.transactions.filter(t => monthKey(t.date) === m);
+      const inc = mt.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0);
+      const exp = mt.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0);
+      runningTotal += inc - exp;
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td style="text-transform: capitalize;">${labels[i]}</td>
+        <td class="text-right text-success">${fmtEUR(inc)}</td>
+        <td class="text-right text-danger">${fmtEUR(exp)}</td>
+        <td class="text-right" style="font-weight: 600; color: ${runningTotal >= 0 ? 'var(--success)' : 'var(--danger)'}">${fmtEUR(runningTotal)}</td>
+      `;
+      tbody.appendChild(row);
+    });
   }
+
   function populateCompareSelects() {
     const sel1 = document.getElementById('compare-month-1');
     const sel2 = document.getElementById('compare-month-2');
@@ -808,15 +972,57 @@
     sortedMonths.forEach(m => { const o1 = document.createElement('option'); o1.value = m; o1.textContent = monthLabel(m); sel1.appendChild(o1); const o2 = document.createElement('option'); o2.value = m; o2.textContent = monthLabel(m); sel2.appendChild(o2); });
     if (sortedMonths.length > 1) sel2.value = sortedMonths[1];
   }
+
   function updateChartCompare() {
     const m1 = document.getElementById('compare-month-1').value;
     const m2 = document.getElementById('compare-month-2').value;
     if (!m1 || !m2) return;
+    
+    // Aggiorna header tabella
+    document.getElementById('compare-header-1').textContent = monthLabel(m1);
+    document.getElementById('compare-header-2').textContent = monthLabel(m2);
+    
     const calc = (m) => { const mt = state.transactions.filter(t => monthKey(t.date) === m); return { inc: mt.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0), exp: mt.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0) }; };
     const d1 = calc(m1); const d2 = calc(m2);
     if (chartCompare) chartCompare.destroy();
     chartCompare = new Chart(document.getElementById('compareChart'), { type: 'bar', data: { labels: ['Entrate', 'Uscite'], datasets: [{ label: monthLabel(m1), data: [d1.inc, d1.exp], backgroundColor: '#378ADD', borderRadius: 4 }, { label: monthLabel(m2), data: [d2.inc, d2.exp], backgroundColor: '#D85A30', borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + fmtEUR(ctx.parsed.y) } } }, scales: { y: { ticks: { callback: v => fmtEUR(v) } } } } });
+    
+    // Popola tabella
+    const tbody = document.getElementById('table-compare-body');
+    tbody.innerHTML = '';
+    
+    const getAllCategories = (month) => {
+      const mt = state.transactions.filter(t => monthKey(t.date) === month && t.type === 'expense');
+      const cats = {};
+      mt.forEach(t => { cats[t.category] = (cats[t.category] || 0) + amountValue(t.amount); });
+      return cats;
+    };
+    
+    const cats1 = getAllCategories(m1);
+    const cats2 = getAllCategories(m2);
+    const allCats = [...new Set([...Object.keys(cats1), ...Object.keys(cats2)])];
+    
+    if (allCats.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px; color: var(--text-muted);">Nessuna spesa nei mesi selezionati</td></tr>';
+    } else {
+      allCats.forEach(cat => {
+        const val1 = cats1[cat] || 0;
+        const val2 = cats2[cat] || 0;
+        const diff = val2 - val1;
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${escapeHtml(cat)}</td>
+          <td class="text-right" style="font-weight: 600;">${fmtEUR(val1)}</td>
+          <td class="text-right" style="font-weight: 600;">${fmtEUR(val2)}</td>
+          <td class="text-right" style="font-weight: 600; color: ${diff >= 0 ? 'var(--danger)' : 'var(--success)'}">
+            ${diff >= 0 ? '+' : ''}${fmtEUR(diff)}
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
   }
+
   document.getElementById('chart-month').addEventListener('change', updateChartCategory);
   document.getElementById('chart-year').addEventListener('change', updateChartYear);
   document.getElementById('chart-residuo-year').addEventListener('change', updateChartResiduo);
@@ -909,7 +1115,7 @@
     if (mimeType.includes('pdf')) return '📕';
     if (mimeType.includes('word') || mimeType.includes('document')) return '📘';
     if (mimeType.includes('sheet') || mimeType.includes('excel')) return '📗';
-    return '📄';
+    return '';
   }
   
   window.downloadAttachment = async function(txId) {
@@ -1375,7 +1581,7 @@
     }
   }
 
-  // ========== PDF STATISTICHE CON GRAFICI ==========
+  // ========== PDF STATISTICHE CON GRAFICI E TABELLE ==========
   async function generateStatsPDF() {
     showLoading(true);
     try {
@@ -1493,7 +1699,7 @@
         y += 8;
       });
 
-      // ========== MOSTRA TUTTI I TAB TEMPORANEAMENTE ==========
+      // Mostra tutti i tab temporaneamente per catturare i grafici
       const tabContents = document.querySelectorAll('.stats-tab-content');
       const originalDisplay = [];
       tabContents.forEach((tab, idx) => {
@@ -1501,27 +1707,22 @@
         tab.style.display = 'block';
       });
       
-      // Aggiorna tutti i grafici
       updateChartCategory();
       updateChartYear();
       updateChartResiduo();
       updateChartCompare();
       
-      // Attendi che i grafici si renderizzino
       await new Promise(r => setTimeout(r, 1000));
 
-      // Cattura i grafici
       const yearChartImg = document.getElementById('yearChart').toDataURL('image/png', 1.0);
       const residuoChartImg = document.getElementById('residuoChart').toDataURL('image/png', 1.0);
       const categoryChartImg = document.getElementById('categoryChart').toDataURL('image/png', 1.0);
       const compareChartImg = document.getElementById('compareChart').toDataURL('image/png', 1.0);
 
-      // Ripristina lo stato originale dei tab
       tabContents.forEach((tab, idx) => {
         tab.style.display = originalDisplay[idx];
       });
 
-      // Aggiungi i grafici al PDF
       y += 10;
       if (y > 200) { doc.addPage(); y = 20; }
 
