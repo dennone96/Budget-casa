@@ -20,7 +20,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-storage-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
   :root {
@@ -223,7 +222,7 @@
   .spinner { width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
   
-  .stats-tabs { display: flex; gap: 8px; margin-bottom: 1.5rem; border-bottom: 2px solid var(--border); padding-bottom: 0; }
+  .stats-tabs { display: flex; gap: 8px; margin-bottom: 1.5rem; border-bottom: 2px solid var(--border); padding-bottom: 0; flex-wrap: wrap; }
   .stats-tab {
     padding: 10px 20px;
     background: none;
@@ -390,7 +389,7 @@
       <div style="margin-bottom: 0.5rem; margin-top:1.5rem;"><h2>Movimenti</h2></div>
       <div class="source-filter">
         <button class="active" data-source="all">Tutti</button>
-        <button data-source="cash">💵 Contanti</button>
+        <button data-source="cash"> Contanti</button>
         <button data-source="bank">🏦 Conto corrente</button>
       </div>
       <div class="tx-header"><span>Data</span><span>Movimento</span><span style="text-align:right;">Importo</span><span style="text-align:center;">Tipologia</span><span></span></div>
@@ -589,7 +588,7 @@
         </div>
       </div>
       <div class="panel">
-        <h3>📥 Entrate</h3>
+        <h3> Entrate</h3>
         <ul id="cat-list-income" class="cat-list"></ul>
         <div class="cat-input-row">
           <input type="text" id="new-cat-income" placeholder="Nuova categoria entrata">
@@ -954,7 +953,6 @@
     if (chartResiduo) chartResiduo.destroy();
     chartResiduo = new Chart(document.getElementById('residuoChart'), { type: 'line', data: { labels, datasets: [{ label: 'Residuo in cassa', data: residuoData, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.10)', pointBackgroundColor: colors, pointRadius: 5, tension: 0.3, fill: true }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => 'Residuo: ' + fmtEUR(ctx.parsed.y) } } }, scales: { y: { ticks: { callback: v => fmtEUR(v) } } } } });
     
-    // Popola tabella residuo
     const tbody = document.getElementById('table-residuo-body');
     tbody.innerHTML = '';
     runningTotal = 0;
@@ -1012,60 +1010,110 @@
     const saldo1 = totalInc1 - totalExp1;
     const saldo2 = totalInc2 - totalExp2;
     
-    const totalRows = [
-      { label: '💰 Totale Entrate', v1: totalInc1, v2: totalInc2, color: 'var(--success)' },
-      { label: '💸 Totale Uscite', v1: totalExp1, v2: totalExp2, color: 'var(--danger)' },
-      { label: '📊 Saldo', v1: saldo1, v2: saldo2, color: saldo1 >= 0 ? 'var(--success)' : 'var(--danger)' }
-    ];
-    
-    totalRows.forEach(row => {
-      const diff = row.v2 - row.v1;
-      const tr = document.createElement('tr');
-      tr.className = 'total-row';
-      tr.innerHTML = `
-        <td style="font-weight: 700;">${row.label}</td>
-        <td class="text-right" style="font-weight: 700; color: ${row.color}">${fmtEUR(row.v1)}</td>
-        <td class="text-right" style="font-weight: 700; color: ${row.color}">${fmtEUR(row.v2)}</td>
-        <td class="text-right" style="font-weight: 700; color: ${diff >= 0 ? 'var(--danger)' : 'var(--success)'}">
-          ${diff >= 0 ? '+' : ''}${fmtEUR(diff)}
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-    
-    const getAllCategories = (month) => {
-      const mt = state.transactions.filter(t => monthKey(t.date) === month && t.type === 'expense');
+    const getCategoriesByType = (month, type) => {
+      const mt = state.transactions.filter(t => monthKey(t.date) === month && t.type === type);
       const cats = {};
       mt.forEach(t => { cats[t.category] = (cats[t.category] || 0) + amountValue(t.amount); });
       return cats;
     };
     
-    const cats1 = getAllCategories(m1);
-    const cats2 = getAllCategories(m2);
-    const allCats = [...new Set([...Object.keys(cats1), ...Object.keys(cats2)])];
+    // 1. TOTALE ENTRATE
+    let tr = document.createElement('tr');
+    tr.className = 'total-row';
+    let diff = totalInc2 - totalInc1;
+    tr.innerHTML = `
+      <td style="font-weight: 700;">💰 Totale Entrate</td>
+      <td class="text-right" style="font-weight: 700; color: var(--success)">${fmtEUR(totalInc1)}</td>
+      <td class="text-right" style="font-weight: 700; color: var(--success)">${fmtEUR(totalInc2)}</td>
+      <td class="text-right" style="font-weight: 700; color: ${diff >= 0 ? 'var(--success)' : 'var(--danger)'}">
+        ${diff >= 0 ? '+' : ''}${fmtEUR(diff)}
+      </td>
+    `;
+    tbody.appendChild(tr);
     
-    if (allCats.length > 0) {
+    // 2. DETTAGLIO ENTRATE PER CATEGORIA
+    const catsInc1 = getCategoriesByType(m1, 'income');
+    const catsInc2 = getCategoriesByType(m2, 'income');
+    const allCatsInc = [...new Set([...Object.keys(catsInc1), ...Object.keys(catsInc2)])];
+    
+    if (allCatsInc.length > 0) {
       const sectionRow = document.createElement('tr');
       sectionRow.className = 'section-header';
-      sectionRow.innerHTML = `<td colspan="4">Dettaglio uscite per categoria</td>`;
+      sectionRow.innerHTML = `<td colspan="4">Dettaglio entrate per categoria</td>`;
       tbody.appendChild(sectionRow);
       
-      allCats.sort((a,b) => (cats2[a] || 0) - (cats2[b] || 0)).reverse().forEach(cat => {
-        const val1 = cats1[cat] || 0;
-        const val2 = cats2[cat] || 0;
-        const diff = val2 - val1;
+      allCatsInc.sort((a,b) => (catsInc2[b] || 0) - (catsInc2[a] || 0)).forEach(cat => {
+        const val1 = catsInc1[cat] || 0;
+        const val2 = catsInc2[cat] || 0;
+        const diffCat = val2 - val1;
         const row = document.createElement('tr');
         row.innerHTML = `
           <td>${escapeHtml(cat)}</td>
-          <td class="text-right" style="font-weight: 600;">${fmtEUR(val1)}</td>
-          <td class="text-right" style="font-weight: 600;">${fmtEUR(val2)}</td>
-          <td class="text-right" style="font-weight: 600; color: ${diff >= 0 ? 'var(--danger)' : 'var(--success)'}">
-            ${diff >= 0 ? '+' : ''}${fmtEUR(diff)}
+          <td class="text-right text-success">${fmtEUR(val1)}</td>
+          <td class="text-right text-success">${fmtEUR(val2)}</td>
+          <td class="text-right" style="font-weight: 600; color: ${diffCat >= 0 ? 'var(--success)' : 'var(--danger)'}">
+            ${diffCat >= 0 ? '+' : ''}${fmtEUR(diffCat)}
           </td>
         `;
         tbody.appendChild(row);
       });
     }
+    
+    // 3. TOTALE USCITE
+    tr = document.createElement('tr');
+    tr.className = 'total-row';
+    diff = totalExp2 - totalExp1;
+    tr.innerHTML = `
+      <td style="font-weight: 700;">💸 Totale Uscite</td>
+      <td class="text-right" style="font-weight: 700; color: var(--danger)">${fmtEUR(totalExp1)}</td>
+      <td class="text-right" style="font-weight: 700; color: var(--danger)">${fmtEUR(totalExp2)}</td>
+      <td class="text-right" style="font-weight: 700; color: ${diff >= 0 ? 'var(--danger)' : 'var(--success)'}">
+        ${diff >= 0 ? '+' : ''}${fmtEUR(diff)}
+      </td>
+    `;
+    tbody.appendChild(tr);
+    
+    // 4. DETTAGLIO USCITE PER CATEGORIA
+    const catsExp1 = getCategoriesByType(m1, 'expense');
+    const catsExp2 = getCategoriesByType(m2, 'expense');
+    const allCatsExp = [...new Set([...Object.keys(catsExp1), ...Object.keys(catsExp2)])];
+    
+    if (allCatsExp.length > 0) {
+      const sectionRow = document.createElement('tr');
+      sectionRow.className = 'section-header';
+      sectionRow.innerHTML = `<td colspan="4">Dettaglio uscite per categoria</td>`;
+      tbody.appendChild(sectionRow);
+      
+      allCatsExp.sort((a,b) => (catsExp2[b] || 0) - (catsExp2[a] || 0)).forEach(cat => {
+        const val1 = catsExp1[cat] || 0;
+        const val2 = catsExp2[cat] || 0;
+        const diffCat = val2 - val1;
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${escapeHtml(cat)}</td>
+          <td class="text-right text-danger">${fmtEUR(val1)}</td>
+          <td class="text-right text-danger">${fmtEUR(val2)}</td>
+          <td class="text-right" style="font-weight: 600; color: ${diffCat >= 0 ? 'var(--danger)' : 'var(--success)'}">
+            ${diffCat >= 0 ? '+' : ''}${fmtEUR(diffCat)}
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+    
+    // 5. SALDO FINALE
+    tr = document.createElement('tr');
+    tr.className = 'total-row';
+    diff = saldo2 - saldo1;
+    tr.innerHTML = `
+      <td style="font-weight: 700;">📊 Saldo Finale</td>
+      <td class="text-right" style="font-weight: 700; color: ${saldo1 >= 0 ? 'var(--success)' : 'var(--danger)'}">${fmtEUR(saldo1)}</td>
+      <td class="text-right" style="font-weight: 700; color: ${saldo2 >= 0 ? 'var(--success)' : 'var(--danger)'}">${fmtEUR(saldo2)}</td>
+      <td class="text-right" style="font-weight: 700; color: ${diff >= 0 ? 'var(--success)' : 'var(--danger)'}">
+        ${diff >= 0 ? '+' : ''}${fmtEUR(diff)}
+      </td>
+    `;
+    tbody.appendChild(tr);
   }
 
   document.getElementById('chart-month').addEventListener('change', updateChartCategory);
@@ -1086,7 +1134,7 @@
       const row = document.createElement('div'); row.className = 'tx-row';
       const isIncome = t.type === 'income';
       const src = t.source || 'cash';
-      const badgeLabel = src === 'bank' ? '🏦 C/C' : '💵 Cash';
+      const badgeLabel = src === 'bank' ? ' C/C' : '💵 Cash';
       const badgeCls = src === 'bank' ? 'badge-bank' : 'badge-cash';
       const dateLabel = new Date(t.date).toLocaleDateString('it-IT', { day:'2-digit', month:'2-digit', year:'2-digit' });
       const amountColor = isIncome ? 'var(--success)' : 'var(--danger)';
@@ -1108,7 +1156,7 @@
     const t = state.transactions.find(t => t.id === id); if (!t) return;
     detailId = id;
     const isIncome = t.type === 'income';
-    document.getElementById('detail-title').textContent = isIncome ? '📈 Entrata' : '📉 Uscita';
+    document.getElementById('detail-title').textContent = isIncome ? ' Entrata' : '📉 Uscita';
     document.getElementById('detail-desc').textContent = t.description || t.category || '—';
     document.getElementById('detail-amount').innerHTML = `<span style="font-size:18px; font-weight:700; color:${isIncome?'var(--success)':'var(--danger)'};">${isIncome?'+':'-'}${fmtEUR(t.amount)}</span>`;
     document.getElementById('detail-category').textContent = t.category || '—';
@@ -1782,7 +1830,6 @@
         y += chartHeight + 10;
       }
 
-      // NUOVA TABELLA RESIDUO MENSILE NEL PDF
       if (y > 180) { doc.addPage(); y = 20; }
       y += 5;
       doc.setTextColor(30, 30, 30);
@@ -1887,53 +1934,89 @@
         
         const compareColWidths = [50, 40, 40, 40];
         const compareHeaders = ['', monthLabel(m1), monthLabel(m2), 'Differenza'];
-        const compareRows = [
-          { isTotal: true, cells: [
-            { text: 'Totale Entrate', color: [30, 30, 30] },
-            { text: fmtEUR(d1.inc), color: [29, 158, 117] },
-            { text: fmtEUR(d2.inc), color: [29, 158, 117] },
-            { text: `${d2.inc - d1.inc >= 0 ? '+' : ''}${fmtEUR(d2.inc - d1.inc)}`, color: d2.inc - d1.inc >= 0 ? [216, 90, 48] : [29, 158, 117] }
-          ]},
-          { isTotal: true, cells: [
-            { text: 'Totale Uscite', color: [30, 30, 30] },
-            { text: fmtEUR(d1.exp), color: [216, 90, 48] },
-            { text: fmtEUR(d2.exp), color: [216, 90, 48] },
-            { text: `${d2.exp - d1.exp >= 0 ? '+' : ''}${fmtEUR(d2.exp - d1.exp)}`, color: d2.exp - d1.exp >= 0 ? [216, 90, 48] : [29, 158, 117] }
-          ]},
-          { isTotal: true, cells: [
-            { text: 'Saldo', color: [30, 30, 30] },
-            { text: fmtEUR(saldo1), color: saldo1 >= 0 ? [29, 158, 117] : [216, 90, 48] },
-            { text: fmtEUR(saldo2), color: saldo2 >= 0 ? [29, 158, 117] : [216, 90, 48] },
-            { text: `${saldo2 - saldo1 >= 0 ? '+' : ''}${fmtEUR(saldo2 - saldo1)}`, color: saldo2 - saldo1 >= 0 ? [216, 90, 48] : [29, 158, 117] }
-          ]}
-        ];
+        const compareRows = [];
         
-        const getAllCategories = (m) => {
-          const mt = state.transactions.filter(t => monthKey(t.date) === m && t.type === 'expense');
+        const getCategoriesByTypePDF = (m, type) => {
+          const mt = state.transactions.filter(t => monthKey(t.date) === m && t.type === type);
           const cats = {};
           mt.forEach(t => { cats[t.category] = (cats[t.category] || 0) + amountValue(t.amount); });
           return cats;
         };
-        const cats1 = getAllCategories(m1);
-        const cats2 = getAllCategories(m2);
-        const allCats = [...new Set([...Object.keys(cats1), ...Object.keys(cats2)])];
         
-        if (allCats.length > 0) {
-          compareRows.push({ isSection: true, cells: [{ text: 'Dettaglio uscite per categoria', color: [30, 30, 30] }, { text: '' }, { text: '' }, { text: '' }] });
-          allCats.sort((a,b) => (cats2[a] || 0) - (cats2[b] || 0)).reverse().forEach(cat => {
-            const val1 = cats1[cat] || 0;
-            const val2 = cats2[cat] || 0;
-            const diff = val2 - val1;
+        const diffInc = d2.inc - d1.inc;
+        compareRows.push({
+          isTotal: true,
+          cells: [
+            { text: 'Totale Entrate', color: [30, 30, 30] },
+            { text: fmtEUR(d1.inc), color: [29, 158, 117] },
+            { text: fmtEUR(d2.inc), color: [29, 158, 117] },
+            { text: `${diffInc >= 0 ? '+' : ''}${fmtEUR(diffInc)}`, color: diffInc >= 0 ? [29, 158, 117] : [216, 90, 48] }
+          ]
+        });
+        
+        const catsInc1 = getCategoriesByTypePDF(m1, 'income');
+        const catsInc2 = getCategoriesByTypePDF(m2, 'income');
+        const allCatsInc = [...new Set([...Object.keys(catsInc1), ...Object.keys(catsInc2)])];
+        
+        if (allCatsInc.length > 0) {
+          compareRows.push({ isSection: true, cells: [{ text: 'Dettaglio entrate per categoria', color: [30, 30, 30] }, { text: '' }, { text: '' }, { text: '' }] });
+          allCatsInc.sort((a,b) => (catsInc2[b] || 0) - (catsInc2[a] || 0)).forEach(cat => {
+            const val1 = catsInc1[cat] || 0;
+            const val2 = catsInc2[cat] || 0;
+            const diffCat = val2 - val1;
             compareRows.push({
               cells: [
                 { text: cat },
-                { text: fmtEUR(val1) },
-                { text: fmtEUR(val2) },
-                { text: `${diff >= 0 ? '+' : ''}${fmtEUR(diff)}`, color: diff >= 0 ? [216, 90, 48] : [29, 158, 117] }
+                { text: fmtEUR(val1), color: [29, 158, 117] },
+                { text: fmtEUR(val2), color: [29, 158, 117] },
+                { text: `${diffCat >= 0 ? '+' : ''}${fmtEUR(diffCat)}`, color: diffCat >= 0 ? [29, 158, 117] : [216, 90, 48] }
               ]
             });
           });
         }
+        
+        const diffExp = d2.exp - d1.exp;
+        compareRows.push({
+          isTotal: true,
+          cells: [
+            { text: 'Totale Uscite', color: [30, 30, 30] },
+            { text: fmtEUR(d1.exp), color: [216, 90, 48] },
+            { text: fmtEUR(d2.exp), color: [216, 90, 48] },
+            { text: `${diffExp >= 0 ? '+' : ''}${fmtEUR(diffExp)}`, color: diffExp >= 0 ? [216, 90, 48] : [29, 158, 117] }
+          ]
+        });
+        
+        const catsExp1 = getCategoriesByTypePDF(m1, 'expense');
+        const catsExp2 = getCategoriesByTypePDF(m2, 'expense');
+        const allCatsExp = [...new Set([...Object.keys(catsExp1), ...Object.keys(catsExp2)])];
+        
+        if (allCatsExp.length > 0) {
+          compareRows.push({ isSection: true, cells: [{ text: 'Dettaglio uscite per categoria', color: [30, 30, 30] }, { text: '' }, { text: '' }, { text: '' }] });
+          allCatsExp.sort((a,b) => (catsExp2[b] || 0) - (catsExp2[a] || 0)).forEach(cat => {
+            const val1 = catsExp1[cat] || 0;
+            const val2 = catsExp2[cat] || 0;
+            const diffCat = val2 - val1;
+            compareRows.push({
+              cells: [
+                { text: cat },
+                { text: fmtEUR(val1), color: [216, 90, 48] },
+                { text: fmtEUR(val2), color: [216, 90, 48] },
+                { text: `${diffCat >= 0 ? '+' : ''}${fmtEUR(diffCat)}`, color: diffCat >= 0 ? [216, 90, 48] : [29, 158, 117] }
+              ]
+            });
+          });
+        }
+        
+        const diffSaldo = saldo2 - saldo1;
+        compareRows.push({
+          isTotal: true,
+          cells: [
+            { text: 'Saldo Finale', color: [30, 30, 30] },
+            { text: fmtEUR(saldo1), color: saldo1 >= 0 ? [29, 158, 117] : [216, 90, 48] },
+            { text: fmtEUR(saldo2), color: saldo2 >= 0 ? [29, 158, 117] : [216, 90, 48] },
+            { text: `${diffSaldo >= 0 ? '+' : ''}${fmtEUR(diffSaldo)}`, color: diffSaldo >= 0 ? [29, 158, 117] : [216, 90, 48] }
+          ]
+        });
         
         y = drawPDFTable(doc, compareHeaders, compareRows, margin, y, compareColWidths, pageWidth);
       }
