@@ -1378,7 +1378,7 @@
       </div>
       <div class="source-filter">
         <button class="active" data-source="all">Tutti</button>
-        <button data-source="cash">💵 Contanti</button>
+        <button data-source="cash"> Contanti</button>
         <button data-source="bank">🏦 Conto corrente</button>
       </div>
       <div class="tx-header">
@@ -2303,7 +2303,7 @@
     tr.className = 'total-row';
     diff = saldo2 - saldo1;
     tr.innerHTML = `
-      <td style="font-weight: 800;"> Saldo Finale</td>
+      <td style="font-weight: 800;">📊 Saldo Finale</td>
       <td class="text-right" style="font-weight: 700; color: ${saldo1 >= 0 ? 'var(--success)' : 'var(--danger)'}">${fmtEUR(saldo1)}</td>
       <td class="text-right" style="font-weight: 700; color: ${saldo2 >= 0 ? 'var(--success)' : 'var(--danger)'}">${fmtEUR(saldo2)}</td>
       <td class="text-right" style="font-weight: 800; color: ${diff >= 0 ? 'var(--success)' : 'var(--danger)'}">
@@ -2358,7 +2358,7 @@
     document.getElementById('detail-desc').textContent = t.description || t.category || '—';
     document.getElementById('detail-amount').innerHTML = `<span style="font-size:22px; font-weight:800; color:${isIncome?'var(--success)':'var(--danger)'}; letter-spacing:-0.5px;">${isIncome?'+':'-'}${fmtEUR(t.amount)}</span>`;
     document.getElementById('detail-category').textContent = t.category || '—';
-    const srcLabel = (t.source === 'bank') ? '🏦 Conto corrente' : '💵 Contanti';
+    const srcLabel = (t.source === 'bank') ? '🏦 Conto corrente' : ' Contanti';
     document.getElementById('detail-date').textContent = new Date(t.date).toLocaleDateString('it-IT', {weekday:'long', year:'numeric', month:'long', day:'numeric'}) + ' · ' + srcLabel;
     renderAttachment(t);
     document.getElementById('detail-overlay').classList.add('open');
@@ -2406,7 +2406,7 @@
     if (!mimeType) return '📄';
     if (mimeType.includes('pdf')) return '📕';
     if (mimeType.includes('word') || mimeType.includes('document')) return '📘';
-    if (mimeType.includes('sheet') || mimeType.includes('excel')) return '📗';
+    if (mimeType.includes('sheet') || mimeType.includes('excel')) return '';
     return '';
   }
   
