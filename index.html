@@ -130,7 +130,6 @@
   .detail-actions { display: flex; gap: 8px; margin-top: 1.25rem; }
   .detail-actions button { flex: 1; height: 42px; font-size: 14px; font-weight: 600; border-radius: 999px; }
   
-  /* Pulsanti con icone SVG colorate */
   .btn-delete, .btn-edit-tx {
     border: none;
     background: none;
@@ -224,7 +223,6 @@
   .spinner { width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
   
-  /* Tab per le statistiche */
   .stats-tabs { display: flex; gap: 8px; margin-bottom: 1.5rem; border-bottom: 2px solid var(--border); padding-bottom: 0; }
   .stats-tab {
     padding: 10px 20px;
@@ -245,16 +243,6 @@
   }
   .stats-tab-content { display: none; }
   .stats-tab-content.active { display: block; }
-  
-  /* Sezione nascosta per generazione PDF */
-  #pdf-charts-container {
-    position: absolute;
-    left: -9999px;
-    top: 0;
-    width: 800px;
-    background: #fff;
-    padding: 20px;
-  }
   
   .attachment-section { margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border); }
   .attachment-section label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-secondary); margin-bottom: 8px; }
@@ -368,7 +356,6 @@
         <button id="btn-pdf-stats" class="btn-pdf"><i class="ti ti-file-type-pdf"></i> Scarica PDF</button>
       </div>
       
-      <!-- Tab per le statistiche -->
       <div class="stats-tabs">
         <button class="stats-tab active" data-tab="tab-categorie">Spese per categoria</button>
         <button class="stats-tab" data-tab="tab-entrate-uscite">Entrate vs Uscite</button>
@@ -376,25 +363,21 @@
         <button class="stats-tab" data-tab="tab-confronto">Confronto mesi</button>
       </div>
       
-      <!-- Contenuto tab: Spese per categoria -->
       <div id="tab-categorie" class="stats-tab-content active">
         <div class="row-between"><h2>Spese per categoria</h2><select id="chart-month"></select></div>
         <div class="panel"><div class="legend" id="legend-categories"></div><div class="chart-wrap" style="height:300px; display:flex; align-items:center; justify-content:center;"><canvas id="categoryChart"></canvas></div></div>
       </div>
       
-      <!-- Contenuto tab: Entrate vs Uscite -->
       <div id="tab-entrate-uscite" class="stats-tab-content">
         <div class="row-between"><h2>Entrate vs Uscite (anno)</h2><select id="chart-year"></select></div>
         <div class="panel"><div class="chart-wrap"><canvas id="yearChart"></canvas></div></div>
       </div>
       
-      <!-- Contenuto tab: Residuo mensile -->
       <div id="tab-residuo" class="stats-tab-content">
         <div class="row-between"><h2>Residuo mensile</h2><select id="chart-residuo-year"></select></div>
         <div class="panel"><p style="font-size:12px; color:var(--text-secondary); margin:0 0 8px;">Andamento del residuo in cassa mese per mese (entrate - uscite cumulative).</p><div class="chart-wrap"><canvas id="residuoChart"></canvas></div></div>
       </div>
       
-      <!-- Contenuto tab: Confronto tra due mesi -->
       <div id="tab-confronto" class="stats-tab-content">
         <div class="row-between" style="margin-top: 1.5rem;">
           <h2>Confronto tra due mesi</h2>
@@ -502,7 +485,7 @@
     <div class="detail-field"><label>Categoria</label><p id="detail-category"></p></div>
     <div class="detail-field"><label>Data</label><p id="detail-date"></p></div>
     <div class="attachment-section">
-      <label> Allegato</label>
+      <label>📎 Allegato</label>
       <input type="file" id="attachment-input" class="attachment-hidden-input" accept="image/*,.pdf,.doc,.docx">
       <div id="attachment-content"></div>
       <div id="attachment-upload-area">
@@ -548,9 +531,6 @@
 </div>
 
 <div id="pdf-loading"><div class="spinner"></div><span>Generazione PDF in corso...</span></div>
-
-<!-- Container nascosto per generazione PDF -->
-<div id="pdf-charts-container"></div>
 
 <script>
 (function(){
@@ -620,7 +600,6 @@
   }
   navItems.forEach(btn => btn.addEventListener('click', () => showPage(btn.dataset.page)));
 
-  // Gestione tab statistiche
   document.querySelectorAll('.stats-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       document.querySelectorAll('.stats-tab').forEach(t => t.classList.remove('active'));
@@ -628,7 +607,6 @@
       tab.classList.add('active');
       document.getElementById(tab.dataset.tab).classList.add('active');
       
-      // Aggiorna il grafico attivo dopo un breve delay
       setTimeout(() => {
         if (tab.dataset.tab === 'tab-categorie') updateChartCategory();
         else if (tab.dataset.tab === 'tab-entrate-uscite') updateChartYear();
@@ -862,10 +840,10 @@
       const dateLabel = new Date(t.date).toLocaleDateString('it-IT', { day:'2-digit', month:'2-digit', year:'2-digit' });
       const amountColor = isIncome ? 'var(--success)' : 'var(--danger)';
       const amountSign = isIncome ? '+' : '-';
-      const hasAttachment = t.attachment ? ' ' : '';
+      const hasAttachment = t.attachment ? ' 📎' : '';
       row.innerHTML = `<div class="tx-col-date">${dateLabel}</div><div class="tx-col-desc" data-id="${t.id}" title="Dettagli" role="button" tabindex="0"><span class="tx-desc-text">${escapeHtml(t.description || t.category)}${hasAttachment}</span><span style="font-size:11px; color:var(--text-muted);">${escapeHtml(t.category)}</span></div><div class="tx-col-amount" style="color:${amountColor};">${amountSign}${fmtEUR(amountValue(t.amount))}</div><div class="tx-col-type"><span class="badge-source ${badgeCls}">${badgeLabel}</span></div><div class="tx-col-actions">
-        <button data-id="${t.id}" class="btn-edit-tx" aria-label="Modifica" style="background: linear-gradient(135deg, #2F80ED 0%, #1558C0 100%); border-radius: 8px;"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 512 512"><rect x="72" y="72" width="368" height="368" rx="92" fill="url(#buttonGradientEdit)"/><defs><linearGradient id="buttonGradientEdit" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#2F80ED"/><stop offset="1" stop-color="#1558C0"/></linearGradient></defs><path d="M338.7 130.8c12.6-12.6 33.1-12.6 45.7 0l17.8 17.8c12.6 12.6 12.6 33.1 0 45.7l-24.5 24.5-63.5-63.5 24.5-24.5Z" fill="#FFFFFF"/><path d="M287.7 181.8 151.8 317.7c-3.2 3.2-5.4 7.2-6.5 11.6l-17.5 69.9c-2.5 9.9 6.5 18.9 16.4 16.4l69.9-17.5c4.4-1.1 8.4-3.3 11.6-6.5l135.9-135.9-73.9-73.9Z" fill="#FFFFFF"/></svg></button>
-        <button data-id="${t.id}" class="btn-delete" aria-label="Elimina" style="background: linear-gradient(135deg, #F04438 0%, #B42318 100%); border-radius: 8px;"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 512 512"><rect x="72" y="72" width="368" height="368" rx="92" fill="url(#buttonGradient)"/><defs><linearGradient id="buttonGradient" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#F04438"/><stop offset="1" stop-color="#B42318"/></linearGradient></defs><path d="M202 154c0-17.7 14.3-32 32-32h44c17.7 0 32 14.3 32 32v14h52c11 0 20 9 20 20s-9 20-20 20H150c-11 0-20-9-20-20s9-20 20-20h52v-14Zm40 14h28v-6c0-3.3-2.7-6-6-6h-16c-3.3 0-6 2.7-6 6v6Z" fill="#FFFFFF"/><path d="M170 238c-1.1-13.8 9.8-25.6 23.6-25.6h124.8c13.8 0 24.7 11.8 23.6 25.6l-12.2 144.9c-1.5 17.5-16.1 31.1-33.7 31.1h-80.2c-17.6 0-32.2-13.6-33.7-31.1L170 238Z" fill="#FFFFFF"/></svg></button>
+        <button data-id="${t.id}" class="btn-edit-tx" aria-label="Modifica"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 512 512"><defs><linearGradient id="buttonGradientEdit" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#2F80ED"/><stop offset="1" stop-color="#1558C0"/></linearGradient><filter id="softShadowEdit" x="44" y="44" width="424" height="424" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#0B2E63" flood-opacity="0.24"/></filter></defs><rect x="72" y="72" width="368" height="368" rx="92" fill="url(#buttonGradientEdit)" filter="url(#softShadowEdit)"/><path d="M338.7 130.8c12.6-12.6 33.1-12.6 45.7 0l17.8 17.8c12.6 12.6 12.6 33.1 0 45.7l-24.5 24.5-63.5-63.5 24.5-24.5Z" fill="#FFFFFF"/><path d="M287.7 181.8 151.8 317.7c-3.2 3.2-5.4 7.2-6.5 11.6l-17.5 69.9c-2.5 9.9 6.5 18.9 16.4 16.4l69.9-17.5c4.4-1.1 8.4-3.3 11.6-6.5l135.9-135.9-73.9-73.9Z" fill="#FFFFFF"/><path d="M287.7 181.8 361.6 255.7 338 279.3 264.1 205.4l23.6-23.6Z" fill="#DDEBFF"/><path d="M151.8 317.7c-3.2 3.2-5.4 7.2-6.5 11.6l-10.3 41 40.9 40.9 40.9-10.3c4.4-1.1 8.4-3.3 11.6-6.5l-76.6-76.7Z" fill="#EAF3FF"/><path d="M135 370.3 127.8 399.2c-2.5 9.9 6.5 18.9 16.4 16.4l28.9-7.2L135 370.3Z" fill="#102A43"/></svg></button>
+        <button data-id="${t.id}" class="btn-delete" aria-label="Elimina"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 512 512"><defs><linearGradient id="buttonGradient" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#F04438"/><stop offset="1" stop-color="#B42318"/></linearGradient><filter id="softShadow" x="44" y="44" width="424" height="424" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#65160F" flood-opacity="0.24"/></filter></defs><rect x="72" y="72" width="368" height="368" rx="92" fill="url(#buttonGradient)" filter="url(#softShadow)"/><path d="M202 154c0-17.7 14.3-32 32-32h44c17.7 0 32 14.3 32 32v14h52c11 0 20 9 20 20s-9 20-20 20H150c-11 0-20-9-20-20s9-20 20-20h52v-14Zm40 14h28v-6c0-3.3-2.7-6-6-6h-16c-3.3 0-6 2.7-6 6v6Z" fill="#FFFFFF"/><path d="M170 238c-1.1-13.8 9.8-25.6 23.6-25.6h124.8c13.8 0 24.7 11.8 23.6 25.6l-12.2 144.9c-1.5 17.5-16.1 31.1-33.7 31.1h-80.2c-17.6 0-32.2-13.6-33.7-31.1L170 238Z" fill="#FFFFFF"/><path d="M222 257c8.8 0 16 7.2 16 16v86c0 8.8-7.2 16-16 16s-16-7.2-16-16v-86c0-8.8 7.2-16 16-16Zm68 0c8.8 0 16 7.2 16 16v86c0 8.8-7.2 16-16 16s-16-7.2-16-16v-86c0-8.8 7.2-16 16-16Z" fill="#FBD5D1"/><path d="M179.4 260h153.2l-2.2 26H181.6l-2.2-26Z" fill="#FEE4E2"/></svg></button>
       </div>`;
       list.appendChild(row);
     });
@@ -1164,7 +1142,7 @@
     sorted.forEach(r => {
       const status = reminderStatus(r.date);
       const row = document.createElement('div'); row.className = 'reminder-row';
-      row.innerHTML = `<div class="reminder-left"><p>${escapeHtml(r.title)}</p><p>${r.note ? escapeHtml(r.note) : '&nbsp;'}</p></div><span class="reminder-badge ${status.cls}">${status.label}</span><button class="btn-delete rem-del" data-id="${r.id}" style="background: linear-gradient(135deg, #F04438 0%, #B42318 100%); border-radius: 8px;"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512"><rect x="72" y="72" width="368" height="368" rx="92" fill="url(#buttonGradient)"/><defs><linearGradient id="buttonGradient" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#F04438"/><stop offset="1" stop-color="#B42318"/></linearGradient></defs><path d="M202 154c0-17.7 14.3-32 32-32h44c17.7 0 32 14.3 32 32v14h52c11 0 20 9 20 20s-9 20-20 20H150c-11 0-20-9-20-20s9-20 20-20h52v-14Zm40 14h28v-6c0-3.3-2.7-6-6-6h-16c-3.3 0-6 2.7-6 6v6Z" fill="#FFFFFF"/><path d="M170 238c-1.1-13.8 9.8-25.6 23.6-25.6h124.8c13.8 0 24.7 11.8 23.6 25.6l-12.2 144.9c-1.5 17.5-16.1 31.1-33.7 31.1h-80.2c-17.6 0-32.2-13.6-33.7-31.1L170 238Z" fill="#FFFFFF"/></svg></button>`;
+      row.innerHTML = `<div class="reminder-left"><p>${escapeHtml(r.title)}</p><p>${r.note ? escapeHtml(r.note) : '&nbsp;'}</p></div><span class="reminder-badge ${status.cls}">${status.label}</span><button class="btn-delete rem-del" data-id="${r.id}"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512"><defs><linearGradient id="buttonGradient" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#F04438"/><stop offset="1" stop-color="#B42318"/></linearGradient><filter id="softShadow" x="44" y="44" width="424" height="424" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#65160F" flood-opacity="0.24"/></filter></defs><rect x="72" y="72" width="368" height="368" rx="92" fill="url(#buttonGradient)" filter="url(#softShadow)"/><path d="M202 154c0-17.7 14.3-32 32-32h44c17.7 0 32 14.3 32 32v14h52c11 0 20 9 20 20s-9 20-20 20H150c-11 0-20-9-20-20s9-20 20-20h52v-14Zm40 14h28v-6c0-3.3-2.7-6-6-6h-16c-3.3 0-6 2.7-6 6v6Z" fill="#FFFFFF"/><path d="M170 238c-1.1-13.8 9.8-25.6 23.6-25.6h124.8c13.8 0 24.7 11.8 23.6 25.6l-12.2 144.9c-1.5 17.5-16.1 31.1-33.7 31.1h-80.2c-17.6 0-32.2-13.6-33.7-31.1L170 238Z" fill="#FFFFFF"/></svg></button>`;
       list.appendChild(row);
     });
     list.querySelectorAll('.rem-del').forEach(btn => btn.addEventListener('click', async () => { state.reminders = state.reminders.filter(r => r.id !== btn.getAttribute('data-id')); await saveReminders(); renderReminders(); updateProfilePage(); }));
@@ -1198,8 +1176,8 @@
       state.categories[type].forEach((cat, idx) => {
         const li = document.createElement('li'); li.className = 'cat-item';
         li.innerHTML = `<span>${escapeHtml(cat)}</span><div class="cat-actions">
-          <button class="btn-edit-tx" data-type="${type}" data-idx="${idx}" title="Modifica" style="background: linear-gradient(135deg, #2F80ED 0%, #1558C0 100%); border-radius: 8px;"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512"><rect x="72" y="72" width="368" height="368" rx="92" fill="url(#buttonGradientEdit)"/><defs><linearGradient id="buttonGradientEdit" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#2F80ED"/><stop offset="1" stop-color="#1558C0"/></linearGradient></defs><path d="M338.7 130.8c12.6-12.6 33.1-12.6 45.7 0l17.8 17.8c12.6 12.6 12.6 33.1 0 45.7l-24.5 24.5-63.5-63.5 24.5-24.5Z" fill="#FFFFFF"/><path d="M287.7 181.8 151.8 317.7c-3.2 3.2-5.4 7.2-6.5 11.6l-17.5 69.9c-2.5 9.9 6.5 18.9 16.4 16.4l69.9-17.5c4.4-1.1 8.4-3.3 11.6-6.5l135.9-135.9-73.9-73.9Z" fill="#FFFFFF"/></svg></button>
-          <button class="btn-delete" data-type="${type}" data-idx="${idx}" title="Elimina" style="background: linear-gradient(135deg, #F04438 0%, #B42318 100%); border-radius: 8px;"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512"><rect x="72" y="72" width="368" height="368" rx="92" fill="url(#buttonGradient)"/><defs><linearGradient id="buttonGradient" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#F04438"/><stop offset="1" stop-color="#B42318"/></linearGradient></defs><path d="M202 154c0-17.7 14.3-32 32-32h44c17.7 0 32 14.3 32 32v14h52c11 0 20 9 20 20s-9 20-20 20H150c-11 0-20-9-20-20s9-20 20-20h52v-14Zm40 14h28v-6c0-3.3-2.7-6-6-6h-16c-3.3 0-6 2.7-6 6v6Z" fill="#FFFFFF"/><path d="M170 238c-1.1-13.8 9.8-25.6 23.6-25.6h124.8c13.8 0 24.7 11.8 23.6 25.6l-12.2 144.9c-1.5 17.5-16.1 31.1-33.7 31.1h-80.2c-17.6 0-32.2-13.6-33.7-31.1L170 238Z" fill="#FFFFFF"/></svg></button>
+          <button class="btn-edit-tx" data-type="${type}" data-idx="${idx}" title="Modifica"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512"><defs><linearGradient id="buttonGradientEdit" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#2F80ED"/><stop offset="1" stop-color="#1558C0"/></linearGradient><filter id="softShadowEdit" x="44" y="44" width="424" height="424" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#0B2E63" flood-opacity="0.24"/></filter></defs><rect x="72" y="72" width="368" height="368" rx="92" fill="url(#buttonGradientEdit)" filter="url(#softShadowEdit)"/><path d="M338.7 130.8c12.6-12.6 33.1-12.6 45.7 0l17.8 17.8c12.6 12.6 12.6 33.1 0 45.7l-24.5 24.5-63.5-63.5 24.5-24.5Z" fill="#FFFFFF"/><path d="M287.7 181.8 151.8 317.7c-3.2 3.2-5.4 7.2-6.5 11.6l-17.5 69.9c-2.5 9.9 6.5 18.9 16.4 16.4l69.9-17.5c4.4-1.1 8.4-3.3 11.6-6.5l135.9-135.9-73.9-73.9Z" fill="#FFFFFF"/></svg></button>
+          <button class="btn-delete" data-type="${type}" data-idx="${idx}" title="Elimina"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512"><defs><linearGradient id="buttonGradient" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#F04438"/><stop offset="1" stop-color="#B42318"/></linearGradient><filter id="softShadow" x="44" y="44" width="424" height="424" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#65160F" flood-opacity="0.24"/></filter></defs><rect x="72" y="72" width="368" height="368" rx="92" fill="url(#buttonGradient)" filter="url(#softShadow)"/><path d="M202 154c0-17.7 14.3-32 32-32h44c17.7 0 32 14.3 32 32v14h52c11 0 20 9 20 20s-9 20-20 20H150c-11 0-20-9-20-20s9-20 20-20h52v-14Zm40 14h28v-6c0-3.3-2.7-6-6-6h-16c-3.3 0-6 2.7-6 6v6Z" fill="#FFFFFF"/><path d="M170 238c-1.1-13.8 9.8-25.6 23.6-25.6h124.8c13.8 0 24.7 11.8 23.6 25.6l-12.2 144.9c-1.5 17.5-16.1 31.1-33.7 31.1h-80.2c-17.6 0-32.2-13.6-33.7-31.1L170 238Z" fill="#FFFFFF"/></svg></button>
         </div>`;
         ul.appendChild(li);
       });
@@ -1258,18 +1236,6 @@
   document.getElementById('rem-date').value = todayISO();
 
   function showLoading(show) { document.getElementById('pdf-loading').classList.toggle('show', show); }
-
-  // Helper: converte un canvas Chart.js in immagine PNG base64
-  function canvasToImage(canvasId) {
-    const canvas = document.getElementById(canvasId);
-    if (!canvas) return null;
-    try {
-      return canvas.toDataURL('image/png');
-    } catch(e) {
-      console.warn('Impossibile catturare canvas', canvasId, e);
-      return null;
-    }
-  }
 
   // ========== PDF HOME ==========
   async function generateHomePDF() {
@@ -1527,56 +1493,38 @@
         y += 8;
       });
 
-      // ========== GRAFICI - Generazione in container nascosto ==========
+      // ========== MOSTRA TUTTI I TAB TEMPORANEAMENTE ==========
+      const tabContents = document.querySelectorAll('.stats-tab-content');
+      const originalDisplay = [];
+      tabContents.forEach((tab, idx) => {
+        originalDisplay[idx] = tab.style.display;
+        tab.style.display = 'block';
+      });
+      
+      // Aggiorna tutti i grafici
+      updateChartCategory();
+      updateChartYear();
+      updateChartResiduo();
+      updateChartCompare();
+      
+      // Attendi che i grafici si renderizzino
+      await new Promise(r => setTimeout(r, 1000));
+
+      // Cattura i grafici
+      const yearChartImg = document.getElementById('yearChart').toDataURL('image/png', 1.0);
+      const residuoChartImg = document.getElementById('residuoChart').toDataURL('image/png', 1.0);
+      const categoryChartImg = document.getElementById('categoryChart').toDataURL('image/png', 1.0);
+      const compareChartImg = document.getElementById('compareChart').toDataURL('image/png', 1.0);
+
+      // Ripristina lo stato originale dei tab
+      tabContents.forEach((tab, idx) => {
+        tab.style.display = originalDisplay[idx];
+      });
+
+      // Aggiungi i grafici al PDF
       y += 10;
       if (y > 200) { doc.addPage(); y = 20; }
 
-      // Crea container nascosto per generare tutti i grafici
-      const pdfContainer = document.getElementById('pdf-charts-container');
-      pdfContainer.innerHTML = '';
-      
-      // Crea canvas temporanei per ogni grafico
-      const tempCharts = {};
-      ['yearChart', 'residuoChart', 'categoryChart', 'compareChart'].forEach(id => {
-        const div = document.createElement('div');
-        div.style.cssText = 'width:760px;height:300px;margin:20px 0;';
-        const canvas = document.createElement('canvas');
-        canvas.id = `temp-${id}`;
-        div.appendChild(canvas);
-        pdfContainer.appendChild(div);
-        tempCharts[id] = canvas;
-      });
-      
-      // Genera tutti i grafici nei canvas temporanei
-      const originalYear = document.getElementById('yearChart');
-      const originalResiduo = document.getElementById('residuoChart');
-      const originalCategory = document.getElementById('categoryChart');
-      const originalCompare = document.getElementById('compareChart');
-      
-      // Crea grafici temporanei
-      const tempYearChart = new Chart(tempCharts.yearChart, JSON.parse(JSON.stringify(chartYear.config)));
-      const tempResiduoChart = new Chart(tempCharts.residuoChart, JSON.parse(JSON.stringify(chartResiduo.config)));
-      const tempCategoryChart = new Chart(tempCharts.categoryChart, JSON.parse(JSON.stringify(chartCategory.config)));
-      const tempCompareChart = new Chart(tempCharts.compareChart, JSON.parse(JSON.stringify(chartCompare.config)));
-      
-      // Attendi che i grafici siano renderizzati
-      await new Promise(r => setTimeout(r, 1000));
-      
-      // Cattura i grafici come immagini
-      const yearChartImg = tempCharts.yearChart.toDataURL('image/png', 1.0);
-      const residuoChartImg = tempCharts.residuoChart.toDataURL('image/png', 1.0);
-      const categoryChartImg = tempCharts.categoryChart.toDataURL('image/png', 1.0);
-      const compareChartImg = tempCharts.compareChart.toDataURL('image/png', 1.0);
-      
-      // Distruggi i grafici temporanei
-      tempYearChart.destroy();
-      tempResiduoChart.destroy();
-      tempCategoryChart.destroy();
-      tempCompareChart.destroy();
-      pdfContainer.innerHTML = '';
-
-      // Aggiungi i grafici al PDF
-      // Grafico Entrate vs Uscite (anno)
       doc.setTextColor(30, 30, 30);
       doc.setFontSize(14);
       doc.setFont('helvetica', 'bold');
@@ -1588,16 +1536,10 @@
         const chartHeight = 70;
         doc.addImage(yearChartImg, 'PNG', margin, y, chartWidth, chartHeight);
         y += chartHeight + 10;
-      } else {
-        doc.setTextColor(156, 163, 175);
-        doc.setFontSize(10);
-        doc.text('Grafico non disponibile', margin, y + 5);
-        y += 15;
       }
 
       if (y > 200) { doc.addPage(); y = 20; }
 
-      // Grafico Residuo mensile
       doc.setTextColor(30, 30, 30);
       doc.setFontSize(14);
       doc.setFont('helvetica', 'bold');
@@ -1609,16 +1551,10 @@
         const chartHeight = 70;
         doc.addImage(residuoChartImg, 'PNG', margin, y, chartWidth, chartHeight);
         y += chartHeight + 10;
-      } else {
-        doc.setTextColor(156, 163, 175);
-        doc.setFontSize(10);
-        doc.text('Grafico non disponibile', margin, y + 5);
-        y += 15;
       }
 
       if (y > 200) { doc.addPage(); y = 20; }
 
-      // Grafico Spese per categoria
       doc.setTextColor(30, 30, 30);
       doc.setFontSize(14);
       doc.setFont('helvetica', 'bold');
@@ -1630,16 +1566,10 @@
         const chartHeight = 70;
         doc.addImage(categoryChartImg, 'PNG', margin, y, chartWidth, chartHeight);
         y += chartHeight + 10;
-      } else {
-        doc.setTextColor(156, 163, 175);
-        doc.setFontSize(10);
-        doc.text('Nessuna spesa nel mese selezionato', margin, y + 5);
-        y += 15;
       }
 
       if (y > 200) { doc.addPage(); y = 20; }
 
-      // Grafico Confronto tra due mesi
       const m1 = document.getElementById('compare-month-1')?.value;
       const m2 = document.getElementById('compare-month-2')?.value;
       if (m1 && m2 && compareChartImg) {
