@@ -301,7 +301,76 @@
     #sidebar { transform: translateX(calc(-1 * var(--sidebar-w))); }
     #sidebar.open { transform: translateX(0); }
     #sidebar-overlay.open { display: block; }
-    #main { margin-left: 0; padding: 1.5rem 1rem 3rem; padding-top: 4.5rem; }
+    #main { margin-left: 0; padding: 1rem 0.85rem 3rem; padding-top: 4.5rem; }
+    h1 { font-size: 22px; }
+    h2 { font-size: 16px; }
+  }
+
+  @media (max-width: 600px) {
+    #main { padding: 0.75rem 0.75rem 3rem; padding-top: 4rem; }
+    h1 { font-size: 20px; margin-bottom: 0.75rem; }
+    h2 { font-size: 15px; }
+    h3 { font-size: 13px; }
+    body { font-size: 13px; }
+
+    /* Filtro home in colonna */
+    .home-header { flex-direction: column; gap: 8px; margin-bottom: 1rem; }
+    .home-header h1 { margin: 0; }
+    .home-date-filter { width: 100%; align-items: stretch; }
+    .home-date-field { flex: 1; }
+    .home-date-field label { font-size: 11px; }
+    .home-date-field input, .home-date-field select { height: 34px; font-size: 12px; width: 100%; }
+    #btn-apply-range { height: 36px; font-size: 12px; width: 100%; justify-content: center; }
+    .filter-custom-toggle { font-size: 12px; }
+    #filter-label { text-align: left; }
+
+    /* Pannelli */
+    .panel { padding: 0.85rem 0.85rem; margin-bottom: 0.85rem; }
+
+    /* Tabs */
+    .tabs button { font-size: 12px; height: 30px; }
+
+    /* Form iOS */
+    .ios-row { padding: 0 10px; min-height: 44px; gap: 8px; }
+    .ios-label { font-size: 12px; min-width: 82px; }
+    .ios-input, .ios-select { font-size: 12px; }
+    .ios-input-field { font-size: 12px !important; height: 30px !important; }
+
+    /* Ricerca */
+    #search-input { height: 36px; font-size: 12px; }
+
+    /* Source filter */
+    .source-filter button { height: 26px; font-size: 11px; padding: 0 10px; }
+
+    /* Transazioni — nascondi colonna Tipo */
+    .tx-header { grid-template-columns: 60px 1fr 90px 0 68px; font-size: 10px; padding: 4px 8px; }
+    .tx-row    { grid-template-columns: 60px 1fr 90px 0 68px; padding: 8px 8px; margin-bottom: 5px; }
+    .tx-col-type { display: none; }
+    .tx-col-date { font-size: 11px; }
+    .tx-desc-text { font-size: 12px; }
+    .tx-col-amount { font-size: 12px; }
+    .btn-delete, .btn-edit-tx { height: 28px; width: 28px; border-radius: 7px; }
+    .btn-delete img, .btn-edit-tx img { width: 15px; height: 15px; }
+
+    /* Modal */
+    #modal-box, #detail-box { padding: 1.25rem; }
+    #modal-box h3, #detail-box h3 { font-size: 15px; }
+    .modal-actions button, .detail-actions button { height: 40px; font-size: 13px; }
+
+    /* Grafici */
+    .chart-wrap { height: 200px; }
+    .legend { font-size: 11px; gap: 8px; }
+
+    /* Promemoria */
+    .reminder-form { grid-template-columns: 1fr; }
+    .reminder-badge { font-size: 9px; padding: 2px 7px; margin: 0 6px; }
+
+    /* Import */
+    .import-row { flex-direction: column; }
+    .import-row button { width: 100%; }
+
+    /* Row between */
+    .row-between { flex-wrap: wrap; gap: 6px; }
   }
 
   .page { display: none; }
@@ -427,6 +496,16 @@
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
     gap: 18px; 
     margin-bottom: 2rem; 
+  }
+  @media (max-width: 600px) {
+    .stats-row {
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+    .stat-card { padding: 0.9rem 0.75rem; }
+    .stat-card p:first-child { font-size: 10px !important; }
+    .stat-card p:last-child  { font-size: 18px !important; }
   }
   .stat-card { 
     background: var(--surface); 
@@ -2860,7 +2939,7 @@
         doc.setTextColor(138, 155, 172);
         doc.text(`Budget di Famiglia · Pagina ${i}/${pageCount}`, pageWidth/2, 290, { align: 'center' });
       }
-      doc.save(`budget-${todayISO()}.pdf`);
+      savePDF(doc, `budget-${todayISO()}.pdf`);
     } catch(err) {
       alert('Errore PDF: ' + err.message);
     } finally {
@@ -3104,12 +3183,27 @@
         doc.setTextColor(138, 155, 172);
         doc.text(`Budget di Famiglia · Pagina ${i}/${pageCount}`, pageWidth/2, 290, { align: 'center' });
       }
-      doc.save(`statistiche-${year}.pdf`);
+      savePDF(doc, `statistiche-${year}.pdf`);
     } catch(err) {
       alert('Errore PDF: ' + err.message);
       console.error(err);
     } finally {
       showLoading(false);
+    }
+  }
+
+
+  // Apre/scarica il PDF su tutti i dispositivi incluso mobile
+  function savePDF(doc, filename) {
+    const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+    if (isMobile) {
+      // Su mobile apre il PDF in una nuova scheda
+      const blob = doc.output('blob');
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank');
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+    } else {
+      doc.save(filename);
     }
   }
 
