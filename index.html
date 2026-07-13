@@ -422,6 +422,107 @@
     #filter-label { text-align: left; }
   }
 
+  /* ══ MOBILE (≤ 480px) ══ */
+  @media (max-width: 480px) {
+    /* Tipografia ridotta */
+    h1 { font-size: 20px; margin-bottom: 1rem; }
+    h2 { font-size: 15px; }
+    h3 { font-size: 13px; }
+    body { font-size: 13px; }
+
+    /* Main padding ridotto */
+    #main { padding: 0.75rem 0.75rem 4rem; padding-top: 4rem; }
+
+    /* Header home in colonna */
+    .home-header { flex-direction: column; gap: 10px; margin-bottom: 1rem; }
+    .home-header h1 { font-size: 20px; margin: 0; }
+    .home-date-filter { width: 100%; align-items: stretch; }
+    .home-date-field { flex: 1; }
+    .home-date-field label { font-size: 11px; }
+    .home-date-field input,
+    .home-date-field select { height: 36px; font-size: 12px; }
+    #btn-apply-range { height: 36px; font-size: 12px; width: 100%; }
+
+    /* Stat cards: 2 per riga su mobile */
+    .stats-row {
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+    .stat-card { padding: 0.85rem 0.75rem; border-radius: 14px; }
+    .stat-card p:first-child { font-size: 10px; margin-bottom: 4px; }
+    .stat-card p:last-child  { font-size: 17px; }
+
+    /* Pannelli */
+    .panel { padding: 0.85rem; margin-bottom: 1rem; border-radius: 14px; }
+
+    /* Tabs Uscita/Entrata */
+    .tabs button { font-size: 12px; height: 30px; }
+
+    /* Form nuovo movimento (ios-row) */
+    .ios-row { padding: 0 10px; min-height: 44px; gap: 8px; }
+    .ios-label { font-size: 13px; min-width: 85px; }
+    .ios-input, .ios-select { font-size: 13px; }
+    .ios-input-field { font-size: 13px !important; height: 30px !important; }
+
+    /* Barra di ricerca */
+    #search-input { height: 36px; font-size: 13px; }
+
+    /* Filtro source (badge Tutti/Contanti/C.C.) */
+    .source-filter button { height: 26px; font-size: 11px; padding: 0 10px; }
+
+    /* Intestazione colonne transazioni: semplificata */
+    .tx-header {
+      grid-template-columns: 64px 1fr 90px 0 70px;
+      padding: 4px 10px 4px;
+      font-size: 10px;
+    }
+
+    /* Righe transazioni */
+    .tx-row {
+      grid-template-columns: 64px 1fr 90px 0 70px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      margin-bottom: 5px;
+    }
+    .tx-col-type { display: none; } /* Nasconde il badge tipologia */
+    .tx-col-date { font-size: 11px; }
+    .tx-desc-text { font-size: 13px; }
+    .tx-col-amount { font-size: 13px; }
+    .btn-delete, .btn-edit-tx { height: 28px; width: 28px; border-radius: 7px; }
+    .btn-delete img, .btn-edit-tx img { width: 16px; height: 16px; }
+
+    /* Sezione movimenti */
+    .row-between { flex-wrap: wrap; gap: 6px; }
+
+    /* Modal */
+    #modal-box, #detail-box { padding: 1.25rem; border-radius: 20px; }
+    #modal-box h3, #detail-box h3 { font-size: 15px; }
+    .modal-field input, .modal-field select { height: 38px; font-size: 13px; }
+    .modal-actions button, .detail-actions button { height: 40px; font-size: 13px; }
+
+    /* Promemoria */
+    .reminder-form { grid-template-columns: 1fr; }
+    .reminder-left p:first-child { font-size: 13px; }
+    .reminder-badge { font-size: 9px; padding: 2px 7px; margin: 0 6px; }
+
+    /* Grafici */
+    .chart-wrap { height: 200px; }
+    .legend { gap: 8px; font-size: 11px; }
+
+    /* Import Excel */
+    .import-row { flex-direction: column; align-items: stretch; }
+    .import-row input[type="file"] { min-width: unset; }
+    .import-row button { width: 100%; }
+
+    /* Categorie */
+    .cat-btn-edit, .cat-btn-delete { height: 28px !important; width: 28px !important; }
+
+    /* Login */
+    #login-screen .panel { padding: 1.5rem 1.25rem; border-radius: 20px; }
+    #login-screen h1 { font-size: 22px; }
+  }
+
   .stats-row { 
     display: grid; 
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
