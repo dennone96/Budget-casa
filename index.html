@@ -379,115 +379,17 @@
       padding-top: clamp(3.5rem, 10vh, 4.5rem); 
       width: 100%;
     }
-    
-    h1 { font-size: clamp(18px, 5vw, 22px); }
-    h2 { font-size: clamp(15px, 3.5vw, 16px); }
-    
-    .home-header { flex-direction: column; gap: 8px; margin-bottom: 1rem; }
-    .home-header h1 { margin: 0; }
-    .home-date-filter { width: 100%; align-items: stretch; flex-direction: column; }
-    .home-date-field { flex: 1; }
-    .home-date-field label { font-size: clamp(10px, 2vw, 11px); }
-    .home-date-field input, .home-date-field select { height: clamp(34px, 7vh, 44px); font-size: clamp(12px, 2.5vw, 14px); width: 100%; }
-    #btn-apply-range { height: clamp(36px, 7vh, 44px); font-size: clamp(12px, 2.5vw, 14px); width: 100%; justify-content: center; }
-    .filter-custom-toggle { font-size: clamp(11px, 2vw, 12px); }
-    #filter-label { text-align: left; }
   }
 
   @media (max-width: 600px) {
     #main { padding: clamp(0.5rem, 2vw, 0.75rem); padding-top: clamp(3rem, 8vh, 4rem); }
-    
-    h1 { font-size: clamp(16px, 5vw, 20px); margin-bottom: 0.75rem; }
-    h2 { font-size: clamp(14px, 3.5vw, 15px); }
-    h3 { font-size: clamp(12px, 3vw, 13px); }
-    body { font-size: clamp(12px, 2.5vw, 13px); }
-    
-    .home-header { flex-direction: column; gap: 6px; margin-bottom: 1rem; }
-    .home-header h1 { margin: 0; }
-    .home-date-filter { width: 100%; align-items: stretch; }
-    .home-date-field { flex: 1; }
-    .home-date-field label { font-size: clamp(10px, 2vw, 11px); }
-    .home-date-field input, .home-date-field select { height: clamp(30px, 6vh, 34px); font-size: clamp(11px, 2vw, 12px); width: 100%; }
-    #btn-apply-range { height: clamp(32px, 6vh, 36px); font-size: clamp(11px, 2vw, 12px); width: 100%; justify-content: center; }
-    .filter-custom-toggle { font-size: clamp(11px, 2vw, 12px); }
-    #filter-label { text-align: left; }
-    
-    .panel { padding: clamp(0.75rem, 2vw, 0.85rem); margin-bottom: clamp(0.75rem, 2vw, 0.85rem); }
-    .tabs button { font-size: clamp(11px, 2.5vw, 12px); height: clamp(28px, 6vh, 30px); min-height: 30px; }
-    
-    .ios-row { padding: 0 clamp(8px, 2vw, 10px); min-height: clamp(40px, 8vh, 44px); gap: 6px; flex-direction: column; align-items: flex-start; }
-    .ios-label { font-size: clamp(11px, 2.5vw, 12px); min-width: auto; }
-    .ios-input, .ios-select { font-size: clamp(11px, 2.5vw, 12px); width: 100%; }
-    .ios-input-field { font-size: clamp(11px, 2.5vw, 12px) !important; height: clamp(28px, 6vh, 30px) !important; min-height: 30px; }
-    
-    .source-filter button { height: clamp(24px, 5vh, 26px); font-size: clamp(10px, 2vw, 11px); padding: 0 clamp(8px, 2vw, 10px); min-height: 26px; }
-    
     .tx-header { grid-template-columns: 50px 1fr 70px 50px; font-size: clamp(9px, 2vw, 10px); padding: 4px 6px; }
-    .tx-row    { grid-template-columns: 50px 1fr 70px 50px; padding: 6px; margin-bottom: 4px; gap: 4px; }
-    .tx-col-date { font-size: clamp(10px, 2vw, 11px); }
-    .tx-desc-text { font-size: clamp(11px, 2.5vw, 12px); }
-    .tx-col-amount { font-size: clamp(11px, 2.5vw, 12px); }
-    .btn-delete { height: clamp(26px, 5vh, 28px); width: clamp(26px, 5vh, 28px); border-radius: 7px; min-width: 28px; min-height: 28px; }
-    .btn-delete svg { width: clamp(26px, 5vh, 28px); height: clamp(26px, 5vh, 28px); }
-    
-    #modal-box, #detail-box { padding: clamp(1rem, 3vw, 1.25rem); width: min(95%, 440px); }
-    #modal-box h3, #detail-box h3 { font-size: clamp(14px, 3vw, 15px); }
-    .modal-actions button, .detail-actions button { height: clamp(36px, 7vh, 40px); font-size: clamp(12px, 2.5vw, 13px); min-height: 40px; }
-    
+    .tx-row { grid-template-columns: 50px 1fr 70px 50px; padding: 6px; margin-bottom: 4px; gap: 4px; }
     .chart-wrap { height: clamp(200px, 45vh, 250px); }
-    .legend { font-size: clamp(10px, 2vw, 11px); gap: 6px; }
-    
-    .reminder-form { grid-template-columns: 1fr; }
-    .reminder-badge { font-size: clamp(8px, 1.5vw, 9px); padding: 2px 6px; margin: 0 4px; }
-    
-    .import-row { flex-direction: column; }
-    .import-row button { width: 100%; min-height: 44px; }
-    
-    .row-between { flex-wrap: wrap; gap: 4px; }
-    
-    .stats-row {
-      grid-template-columns: 1fr 1fr;
-      gap: clamp(6px, 1.5vw, 10px);
-      margin-bottom: 1rem;
-    }
-    
-    .stat-card { padding: clamp(0.75rem, 2vw, 0.9rem); }
-    .stat-card p:first-child { font-size: clamp(9px, 2vw, 10px) !important; }
-    .stat-card p:last-child  { font-size: clamp(16px, 4vw, 18px) !important; }
-  }
-  
-  @media (max-width: 360px) {
-    .stats-row {
-      grid-template-columns: 1fr;
-      gap: 0.5rem;
-    }
-    
-    .tx-row, .tx-header {
-      grid-template-columns: 45px 1fr 60px 45px;
-      gap: 3px;
-    }
-    
-    .source-filter button {
-      font-size: 10px;
-      padding: 0 6px;
-    }
-    
-    .tabs button {
-      min-width: 60px;
-      font-size: 11px;
-    }
   }
 
-  @media (min-width: 601px) and (max-width: 900px) {
-    .stats-row {
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    }
-  }
-  
-  @media (min-width: 901px) {
-    .stats-row {
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    }
+  @media (max-width: 360px) {
+    .tx-row, .tx-header { grid-template-columns: 45px 1fr 60px 45px; gap: 3px; }
   }
 
   @supports (padding: env(safe-area-inset-top)) {
@@ -497,12 +399,10 @@
       padding-left: calc(clamp(0.75rem, 2vw, 1rem) + env(safe-area-inset-left));
       padding-right: calc(clamp(0.75rem, 2vw, 1rem) + env(safe-area-inset-right));
     }
-    
     #hamburger {
       top: calc(clamp(8px, 2vh, 12px) + env(safe-area-inset-top));
       left: calc(clamp(8px, 2vw, 12px) + env(safe-area-inset-left));
     }
-    
     #sidebar {
       padding-top: env(safe-area-inset-top);
       padding-bottom: env(safe-area-inset-bottom);
@@ -510,146 +410,41 @@
   }
 
   @media (hover: none) and (pointer: coarse) {
-    button, .nav-item, .tx-col-desc, .filter-custom-toggle {
-      min-height: 44px;
-      min-width: 44px;
-    }
-    
-    input, select, textarea {
-      font-size: 16px !important;
-    }
-    
-    .btn-delete {
-      min-width: 44px;
-      min-height: 44px;
-    }
+    button, .nav-item, .tx-col-desc { min-height: 44px; min-width: 44px; }
+    input, select, textarea { font-size: 16px !important; }
+    .btn-delete { min-width: 44px; min-height: 44px; }
   }
 
   @media (prefers-color-scheme: dark) {
-    .stat-card p:first-child {
-      color: #8A9BAC !important;
-    }
-    
-    .stat-card p:last-child {
-      color: #F0F4F8 !important;
-    }
-    
-    .stat-card.income p:last-child {
-      color: #5CB85C !important;
-    }
-    
-    .stat-card.expense p:last-child {
-      color: #E74C3C !important;
-    }
-    
-    .stat-card.balance p:last-child {
-      color: #F0F4F8 !important;
-    }
-    
-    .stat-card.residuo p:last-child {
-      color: #9B59B6 !important;
-    }
-    
-    .stat-card {
-      background: #1A2B3C !important;
-      border-color: #2E4053 !important;
-    }
-    
-    input, select, textarea {
-      background: #243447 !important;
-      border-color: #2E4053 !important;
-      color: #F0F4F8 !important;
-    }
-    
-    .panel {
-      background: #1A2B3C !important;
-      border-color: #2E4053 !important;
-    }
-    
-    .tx-row {
-      background: #1A2B3C !important;
-      border-color: #2E4053 !important;
-    }
-    
-    .tx-desc-text {
-      color: #F0F4F8 !important;
-    }
-    
-    #sidebar {
-      background: #1A2B3C !important;
-      border-color: #2E4053 !important;
-    }
-    
-    #hamburger {
-      background: #1A2B3C !important;
-      border-color: #2E4053 !important;
-    }
-    
-    #hamburger svg {
-      stroke: #F0F4F8 !important;
-    }
-    
-    .nav-item {
-      color: #8A9BAC !important;
-    }
-    
-    .nav-item:hover {
-      color: #F0F4F8 !important;
-    }
-    
-    .nav-item.active {
-      color: #4A90D9 !important;
-      background: #1A2B3C !important;
-    }
-    
-    #sidebar-logo {
-      color: #F0F4F8 !important;
-    }
-    
-    #sidebar-user-email {
-      color: #8A9BAC !important;
-    }
-    
-    #btn-logout {
-      color: #8A9BAC !important;
-    }
-    
-    #btn-logout:hover {
-      color: #E74C3C !important;
-    }
-    
-    .reminder-row {
-      background: #1A2B3C !important;
-      border-color: #2E4053 !important;
-    }
-    
-    .reminder-left p:first-child {
-      color: #F0F4F8 !important;
-    }
-    
-    .cat-item span {
-      color: #F0F4F8 !important;
-    }
-    
-    .empty-msg {
-      color: #8A9BAC !important;
-    }
-    
-    #save-status {
-      color: #8A9BAC !important;
-    }
-    
-    .ios-label {
-      color: #F0F4F8 !important;
-    }
-    
-    .data-table td {
-      color: #F0F4F8 !important;
-    }
-    
-    .data-table tr:hover td {
-      background: #243447 !important;
-    }
+    .stat-card p:first-child { color: #8A9BAC !important; }
+    .stat-card p:last-child { color: #F0F4F8 !important; }
+    .stat-card.income p:last-child { color: #5CB85C !important; }
+    .stat-card.expense p:last-child { color: #E74C3C !important; }
+    .stat-card.balance p:last-child { color: #F0F4F8 !important; }
+    .stat-card.residuo p:last-child { color: #9B59B6 !important; }
+    .stat-card { background: #1A2B3C !important; border-color: #2E4053 !important; }
+    input, select, textarea { background: #243447 !important; border-color: #2E4053 !important; color: #F0F4F8 !important; }
+    .panel { background: #1A2B3C !important; border-color: #2E4053 !important; }
+    .tx-row { background: #1A2B3C !important; border-color: #2E4053 !important; }
+    .tx-desc-text { color: #F0F4F8 !important; }
+    #sidebar { background: #1A2B3C !important; border-color: #2E4053 !important; }
+    #hamburger { background: #1A2B3C !important; border-color: #2E4053 !important; }
+    #hamburger svg { stroke: #F0F4F8 !important; }
+    .nav-item { color: #8A9BAC !important; }
+    .nav-item:hover { color: #F0F4F8 !important; }
+    .nav-item.active { color: #4A90D9 !important; background: #1A2B3C !important; }
+    #sidebar-logo { color: #F0F4F8 !important; }
+    #sidebar-user-email { color: #8A9BAC !important; }
+    #btn-logout { color: #8A9BAC !important; }
+    #btn-logout:hover { color: #E74C3C !important; }
+    .reminder-row { background: #1A2B3C !important; border-color: #2E4053 !important; }
+    .reminder-left p:first-child { color: #F0F4F8 !important; }
+    .cat-item span { color: #F0F4F8 !important; }
+    .empty-msg { color: #8A9BAC !important; }
+    #save-status { color: #8A9BAC !important; }
+    .ios-label { color: #F0F4F8 !important; }
+    .data-table td { color: #F0F4F8 !important; }
+    .data-table tr:hover td { background: #243447 !important; }
   }
 
   .page { display: none; }
@@ -662,7 +457,7 @@
 
   .home-header { 
     display: flex; 
-    align-items: center; 
+    align-items: flex-start; 
     justify-content: space-between; 
     gap: clamp(12px, 2vw, 16px); 
     margin-bottom: clamp(1.5rem, 3vw, 2rem); 
@@ -1065,7 +860,7 @@
     min-height: 40px;
   }
 
-  .btn-delete {
+  .btn-delete, .btn-edit-tx {
     border: none;
     background: none;
     padding: 0;
@@ -1081,11 +876,11 @@
     min-height: 32px;
   }
   
-  .btn-delete:hover {
+  .btn-delete:hover, .btn-edit-tx:hover {
     transform: scale(1.08);
   }
   
-  .btn-delete svg {
+  .btn-delete svg, .btn-edit-tx svg {
     width: clamp(30px, 5vh, 34px);
     height: clamp(30px, 5vh, 34px);
   }
@@ -1749,31 +1544,6 @@
     justify-content: center;
     padding: 1rem;
   }
-
-  .btn-edit-tx {
-    border: none;
-    background: none;
-    padding: 0;
-    height: clamp(32px, 5vh, 36px);
-    width: clamp(32px, 5vh, 36px);
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: var(--radius-sm);
-    transition: all 0.2s;
-    min-width: 32px;
-    min-height: 32px;
-  }
-  
-  .btn-edit-tx:hover {
-    transform: scale(1.08);
-  }
-  
-  .btn-edit-tx svg {
-    width: clamp(30px, 5vh, 34px);
-    height: clamp(30px, 5vh, 34px);
-  }
 </style>
 </head>
 <body>
@@ -1822,14 +1592,13 @@
   </aside>
 
   <main id="main">
-    <!-- HOME PAGE -->
     <div id="page-home" class="page active">
       <div class="home-header">
         <h1>Dashboard</h1>
-        <button id="btn-pdf-home" class="btn-pdf"><i class="ti ti-file-type-pdf"></i> PDF</button>
+        <button id="btn-pdf-home" class="btn-pdf" type="button"><i class="ti ti-file-type-pdf"></i> PDF</button>
       </div>
       
-      <div class="home-date-filter" aria-label="Filtro periodo" style="margin-bottom: clamp(1rem, 2vw, 1.5rem);">
+      <div class="home-date-filter" style="margin-bottom: clamp(1rem, 2vw, 1.5rem);">
         <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
           <div class="home-date-field">
             <label for="filter-month">Mese</label>
@@ -1931,11 +1700,10 @@
       <p id="save-status">I dati sono sincronizzati con il tuo account.</p>
     </div>
 
-    <!-- STATISTICHE PAGE -->
     <div id="page-grafici" class="page">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:12px;">
         <h1 style="margin:0;">Statistiche</h1>
-        <button id="btn-pdf-stats" class="btn-pdf"><i class="ti ti-file-type-pdf"></i> PDF</button>
+        <button id="btn-pdf-stats" class="btn-pdf" type="button"><i class="ti ti-file-type-pdf"></i> PDF</button>
       </div>
       
       <div class="stats-tabs">
@@ -2065,7 +1833,6 @@
       </div>
     </div>
 
-    <!-- IMPORT PAGE -->
     <div id="page-import" class="page">
       <h1>Importa da Excel</h1>
       <div class="panel">
@@ -2129,7 +1896,6 @@
       </div>
     </div>
 
-    <!-- PROMEMORIA PAGE -->
     <div id="page-promemoria" class="page">
       <h1>Promemoria</h1>
       <div class="panel">
@@ -2146,7 +1912,6 @@
       <div id="reminders-list"></div>
     </div>
 
-    <!-- PROFILO PAGE -->
     <div id="page-profilo" class="page">
       <h1>Profilo</h1>
       <div class="panel">
@@ -2189,7 +1954,6 @@
       </div>
     </div>
 
-    <!-- CATEGORIE PAGE -->
     <div id="page-categorie" class="page">
       <h1>Categorie</h1>
       <div class="panel">
@@ -2212,7 +1976,6 @@
   </main>
 </div>
 
-<!-- MODAL DETTAGLIO -->
 <div id="detail-overlay">
   <div id="detail-box">
     <h3 id="detail-title">Dettaglio</h3>
@@ -2225,7 +1988,7 @@
       <input type="file" id="attachment-input" class="attachment-hidden-input" accept="image/*,.pdf,.doc,.docx">
       <div id="attachment-content"></div>
       <div id="attachment-upload-area">
-        <button id="btn-add-attachment" class="btn-attachment"><i class="ti ti-paperclip"></i> Aggiungi allegato</button>
+        <button id="btn-add-attachment" class="btn-attachment" type="button"><i class="ti ti-paperclip"></i> Aggiungi allegato</button>
       </div>
       <div id="attachment-progress" class="upload-progress hidden">
         <div class="progress-bar"><div class="progress-bar-fill" id="progress-fill" style="width: 0%"></div></div>
@@ -2240,7 +2003,6 @@
   </div>
 </div>
 
-<!-- MODAL MODIFICA -->
 <div id="modal-overlay">
   <div id="modal-box">
     <h3>Modifica movimento</h3>
@@ -2256,7 +2018,6 @@
   </div>
 </div>
 
-<!-- MODAL MODIFICA CATEGORIA -->
 <div id="cat-edit-modal">
   <div style="background:var(--surface); border-radius:var(--radius-lg); padding:clamp(1.5rem, 3vw, 2rem); width:min(95%, 440px); box-shadow:var(--shadow-xl);">
     <h3 style="margin:0 0 1.5rem; font-size:clamp(18px, 4vw, 22px); font-weight:800; letter-spacing:-0.5px;">Modifica categoria</h3>
@@ -2518,12 +2279,7 @@
       document.getElementById('table-category-body').innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 20px; color: var(--text-muted);">Nessuna spesa in questo mese</td></tr>';
       return; 
     }
-    const canvas = document.getElementById('categoryChart');
-    const container = canvas.parentElement;
-    const size = Math.min(container.offsetWidth, container.offsetHeight);
-    canvas.style.width = size + 'px';
-    canvas.style.height = size + 'px';
-    chartCategory = new Chart(canvas, { 
+    chartCategory = new Chart(document.getElementById('categoryChart'), { 
       type: 'pie', 
       data: { labels: cats, datasets: [{ data, backgroundColor: colors, borderWidth: 3, borderColor: '#fff' }] }, 
       options: { 
@@ -3674,8 +3430,11 @@
     }
   }
 
-  document.getElementById('btn-pdf-home').addEventListener('click', generateHomePDF);
-  document.getElementById('btn-pdf-stats').addEventListener('click', generateStatsPDF);
+  // INIZIALIZZAZIONE FINALE PULSANTI PDF
+  const btnPdfHome = document.getElementById('btn-pdf-home');
+  const btnPdfStats = document.getElementById('btn-pdf-stats');
+  if (btnPdfHome) btnPdfHome.addEventListener('click', generateHomePDF);
+  if (btnPdfStats) btnPdfStats.addEventListener('click', generateStatsPDF);
 
 })();
 </script>
