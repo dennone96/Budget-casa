@@ -220,6 +220,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    color: var(--text-primary);
   }
   
   #sidebar-logo .logo-icon {
@@ -315,7 +316,7 @@
     left: clamp(8px, 2vw, 16px); 
     z-index: 200; 
     background: var(--surface); 
-    border: 1px solid var(--border); 
+    border: 1.5px solid var(--border); 
     border-radius: var(--radius-sm); 
     width: clamp(40px, 8vw, 44px); 
     height: clamp(40px, 8vw, 44px); 
@@ -328,9 +329,10 @@
     min-height: 44px;
   }
   
-  #hamburger i {
-    font-size: clamp(20px, 4vw, 22px);
-    color: var(--text-primary);
+  #hamburger svg {
+    width: clamp(20px, 4vw, 24px);
+    height: clamp(20px, 4vw, 24px);
+    stroke: var(--text-primary);
   }
   
   #sidebar-overlay { 
@@ -359,7 +361,7 @@
     }
     
     #sidebar { 
-      transform: translateX(calc(-1 * var(--sidebar-w))); 
+      transform: translateX(-100%);
       width: min(85vw, 320px);
     }
     
@@ -522,6 +524,133 @@
     .btn-delete, .btn-edit-tx {
       min-width: 44px;
       min-height: 44px;
+    }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .stat-card p:first-child {
+      color: #8A9BAC !important;
+    }
+    
+    .stat-card p:last-child {
+      color: #F0F4F8 !important;
+    }
+    
+    .stat-card.income p:last-child {
+      color: #5CB85C !important;
+    }
+    
+    .stat-card.expense p:last-child {
+      color: #E74C3C !important;
+    }
+    
+    .stat-card.balance p:last-child {
+      color: #F0F4F8 !important;
+    }
+    
+    .stat-card.residuo p:last-child {
+      color: #9B59B6 !important;
+    }
+    
+    .stat-card {
+      background: #1A2B3C !important;
+      border-color: #2E4053 !important;
+    }
+    
+    input, select, textarea {
+      background: #243447 !important;
+      border-color: #2E4053 !important;
+      color: #F0F4F8 !important;
+    }
+    
+    .panel {
+      background: #1A2B3C !important;
+      border-color: #2E4053 !important;
+    }
+    
+    .tx-row {
+      background: #1A2B3C !important;
+      border-color: #2E4053 !important;
+    }
+    
+    .tx-desc-text {
+      color: #F0F4F8 !important;
+    }
+    
+    #sidebar {
+      background: #1A2B3C !important;
+      border-color: #2E4053 !important;
+    }
+    
+    #hamburger {
+      background: #1A2B3C !important;
+      border-color: #2E4053 !important;
+    }
+    
+    #hamburger svg {
+      stroke: #F0F4F8 !important;
+    }
+    
+    .nav-item {
+      color: #8A9BAC !important;
+    }
+    
+    .nav-item:hover {
+      color: #F0F4F8 !important;
+    }
+    
+    .nav-item.active {
+      color: #4A90D9 !important;
+      background: #1A2B3C !important;
+    }
+    
+    #sidebar-logo {
+      color: #F0F4F8 !important;
+    }
+    
+    #sidebar-user-email {
+      color: #8A9BAC !important;
+    }
+    
+    #btn-logout {
+      color: #8A9BAC !important;
+    }
+    
+    #btn-logout:hover {
+      color: #E74C3C !important;
+    }
+    
+    .reminder-row {
+      background: #1A2B3C !important;
+      border-color: #2E4053 !important;
+    }
+    
+    .reminder-left p:first-child {
+      color: #F0F4F8 !important;
+    }
+    
+    .cat-item span {
+      color: #F0F4F8 !important;
+    }
+    
+    .empty-msg {
+      color: #8A9BAC !important;
+    }
+    
+    #save-status {
+      color: #8A9BAC !important;
+    }
+    
+    .ios-label {
+      color: #F0F4F8 !important;
+    }
+    
+    .data-table td {
+      color: #F0F4F8 !important;
+    }
+    
+    .data-table tr:hover td {
+      background: #243447 !important;
     }
   }
 
@@ -1636,7 +1765,11 @@
 
 <div id="shell" class="hidden">
   <button id="hamburger" aria-label="Apri menu">
-    <i class="ti ti-menu-2"></i>
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="4" y1="6" x2="20" y2="6"></line>
+      <line x1="4" y1="12" x2="20" y2="12"></line>
+      <line x1="4" y1="18" x2="20" y2="18"></line>
+    </svg>
   </button>
   <div id="sidebar-overlay"></div>
   <aside id="sidebar" aria-label="Menu principale">
@@ -3512,4 +3645,4 @@
 })();
 </script>
 </body>
-  </html>
+</html>
