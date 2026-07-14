@@ -420,23 +420,21 @@
     .ios-input, .ios-select { font-size: clamp(11px, 2.5vw, 12px); width: 100%; }
     .ios-input-field { font-size: clamp(11px, 2.5vw, 12px) !important; height: clamp(28px, 6vh, 30px) !important; min-height: 30px; }
     
-    #search-input { height: clamp(32px, 6vh, 36px); font-size: clamp(11px, 2vw, 12px); }
     .source-filter button { height: clamp(24px, 5vh, 26px); font-size: clamp(10px, 2vw, 11px); padding: 0 clamp(8px, 2vw, 10px); min-height: 26px; }
     
-    .tx-header { grid-template-columns: 50px 1fr 70px 0 60px; font-size: clamp(9px, 2vw, 10px); padding: 4px 6px; }
-    .tx-row    { grid-template-columns: 50px 1fr 70px 0 60px; padding: 6px; margin-bottom: 4px; gap: 4px; }
-    .tx-col-type { display: none; }
+    .tx-header { grid-template-columns: 50px 1fr 70px 50px; font-size: clamp(9px, 2vw, 10px); padding: 4px 6px; }
+    .tx-row    { grid-template-columns: 50px 1fr 70px 50px; padding: 6px; margin-bottom: 4px; gap: 4px; }
     .tx-col-date { font-size: clamp(10px, 2vw, 11px); }
     .tx-desc-text { font-size: clamp(11px, 2.5vw, 12px); }
     .tx-col-amount { font-size: clamp(11px, 2.5vw, 12px); }
-    .btn-delete, .btn-edit-tx { height: clamp(26px, 5vh, 28px); width: clamp(26px, 5vh, 28px); border-radius: 7px; min-width: 28px; min-height: 28px; }
-    .btn-delete svg, .btn-edit-tx svg { width: clamp(26px, 5vh, 28px); height: clamp(26px, 5vh, 28px); }
+    .btn-delete { height: clamp(26px, 5vh, 28px); width: clamp(26px, 5vh, 28px); border-radius: 7px; min-width: 28px; min-height: 28px; }
+    .btn-delete svg { width: clamp(26px, 5vh, 28px); height: clamp(26px, 5vh, 28px); }
     
     #modal-box, #detail-box { padding: clamp(1rem, 3vw, 1.25rem); width: min(95%, 440px); }
     #modal-box h3, #detail-box h3 { font-size: clamp(14px, 3vw, 15px); }
     .modal-actions button, .detail-actions button { height: clamp(36px, 7vh, 40px); font-size: clamp(12px, 2.5vw, 13px); min-height: 40px; }
     
-    .chart-wrap { height: clamp(180px, 40vh, 200px); }
+    .chart-wrap { height: clamp(200px, 45vh, 250px); }
     .legend { font-size: clamp(10px, 2vw, 11px); gap: 6px; }
     
     .reminder-form { grid-template-columns: 1fr; }
@@ -465,7 +463,7 @@
     }
     
     .tx-row, .tx-header {
-      grid-template-columns: 45px 1fr 65px 0 55px;
+      grid-template-columns: 45px 1fr 60px 45px;
       gap: 3px;
     }
     
@@ -521,7 +519,7 @@
       font-size: 16px !important;
     }
     
-    .btn-delete, .btn-edit-tx {
+    .btn-delete {
       min-width: 44px;
       min-height: 44px;
     }
@@ -664,7 +662,7 @@
 
   .home-header { 
     display: flex; 
-    align-items: flex-start; 
+    align-items: center; 
     justify-content: space-between; 
     gap: clamp(12px, 2vw, 16px); 
     margin-bottom: clamp(1.5rem, 3vw, 2rem); 
@@ -917,21 +915,24 @@
   .chart-wrap { 
     position: relative; 
     width: 100%; 
-    height: clamp(220px, 40vh, 320px);
-    max-height: 400px;
+    height: clamp(280px, 50vh, 380px);
+    max-height: 450px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
-
-  #categoryChart, #yearChart, #residuoChart, #compareChart {
+  
+  .chart-wrap canvas {
     max-width: 100% !important;
-    height: auto !important;
+    max-height: 100% !important;
   }
 
   .tx-row { 
     display: grid; 
-    grid-template-columns: clamp(70px, 10vw, 100px) 1fr clamp(90px, 15vw, 120px) clamp(0px, 10vw, 100px) clamp(70px, 10vw, 90px); 
+    grid-template-columns: clamp(70px, 10vw, 100px) 1fr clamp(90px, 15vw, 120px) clamp(40px, 8vw, 50px); 
     align-items: center; 
     gap: clamp(6px, 1vw, 12px); 
-    padding: clamp(10px, 2vw, 16px) clamp(12px, 2vw, 20px); 
+    padding: clamp(8px, 1.5vw, 12px) clamp(12px, 2vw, 20px); 
     background: var(--surface); 
     border-radius: var(--radius); 
     margin-bottom: clamp(6px, 1vw, 10px); 
@@ -948,17 +949,17 @@
   }
   
   .tx-col-date { 
-    font-size: clamp(11px, 2vw, 13px); 
+    font-size: clamp(10px, 1.8vw, 12px); 
     color: var(--text-secondary); 
     flex-shrink: 0;
-    font-weight: 700;
+    font-weight: 600;
   }
   
   .tx-col-desc { min-width: 0; cursor: pointer; }
   
   .tx-desc-text { 
-    font-size: clamp(13px, 2.5vw, 15px); 
-    font-weight: 700; 
+    font-size: clamp(12px, 2vw, 14px); 
+    font-weight: 600; 
     overflow: hidden; 
     text-overflow: ellipsis; 
     white-space: nowrap; 
@@ -967,19 +968,18 @@
   }
   
   .tx-col-amount { 
-    font-size: clamp(14px, 2.5vw, 16px); 
-    font-weight: 800; 
+    font-size: clamp(12px, 2vw, 14px); 
+    font-weight: 700; 
     text-align: right; 
     white-space: nowrap;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.3px;
   }
   
-  .tx-col-type { display: flex; align-items: center; justify-content: center; }
-  .tx-col-actions { display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
+  .tx-col-actions { display: flex; align-items: center; justify-content: center; }
 
   .tx-header { 
     display: grid; 
-    grid-template-columns: clamp(70px, 10vw, 100px) 1fr clamp(90px, 15vw, 120px) clamp(0px, 10vw, 100px) clamp(70px, 10vw, 90px); 
+    grid-template-columns: clamp(70px, 10vw, 100px) 1fr clamp(90px, 15vw, 120px) clamp(40px, 8vw, 50px); 
     gap: clamp(6px, 1vw, 12px); 
     padding: 8px clamp(12px, 2vw, 20px); 
     font-size: clamp(10px, 1.5vw, 11px); 
@@ -1065,29 +1065,29 @@
     min-height: 40px;
   }
 
-  .btn-delete, .btn-edit-tx {
+  .btn-delete {
     border: none;
     background: none;
     padding: 0;
-    height: clamp(36px, 6vh, 40px);
-    width: clamp(36px, 6vh, 40px);
+    height: clamp(32px, 5vh, 36px);
+    width: clamp(32px, 5vh, 36px);
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     border-radius: var(--radius-sm);
     transition: all 0.2s;
-    min-width: 36px;
-    min-height: 36px;
+    min-width: 32px;
+    min-height: 32px;
   }
   
-  .btn-delete:hover, .btn-edit-tx:hover {
+  .btn-delete:hover {
     transform: scale(1.08);
   }
   
-  .btn-delete svg, .btn-edit-tx svg {
-    width: clamp(36px, 6vh, 40px);
-    height: clamp(36px, 6vh, 40px);
+  .btn-delete svg {
+    width: clamp(30px, 5vh, 34px);
+    height: clamp(30px, 5vh, 34px);
   }
 
   #modal-overlay { 
@@ -1286,7 +1286,6 @@
     min-height: clamp(48px, 8vh, 54px); 
     border-bottom: 1px solid var(--border); 
     gap: clamp(8px, 1.5vw, 12px); 
-    flex-wrap: wrap;
   }
   
   .ios-label { 
@@ -1295,6 +1294,7 @@
     color: var(--text-primary); 
     flex-shrink: 0; 
     min-width: clamp(70px, 15vw, 100px); 
+    text-align: left;
   }
   
   .ios-input { 
@@ -1309,6 +1309,7 @@
     outline: none !important; 
     font-weight: 700;
     font-family: inherit;
+    text-align: left;
   }
   
   .ios-input-field { 
@@ -1323,6 +1324,8 @@
     transition: all 0.2s;
     font-family: inherit;
     min-height: 40px;
+    width: 100%;
+    text-align: left;
   }
   
   .ios-input-field:focus {
@@ -1339,11 +1342,12 @@
     color: var(--text-primary); 
     padding: 0 !important; 
     height: auto !important; 
-    text-align: right; 
     cursor: pointer; 
     outline: none !important; 
     font-weight: 700;
     font-family: inherit;
+    text-align: left;
+    width: 100%;
   }
 
   .import-error-text { color: var(--danger); font-size: clamp(12px, 2vw, 13px); font-weight: 700; }
@@ -1476,6 +1480,7 @@
     transition: all 0.2s;
     font-family: inherit;
     min-height: 40px;
+    flex-shrink: 0;
   }
   
   .btn-pdf:hover {
@@ -1744,6 +1749,31 @@
     justify-content: center;
     padding: 1rem;
   }
+
+  .btn-edit-tx {
+    border: none;
+    background: none;
+    padding: 0;
+    height: clamp(32px, 5vh, 36px);
+    width: clamp(32px, 5vh, 36px);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    transition: all 0.2s;
+    min-width: 32px;
+    min-height: 32px;
+  }
+  
+  .btn-edit-tx:hover {
+    transform: scale(1.08);
+  }
+  
+  .btn-edit-tx svg {
+    width: clamp(30px, 5vh, 34px);
+    height: clamp(30px, 5vh, 34px);
+  }
 </style>
 </head>
 <body>
@@ -1792,40 +1822,42 @@
   </aside>
 
   <main id="main">
+    <!-- HOME PAGE -->
     <div id="page-home" class="page active">
       <div class="home-header">
         <h1>Dashboard</h1>
-        <div class="home-date-filter" aria-label="Filtro periodo">
-          <button id="btn-pdf-home" class="btn-pdf"><i class="ti ti-file-type-pdf"></i> PDF</button>
-          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-            <div class="home-date-field">
-              <label for="filter-month">Mese</label>
-              <select id="filter-month"></select>
-            </div>
-            <div class="home-date-field">
-              <label for="filter-year">Anno</label>
-              <select id="filter-year"></select>
-            </div>
-            <button id="btn-apply-range" type="button">Filtra</button>
+        <button id="btn-pdf-home" class="btn-pdf"><i class="ti ti-file-type-pdf"></i> PDF</button>
+      </div>
+      
+      <div class="home-date-filter" aria-label="Filtro periodo" style="margin-bottom: clamp(1rem, 2vw, 1.5rem);">
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+          <div class="home-date-field">
+            <label for="filter-month">Mese</label>
+            <select id="filter-month"></select>
           </div>
-          <div style="margin-top:8px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-            <label class="filter-custom-toggle" for="filter-custom-toggle" style="margin:0;">
-              <input type="checkbox" id="filter-custom-toggle">
-              Date personalizzate
-            </label>
-            <div id="custom-range" class="custom-date-range hidden">
-              <div class="home-date-field">
-                <label for="filter-from">Dal</label>
-                <input type="date" id="filter-from">
-              </div>
-              <div class="home-date-field">
-                <label for="filter-to">Al</label>
-                <input type="date" id="filter-to">
-              </div>
-            </div>
+          <div class="home-date-field">
+            <label for="filter-year">Anno</label>
+            <select id="filter-year"></select>
           </div>
-          <p id="filter-label"></p>
+          <button id="btn-apply-range" type="button">Filtra</button>
         </div>
+        <div style="margin-top:8px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+          <label class="filter-custom-toggle" for="filter-custom-toggle" style="margin:0;">
+            <input type="checkbox" id="filter-custom-toggle">
+            Date personalizzate
+          </label>
+          <div id="custom-range" class="custom-date-range hidden">
+            <div class="home-date-field">
+              <label for="filter-from">Dal</label>
+              <input type="date" id="filter-from">
+            </div>
+            <div class="home-date-field">
+              <label for="filter-to">Al</label>
+              <input type="date" id="filter-to">
+            </div>
+          </div>
+        </div>
+        <p id="filter-label"></p>
       </div>
 
       <div class="stats-row">
@@ -1860,19 +1892,19 @@
         </div>
         <div class="ios-row">
           <span class="ios-label">Descrizione</span>
-          <input type="text" id="inp-desc" placeholder="es. Spesa Esselunga" class="ios-input ios-input-field">
+          <input type="text" id="inp-desc" placeholder="es. Spesa Esselunga" class="ios-input-field" style="width:100%;">
         </div>
         <div class="ios-row">
           <span class="ios-label">Importo €</span>
-          <input type="number" id="inp-amount" placeholder="0,00" min="0" step="0.01" class="ios-input ios-input-field" style="text-align:right;">
+          <input type="number" id="inp-amount" placeholder="0,00" min="0" step="0.01" class="ios-input-field" style="width:100%; text-align:left;">
         </div>
         <div class="ios-row">
           <span class="ios-label">Categoria</span>
-          <select id="inp-category" class="ios-select ios-input-field"></select>
+          <select id="inp-category" class="ios-input-field" style="width:100%;"></select>
         </div>
         <div class="ios-row" style="border-bottom:none;">
           <span class="ios-label">Data</span>
-          <input type="date" id="inp-date" class="ios-input ios-input-field" style="text-align:right;">
+          <input type="date" id="inp-date" class="ios-input-field" style="width:100%;">
         </div>
         <div style="padding: clamp(14px, 3vw, 18px) clamp(18px, 3vw, 22px);">
           <button id="btn-add" style="width:100%; height:clamp(44px, 8vh, 50px); background:var(--accent-gradient); color:#fff; border:none; border-radius:var(--radius-sm); font-size:clamp(14px, 2.5vw, 15px); font-weight:700; cursor:pointer; box-shadow:var(--shadow); min-height:44px;">
@@ -1893,13 +1925,13 @@
         <span>Data</span>
         <span>Movimento</span>
         <span style="text-align:right;">Importo</span>
-        <span style="text-align:center;">Tipo</span>
         <span></span>
       </div>
       <div id="transactions-list"></div>
       <p id="save-status">I dati sono sincronizzati con il tuo account.</p>
     </div>
 
+    <!-- STATISTICHE PAGE -->
     <div id="page-grafici" class="page">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:12px;">
         <h1 style="margin:0;">Statistiche</h1>
@@ -1918,7 +1950,7 @@
           <h2>Spese per categoria</h2>
           <select id="chart-month"></select>
         </div>
-        <div class="panel">
+        <div class="panel" style="padding: clamp(1rem, 2vw, 1.5rem);">
           <div class="legend" id="legend-categories"></div>
           <div class="chart-wrap">
             <canvas id="categoryChart"></canvas>
@@ -1946,7 +1978,7 @@
           <h2>Entrate vs Uscite</h2>
           <select id="chart-year"></select>
         </div>
-        <div class="panel">
+        <div class="panel" style="padding: clamp(1rem, 2vw, 1.5rem);">
           <div class="chart-wrap">
             <canvas id="yearChart"></canvas>
           </div>
@@ -1974,7 +2006,7 @@
           <h2>Residuo mensile</h2>
           <select id="chart-residuo-year"></select>
         </div>
-        <div class="panel">
+        <div class="panel" style="padding: clamp(1rem, 2vw, 1.5rem);">
           <p style="font-size:clamp(12px, 2vw, 13px); color:var(--text-secondary); margin:0 0 12px; font-weight:600;">Andamento del residuo in cassa mese per mese.</p>
           <div class="chart-wrap">
             <canvas id="residuoChart"></canvas>
@@ -2008,7 +2040,7 @@
             <select id="compare-month-2"></select>
           </div>
         </div>
-        <div class="panel">
+        <div class="panel" style="padding: clamp(1rem, 2vw, 1.5rem);">
           <p style="font-size:clamp(12px, 2vw, 13px); color:var(--text-secondary); margin:0 0 12px; font-weight:600;">Confronto entrate e uscite tra due mesi.</p>
           <div class="chart-wrap">
             <canvas id="compareChart"></canvas>
@@ -2033,6 +2065,7 @@
       </div>
     </div>
 
+    <!-- IMPORT PAGE -->
     <div id="page-import" class="page">
       <h1>Importa da Excel</h1>
       <div class="panel">
@@ -2096,6 +2129,7 @@
       </div>
     </div>
 
+    <!-- PROMEMORIA PAGE -->
     <div id="page-promemoria" class="page">
       <h1>Promemoria</h1>
       <div class="panel">
@@ -2112,6 +2146,7 @@
       <div id="reminders-list"></div>
     </div>
 
+    <!-- PROFILO PAGE -->
     <div id="page-profilo" class="page">
       <h1>Profilo</h1>
       <div class="panel">
@@ -2154,6 +2189,7 @@
       </div>
     </div>
 
+    <!-- CATEGORIE PAGE -->
     <div id="page-categorie" class="page">
       <h1>Categorie</h1>
       <div class="panel">
@@ -2176,6 +2212,7 @@
   </main>
 </div>
 
+<!-- MODAL DETTAGLIO -->
 <div id="detail-overlay">
   <div id="detail-box">
     <h3 id="detail-title">Dettaglio</h3>
@@ -2203,6 +2240,7 @@
   </div>
 </div>
 
+<!-- MODAL MODIFICA -->
 <div id="modal-overlay">
   <div id="modal-box">
     <h3>Modifica movimento</h3>
@@ -2218,6 +2256,7 @@
   </div>
 </div>
 
+<!-- MODAL MODIFICA CATEGORIA -->
 <div id="cat-edit-modal">
   <div style="background:var(--surface); border-radius:var(--radius-lg); padding:clamp(1.5rem, 3vw, 2rem); width:min(95%, 440px); box-shadow:var(--shadow-xl);">
     <h3 style="margin:0 0 1.5rem; font-size:clamp(18px, 4vw, 22px); font-weight:800; letter-spacing:-0.5px;">Modifica categoria</h3>
@@ -2479,18 +2518,22 @@
       document.getElementById('table-category-body').innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 20px; color: var(--text-muted);">Nessuna spesa in questo mese</td></tr>';
       return; 
     }
-    chartCategory = new Chart(document.getElementById('categoryChart'), { 
+    const canvas = document.getElementById('categoryChart');
+    const container = canvas.parentElement;
+    const size = Math.min(container.offsetWidth, container.offsetHeight);
+    canvas.style.width = size + 'px';
+    canvas.style.height = size + 'px';
+    chartCategory = new Chart(canvas, { 
       type: 'pie', 
-      data: { labels: cats, datasets: [{ data, backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }] }, 
+      data: { labels: cats, datasets: [{ data, backgroundColor: colors, borderWidth: 3, borderColor: '#fff' }] }, 
       options: { 
         responsive: true, 
         maintainAspectRatio: true,
-        aspectRatio: 2,
         plugins: { 
           legend: { display: false }, 
           tooltip: { 
             backgroundColor: '#1A2B3C',
-            titleFont: { family: 'Plus Jakarta Sans', size: 13, weight: '800' },
+            titleFont: { family: 'Plus Jakarta Sans', size: 14, weight: '800' },
             bodyFont: { family: 'Plus Jakarta Sans', size: 13 },
             padding: 14,
             cornerRadius: 12,
@@ -2527,18 +2570,17 @@
       data: { 
         labels, 
         datasets: [
-          { label: 'Entrate', data: incomes, backgroundColor: '#5CB85C', borderRadius: 10, barPercentage: 0.6 }, 
-          { label: 'Uscite', data: expenses, backgroundColor: '#E74C3C', borderRadius: 10, barPercentage: 0.6 }
+          { label: 'Entrate', data: incomes, backgroundColor: '#5CB85C', borderRadius: 8, barPercentage: 0.7, categoryPercentage: 0.8 }, 
+          { label: 'Uscite', data: expenses, backgroundColor: '#E74C3C', borderRadius: 8, barPercentage: 0.7, categoryPercentage: 0.8 }
         ] 
       }, 
       options: { 
         responsive: true, 
-        maintainAspectRatio: true,
-        aspectRatio: 2.5,
+        maintainAspectRatio: false,
         plugins: { 
           legend: { 
             position: 'top',
-            labels: { font: { family: 'Plus Jakarta Sans', size: 12, weight: '700' }, usePointStyle: true, pointStyle: 'circle', padding: 20 }
+            labels: { font: { family: 'Plus Jakarta Sans', size: 13, weight: '700' }, usePointStyle: true, pointStyle: 'circle', padding: 20 }
           },
           tooltip: { 
             backgroundColor: '#1A2B3C',
@@ -2552,11 +2594,11 @@
         scales: { 
           y: { 
             beginAtZero: true, 
-            ticks: { callback: v => fmtEUR(v), font: { family: 'Plus Jakarta Sans', size: 11 } },
+            ticks: { callback: v => fmtEUR(v), font: { family: 'Plus Jakarta Sans', size: 12 } },
             grid: { color: 'rgba(0,0,0,0.04)' }
           },
           x: {
-            ticks: { font: { family: 'Plus Jakarta Sans', size: 11, weight: '700' } },
+            ticks: { font: { family: 'Plus Jakarta Sans', size: 12, weight: '700' } },
             grid: { display: false }
           }
         } 
@@ -2599,8 +2641,8 @@
           pointBackgroundColor: colors, 
           pointBorderColor: '#fff',
           pointBorderWidth: 3,
-          pointRadius: 6, 
-          pointHoverRadius: 8,
+          pointRadius: 5, 
+          pointHoverRadius: 7,
           tension: 0.4, 
           fill: true,
           borderWidth: 3
@@ -2608,8 +2650,7 @@
       }, 
       options: { 
         responsive: true, 
-        maintainAspectRatio: true,
-        aspectRatio: 2.5,
+        maintainAspectRatio: false,
         plugins: { 
           legend: { display: false }, 
           tooltip: { 
@@ -2623,11 +2664,11 @@
         }, 
         scales: { 
           y: { 
-            ticks: { callback: v => fmtEUR(v), font: { family: 'Plus Jakarta Sans', size: 11 } },
+            ticks: { callback: v => fmtEUR(v), font: { family: 'Plus Jakarta Sans', size: 12 } },
             grid: { color: 'rgba(0,0,0,0.04)' }
           },
           x: {
-            ticks: { font: { family: 'Plus Jakarta Sans', size: 11, weight: '700' } },
+            ticks: { font: { family: 'Plus Jakarta Sans', size: 12, weight: '700' } },
             grid: { display: false }
           }
         } 
@@ -2684,18 +2725,17 @@
       data: { 
         labels: ['Entrate', 'Uscite'], 
         datasets: [
-          { label: monthLabel(m1), data: [d1.inc, d1.exp], backgroundColor: '#4A90D9', borderRadius: 10, barPercentage: 0.5 }, 
-          { label: monthLabel(m2), data: [d2.inc, d2.exp], backgroundColor: '#9B59B6', borderRadius: 10, barPercentage: 0.5 }
+          { label: monthLabel(m1), data: [d1.inc, d1.exp], backgroundColor: '#4A90D9', borderRadius: 8, barPercentage: 0.7, categoryPercentage: 0.8 }, 
+          { label: monthLabel(m2), data: [d2.inc, d2.exp], backgroundColor: '#9B59B6', borderRadius: 8, barPercentage: 0.7, categoryPercentage: 0.8 }
         ] 
       }, 
       options: { 
         responsive: true, 
-        maintainAspectRatio: true,
-        aspectRatio: 2,
+        maintainAspectRatio: false,
         plugins: { 
           legend: { 
             position: 'top',
-            labels: { font: { family: 'Plus Jakarta Sans', size: 12, weight: '700' }, usePointStyle: true, pointStyle: 'circle', padding: 20 }
+            labels: { font: { family: 'Plus Jakarta Sans', size: 13, weight: '700' }, usePointStyle: true, pointStyle: 'circle', padding: 20 }
           },
           tooltip: { 
             backgroundColor: '#1A2B3C',
@@ -2709,11 +2749,11 @@
         scales: { 
           y: { 
             beginAtZero: true,
-            ticks: { callback: v => fmtEUR(v), font: { family: 'Plus Jakarta Sans', size: 11 } },
+            ticks: { callback: v => fmtEUR(v), font: { family: 'Plus Jakarta Sans', size: 12 } },
             grid: { color: 'rgba(0,0,0,0.04)' }
           },
           x: {
-            ticks: { font: { family: 'Plus Jakarta Sans', size: 12, weight: '800' } },
+            ticks: { font: { family: 'Plus Jakarta Sans', size: 13, weight: '800' } },
             grid: { display: false }
           }
         } 
@@ -2849,22 +2889,17 @@
     mt.forEach(t => {
       const row = document.createElement('div'); row.className = 'tx-row';
       const isIncome = t.type === 'income';
-      const src = t.source || 'cash';
-      const badgeLabel = src === 'bank' ? '🏦 C/C' : '💵 Cash';
-      const badgeCls = src === 'bank' ? 'badge-bank' : 'badge-cash';
       const dateLabel = new Date(t.date).toLocaleDateString('it-IT', { day:'2-digit', month:'2-digit', year:'2-digit' });
       const amountColor = isIncome ? 'var(--success)' : 'var(--danger)';
       const amountSign = isIncome ? '+' : '-';
       const hasAttachment = t.attachment ? ' 📎' : '';
-      row.innerHTML = `<div class="tx-col-date">${dateLabel}</div><div class="tx-col-desc" data-id="${t.id}" title="Dettagli" role="button" tabindex="0"><span class="tx-desc-text">${escapeHtml(t.description || t.category)}${hasAttachment}</span><span style="font-size:clamp(11px, 2vw, 12px); color:var(--text-muted); font-weight:700;">${escapeHtml(t.category)}</span></div><div class="tx-col-amount" style="color:${amountColor};">${amountSign}${fmtEUR(amountValue(t.amount))}</div><div class="tx-col-type"><span class="badge-source ${badgeCls}">${badgeLabel}</span></div><div class="tx-col-actions">
-        <button data-id="${t.id}" class="btn-edit-tx" aria-label="Modifica"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 512 512"><defs><linearGradient id="buttonGradientEdit" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#2F80ED"/><stop offset="1" stop-color="#1558C0"/></linearGradient><filter id="softShadowEdit" x="44" y="44" width="424" height="424" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#0B2E63" flood-opacity="0.24"/></filter></defs><rect x="72" y="72" width="368" height="368" rx="92" fill="url(#buttonGradientEdit)" filter="url(#softShadowEdit)"/><path d="M338.7 130.8c12.6-12.6 33.1-12.6 45.7 0l17.8 17.8c12.6 12.6 12.6 33.1 0 45.7l-24.5 24.5-63.5-63.5 24.5-24.5Z" fill="#FFFFFF"/><path d="M287.7 181.8 151.8 317.7c-3.2 3.2-5.4 7.2-6.5 11.6l-17.5 69.9c-2.5 9.9 6.5 18.9 16.4 16.4l69.9-17.5c4.4-1.1 8.4-3.3 11.6-6.5l135.9-135.9-73.9-73.9Z" fill="#FFFFFF"/><path d="M287.7 181.8 361.6 255.7 338 279.3 264.1 205.4l23.6-23.6Z" fill="#DDEBFF"/><path d="M151.8 317.7c-3.2 3.2-5.4 7.2-6.5 11.6l-10.3 41 40.9 40.9 40.9-10.3c4.4-1.1 8.4-3.3 11.6-6.5l-76.6-76.7Z" fill="#EAF3FF"/><path d="M135 370.3 127.8 399.2c-2.5 9.9 6.5 18.9 16.4 16.4l28.9-7.2L135 370.3Z" fill="#102A43"/></svg></button>
-        <button data-id="${t.id}" class="btn-delete" aria-label="Elimina"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 512 512"><defs><linearGradient id="buttonGradient" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#F04438"/><stop offset="1" stop-color="#B42318"/></linearGradient><filter id="softShadow" x="44" y="44" width="424" height="424" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#65160F" flood-opacity="0.24"/></filter></defs><rect x="72" y="72" width="368" height="368" rx="92" fill="url(#buttonGradient)" filter="url(#softShadow)"/><path d="M202 154c0-17.7 14.3-32 32-32h44c17.7 0 32 14.3 32 32v14h52c11 0 20 9 20 20s-9 20-20 20H150c-11 0-20-9-20-20s9-20 20-20h52v-14Zm40 14h28v-6c0-3.3-2.7-6-6-6h-16c-3.3 0-6 2.7-6 6v6Z" fill="#FFFFFF"/><path d="M170 238c-1.1-13.8 9.8-25.6 23.6-25.6h124.8c13.8 0 24.7 11.8 23.6 25.6l-12.2 144.9c-1.5 17.5-16.1 31.1-33.7 31.1h-80.2c-17.6 0-32.2-13.6-33.7-31.1L170 238Z" fill="#FFFFFF"/><path d="M222 257c8.8 0 16 7.2 16 16v86c0 8.8-7.2 16-16 16s-16-7.2-16-16v-86c0-8.8 7.2-16 16-16Zm68 0c8.8 0 16 7.2 16 16v86c0 8.8-7.2 16-16 16s-16-7.2-16-16v-86c0-8.8 7.2-16 16-16Z" fill="#FBD5D1"/><path d="M179.4 260h153.2l-2.2 26H181.6l-2.2-26Z" fill="#FEE4E2"/></svg></button>
+      row.innerHTML = `<div class="tx-col-date">${dateLabel}</div><div class="tx-col-desc" data-id="${t.id}" title="Dettagli" role="button" tabindex="0"><span class="tx-desc-text">${escapeHtml(t.description || t.category)}${hasAttachment}</span><span style="font-size:clamp(10px, 1.5vw, 11px); color:var(--text-muted); font-weight:600;">${escapeHtml(t.category)}</span></div><div class="tx-col-amount" style="color:${amountColor};">${amountSign}${fmtEUR(amountValue(t.amount))}</div><div class="tx-col-actions">
+        <button data-id="${t.id}" class="btn-delete" aria-label="Elimina"><svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 512 512"><defs><linearGradient id="buttonGradient" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#F04438"/><stop offset="1" stop-color="#B42318"/></linearGradient><filter id="softShadow" x="44" y="44" width="424" height="424" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#65160F" flood-opacity="0.24"/></filter></defs><rect x="72" y="72" width="368" height="368" rx="92" fill="url(#buttonGradient)" filter="url(#softShadow)"/><path d="M202 154c0-17.7 14.3-32 32-32h44c17.7 0 32 14.3 32 32v14h52c11 0 20 9 20 20s-9 20-20 20H150c-11 0-20-9-20-20s9-20 20-20h52v-14Zm40 14h28v-6c0-3.3-2.7-6-6-6h-16c-3.3 0-6 2.7-6 6v6Z" fill="#FFFFFF"/><path d="M170 238c-1.1-13.8 9.8-25.6 23.6-25.6h124.8c13.8 0 24.7 11.8 23.6 25.6l-12.2 144.9c-1.5 17.5-16.1 31.1-33.7 31.1h-80.2c-17.6 0-32.2-13.6-33.7-31.1L170 238Z" fill="#FFFFFF"/></svg></button>
       </div>`;
       list.appendChild(row);
     });
     list.querySelectorAll('.tx-col-desc').forEach(el => el.addEventListener('click', () => openDetailModal(el.getAttribute('data-id'))));
     list.querySelectorAll('.btn-delete').forEach(btn => btn.addEventListener('click', async (e) => { e.stopPropagation(); if (!confirm('Eliminare questo movimento?')) return; state.transactions = state.transactions.filter(t => t.id !== btn.getAttribute('data-id')); renderAll(); await saveTransactions(); }));
-    list.querySelectorAll('.btn-edit-tx').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); openEditModal(btn.getAttribute('data-id')); }));
   }
 
   function openDetailModal(id) {
