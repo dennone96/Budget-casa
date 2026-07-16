@@ -292,9 +292,10 @@
 
   #main { 
     margin-left: var(--sidebar-w); 
-    flex: 1; 
-    padding: 2rem 2.5rem 3rem; 
+    flex: 1;
+    padding: 2rem;
     max-width: 1200px;
+    width: 100%;
   }
 
   @media (max-width: 900px) {
@@ -302,7 +303,12 @@
     #sidebar { transform: translateX(calc(-1 * var(--sidebar-w))); }
     #sidebar.open { transform: translateX(0); }
     #sidebar-overlay.open { display: block; }
-    #main { margin-left: 0; padding: 1.5rem 1rem 3rem; padding-top: 4.5rem; }
+    #main { 
+      margin-left: 0; 
+      padding: 1.5rem 1rem 3rem; 
+      padding-top: 4.5rem;
+      max-width: 100%;
+    }
     
     .stats-row {
       grid-template-columns: 1fr 1fr;
@@ -1453,10 +1459,8 @@
         </div>
       </div>
 
-      <div class="panel" style="padding:0; overflow:hidden;">
-        <div style="padding: 18px 22px; border-bottom: 1px solid var(--border);">
-          <h3 style="margin:0; font-size:18px; font-weight:800; letter-spacing:-0.3px;">Nuovo movimento</h3>
-        </div>
+      <div class="panel">
+        <h3 style="margin:0 0 1rem; font-size:18px; font-weight:800; letter-spacing:-0.3px;">Nuovo movimento</h3>
         <div class="ios-row">
           <span class="ios-label">Tipo</span>
           <div class="tabs" style="flex:1; margin:0; border:none; background:none; padding:4px 0;">
@@ -1480,7 +1484,7 @@
           <span class="ios-label">Data</span>
           <input type="date" id="inp-date" class="ios-input ios-input-field" style="text-align:right;">
         </div>
-        <div style="padding: 18px 22px;">
+        <div style="margin-top:1rem;">
           <button id="btn-add" style="width:100%; height:50px; background:var(--accent-gradient); color:#fff; border:none; border-radius:var(--radius-sm); font-size:15px; font-weight:700; cursor:pointer; box-shadow:var(--shadow);">
             Aggiungi movimento
           </button>
@@ -1636,7 +1640,7 @@
       <div class="panel">
         <div class="import-section-title">
           <div class="icon-circle" style="background:var(--info-light); color:var(--info);"><i class="ti ti-building-bank"></i></div>
-           Conto corrente
+          🏦 Conto corrente
         </div>
         <p style="font-size:14px; color:var(--text-secondary); margin-top:0; line-height:1.6; font-weight:600;">
           Movimenti bancari. Colonne: Mese, Anno, Data Contabile, Descrizione, Importo, Categoria.
@@ -2417,7 +2421,7 @@
     tr.className = 'total-row';
     diff = saldo2 - saldo1;
     tr.innerHTML = `
-      <td style="font-weight: 800;"> Saldo Finale</td>
+      <td style="font-weight: 800;">📊 Saldo Finale</td>
       <td class="text-right" style="font-weight: 700; color: ${saldo1 >= 0 ? 'var(--success)' : 'var(--danger)'}">${fmtEUR(saldo1)}</td>
       <td class="text-right" style="font-weight: 700; color: ${saldo2 >= 0 ? 'var(--success)' : 'var(--danger)'}">${fmtEUR(saldo2)}</td>
       <td class="text-right" style="font-weight: 800; color: ${diff >= 0 ? 'var(--success)' : 'var(--danger)'}">
@@ -2472,7 +2476,7 @@
     document.getElementById('detail-desc').textContent = t.description || t.category || '—';
     document.getElementById('detail-amount').innerHTML = `<span style="font-size:22px; font-weight:800; color:${isIncome?'var(--success)':'var(--danger)'}; letter-spacing:-0.5px;">${isIncome?'+':'-'}${fmtEUR(t.amount)}</span>`;
     document.getElementById('detail-category').textContent = t.category || '—';
-    const srcLabel = (t.source === 'bank') ? '🏦 Conto corrente' : '💵 Contanti';
+    const srcLabel = (t.source === 'bank') ? '🏦 Conto corrente' : ' Contanti';
     document.getElementById('detail-date').textContent = new Date(t.date).toLocaleDateString('it-IT', {weekday:'long', year:'numeric', month:'long', day:'numeric'}) + ' · ' + srcLabel;
     renderAttachment(t);
     document.getElementById('detail-overlay').classList.add('open');
@@ -2521,7 +2525,7 @@
     if (mimeType.includes('pdf')) return '📕';
     if (mimeType.includes('word') || mimeType.includes('document')) return '📘';
     if (mimeType.includes('sheet') || mimeType.includes('excel')) return '📗';
-    return '📄';
+    return '';
   }
   
   window.downloadAttachment = async function(txId) {
@@ -2853,7 +2857,53 @@
 
   function showLoading(show) { document.getElementById('pdf-loading').classList.toggle('show', show); }
 
-  // Funzioni PDF con layout moderno e schermate separate
+  function drawPDFTable(doc, headers, rows, margin, startY, colWidths, pageWidth) {
+    let y = startY;
+    const lineHeight = 7;
+    
+    doc.setFillColor(232, 240, 248);
+    doc.rect(margin, y, pageWidth - 2*margin, lineHeight, 'F');
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(90, 107, 124);
+    let colX = margin;
+    headers.forEach((h, i) => {
+      doc.text(h, colX + 2, y + 5);
+      colX += colWidths[i];
+    });
+    y += lineHeight + 2;
+    
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    rows.forEach((row, idx) => {
+      if (y > 270) { doc.addPage(); y = 20; }
+      if (row.isTotal) {
+        doc.setFillColor(232, 240, 248);
+        doc.rect(margin, y - 2, pageWidth - 2*margin, lineHeight, 'F');
+        doc.setFont('helvetica', 'bold');
+      } else if (row.isSection) {
+        doc.setFillColor(227, 240, 255);
+        doc.rect(margin, y - 2, pageWidth - 2*margin, lineHeight, 'F');
+        doc.setFont('helvetica', 'bold');
+      } else if (idx % 2 === 0) {
+        doc.setFillColor(250, 251, 252);
+        doc.rect(margin, y - 2, pageWidth - 2*margin, lineHeight, 'F');
+      }
+      
+      colX = margin;
+      row.cells.forEach((cell, i) => {
+        doc.setTextColor(cell.color ? cell.color[0] : 26, cell.color ? cell.color[1] : 43, cell.color ? cell.color[2] : 60);
+        doc.text(cell.text, colX + 2, y);
+        colX += colWidths[i];
+      });
+      
+      if (row.isTotal || row.isSection) doc.setFont('helvetica', 'normal');
+      y += lineHeight;
+    });
+    
+    return y + 5;
+  }
+
   async function generateHomePDF() {
     showLoading(true);
     try {
@@ -2863,7 +2913,6 @@
       const margin = 15;
       let y = 20;
       
-      // Header con gradiente
       doc.setFillColor(74, 144, 217);
       doc.rect(0, 0, pageWidth, 40, 'F');
       doc.setTextColor(255, 255, 255);
@@ -2965,7 +3014,6 @@
       const year = document.getElementById('chart-year')?.value || new Date().getFullYear().toString();
       const month = document.getElementById('chart-month')?.value || monthKey(todayISO());
       
-      // Header
       doc.setFillColor(74, 144, 217);
       doc.rect(0, 0, pageWidth, 40, 'F');
       doc.setTextColor(255, 255, 255);
@@ -2976,7 +3024,6 @@
       doc.setFont('helvetica', 'normal');
       doc.text(`Anno ${year}`, margin, 32);
       
-      // Sezione 1: Riepilogo annuale (pagina 1)
       y = 55;
       doc.setTextColor(26, 43, 60);
       doc.setFontSize(14);
@@ -2986,10 +3033,13 @@
       
       const cardWidth = (pageWidth - 2*margin - 12) / 4;
       const uniqueCats = new Set(state.transactions.filter(t => t.type === 'expense').map(t => t.category));
+      const totalIncome = state.transactions.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0);
+      const totalExpense = state.transactions.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0);
+      
       const stats = [
-        { label: 'ENTRATE TOTALI', value: fmtEUR(state.transactions.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0)), color: [92, 184, 92] },
-        { label: 'USCITE TOTALI', value: fmtEUR(state.transactions.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0)), color: [231, 76, 60] },
-        { label: 'RISPARMIO ANNUALE', value: fmtEUR(state.transactions.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0) - state.transactions.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0)), color: [74, 144, 217] },
+        { label: 'ENTRATE TOTALI', value: fmtEUR(totalIncome), color: [92, 184, 92] },
+        { label: 'USCITE TOTALI', value: fmtEUR(totalExpense), color: [231, 76, 60] },
+        { label: 'RISPARMIO ANNUALE', value: fmtEUR(totalIncome - totalExpense), color: [74, 144, 217] },
         { label: 'CATEGORIE SPESE', value: uniqueCats.size.toString(), color: [155, 89, 182] }
       ];
       stats.forEach((stat, i) => {
@@ -3005,7 +3055,6 @@
         doc.text(stat.value, x + 3, y + 22);
       });
       
-      // Sezione 2: Dettaglio mensile (pagina 2)
       doc.addPage();
       y = 20;
       doc.setTextColor(26, 43, 60);
@@ -3034,73 +3083,6 @@
       });
       y = drawPDFTable(doc, yearHeaders, yearRows, margin, y, yearColWidths, pageWidth);
       
-      // Sezione 3: Entrate vs Uscite (pagina 3)
-      doc.addPage();
-      y = 20;
-      doc.setTextColor(26, 43, 60);
-      doc.setFontSize(14);
-      doc.setFont('helvetica', 'bold');
-      doc.text(`Entrate vs Uscite - Anno ${year}`, margin, y);
-      y += 15;
-      
-      // Cattura il grafico
-      const yearChartImg = document.getElementById('yearChart').toDataURL('image/png', 1.0);
-      if (yearChartImg) {
-        const imgWidth = pageWidth - 2*margin;
-        const imgHeight = 90;
-        doc.addImage(yearChartImg, 'PNG', margin, y, imgWidth, imgHeight);
-        y += imgHeight + 10;
-      }
-      
-      // Sezione 4: Residuo mensile (pagina 4)
-      doc.addPage();
-      y = 20;
-      doc.setTextColor(26, 43, 60);
-      doc.setFontSize(14);
-      doc.setFont('helvetica', 'bold');
-      doc.text(`Residuo mensile - Anno ${year}`, margin, y);
-      y += 10;
-      
-      const residuoColWidths = [30, 35, 35, 35, 40];
-      const residuoHeaders = ['Mese', 'Entrate', 'Uscite', 'Saldo', 'Residuo'];
-      let runningTotalPDF = 0;
-      state.transactions.forEach(t => { if (t.date.slice(0,4) < year) runningTotalPDF += t.type === 'income' ? amountValue(t.amount) : -amountValue(t.amount); });
-      const residuoRows = months.map((m, i) => {
-        const mt = state.transactions.filter(t => monthKey(t.date) === m);
-        const inc = mt.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0);
-        const exp = mt.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0);
-        const saldoMese = inc - exp;
-        runningTotalPDF += saldoMese;
-        const mLabel = new Date(+year, i, 1).toLocaleDateString('it-IT', { month:'short' });
-        return {
-          cells: [
-            { text: mLabel.charAt(0).toUpperCase() + mLabel.slice(1) },
-            { text: fmtEUR(inc), color: [92, 184, 92] },
-            { text: fmtEUR(exp), color: [231, 76, 60] },
-            { text: fmtEUR(saldoMese), color: saldoMese >= 0 ? [92, 184, 92] : [231, 76, 60] },
-            { text: fmtEUR(runningTotalPDF), color: runningTotalPDF >= 0 ? [92, 184, 92] : [231, 76, 60] }
-          ]
-        };
-      });
-      y = drawPDFTable(doc, residuoHeaders, residuoRows, margin, y, residuoColWidths, pageWidth);
-      
-      // Grafico residuo
-      y += 10;
-      doc.setTextColor(26, 43, 60);
-      doc.setFontSize(14);
-      doc.setFont('helvetica', 'bold');
-      doc.text(`Grafico Residuo`, margin, y);
-      y += 15;
-      
-      const residuoChartImg = document.getElementById('residuoChart').toDataURL('image/png', 1.0);
-      if (residuoChartImg) {
-        const imgWidth = pageWidth - 2*margin;
-        const imgHeight = 90;
-        doc.addImage(residuoChartImg, 'PNG', margin, y, imgWidth, imgHeight);
-        y += imgHeight + 10;
-      }
-      
-      // Sezione 5: Spese per categoria (pagina 5)
       doc.addPage();
       y = 20;
       doc.setTextColor(26, 43, 60);
@@ -3109,12 +3091,22 @@
       doc.text(`Spese per categoria - ${monthLabel(month)}`, margin, y);
       y += 15;
       
-      const categoryChartImg = document.getElementById('categoryChart').toDataURL('image/png', 1.0);
-      if (categoryChartImg) {
-        const imgWidth = pageWidth - 2*margin;
-        const imgHeight = 90;
-        doc.addImage(categoryChartImg, 'PNG', margin, y, imgWidth, imgHeight);
-        y += imgHeight + 10;
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      try {
+        const categoryChartImg = document.getElementById('categoryChart').toDataURL('image/png', 1.0);
+        if (categoryChartImg && categoryChartImg.length > 1000) {
+          const imgWidth = pageWidth - 2*margin;
+          const imgHeight = 90;
+          doc.addImage(categoryChartImg, 'PNG', margin, y, imgWidth, imgHeight);
+          y += imgHeight + 10;
+        }
+      } catch (imgErr) {
+        console.error('Errore cattura grafico:', imgErr);
+        doc.setTextColor(156, 163, 175);
+        doc.setFontSize(10);
+        doc.text('Grafico non disponibile', margin, y);
+        y += 20;
       }
       
       y += 10;
@@ -3149,82 +3141,6 @@
         doc.text('Nessuna spesa nel mese selezionato', margin, y + 5);
       }
       
-      // Sezione 6: Confronto mesi (pagina 6)
-      const m1 = document.getElementById('compare-month-1')?.value;
-      const m2 = document.getElementById('compare-month-2')?.value;
-      if (m1 && m2) {
-        doc.addPage();
-        y = 20;
-        doc.setTextColor(26, 43, 60);
-        doc.setFontSize(14);
-        doc.setFont('helvetica', 'bold');
-        doc.text(`Confronto: ${monthLabel(m1)} vs ${monthLabel(m2)}`, margin, y);
-        y += 15;
-        
-        const compareChartImg = document.getElementById('compareChart').toDataURL('image/png', 1.0);
-        if (compareChartImg) {
-          const imgWidth = pageWidth - 2*margin;
-          const imgHeight = 90;
-          doc.addImage(compareChartImg, 'PNG', margin, y, imgWidth, imgHeight);
-          y += imgHeight + 10;
-        }
-        
-        const calc = (m) => { const mt = state.transactions.filter(t => monthKey(t.date) === m); return { inc: mt.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0), exp: mt.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0) }; };
-        const d1 = calc(m1); const d2 = calc(m2);
-        const saldo1 = d1.inc - d1.exp;
-        const saldo2 = d2.inc - d2.exp;
-        
-        const compareColWidths = [50, 40, 40, 40];
-        const compareHeaders = ['', monthLabel(m1), monthLabel(m2), 'Differenza'];
-        const compareRows = [];
-        const getCategoriesByTypePDF = (m, type) => {
-          const mt = state.transactions.filter(t => monthKey(t.date) === m && t.type === type);
-          const cats = {};
-          mt.forEach(t => { cats[t.category] = (cats[t.category] || 0) + amountValue(t.amount); });
-          return cats;
-        };
-        
-        const diffInc = d2.inc - d1.inc;
-        compareRows.push({ isTotal: true, cells: [{ text: 'Totale Entrate', color: [26, 43, 60] }, { text: fmtEUR(d1.inc), color: [92, 184, 92] }, { text: fmtEUR(d2.inc), color: [92, 184, 92] }, { text: `${diffInc >= 0 ? '+' : ''}${fmtEUR(diffInc)}`, color: diffInc >= 0 ? [92, 184, 92] : [231, 76, 60] }] });
-        
-        const catsInc1 = getCategoriesByTypePDF(m1, 'income');
-        const catsInc2 = getCategoriesByTypePDF(m2, 'income');
-        const allCatsInc = [...new Set([...Object.keys(catsInc1), ...Object.keys(catsInc2)])];
-        
-        if (allCatsInc.length > 0) {
-          compareRows.push({ isSection: true, cells: [{ text: 'Dettaglio entrate', color: [26, 43, 60] }, { text: '' }, { text: '' }, { text: '' }] });
-          allCatsInc.sort((a,b) => (catsInc2[b] || 0) - (catsInc2[a] || 0)).forEach(cat => {
-            const val1 = catsInc1[cat] || 0;
-            const val2 = catsInc2[cat] || 0;
-            const diffCat = val2 - val1;
-            compareRows.push({ cells: [{ text: cat }, { text: fmtEUR(val1), color: [92, 184, 92] }, { text: fmtEUR(val2), color: [92, 184, 92] }, { text: `${diffCat >= 0 ? '+' : ''}${fmtEUR(diffCat)}`, color: diffCat >= 0 ? [92, 184, 92] : [231, 76, 60] }] });
-          });
-        }
-        
-        const diffExp = d2.exp - d1.exp;
-        compareRows.push({ isTotal: true, cells: [{ text: 'Totale Uscite', color: [26, 43, 60] }, { text: fmtEUR(d1.exp), color: [231, 76, 60] }, { text: fmtEUR(d2.exp), color: [231, 76, 60] }, { text: `${diffExp >= 0 ? '+' : ''}${fmtEUR(diffExp)}`, color: diffExp >= 0 ? [231, 76, 60] : [92, 184, 92] }] });
-        
-        const catsExp1 = getCategoriesByTypePDF(m1, 'expense');
-        const catsExp2 = getCategoriesByTypePDF(m2, 'expense');
-        const allCatsExp = [...new Set([...Object.keys(catsExp1), ...Object.keys(catsExp2)])];
-        
-        if (allCatsExp.length > 0) {
-          compareRows.push({ isSection: true, cells: [{ text: 'Dettaglio uscite', color: [26, 43, 60] }, { text: '' }, { text: '' }, { text: '' }] });
-          allCatsExp.sort((a,b) => (catsExp2[b] || 0) - (catsExp2[a] || 0)).forEach(cat => {
-            const val1 = catsExp1[cat] || 0;
-            const val2 = catsExp2[cat] || 0;
-            const diffCat = val2 - val1;
-            compareRows.push({ cells: [{ text: cat }, { text: fmtEUR(val1), color: [231, 76, 60] }, { text: fmtEUR(val2), color: [231, 76, 60] }, { text: `${diffCat >= 0 ? '+' : ''}${fmtEUR(diffCat)}`, color: diffCat >= 0 ? [231, 76, 60] : [92, 184, 92] }] });
-          });
-        }
-        
-        const diffSaldo = saldo2 - saldo1;
-        compareRows.push({ isTotal: true, cells: [{ text: 'Saldo Finale', color: [26, 43, 60] }, { text: fmtEUR(saldo1), color: saldo1 >= 0 ? [92, 184, 92] : [231, 76, 60] }, { text: fmtEUR(saldo2), color: saldo2 >= 0 ? [92, 184, 92] : [231, 76, 60] }, { text: `${diffSaldo >= 0 ? '+' : ''}${fmtEUR(diffSaldo)}`, color: diffSaldo >= 0 ? [92, 184, 92] : [231, 76, 60] }] });
-        
-        y = drawPDFTable(doc, compareHeaders, compareRows, margin, y, compareColWidths, pageWidth);
-      }
-      
-      // Numeri di pagina
       const pageCount = doc.internal.getNumberOfPages();
       for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
@@ -3236,56 +3152,10 @@
       doc.save(`statistiche-${year}.pdf`);
     } catch(err) {
       alert('Errore PDF: ' + err.message);
+      console.error(err);
     } finally {
       showLoading(false);
     }
-  }
-
-  function drawPDFTable(doc, headers, rows, margin, startY, colWidths, pageWidth) {
-    let y = startY;
-    const lineHeight = 7;
-    
-    doc.setFillColor(232, 240, 248);
-    doc.rect(margin, y, pageWidth - 2*margin, lineHeight, 'F');
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(90, 107, 124);
-    let colX = margin;
-    headers.forEach((h, i) => {
-      doc.text(h, colX + 2, y + 5);
-      colX += colWidths[i];
-    });
-    y += lineHeight + 2;
-    
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
-    rows.forEach((row, idx) => {
-      if (y > 270) { doc.addPage(); y = 20; }
-      if (row.isTotal) {
-        doc.setFillColor(232, 240, 248);
-        doc.rect(margin, y - 2, pageWidth - 2*margin, lineHeight, 'F');
-        doc.setFont('helvetica', 'bold');
-      } else if (row.isSection) {
-        doc.setFillColor(227, 240, 255);
-        doc.rect(margin, y - 2, pageWidth - 2*margin, lineHeight, 'F');
-        doc.setFont('helvetica', 'bold');
-      } else if (idx % 2 === 0) {
-        doc.setFillColor(250, 251, 252);
-        doc.rect(margin, y - 2, pageWidth - 2*margin, lineHeight, 'F');
-      }
-      
-      colX = margin;
-      row.cells.forEach((cell, i) => {
-        doc.setTextColor(cell.color ? cell.color[0] : 26, cell.color ? cell.color[1] : 43, cell.color ? cell.color[2] : 60);
-        doc.text(cell.text, colX + 2, y);
-        colX += colWidths[i];
-      });
-      
-      if (row.isTotal || row.isSection) doc.setFont('helvetica', 'normal');
-      y += lineHeight;
-    });
-    
-    return y + 5;
   }
 
   document.getElementById('btn-pdf-home').addEventListener('click', generateHomePDF);
@@ -3294,4 +3164,4 @@
 })();
 </script>
 </body>
-  </html>
+</html>
