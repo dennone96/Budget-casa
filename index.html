@@ -1640,7 +1640,7 @@
       <div class="panel">
         <div class="import-section-title">
           <div class="icon-circle" style="background:var(--info-light); color:var(--info);"><i class="ti ti-building-bank"></i></div>
-          🏦 Conto corrente
+           Conto corrente
         </div>
         <p style="font-size:14px; color:var(--text-secondary); margin-top:0; line-height:1.6; font-weight:600;">
           Movimenti bancari. Colonne: Mese, Anno, Data Contabile, Descrizione, Importo, Categoria.
@@ -1759,7 +1759,7 @@
     <div id="page-categorie" class="page">
       <h1>Categorie</h1>
       <div class="panel">
-        <h3> Uscite</h3>
+        <h3>📤 Uscite</h3>
         <ul id="cat-list-expense" class="cat-list"></ul>
         <div class="cat-input-row">
           <input type="text" id="new-cat-expense" placeholder="Nuova categoria">
@@ -2421,7 +2421,7 @@
     tr.className = 'total-row';
     diff = saldo2 - saldo1;
     tr.innerHTML = `
-      <td style="font-weight: 800;">📊 Saldo Finale</td>
+      <td style="font-weight: 800;"> Saldo Finale</td>
       <td class="text-right" style="font-weight: 700; color: ${saldo1 >= 0 ? 'var(--success)' : 'var(--danger)'}">${fmtEUR(saldo1)}</td>
       <td class="text-right" style="font-weight: 700; color: ${saldo2 >= 0 ? 'var(--success)' : 'var(--danger)'}">${fmtEUR(saldo2)}</td>
       <td class="text-right" style="font-weight: 800; color: ${diff >= 0 ? 'var(--success)' : 'var(--danger)'}">
@@ -2476,7 +2476,7 @@
     document.getElementById('detail-desc').textContent = t.description || t.category || '—';
     document.getElementById('detail-amount').innerHTML = `<span style="font-size:22px; font-weight:800; color:${isIncome?'var(--success)':'var(--danger)'}; letter-spacing:-0.5px;">${isIncome?'+':'-'}${fmtEUR(t.amount)}</span>`;
     document.getElementById('detail-category').textContent = t.category || '—';
-    const srcLabel = (t.source === 'bank') ? '🏦 Conto corrente' : ' Contanti';
+    const srcLabel = (t.source === 'bank') ? '🏦 Conto corrente' : '💵 Contanti';
     document.getElementById('detail-date').textContent = new Date(t.date).toLocaleDateString('it-IT', {weekday:'long', year:'numeric', month:'long', day:'numeric'}) + ' · ' + srcLabel;
     renderAttachment(t);
     document.getElementById('detail-overlay').classList.add('open');
@@ -2522,7 +2522,7 @@
   
   function getFileIcon(mimeType) {
     if (!mimeType) return '📄';
-    if (mimeType.includes('pdf')) return '📕';
+    if (mimeType.includes('pdf')) return '';
     if (mimeType.includes('word') || mimeType.includes('document')) return '📘';
     if (mimeType.includes('sheet') || mimeType.includes('excel')) return '📗';
     return '';
@@ -3014,6 +3014,7 @@
       const year = document.getElementById('chart-year')?.value || new Date().getFullYear().toString();
       const month = document.getElementById('chart-month')?.value || monthKey(todayISO());
       
+      // Header
       doc.setFillColor(74, 144, 217);
       doc.rect(0, 0, pageWidth, 40, 'F');
       doc.setTextColor(255, 255, 255);
@@ -3024,6 +3025,7 @@
       doc.setFont('helvetica', 'normal');
       doc.text(`Anno ${year}`, margin, 32);
       
+      // Sezione 1: Riepilogo annuale
       y = 55;
       doc.setTextColor(26, 43, 60);
       doc.setFontSize(14);
@@ -3055,6 +3057,7 @@
         doc.text(stat.value, x + 3, y + 22);
       });
       
+      // Sezione 2: Dettaglio mensile (pagina 2)
       doc.addPage();
       y = 20;
       doc.setTextColor(26, 43, 60);
@@ -3083,6 +3086,108 @@
       });
       y = drawPDFTable(doc, yearHeaders, yearRows, margin, y, yearColWidths, pageWidth);
       
+      // Sezione 3: Entrate vs Uscite (pagina 3)
+      doc.addPage();
+      y = 20;
+      doc.setTextColor(26, 43, 60);
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`Entrate vs Uscite - Anno ${year}`, margin, y);
+      y += 15;
+      
+      // Attendi che il grafico sia pronto e renderizzalo
+      updateChartYear();
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      try {
+        const yearChartCanvas = document.getElementById('yearChart');
+        const yearChartImg = yearChartCanvas.toDataURL('image/png', 1.0);
+        if (yearChartImg && yearChartImg.length > 1000) {
+          const imgWidth = pageWidth - 2*margin;
+          const imgHeight = 90;
+          doc.addImage(yearChartImg, 'PNG', margin, y, imgWidth, imgHeight);
+          y += imgHeight + 10;
+        } else {
+          doc.setTextColor(156, 163, 175);
+          doc.setFontSize(10);
+          doc.text('Grafico non disponibile', margin, y);
+          y += 20;
+        }
+      } catch (imgErr) {
+        console.error('Errore cattura grafico entrate/uscite:', imgErr);
+        doc.setTextColor(156, 163, 175);
+        doc.setFontSize(10);
+        doc.text('Grafico non disponibile', margin, y);
+        y += 20;
+      }
+      
+      // Sezione 4: Residuo mensile (pagina 4)
+      doc.addPage();
+      y = 20;
+      doc.setTextColor(26, 43, 60);
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`Residuo mensile - Anno ${year}`, margin, y);
+      y += 10;
+      
+      const residuoColWidths = [30, 35, 35, 35, 40];
+      const residuoHeaders = ['Mese', 'Entrate', 'Uscite', 'Saldo', 'Residuo'];
+      let runningTotalPDF = 0;
+      state.transactions.forEach(t => { if (t.date.slice(0,4) < year) runningTotalPDF += t.type === 'income' ? amountValue(t.amount) : -amountValue(t.amount); });
+      const residuoRows = months.map((m, i) => {
+        const mt = state.transactions.filter(t => monthKey(t.date) === m);
+        const inc = mt.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0);
+        const exp = mt.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0);
+        const saldoMese = inc - exp;
+        runningTotalPDF += saldoMese;
+        const mLabel = new Date(+year, i, 1).toLocaleDateString('it-IT', { month:'short' });
+        return {
+          cells: [
+            { text: mLabel.charAt(0).toUpperCase() + mLabel.slice(1) },
+            { text: fmtEUR(inc), color: [92, 184, 92] },
+            { text: fmtEUR(exp), color: [231, 76, 60] },
+            { text: fmtEUR(saldoMese), color: saldoMese >= 0 ? [92, 184, 92] : [231, 76, 60] },
+            { text: fmtEUR(runningTotalPDF), color: runningTotalPDF >= 0 ? [92, 184, 92] : [231, 76, 60] }
+          ]
+        };
+      });
+      y = drawPDFTable(doc, residuoHeaders, residuoRows, margin, y, residuoColWidths, pageWidth);
+      
+      // Grafico residuo
+      y += 10;
+      doc.setTextColor(26, 43, 60);
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`Grafico Residuo`, margin, y);
+      y += 15;
+      
+      // Renderizza e cattura il grafico residuo
+      updateChartResiduo();
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      try {
+        const residuoChartCanvas = document.getElementById('residuoChart');
+        const residuoChartImg = residuoChartCanvas.toDataURL('image/png', 1.0);
+        if (residuoChartImg && residuoChartImg.length > 1000) {
+          const imgWidth = pageWidth - 2*margin;
+          const imgHeight = 90;
+          doc.addImage(residuoChartImg, 'PNG', margin, y, imgWidth, imgHeight);
+          y += imgHeight + 10;
+        } else {
+          doc.setTextColor(156, 163, 175);
+          doc.setFontSize(10);
+          doc.text('Grafico non disponibile', margin, y);
+          y += 20;
+        }
+      } catch (imgErr) {
+        console.error('Errore cattura grafico residuo:', imgErr);
+        doc.setTextColor(156, 163, 175);
+        doc.setFontSize(10);
+        doc.text('Grafico non disponibile', margin, y);
+        y += 20;
+      }
+      
+      // Sezione 5: Spese per categoria (pagina 5)
       doc.addPage();
       y = 20;
       doc.setTextColor(26, 43, 60);
@@ -3091,18 +3196,26 @@
       doc.text(`Spese per categoria - ${monthLabel(month)}`, margin, y);
       y += 15;
       
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Renderizza e cattura il grafico categorie
+      updateChartCategory();
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
       try {
-        const categoryChartImg = document.getElementById('categoryChart').toDataURL('image/png', 1.0);
+        const categoryChartCanvas = document.getElementById('categoryChart');
+        const categoryChartImg = categoryChartCanvas.toDataURL('image/png', 1.0);
         if (categoryChartImg && categoryChartImg.length > 1000) {
           const imgWidth = pageWidth - 2*margin;
           const imgHeight = 90;
           doc.addImage(categoryChartImg, 'PNG', margin, y, imgWidth, imgHeight);
           y += imgHeight + 10;
+        } else {
+          doc.setTextColor(156, 163, 175);
+          doc.setFontSize(10);
+          doc.text('Grafico non disponibile', margin, y);
+          y += 20;
         }
       } catch (imgErr) {
-        console.error('Errore cattura grafico:', imgErr);
+        console.error('Errore cattura grafico categorie:', imgErr);
         doc.setTextColor(156, 163, 175);
         doc.setFontSize(10);
         doc.text('Grafico non disponibile', margin, y);
@@ -3141,6 +3254,7 @@
         doc.text('Nessuna spesa nel mese selezionato', margin, y + 5);
       }
       
+      // Numeri di pagina
       const pageCount = doc.internal.getNumberOfPages();
       for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
