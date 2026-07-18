@@ -2946,39 +2946,34 @@ return y + 5;
 async function generateHomePDF() {
   showLoading(true);
   try {
-    const { jsPDF } = window.jspdf;
     const element = document.getElementById('page-home');
     
-    // Nascondi temporaneamente elementi non necessari
+    // Nascondi temporaneamente elementi non necessari per la stampa
     const bulkActions = document.getElementById('bulk-actions-container');
-    const searchInput = document.querySelector('.search-bar');
-    const originalBulkDisplay = bulkActions ? bulkActions.style.display : '';
-    const originalSearchDisplay = searchInput ? searchInput.style.display : '';
-    
+    const originalDisplay = bulkActions ? bulkActions.style.display : '';
     if (bulkActions) bulkActions.style.display = 'none';
-    if (searchInput) searchInput.style.display = 'none';
     
     const canvas = await html2canvas(element, {
-      scale: 1.5,
+      scale: 2,
       useCORS: true,
       logging: false,
       backgroundColor: '#F0F4F8',
-      windowWidth: 1200,
-      windowHeight: element.scrollHeight
+      windowWidth: 1200
     });
     
     // Ripristina elementi
-    if (bulkActions) bulkActions.style.display = originalBulkDisplay;
-    if (searchInput) searchInput.style.display = originalSearchDisplay;
+    if (bulkActions) bulkActions.style.display = originalDisplay;
     
     const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF('l', 'mm', 'a4'); // Landscape per home
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4'); // Portrait
+    
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
     const imgWidth = canvas.width;
     const imgHeight = canvas.height;
     
-    // Calcola ratio per adattare al foglio A4 landscape
+    // Calcola ratio per adattare al foglio A4
     const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight) * 0.95;
     const finalWidth = imgWidth * ratio;
     const finalHeight = imgHeight * ratio;
@@ -2997,9 +2992,7 @@ async function generateHomePDF() {
 async function generateStatsPDF() {
   showLoading(true);
   try {
-    const { jsPDF } = window.jspdf;
-    
-    // Mostra tutte le tab
+    // Mostra tutte le tab temporaneamente per catturarle tutte
     const tabContents = document.querySelectorAll('.stats-tab-content');
     const activeTab = document.querySelector('.stats-tab.active');
     
@@ -3018,15 +3011,14 @@ async function generateStatsPDF() {
     
     const element = document.getElementById('page-grafici');
     const canvas = await html2canvas(element, {
-      scale: 1.2, // Ridotto per adattare meglio
+      scale: 1.5,
       useCORS: true,
       logging: false,
       backgroundColor: '#F0F4F8',
-      windowWidth: 1200,
-      windowHeight: element.scrollHeight
+      windowWidth: 1200
     });
     
-    // Ripristina tab
+    // Ripristina tab originali
     tabContents.forEach(tab => {
       tab.style.display = '';
       tab.classList.remove('active');
@@ -3037,36 +3029,26 @@ async function generateStatsPDF() {
     }
     
     const imgData = canvas.toDataURL('image/png');
+    const { jsPDF } = window.jspdf;
     const pdf = new jsPDF('p', 'mm', 'a4');
+    
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
     const imgWidth = canvas.width;
     const imgHeight = canvas.height;
     
-    // Calcola quante pagine servono e adatta
-    const widthRatio = pdfWidth / imgWidth;
-    const heightRatio = pdfHeight / imgHeight;
-    const scale = Math.min(widthRatio * 0.9, heightRatio * 0.9); // 90% per margini
-    
+    // Calcola quante pagine servono
+    const scale = pdfWidth / imgWidth;
+    const scaledHeight = imgHeight * scale;
     let position = 0;
-    let page = 0;
-    const totalHeight = imgHeight * scale;
+    let pageNum = 0;
     
-    while (position < totalHeight) {
-      if (page > 0) pdf.addPage();
+    while (position < scaledHeight) {
+      if (pageNum > 0) pdf.addPage();
       
-      const x = (pdfWidth - (imgWidth * scale)) / 2;
-      pdf.addImage(
-        imgData, 
-        'PNG', 
-        x, 
-        -position,
-        imgWidth * scale, 
-        totalHeight
-      );
-      
+      pdf.addImage(imgData, 'PNG', 0, -position, pdfWidth, scaledHeight);
       position += pdfHeight;
-      page++;
+      pageNum++;
     }
     
     const year = document.getElementById('chart-year')?.value || new Date().getFullYear();
