@@ -2513,12 +2513,24 @@ document.getElementById('btn-add').addEventListener('click', async () => {
 });
 function normalizeHeader(h) { return String(h||'').trim().toLowerCase(); }
 function parseImportedDate(value) {
-  if (value instanceof Date && !isNaN(value)) return value.toISOString().slice(0,10);
-  if (typeof value === 'number') { const d = XLSX.SSF.parse_date_code(value); if (d) return `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`; }
-  const str = String(value||'').trim();
-  if (/^\d{4}-\d{2}-\d{2}/.test(str)) return str.slice(0,10);
+  if (value instanceof Date && !isNaN(value)) {
+    // Usa i metodi LOCALI invece di toISOString() (che è UTC)
+    const year = value.getFullYear();
+    const month = String(value.getMonth() + 1).padStart(2, '0');
+    const day = String(value.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+  if (typeof value === 'number') {
+    const d = XLSX.SSF.parse_date_code(value);
+    if (d) {
+      // Anche qui usa i valori direttamente, non convertire in Date
+      return `${d.y}-${String(d.m).padStart(2, '0')}-${String(d.d).padStart(2, '0')}`;
+    }
+  }
+  const str = String(value || '').trim();
+  if (/^\d{4}-\d{2}-\d{2}/.test(str)) return str.slice(0, 10);
   const m = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
-  if (m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+  if (m) return `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`;
   return null;
 }
 function parseImportedAmount(value) {
