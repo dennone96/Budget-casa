@@ -21,6 +21,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-storage-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>  
 <style>
 :root {
 --bg: #F0F4F8;
@@ -2031,55 +2032,69 @@ document.getElementById('filter-custom-toggle').addEventListener('change', (e) =
 populateHomePeriodFilters();
 applyMonthYearFilter();
 function updateChartCategory() {
-const month = document.getElementById('chart-month').value || monthKey(todayISO());
-const mt = state.transactions.filter(t => t.type === 'expense' && monthKey(t.date) === month);
-const byCategory = {};
-mt.forEach(t => { byCategory[t.category] = (byCategory[t.category] || 0) + amountValue(t.amount); });
-const cats = Object.keys(byCategory).filter(c => byCategory[c] > 0);
-const data = cats.map(c => Math.round(byCategory[c] * 100) / 100);
-const colors = cats.map((c,i) => CAT_COLORS[i % CAT_COLORS.length]);
-const legend = document.getElementById('legend-categories');
-legend.innerHTML = '';
-cats.forEach((c,i) => { const span = document.createElement('span'); span.innerHTML = '<span class="swatch" style="background:' + colors[i] + ';"></span>' + c + ' ' + fmtEUR(data[i]); legend.appendChild(span); });
-if (chartCategory) chartCategory.destroy();
-if (data.length === 0) {
-legend.innerHTML = '<span style="color:var(--text-muted); font-size:13px;">Nessuna spesa in questo mese.</span>';
-document.getElementById('table-category-body').innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 20px; color: var(--text-muted);">Nessuna spesa in questo mese</td></tr>';
-return;
-}
-chartCategory = new Chart(document.getElementById('categoryChart'), {
-type: 'pie',
-data: { labels: cats, datasets: [{ data, backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }] },
-options: {
-responsive: true,
-maintainAspectRatio: true,
-aspectRatio: 2,
-plugins: {
-legend: { display: false },
-tooltip: {
-backgroundColor: '#1A2B3C',
-titleFont: { family: 'Plus Jakarta Sans', size: 13, weight: '800' },
-bodyFont: { family: 'Plus Jakarta Sans', size: 13 },
-padding: 14,
-cornerRadius: 12,
-callbacks: { label: ctx => ctx.label + ': ' + fmtEUR(ctx.parsed) + ' (' + ((ctx.parsed/data.reduce((a,b)=>a+b,0))*100).toFixed(1) + '%)' }
-}
-}
-}
-});
-const tbody = document.getElementById('table-category-body');
-tbody.innerHTML = '';
-const total = data.reduce((a, b) => a + b, 0);
-cats.forEach((c, i) => {
-const pct = ((data[i] / total) * 100).toFixed(1);
-const row = document.createElement('tr');
-row.innerHTML = `
-<td><span style="display: inline-block; width: 14px; height: 14px; border-radius: 4px; background: ${colors[i]}; margin-right: 10px; vertical-align: middle;"></span><span style="font-weight:700;">${escapeHtml(c)}</span></td>
-<td class="text-right" style="font-weight: 700;">${fmtEUR(data[i])}</td>
-<td class="text-right" style="color: var(--text-secondary); font-weight:700;">${pct}%</td>
-`;
-tbody.appendChild(row);
-});
+  const month = document.getElementById('chart-month').value || monthKey(todayISO());
+  const mt = state.transactions.filter(t => t.type === 'expense' && monthKey(t.date) === month);
+  const byCategory = {};
+  mt.forEach(t => { byCategory[t.category] = (byCategory[t.category] || 0) + amountValue(t.amount); });
+  const cats = Object.keys(byCategory).filter(c => byCategory[c] > 0);
+  const data = cats.map(c => Math.round(byCategory[c] * 100) / 100);
+  
+  // Genera colori unici per ogni categoria
+  const colors = cats.map((_, i) => {
+    // Usa HSL per generare colori distinti
+    const hue = (i * 137.508) % 360; // Golden angle approximation
+    return `hsl(${hue}, 70%, 60%)`;
+  });
+  
+  const legend = document.getElementById('legend-categories');
+  legend.innerHTML = '';
+  cats.forEach((c, i) => { 
+    const span = document.createElement('span'); 
+    span.innerHTML = `<span class="swatch" style="background:${colors[i]};"></span>${c} ${fmtEUR(data[i])}`; 
+    legend.appendChild(span); 
+  });
+  
+  if (chartCategory) chartCategory.destroy();
+  if (data.length === 0) {
+    legend.innerHTML = '<span style="color:var(--text-muted); font-size:13px;">Nessuna spesa in questo mese.</span>';
+    document.getElementById('table-category-body').innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 20px; color: var(--text-muted);">Nessuna spesa in questo mese</td></tr>';
+    return;
+  }
+  
+  chartCategory = new Chart(document.getElementById('categoryChart'), {
+    type: 'pie',
+    data: { labels: cats, datasets: [{ data, backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }] },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      aspectRatio: 2,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1A2B3C',
+          titleFont: { family: 'Plus Jakarta Sans', size: 13, weight: '800' },
+          bodyFont: { family: 'Plus Jakarta Sans', size: 13 },
+          padding: 14,
+          cornerRadius: 12,
+          callbacks: { label: ctx => ctx.label + ': ' + fmtEUR(ctx.parsed) + ' (' + ((ctx.parsed/data.reduce((a,b)=>a+b,0))*100).toFixed(1) + '%)' }
+        }
+      }
+    }
+  });
+  
+  const tbody = document.getElementById('table-category-body');
+  tbody.innerHTML = '';
+  const total = data.reduce((a, b) => a + b, 0);
+  cats.forEach((c, i) => {
+    const pct = ((data[i] / total) * 100).toFixed(1);
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td><span style="display: inline-block; width: 14px; height: 14px; border-radius: 4px; background: ${colors[i]}; margin-right: 10px; vertical-align: middle;"></span><span style="font-weight:700;">${escapeHtml(c)}</span></td>
+      <td class="text-right" style="font-weight: 700;">${fmtEUR(data[i])}</td>
+      <td class="text-right" style="color: var(--text-secondary); font-weight:700;">${pct}%</td>
+    `;
+    tbody.appendChild(row);
+  });
 }
 function updateChartYear() {
 const year = document.getElementById('chart-year').value || new Date().getFullYear().toString();
@@ -2929,327 +2944,139 @@ y += lineHeight;
 return y + 5;
 }
 async function generateHomePDF() {
-showLoading(true);
-try {
-const { jsPDF } = window.jspdf;
-const doc = new jsPDF('p', 'mm', 'a4');
-const pageWidth = doc.internal.pageSize.getWidth();
-const margin = 15;
-let y = 20;
-doc.setFillColor(74, 144, 217);
-doc.rect(0, 0, pageWidth, 40, 'F');
-doc.setTextColor(255, 255, 255);
-doc.setFontSize(22);
-doc.setFont('helvetica', 'bold');
-doc.text('Budget di Famiglia', margin, 24);
-doc.setFontSize(11);
-doc.setFont('helvetica', 'normal');
-const from = filterFrom || todayISO().slice(0,7) + '-01';
-const to = filterTo || todayISO();
-const mt = state.transactions.filter(t => t.date >= from && t.date <= to && matchesSourceFilter(t)).sort((a,b) => b.date.localeCompare(a.date));
-const income = mt.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0);
-const expense = mt.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0);
-const ti = state.transactions.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0);
-const te = state.transactions.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0);
-const periodLabel = filterMode === 'month' ? `${document.getElementById('filter-month')?.selectedOptions[0]?.textContent || ''} ${document.getElementById('filter-year')?.value || ''}` : `Dal ${fmtDateLabel(new Date(filterFrom + 'T00:00:00'))} al ${fmtDateLabel(new Date(filterTo + 'T00:00:00'))}`;
-doc.text(`Dashboard · ${periodLabel}`, margin, 32);
-y = 55;
-doc.setTextColor(26, 43, 60);
-doc.setFontSize(14);
-doc.setFont('helvetica', 'bold');
-doc.text('Riepilogo', margin, y);
-y += 10;
-const cardWidth = (pageWidth - 2*margin - 12) / 4;
-const stats = [
-{ label: 'ENTRATE', value: fmtEUR(income), color: [92, 184, 92] },
-{ label: 'USCITE', value: fmtEUR(expense), color: [231, 76, 60] },
-{ label: 'SALDO', value: fmtEUR(income - expense), color: [74, 144, 217] },
-{ label: 'RESIDUO', value: fmtEUR(ti - te), color: [155, 89, 182] }
-];
-stats.forEach((stat, i) => {
-const x = margin + i * (cardWidth + 4);
-doc.setFillColor(232, 240, 248);
-doc.roundedRect(x, y, cardWidth, 28, 4, 4, 'F');
-doc.setTextColor(90, 107, 124);
-doc.setFontSize(8);
-doc.setFont('helvetica', 'bold');
-doc.text(stat.label, x + 3, y + 10);
-doc.setTextColor(stat.color[0], stat.color[1], stat.color[2]);
-doc.setFontSize(13);
-doc.text(stat.value, x + 3, y + 22);
-});
-y += 40;
-doc.setTextColor(26, 43, 60);
-doc.setFontSize(14);
-doc.setFont('helvetica', 'bold');
-doc.text(`Movimenti (${mt.length})`, margin, y);
-y += 8;
-const colWidths = [25, 70, 30, 35, 25];
-const headers = ['Data', 'Movimento', 'Importo', 'Fonte', 'Tipo'];
-const rows = mt.map(t => {
-const isIncome = t.type === 'income';
-const src = t.source || 'cash';
-const badgeLabel = src === 'bank' ? 'C/C' : 'Cash';
-const dateLabel = new Date(t.date).toLocaleDateString('it-IT', { day:'2-digit', month:'2-digit', year:'2-digit' });
-const amountSign = isIncome ? '+' : '-';
-return {
-cells: [
-{ text: dateLabel },
-{ text: (t.description || t.category || '').substring(0, 35) },
-{ text: `${amountSign}${fmtEUR(amountValue(t.amount))}`, color: isIncome ? [92, 184, 92] : [231, 76, 60] },
-{ text: badgeLabel },
-{ text: isIncome ? 'Entrata' : 'Uscita' }
-]
-};
-});
-y = drawPDFTable(doc, headers, rows, margin, y, colWidths, pageWidth);
-const pageCount = doc.internal.getNumberOfPages();
-for (let i = 1; i <= pageCount; i++) {
-doc.setPage(i);
-doc.setFontSize(8);
-doc.setTextColor(138, 155, 172);
-doc.text(`Budget di Famiglia · Pagina ${i}/${pageCount}`, pageWidth/2, 290, { align: 'center' });
-}
-doc.save(`budget-famiglia-${todayISO()}.pdf`);
-} catch(err) {
-alert('Errore PDF: ' + err.message);
-} finally {
-showLoading(false);
-}
+  showLoading(true);
+  try {
+    const { jsPDF } = window.jspdf;
+    const element = document.getElementById('page-home');
+    
+    // Nascondi temporaneamente elementi non necessari
+    const bulkActions = document.getElementById('bulk-actions-container');
+    const searchInput = document.querySelector('.search-bar');
+    const originalBulkDisplay = bulkActions ? bulkActions.style.display : '';
+    const originalSearchDisplay = searchInput ? searchInput.style.display : '';
+    
+    if (bulkActions) bulkActions.style.display = 'none';
+    if (searchInput) searchInput.style.display = 'none';
+    
+    const canvas = await html2canvas(element, {
+      scale: 1.5,
+      useCORS: true,
+      logging: false,
+      backgroundColor: '#F0F4F8',
+      windowWidth: 1200,
+      windowHeight: element.scrollHeight
+    });
+    
+    // Ripristina elementi
+    if (bulkActions) bulkActions.style.display = originalBulkDisplay;
+    if (searchInput) searchInput.style.display = originalSearchDisplay;
+    
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF('l', 'mm', 'a4'); // Landscape per home
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const imgWidth = canvas.width;
+    const imgHeight = canvas.height;
+    
+    // Calcola ratio per adattare al foglio A4 landscape
+    const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight) * 0.95;
+    const finalWidth = imgWidth * ratio;
+    const finalHeight = imgHeight * ratio;
+    const x = (pdfWidth - finalWidth) / 2;
+    const y = (pdfHeight - finalHeight) / 2;
+    
+    pdf.addImage(imgData, 'PNG', x, y, finalWidth, finalHeight);
+    pdf.save(`budget-famiglia-${todayISO()}.pdf`);
+  } catch(err) {
+    alert('Errore PDF: ' + err.message);
+    console.error(err);
+  } finally {
+    showLoading(false);
+  }
 }
 async function generateStatsPDF() {
-showLoading(true);
-try {
-const { jsPDF } = window.jspdf;
-const doc = new jsPDF('p', 'mm', 'a4');
-const pageWidth = doc.internal.pageSize.getWidth();
-const margin = 15;
-let y = 20;
-const year = document.getElementById('chart-year')?.value || new Date().getFullYear().toString();
-const month = document.getElementById('chart-month')?.value || monthKey(todayISO());
-doc.setFillColor(74, 144, 217);
-doc.rect(0, 0, pageWidth, 40, 'F');
-doc.setTextColor(255, 255, 255);
-doc.setFontSize(22);
-doc.setFont('helvetica', 'bold');
-doc.text('Statistiche', margin, 24);
-doc.setFontSize(11);
-doc.setFont('helvetica', 'normal');
-doc.text(`Anno ${year}`, margin, 32);
-y = 55;
-doc.setTextColor(26, 43, 60);
-doc.setFontSize(14);
-doc.setFont('helvetica', 'bold');
-doc.text(`Riepilogo annuale ${year}`, margin, y);
-y += 10;
-const cardWidth = (pageWidth - 2*margin - 12) / 4;
-const uniqueCats = new Set(state.transactions.filter(t => t.type === 'expense').map(t => t.category));
-const totalIncome = state.transactions.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0);
-const totalExpense = state.transactions.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0);
-const stats = [
-{ label: 'ENTRATE TOTALI', value: fmtEUR(totalIncome), color: [92, 184, 92] },
-{ label: 'USCITE TOTALI', value: fmtEUR(totalExpense), color: [231, 76, 60] },
-{ label: 'RISPARMIO ANNUALE', value: fmtEUR(totalIncome - totalExpense), color: [74, 144, 217] },
-{ label: 'CATEGORIE SPESE', value: uniqueCats.size.toString(), color: [155, 89, 182] }
-];
-stats.forEach((stat, i) => {
-const x = margin + i * (cardWidth + 4);
-doc.setFillColor(232, 240, 248);
-doc.roundedRect(x, y, cardWidth, 28, 4, 4, 'F');
-doc.setTextColor(90, 107, 124);
-doc.setFontSize(8);
-doc.setFont('helvetica', 'bold');
-doc.text(stat.label, x + 3, y + 10);
-doc.setTextColor(stat.color[0], stat.color[1], stat.color[2]);
-doc.setFontSize(13);
-doc.text(stat.value, x + 3, y + 22);
-});
-doc.addPage();
-y = 20;
-doc.setTextColor(26, 43, 60);
-doc.setFontSize(14);
-doc.setFont('helvetica', 'bold');
-doc.text(`Dettaglio mensile ${year}`, margin, y);
-y += 10;
-const months = Array.from({length:12}, (_,i) => `${year}-${String(i+1).padStart(2,'0')}`);
-const incomes = months.map(m => state.transactions.filter(t => t.type==='income' && monthKey(t.date)===m).reduce((s,t)=>s+amountValue(t.amount),0));
-const expenses = months.map(m => state.transactions.filter(t => t.type==='expense' && monthKey(t.date)===m).reduce((s,t)=>s+amountValue(t.amount),0));
-const yearColWidths = [30, 45, 45, 45];
-const yearHeaders = ['Mese', 'Entrate', 'Uscite', 'Saldo'];
-const yearRows = months.map((m, i) => {
-const bal = incomes[i] - expenses[i];
-const mLabel = new Date(+year, i, 1).toLocaleDateString('it-IT', { month:'short' });
-return {
-cells: [
-{ text: mLabel.charAt(0).toUpperCase() + mLabel.slice(1) },
-{ text: fmtEUR(incomes[i]), color: [92, 184, 92] },
-{ text: fmtEUR(expenses[i]), color: [231, 76, 60] },
-{ text: fmtEUR(bal), color: bal >= 0 ? [92, 184, 92] : [231, 76, 60] }
-]
-};
-});
-y = drawPDFTable(doc, yearHeaders, yearRows, margin, y, yearColWidths, pageWidth);
-doc.addPage();
-y = 20;
-doc.setTextColor(26, 43, 60);
-doc.setFontSize(14);
-doc.setFont('helvetica', 'bold');
-doc.text(`Entrate vs Uscite - Anno ${year}`, margin, y);
-y += 15;
-updateChartYear();
-await new Promise(resolve => setTimeout(resolve, 1500));
-try {
-const yearChartCanvas = document.getElementById('yearChart');
-const yearChartImg = yearChartCanvas.toDataURL('image/png', 1.0);
-if (yearChartImg && yearChartImg.length > 1000) {
-const imgWidth = pageWidth - 2*margin;
-const imgHeight = 90;
-doc.addImage(yearChartImg, 'PNG', margin, y, imgWidth, imgHeight);
-y += imgHeight + 10;
-} else {
-doc.setTextColor(156, 163, 175);
-doc.setFontSize(10);
-doc.text('Grafico non disponibile', margin, y);
-y += 20;
-}
-} catch (imgErr) {
-console.error('Errore cattura grafico:', imgErr);
-doc.setTextColor(156, 163, 175);
-doc.setFontSize(10);
-doc.text('Grafico non disponibile', margin, y);
-y += 20;
-}
-doc.addPage();
-y = 20;
-doc.setTextColor(26, 43, 60);
-doc.setFontSize(14);
-doc.setFont('helvetica', 'bold');
-doc.text(`Residuo mensile - Anno ${year}`, margin, y);
-y += 10;
-const residuoColWidths = [30, 35, 35, 35, 40];
-const residuoHeaders = ['Mese', 'Entrate', 'Uscite', 'Saldo', 'Residuo'];
-let runningTotalPDF = 0;
-state.transactions.forEach(t => { if (t.date.slice(0,4) < year) runningTotalPDF += t.type === 'income' ? amountValue(t.amount) : -amountValue(t.amount); });
-const residuoRows = months.map((m, i) => {
-const mt = state.transactions.filter(t => monthKey(t.date) === m);
-const inc = mt.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0);
-const exp = mt.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0);
-const saldoMese = inc - exp;
-runningTotalPDF += saldoMese;
-const mLabel = new Date(+year, i, 1).toLocaleDateString('it-IT', { month:'short' });
-return {
-cells: [
-{ text: mLabel.charAt(0).toUpperCase() + mLabel.slice(1) },
-{ text: fmtEUR(inc), color: [92, 184, 92] },
-{ text: fmtEUR(exp), color: [231, 76, 60] },
-{ text: fmtEUR(saldoMese), color: saldoMese >= 0 ? [92, 184, 92] : [231, 76, 60] },
-{ text: fmtEUR(runningTotalPDF), color: runningTotalPDF >= 0 ? [92, 184, 92] : [231, 76, 60] }
-]
-};
-});
-y = drawPDFTable(doc, residuoHeaders, residuoRows, margin, y, residuoColWidths, pageWidth);
-y += 10;
-doc.setTextColor(26, 43, 60);
-doc.setFontSize(14);
-doc.setFont('helvetica', 'bold');
-doc.text(`Grafico Andamento Residuo`, margin, y);
-y += 15;
-updateChartResiduo();
-await new Promise(resolve => setTimeout(resolve, 1500));
-try {
-const residuoChartCanvas = document.getElementById('residuoChart');
-const residuoChartImg = residuoChartCanvas.toDataURL('image/png', 1.0);
-if (residuoChartImg && residuoChartImg.length > 1000) {
-const imgWidth = pageWidth - 2*margin;
-const imgHeight = 90;
-doc.addImage(residuoChartImg, 'PNG', margin, y, imgWidth, imgHeight);
-y += imgHeight + 10;
-} else {
-doc.setTextColor(156, 163, 175);
-doc.setFontSize(10);
-doc.text('Grafico non disponibile', margin, y);
-y += 20;
-}
-} catch (imgErr) {
-console.error('Errore cattura grafico:', imgErr);
-doc.setTextColor(156, 163, 175);
-doc.setFontSize(10);
-doc.text('Grafico non disponibile', margin, y);
-y += 20;
-}
-doc.addPage();
-y = 20;
-doc.setTextColor(26, 43, 60);
-doc.setFontSize(14);
-doc.setFont('helvetica', 'bold');
-doc.text(`Spese per categoria - ${monthLabel(month)}`, margin, y);
-y += 15;
-updateChartCategory();
-await new Promise(resolve => setTimeout(resolve, 1500));
-try {
-const categoryChartCanvas = document.getElementById('categoryChart');
-const categoryChartImg = categoryChartCanvas.toDataURL('image/png', 1.0);
-if (categoryChartImg && categoryChartImg.length > 1000) {
-const imgWidth = pageWidth - 2*margin;
-const imgHeight = 90;
-doc.addImage(categoryChartImg, 'PNG', margin, y, imgWidth, imgHeight);
-y += imgHeight + 10;
-} else {
-doc.setTextColor(156, 163, 175);
-doc.setFontSize(10);
-doc.text('Grafico non disponibile', margin, y);
-y += 20;
-}
-} catch (imgErr) {
-console.error('Errore cattura grafico:', imgErr);
-doc.setTextColor(156, 163, 175);
-doc.setFontSize(10);
-doc.text('Grafico non disponibile', margin, y);
-y += 20;
-}
-y += 10;
-doc.setTextColor(26, 43, 60);
-doc.setFontSize(14);
-doc.setFont('helvetica', 'bold');
-doc.text(`Dettaglio spese per categoria`, margin, y);
-y += 10;
-const byCategory = {};
-state.transactions.filter(t => t.type === 'expense' && monthKey(t.date) === month).forEach(t => { byCategory[t.category] = (byCategory[t.category] || 0) + amountValue(t.amount); });
-const cats = Object.keys(byCategory).sort((a,b) => byCategory[b] - byCategory[a]);
-if (cats.length > 0) {
-const catColWidths = [70, 50, 40];
-const catHeaders = ['Categoria', 'Importo', '%'];
-const totalCat = cats.reduce((s,c) => s + byCategory[c], 0);
-const catRows = cats.map((c, i) => {
-const pct = Math.round((byCategory[c] / totalCat) * 100);
-return {
-cells: [
-{ text: c },
-{ text: fmtEUR(byCategory[c]), color: [26, 43, 60] },
-{ text: pct + '%', color: [90, 107, 124] }
-]
-};
-});
-y = drawPDFTable(doc, catHeaders, catRows, margin, y, catColWidths, pageWidth);
-} else {
-doc.setTextColor(156, 163, 175);
-doc.setFontSize(10);
-doc.text('Nessuna spesa nel mese selezionato', margin, y + 5);
-}
-const pageCount = doc.internal.getNumberOfPages();
-for (let i = 1; i <= pageCount; i++) {
-doc.setPage(i);
-doc.setFontSize(8);
-doc.setTextColor(138, 155, 172);
-doc.text(`Budget di Famiglia · Pagina ${i}/${pageCount}`, pageWidth/2, 290, { align: 'center' });
-}
-doc.save(`statistiche-${year}.pdf`);
-} catch(err) {
-alert('Errore PDF: ' + err.message);
-console.error(err);
-} finally {
-showLoading(false);
-}
+  showLoading(true);
+  try {
+    const { jsPDF } = window.jspdf;
+    
+    // Mostra tutte le tab
+    const tabContents = document.querySelectorAll('.stats-tab-content');
+    const activeTab = document.querySelector('.stats-tab.active');
+    
+    tabContents.forEach(tab => {
+      tab.style.display = 'block';
+      tab.classList.add('active');
+    });
+    
+    // Aggiorna tutti i grafici
+    updateChartCategory();
+    updateChartYear();
+    updateChartResiduo();
+    updateChartCompare();
+    
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    const element = document.getElementById('page-grafici');
+    const canvas = await html2canvas(element, {
+      scale: 1.2, // Ridotto per adattare meglio
+      useCORS: true,
+      logging: false,
+      backgroundColor: '#F0F4F8',
+      windowWidth: 1200,
+      windowHeight: element.scrollHeight
+    });
+    
+    // Ripristina tab
+    tabContents.forEach(tab => {
+      tab.style.display = '';
+      tab.classList.remove('active');
+    });
+    if (activeTab) {
+      activeTab.classList.add('active');
+      document.getElementById(activeTab.dataset.tab).classList.add('active');
+    }
+    
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const imgWidth = canvas.width;
+    const imgHeight = canvas.height;
+    
+    // Calcola quante pagine servono e adatta
+    const widthRatio = pdfWidth / imgWidth;
+    const heightRatio = pdfHeight / imgHeight;
+    const scale = Math.min(widthRatio * 0.9, heightRatio * 0.9); // 90% per margini
+    
+    let position = 0;
+    let page = 0;
+    const totalHeight = imgHeight * scale;
+    
+    while (position < totalHeight) {
+      if (page > 0) pdf.addPage();
+      
+      const x = (pdfWidth - (imgWidth * scale)) / 2;
+      pdf.addImage(
+        imgData, 
+        'PNG', 
+        x, 
+        -position,
+        imgWidth * scale, 
+        totalHeight
+      );
+      
+      position += pdfHeight;
+      page++;
+    }
+    
+    const year = document.getElementById('chart-year')?.value || new Date().getFullYear();
+    pdf.save(`statistiche-${year}.pdf`);
+  } catch(err) {
+    alert('Errore PDF: ' + err.message);
+    console.error(err);
+  } finally {
+    showLoading(false);
+  }
 }
 document.getElementById('btn-pdf-home').addEventListener('click', generateHomePDF);
 document.getElementById('btn-pdf-stats').addEventListener('click', generateStatsPDF);
