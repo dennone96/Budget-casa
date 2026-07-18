@@ -2846,9 +2846,50 @@ async function generateStatsPDF() {
     const doc = new jsPDF('p', 'mm', 'a4');
     const pageWidth = doc.internal.pageSize.getWidth();
     const margin = 15;
-    let y = 20;
+    
     const year = document.getElementById('chart-year')?.value || new Date().getFullYear().toString();
     const month = document.getElementById('chart-month')?.value || monthKey(todayISO());
+    
+    // MOSTRA TEMPORANEAMENTE TUTTI I TAB PER IL RENDERING DEI GRAFICI
+    const tabContents = document.querySelectorAll('.stats-tab-content');
+    const originalStyles = [];
+    tabContents.forEach((tab, idx) => {
+      originalStyles[idx] = {
+        display: tab.style.display,
+        visibility: tab.style.visibility,
+        position: tab.style.position,
+        height: tab.style.height
+      };
+      tab.style.display = 'block';
+      tab.style.visibility = 'visible';
+      tab.style.position = 'relative';
+      tab.style.height = 'auto';
+    });
+    
+    // Aggiorna tutti i grafici
+    updateChartCategory();
+    updateChartYear();
+    updateChartResiduo();
+    updateChartCompare();
+    
+    // Aspetta il rendering completo
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    // Cattura le immagini dei grafici
+    const yearChartImg = document.getElementById('yearChart').toDataURL('image/png', 1.0);
+    const residuoChartImg = document.getElementById('residuoChart').toDataURL('image/png', 1.0);
+    const categoryChartImg = document.getElementById('categoryChart').toDataURL('image/png', 1.0);
+    const compareChartImg = document.getElementById('compareChart').toDataURL('image/png', 1.0);
+    
+    // RIPRISTINA I TAB ORIGINALI
+    tabContents.forEach((tab, idx) => {
+      tab.style.display = originalStyles[idx].display;
+      tab.style.visibility = originalStyles[idx].visibility;
+      tab.style.position = originalStyles[idx].position;
+      tab.style.height = originalStyles[idx].height;
+    });
+    
+    // Header
     doc.setFillColor(74, 144, 217);
     doc.rect(0, 0, pageWidth, 40, 'F');
     doc.setTextColor(255, 255, 255);
@@ -2858,7 +2899,9 @@ async function generateStatsPDF() {
     doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
     doc.text(`Anno ${year}`, margin, 32);
-    y = 55;
+    
+    // Sezione 1: Riepilogo annuale
+    let y = 55;
     doc.setTextColor(26, 43, 60);
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
@@ -2886,6 +2929,8 @@ async function generateStatsPDF() {
       doc.setFontSize(13);
       doc.text(stat.value, x + 3, y + 22);
     });
+    
+    // Sezione 2: Dettaglio mensile
     doc.addPage();
     y = 20;
     doc.setTextColor(26, 43, 60);
@@ -2911,6 +2956,8 @@ async function generateStatsPDF() {
       };
     });
     y = drawPDFTable(doc, yearHeaders, yearRows, margin, y, yearColWidths, pageWidth);
+    
+    // Sezione 3: Entrate vs Uscite CON GRAFICO
     doc.addPage();
     y = 20;
     doc.setTextColor(26, 43, 60);
@@ -2918,29 +2965,20 @@ async function generateStatsPDF() {
     doc.setFont('helvetica', 'bold');
     doc.text(`Entrate vs Uscite - Anno ${year}`, margin, y);
     y += 15;
-    updateChartYear();
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    try {
-      const yearChartCanvas = document.getElementById('yearChart');
-      const yearChartImg = yearChartCanvas.toDataURL('image/png', 1.0);
-      if (yearChartImg && yearChartImg.length > 1000) {
-        const imgWidth = pageWidth - 2*margin;
-        const imgHeight = 90;
-        doc.addImage(yearChartImg, 'PNG', margin, y, imgWidth, imgHeight);
-        y += imgHeight + 10;
-      } else {
-        doc.setTextColor(156, 163, 175);
-        doc.setFontSize(10);
-        doc.text('Grafico non disponibile - dati insufficienti', margin, y);
-        y += 20;
-      }
-    } catch (imgErr) {
-      console.error('Errore cattura grafico entrate/uscite:', imgErr);
+    
+    if (yearChartImg && yearChartImg.length > 1000) {
+      const imgWidth = pageWidth - 2*margin;
+      const imgHeight = 90;
+      doc.addImage(yearChartImg, 'PNG', margin, y, imgWidth, imgHeight);
+      y += imgHeight + 10;
+    } else {
       doc.setTextColor(156, 163, 175);
       doc.setFontSize(10);
       doc.text('Grafico non disponibile', margin, y);
       y += 20;
     }
+    
+    // Sezione 4: Residuo mensile CON GRAFICO
     doc.addPage();
     y = 20;
     doc.setTextColor(26, 43, 60);
@@ -2970,35 +3008,27 @@ async function generateStatsPDF() {
       };
     });
     y = drawPDFTable(doc, residuoHeaders, residuoRows, margin, y, residuoColWidths, pageWidth);
+    
     y += 10;
     doc.setTextColor(26, 43, 60);
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
     doc.text(`Grafico Andamento Residuo`, margin, y);
     y += 15;
-    updateChartResiduo();
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    try {
-      const residuoChartCanvas = document.getElementById('residuoChart');
-      const residuoChartImg = residuoChartCanvas.toDataURL('image/png', 1.0);
-      if (residuoChartImg && residuoChartImg.length > 1000) {
-        const imgWidth = pageWidth - 2*margin;
-        const imgHeight = 90;
-        doc.addImage(residuoChartImg, 'PNG', margin, y, imgWidth, imgHeight);
-        y += imgHeight + 10;
-      } else {
-        doc.setTextColor(156, 163, 175);
-        doc.setFontSize(10);
-        doc.text('Grafico non disponibile - dati insufficienti', margin, y);
-        y += 20;
-      }
-    } catch (imgErr) {
-      console.error('Errore cattura grafico residuo:', imgErr);
+    
+    if (residuoChartImg && residuoChartImg.length > 1000) {
+      const imgWidth = pageWidth - 2*margin;
+      const imgHeight = 90;
+      doc.addImage(residuoChartImg, 'PNG', margin, y, imgWidth, imgHeight);
+      y += imgHeight + 10;
+    } else {
       doc.setTextColor(156, 163, 175);
       doc.setFontSize(10);
       doc.text('Grafico non disponibile', margin, y);
       y += 20;
     }
+    
+    // Sezione 5: Spese per categoria CON GRAFICO
     doc.addPage();
     y = 20;
     doc.setTextColor(26, 43, 60);
@@ -3006,29 +3036,19 @@ async function generateStatsPDF() {
     doc.setFont('helvetica', 'bold');
     doc.text(`Spese per categoria - ${monthLabel(month)}`, margin, y);
     y += 15;
-    updateChartCategory();
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    try {
-      const categoryChartCanvas = document.getElementById('categoryChart');
-      const categoryChartImg = categoryChartCanvas.toDataURL('image/png', 1.0);
-      if (categoryChartImg && categoryChartImg.length > 1000) {
-        const imgWidth = pageWidth - 2*margin;
-        const imgHeight = 90;
-        doc.addImage(categoryChartImg, 'PNG', margin, y, imgWidth, imgHeight);
-        y += imgHeight + 10;
-      } else {
-        doc.setTextColor(156, 163, 175);
-        doc.setFontSize(10);
-        doc.text('Grafico non disponibile - nessuna spesa nel mese', margin, y);
-        y += 20;
-      }
-    } catch (imgErr) {
-      console.error('Errore cattura grafico categorie:', imgErr);
+    
+    if (categoryChartImg && categoryChartImg.length > 1000) {
+      const imgWidth = pageWidth - 2*margin;
+      const imgHeight = 90;
+      doc.addImage(categoryChartImg, 'PNG', margin, y, imgWidth, imgHeight);
+      y += imgHeight + 10;
+    } else {
       doc.setTextColor(156, 163, 175);
       doc.setFontSize(10);
       doc.text('Grafico non disponibile', margin, y);
       y += 20;
     }
+    
     y += 10;
     doc.setTextColor(26, 43, 60);
     doc.setFontSize(14);
@@ -3058,6 +3078,76 @@ async function generateStatsPDF() {
       doc.setFontSize(10);
       doc.text('Nessuna spesa nel mese selezionato', margin, y + 5);
     }
+    
+    // Sezione 6: Confronto mesi CON GRAFICO
+    const m1 = document.getElementById('compare-month-1')?.value;
+    const m2 = document.getElementById('compare-month-2')?.value;
+    if (m1 && m2) {
+      doc.addPage();
+      y = 20;
+      doc.setTextColor(26, 43, 60);
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`Confronto: ${monthLabel(m1)} vs ${monthLabel(m2)}`, margin, y);
+      y += 15;
+      
+      if (compareChartImg && compareChartImg.length > 1000) {
+        const imgWidth = pageWidth - 2*margin;
+        const imgHeight = 90;
+        doc.addImage(compareChartImg, 'PNG', margin, y, imgWidth, imgHeight);
+        y += imgHeight + 10;
+      } else {
+        doc.setTextColor(156, 163, 175);
+        doc.setFontSize(10);
+        doc.text('Grafico non disponibile', margin, y);
+        y += 20;
+      }
+      
+      // Tabella confronto
+      const calc = (m) => { const mt = state.transactions.filter(t => monthKey(t.date) === m); return { inc: mt.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0), exp: mt.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0) }; };
+      const d1 = calc(m1); const d2 = calc(m2);
+      const saldo1 = d1.inc - d1.exp;
+      const saldo2 = d2.inc - d2.exp;
+      
+      const compareColWidths = [50, 40, 40, 40];
+      const compareHeaders = ['', monthLabel(m1), monthLabel(m2), 'Differenza'];
+      const compareRows = [];
+      const getCategoriesByTypePDF = (m, type) => {
+        const mt = state.transactions.filter(t => monthKey(t.date) === m && t.type === type);
+        const cats = {};
+        mt.forEach(t => { cats[t.category] = (cats[t.category] || 0) + amountValue(t.amount); });
+        return cats;
+      };
+      const diffInc = d2.inc - d1.inc;
+      compareRows.push({ isTotal: true, cells: [{ text: 'Totale Entrate', color: [26, 43, 60] }, { text: fmtEUR(d1.inc), color: [92, 184, 92] }, { text: fmtEUR(d2.inc), color: [92, 184, 92] }, { text: `${diffInc >= 0 ? '+' : ''}${fmtEUR(diffInc)}`, color: diffInc >= 0 ? [92, 184, 92] : [231, 76, 60] }] });
+      const catsInc1 = getCategoriesByTypePDF(m1, 'income');
+      const catsInc2 = getCategoriesByTypePDF(m2, 'income');
+      const allCatsInc = [...new Set([...Object.keys(catsInc1), ...Object.keys(catsInc2)])];
+      if (allCatsInc.length > 0) {
+        compareRows.push({ isSection: true, cells: [{ text: 'Dettaglio entrate', color: [26, 43, 60] }, { text: '' }, { text: '' }, { text: '' }] });
+        allCatsInc.sort((a,b) => (catsInc2[b] || 0) - (catsInc2[a] || 0)).forEach(cat => {
+          const val1 = catsInc1[cat] || 0; const val2 = catsInc2[cat] || 0; const diffCat = val2 - val1;
+          compareRows.push({ cells: [{ text: cat }, { text: fmtEUR(val1), color: [92, 184, 92] }, { text: fmtEUR(val2), color: [92, 184, 92] }, { text: `${diffCat >= 0 ? '+' : ''}${fmtEUR(diffCat)}`, color: diffCat >= 0 ? [92, 184, 92] : [231, 76, 60] }] });
+        });
+      }
+      const diffExp = d2.exp - d1.exp;
+      compareRows.push({ isTotal: true, cells: [{ text: 'Totale Uscite', color: [26, 43, 60] }, { text: fmtEUR(d1.exp), color: [231, 76, 60] }, { text: fmtEUR(d2.exp), color: [231, 76, 60] }, { text: `${diffExp >= 0 ? '+' : ''}${fmtEUR(diffExp)}`, color: diffExp >= 0 ? [231, 76, 60] : [92, 184, 92] }] });
+      const catsExp1 = getCategoriesByTypePDF(m1, 'expense');
+      const catsExp2 = getCategoriesByTypePDF(m2, 'expense');
+      const allCatsExp = [...new Set([...Object.keys(catsExp1), ...Object.keys(catsExp2)])];
+      if (allCatsExp.length > 0) {
+        compareRows.push({ isSection: true, cells: [{ text: 'Dettaglio uscite', color: [26, 43, 60] }, { text: '' }, { text: '' }, { text: '' }] });
+        allCatsExp.sort((a,b) => (catsExp2[b] || 0) - (catsExp2[a] || 0)).forEach(cat => {
+          const val1 = catsExp1[cat] || 0; const val2 = catsExp2[cat] || 0; const diffCat = val2 - val1;
+          compareRows.push({ cells: [{ text: cat }, { text: fmtEUR(val1), color: [231, 76, 60] }, { text: fmtEUR(val2), color: [231, 76, 60] }, { text: `${diffCat >= 0 ? '+' : ''}${fmtEUR(diffCat)}`, color: diffCat >= 0 ? [231, 76, 60] : [92, 184, 92] }] });
+        });
+      }
+      const diffSaldo = saldo2 - saldo1;
+      compareRows.push({ isTotal: true, cells: [{ text: 'Saldo Finale', color: [26, 43, 60] }, { text: fmtEUR(saldo1), color: saldo1 >= 0 ? [92, 184, 92] : [231, 76, 60] }, { text: fmtEUR(saldo2), color: saldo2 >= 0 ? [92, 184, 92] : [231, 76, 60] }, { text: `${diffSaldo >= 0 ? '+' : ''}${fmtEUR(diffSaldo)}`, color: diffSaldo >= 0 ? [92, 184, 92] : [231, 76, 60] }] });
+      y = drawPDFTable(doc, compareHeaders, compareRows, margin, y, compareColWidths, pageWidth);
+    }
+    
+    // Numeri di pagina
     const pageCount = doc.internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
@@ -3065,6 +3155,7 @@ async function generateStatsPDF() {
       doc.setTextColor(138, 155, 172);
       doc.text(`Budget di Famiglia · Pagina ${i}/${pageCount}`, pageWidth/2, 290, { align: 'center' });
     }
+    
     doc.save(`statistiche-${year}.pdf`);
   } catch(err) {
     alert('Errore PDF: ' + err.message);
