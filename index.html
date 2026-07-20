@@ -2946,13 +2946,23 @@ return y + 5;
 async function generateHomePDF() {
   showLoading(true);
   try {
-    const element = document.getElementById('page-home');
+    const { jsPDF } = window.jspdf;
     
     // Nascondi temporaneamente elementi non necessari per la stampa
+    const newMovementPanel = document.querySelector('#page-home .panel');
     const bulkActions = document.getElementById('bulk-actions-container');
-    const originalDisplay = bulkActions ? bulkActions.style.display : '';
-    if (bulkActions) bulkActions.style.display = 'none';
+    const searchBar = document.querySelector('.search-bar');
     
+    const originalNewMovementDisplay = newMovementPanel ? newMovementPanel.style.display : '';
+    const originalBulkDisplay = bulkActions ? bulkActions.style.display : '';
+    const originalSearchDisplay = searchBar ? searchBar.style.display : '';
+    
+    if (newMovementPanel) newMovementPanel.style.display = 'none';
+    if (bulkActions) bulkActions.style.display = 'none';
+    if (searchBar) searchBar.style.display = 'none';
+    
+    // Cattura l'intera pagina home
+    const element = document.getElementById('page-home');
     const canvas = await html2canvas(element, {
       scale: 2,
       useCORS: true,
@@ -2962,25 +2972,42 @@ async function generateHomePDF() {
     });
     
     // Ripristina elementi
-    if (bulkActions) bulkActions.style.display = originalDisplay;
+    if (newMovementPanel) newMovementPanel.style.display = originalNewMovementDisplay;
+    if (bulkActions) bulkActions.style.display = originalBulkDisplay;
+    if (searchBar) searchBar.style.display = originalSearchDisplay;
     
     const imgData = canvas.toDataURL('image/png');
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF('p', 'mm', 'a4'); // Portrait
-    
+    const pdf = new jsPDF('p', 'mm', 'a4');
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
     const imgWidth = canvas.width;
     const imgHeight = canvas.height;
     
-    // Calcola ratio per adattare al foglio A4
-    const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight) * 0.95;
-    const finalWidth = imgWidth * ratio;
-    const finalHeight = imgHeight * ratio;
-    const x = (pdfWidth - finalWidth) / 2;
-    const y = (pdfHeight - finalHeight) / 2;
+    // Calcola il ratio per adattare alla larghezza del foglio
+    const ratio = pdfWidth / imgWidth;
+    const scaledHeight = imgHeight * ratio;
     
-    pdf.addImage(imgData, 'PNG', x, y, finalWidth, finalHeight);
+    // Dividi su più pagine se necessario
+    let position = 0;
+    let pageNum = 0;
+    
+    while (position < scaledHeight) {
+      if (pageNum > 0) pdf.addPage();
+      
+      pdf.addImage(imgData, 'PNG', 0, -position, pdfWidth, scaledHeight);
+      position += pdfHeight;
+      pageNum++;
+    }
+    
+    // Aggiungi numerazione pagine
+    const totalPages = pdf.internal.getNumberOfPages();
+    for (let i = 1; i <= totalPages; i++) {
+      pdf.setPage(i);
+      pdf.setFontSize(8);
+      pdf.setTextColor(138, 155, 172);
+      pdf.text(`Budget di Famiglia · Pagina ${i}/${totalPages}`, pdfWidth / 2, pdfHeight - 10, { align: 'center' });
+    }
+    
     pdf.save(`budget-famiglia-${todayISO()}.pdf`);
   } catch(err) {
     alert('Errore PDF: ' + err.message);
