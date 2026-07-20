@@ -15,13 +15,13 @@
 <meta name="theme-color" content="#4A90D9">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.44.0/iconfont/tabler-icons.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-storage-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>  
 <style>
 :root {
 --bg: #F0F4F8;
@@ -1492,7 +1492,7 @@ Aggiungi movimento
 <div class="source-filter">
 <button class="active" data-source="all">Tutti</button>
 <button data-source="cash">💵 Contanti</button>
-<button data-source="bank"> Conto corrente</button>
+<button data-source="bank">🏦 Conto corrente</button>
 </div>
 <div id="bulk-actions-container"></div>
 <div class="tx-header">
@@ -1746,7 +1746,7 @@ Invia email di reset
 <div id="page-categorie" class="page">
 <h1>Categorie</h1>
 <div class="panel">
-<h3> Uscite</h3>
+<h3>📤 Uscite</h3>
 <ul id="cat-list-expense" class="cat-list"></ul>
 <div class="cat-input-row">
 <input type="text" id="new-cat-expense" placeholder="Nuova categoria">
@@ -2031,70 +2031,96 @@ document.getElementById('filter-year').addEventListener('change', () => { if (!d
 document.getElementById('filter-custom-toggle').addEventListener('change', (e) => { document.getElementById('custom-range').classList.toggle('hidden', !e.target.checked); if (e.target.checked) { document.getElementById('filter-from').value = filterFrom; document.getElementById('filter-to').value = filterTo; } else { applyMonthYearFilter(); } });
 populateHomePeriodFilters();
 applyMonthYearFilter();
-function updateChartCategory() {
-  const month = document.getElementById('chart-month').value || monthKey(todayISO());
-  const mt = state.transactions.filter(t => t.type === 'expense' && monthKey(t.date) === month);
-  const byCategory = {};
-  mt.forEach(t => { byCategory[t.category] = (byCategory[t.category] || 0) + amountValue(t.amount); });
-  const cats = Object.keys(byCategory).filter(c => byCategory[c] > 0);
-  const data = cats.map(c => Math.round(byCategory[c] * 100) / 100);
-  
-  // Genera colori unici per ogni categoria
-  const colors = cats.map((_, i) => {
-    // Usa HSL per generare colori distinti
-    const hue = (i * 137.508) % 360; // Golden angle approximation
-    return `hsl(${hue}, 70%, 60%)`;
-  });
-  
-  const legend = document.getElementById('legend-categories');
-  legend.innerHTML = '';
-  cats.forEach((c, i) => { 
-    const span = document.createElement('span'); 
-    span.innerHTML = `<span class="swatch" style="background:${colors[i]};"></span>${c} ${fmtEUR(data[i])}`; 
-    legend.appendChild(span); 
-  });
-  
-  if (chartCategory) chartCategory.destroy();
-  if (data.length === 0) {
-    legend.innerHTML = '<span style="color:var(--text-muted); font-size:13px;">Nessuna spesa in questo mese.</span>';
-    document.getElementById('table-category-body').innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 20px; color: var(--text-muted);">Nessuna spesa in questo mese</td></tr>';
-    return;
-  }
-  
-  chartCategory = new Chart(document.getElementById('categoryChart'), {
-    type: 'pie',
-    data: { labels: cats, datasets: [{ data, backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }] },
-    options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      aspectRatio: 2,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#1A2B3C',
-          titleFont: { family: 'Plus Jakarta Sans', size: 13, weight: '800' },
-          bodyFont: { family: 'Plus Jakarta Sans', size: 13 },
-          padding: 14,
-          cornerRadius: 12,
-          callbacks: { label: ctx => ctx.label + ': ' + fmtEUR(ctx.parsed) + ' (' + ((ctx.parsed/data.reduce((a,b)=>a+b,0))*100).toFixed(1) + '%)' }
-        }
-      }
+
+function prepareForPDFCapture(element) {
+  const allElements = element.querySelectorAll('*');
+  const originalStyles = new Map();
+  allElements.forEach(el => {
+    const style = window.getComputedStyle(el);
+    originalStyles.set(el, {
+      backgroundColor: el.style.backgroundColor,
+      color: el.style.color,
+      borderColor: el.style.borderColor,
+      backdropFilter: el.style.backdropFilter,
+      WebkitBackdropFilter: el.style.webkitBackdropFilter
+    });
+    const bgColor = style.backgroundColor;
+    if (bgColor && bgColor !== 'rgba(0, 0, 0, 0)' && bgColor !== 'transparent') {
+      el.style.backgroundColor = bgColor;
     }
+    const textColor = style.color;
+    if (textColor) {
+      el.style.color = textColor;
+    }
+    el.style.backdropFilter = 'none';
+    el.style.webkitBackdropFilter = 'none';
   });
-  
-  const tbody = document.getElementById('table-category-body');
-  tbody.innerHTML = '';
-  const total = data.reduce((a, b) => a + b, 0);
-  cats.forEach((c, i) => {
-    const pct = ((data[i] / total) * 100).toFixed(1);
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td><span style="display: inline-block; width: 14px; height: 14px; border-radius: 4px; background: ${colors[i]}; margin-right: 10px; vertical-align: middle;"></span><span style="font-weight:700;">${escapeHtml(c)}</span></td>
-      <td class="text-right" style="font-weight: 700;">${fmtEUR(data[i])}</td>
-      <td class="text-right" style="color: var(--text-secondary); font-weight:700;">${pct}%</td>
-    `;
-    tbody.appendChild(row);
+  return originalStyles;
+}
+
+function restoreStyles(element, originalStyles) {
+  originalStyles.forEach((styles, el) => {
+    el.style.backgroundColor = styles.backgroundColor;
+    el.style.color = styles.color;
+    el.style.borderColor = styles.borderColor;
+    el.style.backdropFilter = styles.backdropFilter;
+    el.style.webkitBackdropFilter = styles.webkitBackdropFilter;
   });
+}
+
+function updateChartCategory() {
+const month = document.getElementById('chart-month').value || monthKey(todayISO());
+const mt = state.transactions.filter(t => t.type === 'expense' && monthKey(t.date) === month);
+const byCategory = {};
+mt.forEach(t => { byCategory[t.category] = (byCategory[t.category] || 0) + amountValue(t.amount); });
+const cats = Object.keys(byCategory).filter(c => byCategory[c] > 0);
+const data = cats.map(c => Math.round(byCategory[c] * 100) / 100);
+const colors = cats.map((c,i) => {
+  const hue = (i * 137.508) % 360;
+  return `hsl(${hue}, 70%, 60%)`;
+});
+const legend = document.getElementById('legend-categories');
+legend.innerHTML = '';
+cats.forEach((c,i) => { const span = document.createElement('span'); span.innerHTML = `<span class="swatch" style="background:${colors[i]};"></span>${c} ${fmtEUR(data[i])}`; legend.appendChild(span); });
+if (chartCategory) chartCategory.destroy();
+if (data.length === 0) {
+legend.innerHTML = '<span style="color:var(--text-muted); font-size:13px;">Nessuna spesa in questo mese.</span>';
+document.getElementById('table-category-body').innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 20px; color: var(--text-muted);">Nessuna spesa in questo mese</td></tr>';
+return;
+}
+chartCategory = new Chart(document.getElementById('categoryChart'), {
+type: 'pie',
+data: { labels: cats, datasets: [{ data, backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }] },
+options: {
+responsive: true,
+maintainAspectRatio: true,
+aspectRatio: 2,
+plugins: {
+legend: { display: false },
+tooltip: {
+backgroundColor: '#1A2B3C',
+titleFont: { family: 'Plus Jakarta Sans', size: 13, weight: '800' },
+bodyFont: { family: 'Plus Jakarta Sans', size: 13 },
+padding: 14,
+cornerRadius: 12,
+callbacks: { label: ctx => ctx.label + ': ' + fmtEUR(ctx.parsed) + ' (' + ((ctx.parsed/data.reduce((a,b)=>a+b,0))*100).toFixed(1) + '%)' }
+}
+}
+}
+});
+const tbody = document.getElementById('table-category-body');
+tbody.innerHTML = '';
+const total = data.reduce((a, b) => a + b, 0);
+cats.forEach((c, i) => {
+const pct = ((data[i] / total) * 100).toFixed(1);
+const row = document.createElement('tr');
+row.innerHTML = `
+<td><span style="display: inline-block; width: 14px; height: 14px; border-radius: 4px; background: ${colors[i]}; margin-right: 10px; vertical-align: middle;"></span><span style="font-weight:700;">${escapeHtml(c)}</span></td>
+<td class="text-right" style="font-weight: 700;">${fmtEUR(data[i])}</td>
+<td class="text-right" style="color: var(--text-secondary); font-weight:700;">${pct}%</td>
+`;
+tbody.appendChild(row);
+});
 }
 function updateChartYear() {
 const year = document.getElementById('chart-year').value || new Date().getFullYear().toString();
@@ -2311,7 +2337,7 @@ let tr = document.createElement('tr');
 tr.className = 'total-row';
 let diff = totalInc2 - totalInc1;
 tr.innerHTML = `
-<td style="font-weight: 800;"> Totale Entrate</td>
+<td style="font-weight: 800;">💰 Totale Entrate</td>
 <td class="text-right" style="font-weight: 700; color: var(--success)">${fmtEUR(totalInc1)}</td>
 <td class="text-right" style="font-weight: 700; color: var(--success)">${fmtEUR(totalInc2)}</td>
 <td class="text-right" style="font-weight: 800; color: ${diff >= 0 ? 'var(--success)' : 'var(--danger)'}">
@@ -2347,7 +2373,7 @@ tr = document.createElement('tr');
 tr.className = 'total-row';
 diff = totalExp2 - totalExp1;
 tr.innerHTML = `
-<td style="font-weight: 800;"> Totale Uscite</td>
+<td style="font-weight: 800;">💸 Totale Uscite</td>
 <td class="text-right" style="font-weight: 700; color: var(--danger)">${fmtEUR(totalExp1)}</td>
 <td class="text-right" style="font-weight: 700; color: var(--danger)">${fmtEUR(totalExp2)}</td>
 <td class="text-right" style="font-weight: 800; color: ${diff >= 0 ? 'var(--danger)' : 'var(--success)'}">
@@ -2399,18 +2425,18 @@ document.getElementById('compare-month-1').addEventListener('change', updateChar
 document.getElementById('compare-month-2').addEventListener('change', updateChartCompare);
 document.querySelectorAll('.source-filter button').forEach(btn => { btn.addEventListener('click', () => { document.querySelectorAll('.source-filter button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); activeSourceFilter = btn.getAttribute('data-source'); updateStats(); updateTransactionsList(); }); });
 document.getElementById('search-transactions').addEventListener('input', (e) => {
-searchQuery = e.target.value.toLowerCase().trim();
-updateTransactionsList();
+  searchQuery = e.target.value.toLowerCase().trim();
+  updateTransactionsList();
 });
 function updateTransactionsList() {
 const from = filterFrom || todayISO().slice(0,7) + '-01';
 const to = filterTo || todayISO();
 let mt = state.transactions.filter(t => t.date >= from && t.date <= to && matchesSourceFilter(t));
 if (searchQuery) {
-mt = mt.filter(t => 
-(t.description || '').toLowerCase().includes(searchQuery) || 
-(t.category || '').toLowerCase().includes(searchQuery)
-);
+  mt = mt.filter(t => 
+    (t.description || '').toLowerCase().includes(searchQuery) || 
+    (t.category || '').toLowerCase().includes(searchQuery)
+  );
 }
 mt.sort((a,b) => b.date.localeCompare(a.date));
 const list = document.getElementById('transactions-list');
@@ -2418,60 +2444,59 @@ list.innerHTML = '';
 const bulkContainer = document.getElementById('bulk-actions-container');
 bulkContainer.innerHTML = '';
 if (mt.length > 0) {
-const bulkBar = document.createElement('div');
-bulkBar.className = 'bulk-actions-bar';
-const selectAllLabel = document.createElement('label');
-selectAllLabel.style.cssText = 'display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:700; font-size:14px;';
-const selectAllCheckbox = document.createElement('input');
-selectAllCheckbox.type = 'checkbox';
-selectAllCheckbox.checked = mt.every(t => selectedTransactions.has(t.id));
-selectAllCheckbox.addEventListener('change', (e) => {
-if (e.target.checked) {
-mt.forEach(t => selectedTransactions.add(t.id));
-} else {
-mt.forEach(t => selectedTransactions.delete(t.id));
-}
-updateTransactionsList();
-});
-selectAllLabel.appendChild(selectAllCheckbox);
-selectAllLabel.appendChild(document.createTextNode(' Seleziona tutti'));
-bulkBar.appendChild(selectAllLabel);
-if (selectedTransactions.size > 0) {
-const countSpan = document.createElement('span');
-countSpan.className = 'bulk-count';
-countSpan.textContent = `${selectedTransactions.size} selezionati`;
-bulkBar.appendChild(countSpan);
-const deleteBtn = document.createElement('button');
-deleteBtn.className = 'btn-bulk-delete';
-deleteBtn.textContent = '🗑️ Elimina selezionati';
-deleteBtn.addEventListener('click', async () => {
-if (!confirm(`Eliminare ${selectedTransactions.size} movimenti selezionati?`)) return;
-state.transactions = state.transactions.filter(t => !selectedTransactions.has(t.id));
-selectedTransactions.clear();
-await saveTransactions();
-renderAll();
-});
-bulkBar.appendChild(deleteBtn);
-const clearBtn = document.createElement('button');
-clearBtn.className = 'btn-bulk-clear';
-clearBtn.textContent = '✖ Deseleziona';
-clearBtn.addEventListener('click', () => {
-selectedTransactions.clear();
-updateTransactionsList();
-});
-bulkBar.appendChild(clearBtn);
-}
-bulkContainer.appendChild(bulkBar);
+  const bulkBar = document.createElement('div');
+  bulkBar.className = 'bulk-actions-bar';
+  const selectAllLabel = document.createElement('label');
+  selectAllLabel.style.cssText = 'display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:700; font-size:14px;';
+  const selectAllCheckbox = document.createElement('input');
+  selectAllCheckbox.type = 'checkbox';
+  selectAllCheckbox.checked = mt.every(t => selectedTransactions.has(t.id));
+  selectAllCheckbox.addEventListener('change', (e) => {
+    if (e.target.checked) {
+      mt.forEach(t => selectedTransactions.add(t.id));
+    } else {
+      mt.forEach(t => selectedTransactions.delete(t.id));
+    }
+    updateTransactionsList();
+  });
+  selectAllLabel.appendChild(selectAllCheckbox);
+  selectAllLabel.appendChild(document.createTextNode(' Seleziona tutti'));
+  bulkBar.appendChild(selectAllLabel);
+  if (selectedTransactions.size > 0) {
+    const countSpan = document.createElement('span');
+    countSpan.className = 'bulk-count';
+    countSpan.textContent = `${selectedTransactions.size} selezionati`;
+    bulkBar.appendChild(countSpan);
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'btn-bulk-delete';
+    deleteBtn.textContent = '🗑️ Elimina selezionati';
+    deleteBtn.addEventListener('click', async () => {
+      if (!confirm(`Eliminare ${selectedTransactions.size} movimenti selezionati?`)) return;
+      state.transactions = state.transactions.filter(t => !selectedTransactions.has(t.id));
+      selectedTransactions.clear();
+      await saveTransactions();
+      renderAll();
+    });
+    bulkBar.appendChild(deleteBtn);
+    const clearBtn = document.createElement('button');
+    clearBtn.className = 'btn-bulk-clear';
+    clearBtn.textContent = '✖ Deseleziona';
+    clearBtn.addEventListener('click', () => {
+      selectedTransactions.clear();
+      updateTransactionsList();
+    });
+    bulkBar.appendChild(clearBtn);
+  }
+  bulkContainer.appendChild(bulkBar);
 }
 if (mt.length === 0) { 
-list.innerHTML = '<p class="empty-msg">' + (searchQuery ? 'Nessun movimento trovato con questa ricerca' : 'Nessun movimento in questo periodo.') + '</p>'; 
-return; 
+  list.innerHTML = '<p class="empty-msg">' + (searchQuery ? 'Nessun movimento trovato con questa ricerca' : 'Nessun movimento in questo periodo.') + '</p>'; 
+  return; 
 }
 mt.forEach(t => {
-const row = document.createElement('div'); 
-row.className = 'tx-row';
+const row = document.createElement('div'); row.className = 'tx-row';
 if (selectedTransactions.has(t.id)) {
-row.classList.add('selected');
+  row.classList.add('selected');
 }
 const isIncome = t.type === 'income';
 const src = t.source || 'cash';
@@ -2486,12 +2511,12 @@ checkbox.type = 'checkbox';
 checkbox.className = 'tx-checkbox';
 checkbox.checked = selectedTransactions.has(t.id);
 checkbox.addEventListener('change', (e) => {
-if (e.target.checked) {
-selectedTransactions.add(t.id);
-} else {
-selectedTransactions.delete(t.id);
-}
-updateTransactionsList();
+  if (e.target.checked) {
+    selectedTransactions.add(t.id);
+  } else {
+    selectedTransactions.delete(t.id);
+  }
+  updateTransactionsList();
 });
 row.appendChild(checkbox);
 const dateDiv = document.createElement('div');
@@ -2579,9 +2604,9 @@ const i = Math.floor(Math.log(bytes) / Math.log(k));
 return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 function getFileIcon(mimeType) {
-if (!mimeType) return '';
+if (!mimeType) return '📄';
 if (mimeType.includes('pdf')) return '📕';
-if (mimeType.includes('word') || mimeType.includes('document')) return '';
+if (mimeType.includes('word') || mimeType.includes('document')) return '📘';
 if (mimeType.includes('sheet') || mimeType.includes('excel')) return '📗';
 return '';
 }
@@ -2702,10 +2727,10 @@ await saveTransactions(); renderAll();
 function normalizeHeader(h) { return String(h||'').trim().toLowerCase(); }
 function parseImportedDate(value) {
 if (value instanceof Date && !isNaN(value)) {
-const year = value.getFullYear();
-const month = String(value.getMonth() + 1).padStart(2, '0');
-const day = String(value.getDate()).padStart(2, '0');
-return `${year}-${month}-${day}`;
+  const year = value.getFullYear();
+  const month = String(value.getMonth() + 1).padStart(2, '0');
+  const day = String(value.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 if (typeof value === 'number') { const d = XLSX.SSF.parse_date_code(value); if (d) return `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`; }
 const str = String(value||'').trim();
@@ -2902,120 +2927,13 @@ function renderAll() { populateMonthSelects(); populateHomePeriodFilters(); upda
 document.getElementById('inp-date').value = todayISO();
 document.getElementById('rem-date').value = todayISO();
 function showLoading(show) { document.getElementById('pdf-loading').classList.toggle('show', show); }
-function drawPDFTable(doc, headers, rows, margin, startY, colWidths, pageWidth) {
-let y = startY;
-const lineHeight = 7;
-doc.setFillColor(232, 240, 248);
-doc.rect(margin, y, pageWidth - 2*margin, lineHeight, 'F');
-doc.setFontSize(9);
-doc.setFont('helvetica', 'bold');
-doc.setTextColor(90, 107, 124);
-let colX = margin;
-headers.forEach((h, i) => {
-doc.text(h, colX + 2, y + 5);
-colX += colWidths[i];
-});
-y += lineHeight + 2;
-doc.setFont('helvetica', 'normal');
-doc.setFontSize(8);
-rows.forEach((row, idx) => {
-if (y > 270) { doc.addPage(); y = 20; }
-if (row.isTotal) {
-doc.setFillColor(232, 240, 248);
-doc.rect(margin, y - 2, pageWidth - 2*margin, lineHeight, 'F');
-doc.setFont('helvetica', 'bold');
-} else if (row.isSection) {
-doc.setFillColor(227, 240, 255);
-doc.rect(margin, y - 2, pageWidth - 2*margin, lineHeight, 'F');
-doc.setFont('helvetica', 'bold');
-} else if (idx % 2 === 0) {
-doc.setFillColor(250, 251, 252);
-doc.rect(margin, y - 2, pageWidth - 2*margin, lineHeight, 'F');
-}
-colX = margin;
-row.cells.forEach((cell, i) => {
-doc.setTextColor(cell.color ? cell.color[0] : 26, cell.color ? cell.color[1] : 43, cell.color ? cell.color[2] : 60);
-doc.text(cell.text, colX + 2, y);
-colX += colWidths[i];
-});
-if (row.isTotal || row.isSection) doc.setFont('helvetica', 'normal');
-y += lineHeight;
-});
-return y + 5;
-}
-function prepareForPDFCapture(element) {
-  const allElements = element.querySelectorAll('*');
-  const originalStyles = new Map();
-  
-  // Mappa CSS variables a colori hex
-  const colorMap = {
-    '--bg': '#F0F4F8',
-    '--surface': '#FFFFFF',
-    '--surface-2': '#E8F0F8',
-    '--text-primary': '#1A2B3C',
-    '--text-secondary': '#5A6B7C',
-    '--text-muted': '#8A9BAC',
-    '--border': '#D0DCE8',
-    '--accent': '#4A90D9',
-    '--accent-light': '#E3F0FF',
-    '--success': '#5CB85C',
-    '--success-light': '#E8F5E9',
-    '--danger': '#E74C3C',
-    '--danger-light': '#FDE8E8',
-    '--warning': '#F39C12',
-    '--warning-light': '#FFF4E0',
-    '--info': '#3498DB',
-    '--info-light': '#E8F4FD',
-    '--purple': '#9B59B6',
-    '--purple-light': '#F3E8F9'
-  };
-  
-  allElements.forEach(el => {
-    const style = window.getComputedStyle(el);
-    
-    // Salva stili originali
-    originalStyles.set(el, {
-      backgroundColor: el.style.backgroundColor,
-      color: el.style.color,
-      borderColor: el.style.borderColor,
-      backdropFilter: el.style.backdropFilter,
-      WebkitBackdropFilter: el.style.webkitBackdropFilter
-    });
-    
-    // Forza colori espliciti
-    const bgColor = style.backgroundColor;
-    if (bgColor && bgColor !== 'rgba(0, 0, 0, 0)' && bgColor !== 'transparent') {
-      el.style.backgroundColor = bgColor;
-    }
-    
-    const textColor = style.color;
-    if (textColor) {
-      el.style.color = textColor;
-    }
-    
-    // Rimuovi backdrop-filter
-    el.style.backdropFilter = 'none';
-    el.style.webkitBackdropFilter = 'none';
-  });
-  
-  return originalStyles;
-}
 
-function restoreStyles(element, originalStyles) {
-  originalStyles.forEach((styles, el) => {
-    el.style.backgroundColor = styles.backgroundColor;
-    el.style.color = styles.color;
-    el.style.borderColor = styles.borderColor;
-    el.style.backdropFilter = styles.backdropFilter;
-    el.style.webkitBackdropFilter = styles.webkitBackdropFilter;
-  });
-}
 async function generateHomePDF() {
   showLoading(true);
   try {
     const { jsPDF } = window.jspdf;
+    const element = document.getElementById('page-home');
     
-    // Nascondi elementi non necessari per la stampa
     const elementsToHide = [
       document.querySelector('.home-date-filter'),
       document.querySelector('#page-home > .panel'),
@@ -3026,8 +2944,6 @@ async function generateHomePDF() {
     const originalDisplays = elementsToHide.map(el => el ? el.style.display : '');
     elementsToHide.forEach(el => { if (el) el.style.display = 'none'; });
     
-    // Prepara la cattura
-    const element = document.getElementById('page-home');
     const originalStyles = prepareForPDFCapture(element);
     
     const canvas = await html2canvas(element, {
@@ -3038,11 +2954,8 @@ async function generateHomePDF() {
       windowWidth: 1200
     });
     
-    // Ripristina stili
     restoreStyles(element, originalStyles);
-    elementsToHide.forEach((el, i) => { 
-      if (el) el.style.display = originalDisplays[i]; 
-    });
+    elementsToHide.forEach((el, i) => { if (el) el.style.display = originalDisplays[i]; });
     
     const imgData = canvas.toDataURL('image/png', 1.0);
     const pdf = new jsPDF('p', 'mm', 'a4');
@@ -3060,7 +2973,6 @@ async function generateHomePDF() {
     
     while (position < finalHeight) {
       if (pageNum > 0) pdf.addPage();
-      
       pdf.addImage(imgData, 'PNG', marginX, marginY - position, usableWidth, finalHeight);
       position += pdfHeight - (2 * marginY);
       pageNum++;
@@ -3082,12 +2994,12 @@ async function generateHomePDF() {
     showLoading(false);
   }
 }
+
 async function generateStatsPDF() {
   showLoading(true);
   try {
     const { jsPDF } = window.jspdf;
     
-    // Trova la tab attiva
     const activeTab = document.querySelector('.stats-tab.active');
     const activeContent = document.querySelector('.stats-tab-content.active');
     
@@ -3099,7 +3011,6 @@ async function generateStatsPDF() {
     const tabName = activeTab.textContent;
     const tabId = activeTab.dataset.tab;
     
-    // Aggiorna il grafico della tab attiva
     if (tabId === 'tab-categorie') updateChartCategory();
     else if (tabId === 'tab-entrate-uscite') updateChartYear();
     else if (tabId === 'tab-residuo') updateChartResiduo();
@@ -3107,7 +3018,8 @@ async function generateStatsPDF() {
     
     await new Promise(resolve => setTimeout(resolve, 1500));
     
-    // Cattura solo il contenuto della tab attiva
+    const originalStyles = prepareForPDFCapture(activeContent);
+    
     const canvas = await html2canvas(activeContent, {
       scale: 2,
       useCORS: true,
@@ -3116,13 +3028,14 @@ async function generateStatsPDF() {
       windowWidth: 1200
     });
     
+    restoreStyles(activeContent, originalStyles);
+    
     const imgData = canvas.toDataURL('image/png', 1.0);
     const pdf = new jsPDF('p', 'mm', 'a4');
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
     const margin = 10;
     
-    // Header
     pdf.setFillColor(74, 144, 217);
     pdf.rect(0, 0, pdfWidth, 30, 'F');
     pdf.setTextColor(255, 255, 255);
@@ -3130,39 +3043,30 @@ async function generateStatsPDF() {
     pdf.setFont('helvetica', 'bold');
     pdf.text(`Statistiche - ${tabName}`, margin, 20);
     
-    // Calcola dimensioni immagine
-    const availableWidth = pdfWidth - (2 * margin);
-    const imgWidth = availableWidth;
+    const imgWidth = pdfWidth - (2 * margin);
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    
-    // Spazio disponibile per l'immagine (altezza pagina A4 - header - margini)
-    const maxHeight = pdfHeight - 45; 
+    const maxHeight = pdfHeight - 45;
     
     let finalWidth = imgWidth;
     let finalHeight = imgHeight;
     
-    // Se l'immagine è più alta dello spazio disponibile, la ridimensioniamo proporzionalmente
-    // Questo ridurrà automaticamente la dimensione del font e dei grafici per farli stare in un foglio
     if (imgHeight > maxHeight) {
       const scale = maxHeight / imgHeight;
       finalHeight = maxHeight;
       finalWidth = imgWidth * scale;
     }
     
-    // Centra l'immagine orizzontalmente se è stata ridimensionata
-    const xPos = margin + (availableWidth - finalWidth) / 2;
+    const xPos = margin + (imgWidth - finalWidth) / 2;
     const yPos = 35;
     
-    // Aggiungi l'immagine scalata
     pdf.addImage(imgData, 'PNG', xPos, yPos, finalWidth, finalHeight);
     
-    // Numerazione pagina (ora sarà sempre 1/1)
     pdf.setFontSize(8);
     pdf.setTextColor(138, 155, 172);
     pdf.text(`Budget di Famiglia · Pagina 1/1`, pdfWidth / 2, pdfHeight - 10, { align: 'center' });
     
     const year = document.getElementById('chart-year')?.value || new Date().getFullYear();
-    pdf.save(`statistiche-${tabName}-${year}.pdf`);
+    pdf.save(`statistiche-${tabName.replace(/[^a-zA-Z0-9]/g, '_')}-${year}.pdf`);
   } catch(err) {
     alert('Errore PDF: ' + err.message);
     console.error(err);
@@ -3170,6 +3074,7 @@ async function generateStatsPDF() {
     showLoading(false);
   }
 }
+
 document.getElementById('btn-pdf-home').addEventListener('click', generateHomePDF);
 document.getElementById('btn-pdf-stats').addEventListener('click', generateStatsPDF);
 })();
