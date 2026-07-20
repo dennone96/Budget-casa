@@ -1358,6 +1358,22 @@ text-align: center;
 font-weight: 700;
 }
 .attachment-hidden-input { display: none; }
+
+/* === FORZA RIMOZIONE BLUR PER PDF === */
+.pdf-capturing * {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.pdf-capturing #detail-overlay,
+.pdf-capturing #modal-overlay,
+.pdf-capturing #cat-edit-modal,
+.pdf-capturing #sidebar-overlay {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+/* === FINE FORZA RIMOZIONE BLUR === */  
 </style>
 </head>
 <body>
@@ -2035,36 +2051,80 @@ applyMonthYearFilter();
 function prepareForPDFCapture(element) {
   const allElements = element.querySelectorAll('*');
   const originalStyles = new Map();
+  
+  // Nascondi completamente tutti gli overlay
+  const overlays = [
+    document.getElementById('detail-overlay'),
+    document.getElementById('modal-overlay'),
+    document.getElementById('cat-edit-modal'),
+    document.getElementById('sidebar-overlay')
+  ];
+  
+  overlays.forEach(overlay => {
+    if (overlay) {
+      originalStyles.set(overlay, {
+        display: overlay.style.display,
+        visibility: overlay.style.visibility,
+        opacity: overlay.style.opacity
+      });
+      overlay.style.display = 'none';
+      overlay.style.visibility = 'hidden';
+      overlay.style.opacity = '0';
+    }
+  });
+  
   allElements.forEach(el => {
     const style = window.getComputedStyle(el);
+    
+    // Salva stili originali
     originalStyles.set(el, {
       backgroundColor: el.style.backgroundColor,
       color: el.style.color,
       borderColor: el.style.borderColor,
       backdropFilter: el.style.backdropFilter,
-      WebkitBackdropFilter: el.style.webkitBackdropFilter
+      WebkitBackdropFilter: el.style.webkitBackdropFilter,
+      boxShadow: el.style.boxShadow,
+      opacity: el.style.opacity
     });
+    
+    // Forza colori espliciti
     const bgColor = style.backgroundColor;
     if (bgColor && bgColor !== 'rgba(0, 0, 0, 0)' && bgColor !== 'transparent') {
       el.style.backgroundColor = bgColor;
+    } else if (bgColor === 'rgba(0, 0, 0, 0)' || bgColor === 'transparent') {
+      // Se è trasparente, forza un colore solido
+      el.style.backgroundColor = '#F0F4F8';
     }
+    
     const textColor = style.color;
     if (textColor) {
       el.style.color = textColor;
     }
+    
+    // Rimuovi completamente backdrop-filter
     el.style.backdropFilter = 'none';
     el.style.webkitBackdropFilter = 'none';
+    
+    // Rimuovi box-shadow che potrebbero creare effetti di trasparenza
+    if (el.classList.contains('panel') || el.classList.contains('stat-card')) {
+      el.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
+    }
   });
+  
   return originalStyles;
 }
 
 function restoreStyles(element, originalStyles) {
   originalStyles.forEach((styles, el) => {
-    el.style.backgroundColor = styles.backgroundColor;
-    el.style.color = styles.color;
-    el.style.borderColor = styles.borderColor;
-    el.style.backdropFilter = styles.backdropFilter;
-    el.style.webkitBackdropFilter = styles.webkitBackdropFilter;
+    if (styles.backgroundColor !== undefined) el.style.backgroundColor = styles.backgroundColor;
+    if (styles.color !== undefined) el.style.color = styles.color;
+    if (styles.borderColor !== undefined) el.style.borderColor = styles.borderColor;
+    if (styles.backdropFilter !== undefined) el.style.backdropFilter = styles.backdropFilter;
+    if (styles.WebkitBackdropFilter !== undefined) el.style.webkitBackdropFilter = styles.WebkitBackdropFilter;
+    if (styles.boxShadow !== undefined) el.style.boxShadow = styles.boxShadow;
+    if (styles.opacity !== undefined) el.style.opacity = styles.opacity;
+    if (styles.display !== undefined) el.style.display = styles.display;
+    if (styles.visibility !== undefined) el.style.visibility = styles.visibility;
   });
 }
 
@@ -2934,6 +2994,19 @@ async function generateHomePDF() {
     const { jsPDF } = window.jspdf;
     const element = document.getElementById('page-home');
     
+    // Aggiungi CSS temporaneo
+    const tempStyle = document.createElement('style');
+    tempStyle.id = 'temp-pdf-style';
+    tempStyle.textContent = `
+      * { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+      #detail-overlay, #modal-overlay, #cat-edit-modal, #sidebar-overlay { 
+        display: none !important; 
+        visibility: hidden !important; 
+        opacity: 0 !important; 
+      }
+    `;
+    document.head.appendChild(tempStyle);
+    
     const elementsToHide = [
       document.querySelector('.home-date-filter'),
       document.querySelector('#page-home > .panel'),
@@ -2953,6 +3026,10 @@ async function generateHomePDF() {
       backgroundColor: '#F0F4F8',
       windowWidth: 1200
     });
+    
+    // Rimuovi CSS temporaneo
+    const tempStyleElement = document.getElementById('temp-pdf-style');
+    if (tempStyleElement) tempStyleElement.remove();
     
     restoreStyles(element, originalStyles);
     elementsToHide.forEach((el, i) => { if (el) el.style.display = originalDisplays[i]; });
