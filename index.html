@@ -623,7 +623,7 @@ height: auto !important;
 }
 .tx-row {
 display: grid;
-grid-template-columns: 30px 100px 1fr 120px 100px 90px;
+grid-template-columns: 100px 1fr 120px 100px 90px;
 align-items: center;
 gap: 12px;
 padding: 16px 20px;
@@ -635,20 +635,10 @@ border: 1px solid var(--border);
 transition: all 0.2s;
 box-shadow: var(--shadow-sm);
 }
-.tx-row.selected {
-background: var(--accent-light) !important;
-border-color: var(--accent) !important;
-}
 .tx-row:hover {
 transform: translateY(-2px);
 box-shadow: var(--shadow-lg);
 border-color: var(--accent);
-}
-.tx-checkbox {
-width: 18px;
-height: 18px;
-cursor: pointer;
-accent-color: var(--accent);
 }
 .tx-col-date {
 font-size: 13px;
@@ -677,7 +667,7 @@ letter-spacing: -0.5px;
 .tx-col-actions { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
 .tx-header {
 display: grid;
-grid-template-columns: 30px 100px 1fr 120px 100px 90px;
+grid-template-columns: 100px 1fr 120px 100px 90px;
 gap: 12px;
 padding: 8px 20px;
 font-size: 11px;
@@ -685,59 +675,6 @@ font-weight: 800;
 text-transform: uppercase;
 letter-spacing: 0.8px;
 color: var(--text-muted);
-}
-.bulk-actions-bar {
-display: flex;
-align-items: center;
-gap: 12px;
-padding: 14px 20px;
-background: var(--accent-light);
-border-radius: var(--radius);
-margin-bottom: 12px;
-border: 1px solid var(--accent);
-flex-wrap: wrap;
-}
-.bulk-actions-bar .bulk-count {
-font-weight: 700;
-color: var(--accent);
-font-size: 14px;
-}
-.bulk-actions-bar button {
-height: 36px;
-padding: 0 16px;
-font-size: 13px;
-border-radius: var(--radius-sm);
-}
-.btn-bulk-delete {
-background: var(--danger);
-color: #fff;
-border: none;
-}
-.btn-bulk-delete:hover {
-background: #c0392b;
-}
-.btn-bulk-clear {
-background: var(--surface);
-color: var(--text-secondary);
-border: 1px solid var(--border);
-}
-.search-bar {
-margin-bottom: 12px;
-}
-.search-bar input {
-width: 100%;
-height: 44px;
-padding: 0 16px 0 44px;
-border-radius: var(--radius-sm);
-border: 1.5px solid var(--border);
-font-size: 14px;
-font-family: inherit;
-background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%238A9BAC' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E") 12px center no-repeat;
-}
-.search-bar input:focus {
-outline: none;
-border-color: var(--accent);
-box-shadow: 0 0 0 4px var(--accent-light);
 }
 .table-container {
 overflow-x: auto;
@@ -1358,22 +1295,105 @@ text-align: center;
 font-weight: 700;
 }
 .attachment-hidden-input { display: none; }
-
-/* === FORZA RIMOZIONE BLUR PER PDF === */
-.pdf-capturing * {
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
+.bolletta-month-group {
+margin-bottom: 1.5rem;
 }
-
-.pdf-capturing #detail-overlay,
-.pdf-capturing #modal-overlay,
-.pdf-capturing #cat-edit-modal,
-.pdf-capturing #sidebar-overlay {
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
+.bolletta-month-title {
+font-size: 14px;
+font-weight: 700;
+color: var(--text-secondary);
+text-transform: uppercase;
+letter-spacing: 0.5px;
+margin-bottom: 0.75rem;
+padding-bottom: 0.5rem;
+border-bottom: 2px solid var(--border);
 }
-/* === FINE FORZA RIMOZIONE BLUR === */  
+.bolletta-item {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 12px 16px;
+background: var(--surface-2);
+border-radius: var(--radius-sm);
+margin-bottom: 8px;
+transition: all 0.2s;
+}
+.bolletta-item:hover {
+background: var(--accent-light);
+transform: translateX(4px);
+}
+.bolletta-item-info {
+display: flex;
+align-items: center;
+gap: 12px;
+flex: 1;
+min-width: 0;
+}
+.bolletta-item-icon {
+width: 40px;
+height: 40px;
+background: var(--accent-gradient);
+color: #fff;
+border-radius: var(--radius-sm);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 18px;
+flex-shrink: 0;
+}
+.bolletta-item-name {
+font-size: 14px;
+font-weight: 700;
+color: var(--text-primary);
+overflow: hidden;
+text-overflow: ellipsis;
+white-space: nowrap;
+}
+.bolletta-item-date {
+font-size: 12px;
+color: var(--text-muted);
+font-weight: 600;
+}
+.bolletta-item-actions {
+display: flex;
+gap: 8px;
+flex-shrink: 0;
+}
+.btn-bolletta-download, .btn-bolletta-delete {
+width: 36px;
+height: 36px;
+border: none;
+border-radius: var(--radius-sm);
+cursor: pointer;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+transition: all 0.2s;
+padding: 0;
+}
+.btn-bolletta-download {
+background: var(--success);
+color: #fff;
+}
+.btn-bolletta-download:hover {
+background: #4CAF50;
+transform: scale(1.08);
+}
+.btn-bolletta-delete {
+background: var(--danger);
+color: #fff;
+}
+.btn-bolletta-delete:hover {
+background: #c0392b;
+transform: scale(1.08);
+}
+.bolletta-empty {
+text-align: center;
+padding: 2rem;
+color: var(--text-muted);
+font-size: 14px;
+font-style: italic;
+}
 </style>
 </head>
 <body>
@@ -1405,6 +1425,7 @@ Budget
 <button class="nav-item active" data-page="page-home"><i class="ti ti-home"></i> Home</button>
 <button class="nav-item" data-page="page-grafici"><i class="ti ti-chart-bar"></i> Statistiche</button>
 <button class="nav-item" data-page="page-import"><i class="ti ti-file-upload"></i> Importa Excel</button>
+<button class="nav-item" data-page="page-bollette"><i class="ti ti-file-invoice"></i> Libreria Bollette</button>
 <button class="nav-item" data-page="page-promemoria"><i class="ti ti-bell"></i> Promemoria</button>
 <button class="nav-item" data-page="page-profilo"><i class="ti ti-user"></i> Profilo</button>
 <button class="nav-item" data-page="page-categorie"><i class="ti ti-category"></i> Categorie</button>
@@ -1502,17 +1523,12 @@ Aggiungi movimento
 <div style="margin-bottom: 1rem; margin-top:2rem;">
 <h2>Movimenti</h2>
 </div>
-<div class="search-bar">
-<input type="text" id="search-transactions" placeholder="Cerca movimenti per nome o categoria...">
-</div>
 <div class="source-filter">
 <button class="active" data-source="all">Tutti</button>
 <button data-source="cash">💵 Contanti</button>
-<button data-source="bank">🏦 Conto corrente</button>
+<button data-source="bank"> Conto corrente</button>
 </div>
-<div id="bulk-actions-container"></div>
 <div class="tx-header">
-<span></span>
 <span>Data</span>
 <span>Movimento</span>
 <span style="text-align:right;">Importo</span>
@@ -1703,6 +1719,46 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 </div>
 </div>
 </div>
+<div id="page-bollette" class="page">
+<h1>Libreria Bollette</h1>
+<div class="panel">
+<h3> Carica nuova bolletta</h3>
+<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+<div>
+<label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">Tipo bolletta</label>
+<select id="bolletta-tipo" style="width:100%; height:44px;">
+<option value="gas">🔥 Gas</option>
+<option value="luce">⚡ Luce</option>
+</select>
+</div>
+<div>
+<label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">Mese di riferimento</label>
+<select id="bolletta-mese" style="width:100%; height:44px;"></select>
+</div>
+<div>
+<label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">File PDF</label>
+<input type="file" id="bolletta-file" accept=".pdf" style="width:100%; height:44px; padding:10px;">
+</div>
+</div>
+<button id="btn-upload-bolletta" style="width:100%; height:46px; background:var(--accent-gradient); color:#fff; border:none; border-radius:var(--radius-sm); font-size:15px; font-weight:700; cursor:pointer; box-shadow:var(--shadow);">
+<i class="ti ti-upload" style="margin-right:8px;"></i> Carica bolletta
+</button>
+<div id="bolletta-upload-progress" class="upload-progress hidden" style="margin-top:1rem;">
+<div class="progress-bar"><div class="progress-bar-fill" id="bolletta-progress-fill" style="width: 0%"></div></div>
+<div class="progress-text" id="bolletta-progress-text">Caricamento... 0%</div>
+</div>
+</div>
+<div id="bolletta-list-container">
+<div class="panel">
+<h3>🔥 Bollette Gas</h3>
+<div id="bollette-gas-list"></div>
+</div>
+<div class="panel">
+<h3>⚡ Bollette Luce</h3>
+<div id="bollette-luce-list"></div>
+</div>
+</div>
+</div>
 <div id="page-promemoria" class="page">
 <h1>Promemoria</h1>
 <div class="panel">
@@ -1856,8 +1912,7 @@ let chartCategory = null, chartYear = null, chartResiduo = null, chartCompare = 
 let activeSourceFilter = 'all';
 let filterFrom = null, filterTo = null, filterMode = 'month';
 let editingCat = { type: null, index: null };
-let selectedTransactions = new Set();
-let searchQuery = '';
+let bolletteData = {};
 const FILTER_MONTHS = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
 const todayISO = () => fmtDate(new Date());
 const monthKey = (d) => d.slice(0,7);
@@ -1887,6 +1942,10 @@ updateChartCategory();
 updateChartYear();
 updateChartResiduo();
 updateChartCompare();
+}
+if (pageId === 'page-bollette') {
+populateBollettaMeseSelect();
+loadBolletteData();
 }
 if (pageId === 'page-profilo') updateProfilePage();
 if (pageId === 'page-promemoria') renderReminders();
@@ -1947,6 +2006,7 @@ document.getElementById('login-screen').classList.add('hidden');
 document.getElementById('shell').classList.remove('hidden');
 document.getElementById('sidebar-user-email').textContent = user.email;
 attachFirestoreListener();
+loadBolletteData();
 } else {
 currentUser = null;
 if (unsubscribeSnapshot) { unsubscribeSnapshot(); unsubscribeSnapshot = null; }
@@ -2047,87 +2107,6 @@ document.getElementById('filter-year').addEventListener('change', () => { if (!d
 document.getElementById('filter-custom-toggle').addEventListener('change', (e) => { document.getElementById('custom-range').classList.toggle('hidden', !e.target.checked); if (e.target.checked) { document.getElementById('filter-from').value = filterFrom; document.getElementById('filter-to').value = filterTo; } else { applyMonthYearFilter(); } });
 populateHomePeriodFilters();
 applyMonthYearFilter();
-
-function prepareForPDFCapture(element) {
-  const allElements = element.querySelectorAll('*');
-  const originalStyles = new Map();
-  
-  // Nascondi completamente tutti gli overlay
-  const overlays = [
-    document.getElementById('detail-overlay'),
-    document.getElementById('modal-overlay'),
-    document.getElementById('cat-edit-modal'),
-    document.getElementById('sidebar-overlay')
-  ];
-  
-  overlays.forEach(overlay => {
-    if (overlay) {
-      originalStyles.set(overlay, {
-        display: overlay.style.display,
-        visibility: overlay.style.visibility,
-        opacity: overlay.style.opacity
-      });
-      overlay.style.display = 'none';
-      overlay.style.visibility = 'hidden';
-      overlay.style.opacity = '0';
-    }
-  });
-  
-  allElements.forEach(el => {
-    const style = window.getComputedStyle(el);
-    
-    // Salva stili originali
-    originalStyles.set(el, {
-      backgroundColor: el.style.backgroundColor,
-      color: el.style.color,
-      borderColor: el.style.borderColor,
-      backdropFilter: el.style.backdropFilter,
-      WebkitBackdropFilter: el.style.webkitBackdropFilter,
-      boxShadow: el.style.boxShadow,
-      opacity: el.style.opacity
-    });
-    
-    // Forza colori espliciti
-    const bgColor = style.backgroundColor;
-    if (bgColor && bgColor !== 'rgba(0, 0, 0, 0)' && bgColor !== 'transparent') {
-      el.style.backgroundColor = bgColor;
-    } else if (bgColor === 'rgba(0, 0, 0, 0)' || bgColor === 'transparent') {
-      // Se è trasparente, forza un colore solido
-      el.style.backgroundColor = '#F0F4F8';
-    }
-    
-    const textColor = style.color;
-    if (textColor) {
-      el.style.color = textColor;
-    }
-    
-    // Rimuovi completamente backdrop-filter
-    el.style.backdropFilter = 'none';
-    el.style.webkitBackdropFilter = 'none';
-    
-    // Rimuovi box-shadow che potrebbero creare effetti di trasparenza
-    if (el.classList.contains('panel') || el.classList.contains('stat-card')) {
-      el.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
-    }
-  });
-  
-  return originalStyles;
-}
-
-function restoreStyles(element, originalStyles) {
-  originalStyles.forEach((styles, el) => {
-    if (styles.backgroundColor !== undefined) el.style.backgroundColor = styles.backgroundColor;
-    if (styles.color !== undefined) el.style.color = styles.color;
-    if (styles.borderColor !== undefined) el.style.borderColor = styles.borderColor;
-    if (styles.backdropFilter !== undefined) el.style.backdropFilter = styles.backdropFilter;
-    if (styles.WebkitBackdropFilter !== undefined) el.style.webkitBackdropFilter = styles.WebkitBackdropFilter;
-    if (styles.boxShadow !== undefined) el.style.boxShadow = styles.boxShadow;
-    if (styles.opacity !== undefined) el.style.opacity = styles.opacity;
-    if (styles.display !== undefined) el.style.display = styles.display;
-    if (styles.visibility !== undefined) el.style.visibility = styles.visibility;
-  });
-}
-
 function updateChartCategory() {
 const month = document.getElementById('chart-month').value || monthKey(todayISO());
 const mt = state.transactions.filter(t => t.type === 'expense' && monthKey(t.date) === month);
@@ -2135,13 +2114,10 @@ const byCategory = {};
 mt.forEach(t => { byCategory[t.category] = (byCategory[t.category] || 0) + amountValue(t.amount); });
 const cats = Object.keys(byCategory).filter(c => byCategory[c] > 0);
 const data = cats.map(c => Math.round(byCategory[c] * 100) / 100);
-const colors = cats.map((c,i) => {
-  const hue = (i * 137.508) % 360;
-  return `hsl(${hue}, 70%, 60%)`;
-});
+const colors = cats.map((c,i) => CAT_COLORS[i % CAT_COLORS.length]);
 const legend = document.getElementById('legend-categories');
 legend.innerHTML = '';
-cats.forEach((c,i) => { const span = document.createElement('span'); span.innerHTML = `<span class="swatch" style="background:${colors[i]};"></span>${c} ${fmtEUR(data[i])}`; legend.appendChild(span); });
+cats.forEach((c,i) => { const span = document.createElement('span'); span.innerHTML = '<span class="swatch" style="background:' + colors[i] + ';"></span>' + c + ' ' + fmtEUR(data[i]); legend.appendChild(span); });
 if (chartCategory) chartCategory.destroy();
 if (data.length === 0) {
 legend.innerHTML = '<span style="color:var(--text-muted); font-size:13px;">Nessuna spesa in questo mese.</span>';
@@ -2484,129 +2460,27 @@ document.getElementById('chart-residuo-year').addEventListener('change', updateC
 document.getElementById('compare-month-1').addEventListener('change', updateChartCompare);
 document.getElementById('compare-month-2').addEventListener('change', updateChartCompare);
 document.querySelectorAll('.source-filter button').forEach(btn => { btn.addEventListener('click', () => { document.querySelectorAll('.source-filter button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); activeSourceFilter = btn.getAttribute('data-source'); updateStats(); updateTransactionsList(); }); });
-document.getElementById('search-transactions').addEventListener('input', (e) => {
-  searchQuery = e.target.value.toLowerCase().trim();
-  updateTransactionsList();
-});
 function updateTransactionsList() {
 const from = filterFrom || todayISO().slice(0,7) + '-01';
 const to = filterTo || todayISO();
-let mt = state.transactions.filter(t => t.date >= from && t.date <= to && matchesSourceFilter(t));
-if (searchQuery) {
-  mt = mt.filter(t => 
-    (t.description || '').toLowerCase().includes(searchQuery) || 
-    (t.category || '').toLowerCase().includes(searchQuery)
-  );
-}
-mt.sort((a,b) => b.date.localeCompare(a.date));
+let mt = state.transactions.filter(t => t.date >= from && t.date <= to && matchesSourceFilter(t)).sort((a,b) => b.date.localeCompare(a.date));
 const list = document.getElementById('transactions-list');
 list.innerHTML = '';
-const bulkContainer = document.getElementById('bulk-actions-container');
-bulkContainer.innerHTML = '';
-if (mt.length > 0) {
-  const bulkBar = document.createElement('div');
-  bulkBar.className = 'bulk-actions-bar';
-  const selectAllLabel = document.createElement('label');
-  selectAllLabel.style.cssText = 'display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:700; font-size:14px;';
-  const selectAllCheckbox = document.createElement('input');
-  selectAllCheckbox.type = 'checkbox';
-  selectAllCheckbox.checked = mt.every(t => selectedTransactions.has(t.id));
-  selectAllCheckbox.addEventListener('change', (e) => {
-    if (e.target.checked) {
-      mt.forEach(t => selectedTransactions.add(t.id));
-    } else {
-      mt.forEach(t => selectedTransactions.delete(t.id));
-    }
-    updateTransactionsList();
-  });
-  selectAllLabel.appendChild(selectAllCheckbox);
-  selectAllLabel.appendChild(document.createTextNode(' Seleziona tutti'));
-  bulkBar.appendChild(selectAllLabel);
-  if (selectedTransactions.size > 0) {
-    const countSpan = document.createElement('span');
-    countSpan.className = 'bulk-count';
-    countSpan.textContent = `${selectedTransactions.size} selezionati`;
-    bulkBar.appendChild(countSpan);
-    const deleteBtn = document.createElement('button');
-    deleteBtn.className = 'btn-bulk-delete';
-    deleteBtn.textContent = '🗑️ Elimina selezionati';
-    deleteBtn.addEventListener('click', async () => {
-      if (!confirm(`Eliminare ${selectedTransactions.size} movimenti selezionati?`)) return;
-      state.transactions = state.transactions.filter(t => !selectedTransactions.has(t.id));
-      selectedTransactions.clear();
-      await saveTransactions();
-      renderAll();
-    });
-    bulkBar.appendChild(deleteBtn);
-    const clearBtn = document.createElement('button');
-    clearBtn.className = 'btn-bulk-clear';
-    clearBtn.textContent = '✖ Deseleziona';
-    clearBtn.addEventListener('click', () => {
-      selectedTransactions.clear();
-      updateTransactionsList();
-    });
-    bulkBar.appendChild(clearBtn);
-  }
-  bulkContainer.appendChild(bulkBar);
-}
-if (mt.length === 0) { 
-  list.innerHTML = '<p class="empty-msg">' + (searchQuery ? 'Nessun movimento trovato con questa ricerca' : 'Nessun movimento in questo periodo.') + '</p>'; 
-  return; 
-}
+if (mt.length === 0) { list.innerHTML = '<p class="empty-msg">Nessun movimento in questo periodo.</p>'; return; }
 mt.forEach(t => {
 const row = document.createElement('div'); row.className = 'tx-row';
-if (selectedTransactions.has(t.id)) {
-  row.classList.add('selected');
-}
 const isIncome = t.type === 'income';
 const src = t.source || 'cash';
-const badgeLabel = src === 'bank' ? '🏦 C/C' : '💵 Cash';
+const badgeLabel = src === 'bank' ? '🏦 C/C' : ' Cash';
 const badgeCls = src === 'bank' ? 'badge-bank' : 'badge-cash';
 const dateLabel = new Date(t.date).toLocaleDateString('it-IT', { day:'2-digit', month:'2-digit', year:'2-digit' });
 const amountColor = isIncome ? 'var(--success)' : 'var(--danger)';
 const amountSign = isIncome ? '+' : '-';
 const hasAttachment = t.attachment ? ' 📎' : '';
-const checkbox = document.createElement('input');
-checkbox.type = 'checkbox';
-checkbox.className = 'tx-checkbox';
-checkbox.checked = selectedTransactions.has(t.id);
-checkbox.addEventListener('change', (e) => {
-  if (e.target.checked) {
-    selectedTransactions.add(t.id);
-  } else {
-    selectedTransactions.delete(t.id);
-  }
-  updateTransactionsList();
-});
-row.appendChild(checkbox);
-const dateDiv = document.createElement('div');
-dateDiv.className = 'tx-col-date';
-dateDiv.textContent = dateLabel;
-row.appendChild(dateDiv);
-const descDiv = document.createElement('div');
-descDiv.className = 'tx-col-desc';
-descDiv.setAttribute('data-id', t.id);
-descDiv.setAttribute('title', 'Dettagli');
-descDiv.setAttribute('role', 'button');
-descDiv.setAttribute('tabindex', '0');
-descDiv.innerHTML = `<span class="tx-desc-text">${escapeHtml(t.description || t.category)}${hasAttachment}</span><span style="font-size:12px; color:var(--text-muted); font-weight:700;">${escapeHtml(t.category)}</span>`;
-row.appendChild(descDiv);
-const amountDiv = document.createElement('div');
-amountDiv.className = 'tx-col-amount';
-amountDiv.style.color = amountColor;
-amountDiv.textContent = `${amountSign}${fmtEUR(amountValue(t.amount))}`;
-row.appendChild(amountDiv);
-const typeDiv = document.createElement('div');
-typeDiv.className = 'tx-col-type';
-typeDiv.innerHTML = `<span class="badge-source ${badgeCls}">${badgeLabel}</span>`;
-row.appendChild(typeDiv);
-const actionsDiv = document.createElement('div');
-actionsDiv.className = 'tx-col-actions';
-actionsDiv.innerHTML = `
+row.innerHTML = `<div class="tx-col-date">${dateLabel}</div><div class="tx-col-desc" data-id="${t.id}" title="Dettagli" role="button" tabindex="0"><span class="tx-desc-text">${escapeHtml(t.description || t.category)}${hasAttachment}</span><span style="font-size:12px; color:var(--text-muted); font-weight:700;">${escapeHtml(t.category)}</span></div><div class="tx-col-amount" style="color:${amountColor};">${amountSign}${fmtEUR(amountValue(t.amount))}</div><div class="tx-col-type"><span class="badge-source ${badgeCls}">${badgeLabel}</span></div><div class="tx-col-actions">
 <button data-id="${t.id}" class="btn-edit-tx" aria-label="Modifica"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 512 512"><defs><linearGradient id="buttonGradientEdit" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#2F80ED"/><stop offset="1" stop-color="#1558C0"/></linearGradient><filter id="softShadowEdit" x="44" y="44" width="424" height="424" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#0B2E63" flood-opacity="0.24"/></filter></defs><rect x="72" y="72" width="368" height="368" rx="92" fill="url(#buttonGradientEdit)" filter="url(#softShadowEdit)"/><path d="M338.7 130.8c12.6-12.6 33.1-12.6 45.7 0l17.8 17.8c12.6 12.6 12.6 33.1 0 45.7l-24.5 24.5-63.5-63.5 24.5-24.5Z" fill="#FFFFFF"/><path d="M287.7 181.8 151.8 317.7c-3.2 3.2-5.4 7.2-6.5 11.6l-17.5 69.9c-2.5 9.9 6.5 18.9 16.4 16.4l69.9-17.5c4.4-1.1 8.4-3.3 11.6-6.5l135.9-135.9-73.9-73.9Z" fill="#FFFFFF"/><path d="M287.7 181.8 361.6 255.7 338 279.3 264.1 205.4l23.6-23.6Z" fill="#DDEBFF"/><path d="M151.8 317.7c-3.2 3.2-5.4 7.2-6.5 11.6l-10.3 41 40.9 40.9 40.9-10.3c4.4-1.1 8.4-3.3 11.6-6.5l-76.6-76.7Z" fill="#EAF3FF"/><path d="M135 370.3 127.8 399.2c-2.5 9.9 6.5 18.9 16.4 16.4l28.9-7.2L135 370.3Z" fill="#102A43"/></svg></button>
 <button data-id="${t.id}" class="btn-delete" aria-label="Elimina"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 512 512"><defs><linearGradient id="buttonGradient" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#F04438"/><stop offset="1" stop-color="#B42318"/></linearGradient><filter id="softShadow" x="44" y="44" width="424" height="424" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#65160F" flood-opacity="0.24"/></filter></defs><rect x="72" y="72" width="368" height="368" rx="92" fill="url(#buttonGradient)" filter="url(#softShadow)"/><path d="M202 154c0-17.7 14.3-32 32-32h44c17.7 0 32 14.3 32 32v14h52c11 0 20 9 20 20s-9 20-20 20H150c-11 0-20-9-20-20s9-20 20-20h52v-14Zm40 14h28v-6c0-3.3-2.7-6-6-6h-16c-3.3 0-6 2.7-6 6v6Z" fill="#FFFFFF"/><path d="M170 238c-1.1-13.8 9.8-25.6 23.6-25.6h124.8c13.8 0 24.7 11.8 23.6 25.6l-12.2 144.9c-1.5 17.5-16.1 31.1-33.7 31.1h-80.2c-17.6 0-32.2-13.6-33.7-31.1L170 238Z" fill="#FFFFFF"/><path d="M222 257c8.8 0 16 7.2 16 16v86c0 8.8-7.2 16-16 16s-16-7.2-16-16v-86c0-8.8 7.2-16 16-16Zm68 0c8.8 0 16 7.2 16 16v86c0 8.8-7.2 16-16 16s-16-7.2-16-16v-86c0-8.8 7.2-16 16-16Z" fill="#FBD5D1"/><path d="M179.4 260h153.2l-2.2 26H181.6l-2.2-26Z" fill="#FEE4E2"/></svg></button>
-`;
-row.appendChild(actionsDiv);
+</div>`;
 list.appendChild(row);
 });
 list.querySelectorAll('.tx-col-desc').forEach(el => el.addEventListener('click', () => openDetailModal(el.getAttribute('data-id'))));
@@ -2787,10 +2661,10 @@ await saveTransactions(); renderAll();
 function normalizeHeader(h) { return String(h||'').trim().toLowerCase(); }
 function parseImportedDate(value) {
 if (value instanceof Date && !isNaN(value)) {
-  const year = value.getFullYear();
-  const month = String(value.getMonth() + 1).padStart(2, '0');
-  const day = String(value.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
+const year = value.getFullYear();
+const month = String(value.getMonth() + 1).padStart(2, '0');
+const day = String(value.getDate()).padStart(2, '0');
+return `${year}-${month}-${day}`;
 }
 if (typeof value === 'number') { const d = XLSX.SSF.parse_date_code(value); if (d) return `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`; }
 const str = String(value||'').trim();
@@ -2987,171 +2861,552 @@ function renderAll() { populateMonthSelects(); populateHomePeriodFilters(); upda
 document.getElementById('inp-date').value = todayISO();
 document.getElementById('rem-date').value = todayISO();
 function showLoading(show) { document.getElementById('pdf-loading').classList.toggle('show', show); }
-
+function drawPDFTable(doc, headers, rows, margin, startY, colWidths, pageWidth) {
+let y = startY;
+const lineHeight = 7;
+doc.setFillColor(232, 240, 248);
+doc.rect(margin, y, pageWidth - 2*margin, lineHeight, 'F');
+doc.setFontSize(9);
+doc.setFont('helvetica', 'bold');
+doc.setTextColor(90, 107, 124);
+let colX = margin;
+headers.forEach((h, i) => {
+doc.text(h, colX + 2, y + 5);
+colX += colWidths[i];
+});
+y += lineHeight + 2;
+doc.setFont('helvetica', 'normal');
+doc.setFontSize(8);
+rows.forEach((row, idx) => {
+if (y > 270) { doc.addPage(); y = 20; }
+if (row.isTotal) {
+doc.setFillColor(232, 240, 248);
+doc.rect(margin, y - 2, pageWidth - 2*margin, lineHeight, 'F');
+doc.setFont('helvetica', 'bold');
+} else if (row.isSection) {
+doc.setFillColor(227, 240, 255);
+doc.rect(margin, y - 2, pageWidth - 2*margin, lineHeight, 'F');
+doc.setFont('helvetica', 'bold');
+} else if (idx % 2 === 0) {
+doc.setFillColor(250, 251, 252);
+doc.rect(margin, y - 2, pageWidth - 2*margin, lineHeight, 'F');
+}
+colX = margin;
+row.cells.forEach((cell, i) => {
+doc.setTextColor(cell.color ? cell.color[0] : 26, cell.color ? cell.color[1] : 43, cell.color ? cell.color[2] : 60);
+doc.text(cell.text, colX + 2, y);
+colX += colWidths[i];
+});
+if (row.isTotal || row.isSection) doc.setFont('helvetica', 'normal');
+y += lineHeight;
+});
+return y + 5;
+}
 async function generateHomePDF() {
-  showLoading(true);
-  try {
-    const { jsPDF } = window.jspdf;
-    const element = document.getElementById('page-home');
-    
-    // Aggiungi CSS temporaneo
-    const tempStyle = document.createElement('style');
-    tempStyle.id = 'temp-pdf-style';
-    tempStyle.textContent = `
-      * { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
-      #detail-overlay, #modal-overlay, #cat-edit-modal, #sidebar-overlay { 
-        display: none !important; 
-        visibility: hidden !important; 
-        opacity: 0 !important; 
-      }
-    `;
-    document.head.appendChild(tempStyle);
-    
-    const elementsToHide = [
-      document.querySelector('.home-date-filter'),
-      document.querySelector('#page-home > .panel'),
-      document.getElementById('bulk-actions-container'),
-      document.querySelector('.search-bar')
-    ];
-    
-    const originalDisplays = elementsToHide.map(el => el ? el.style.display : '');
-    elementsToHide.forEach(el => { if (el) el.style.display = 'none'; });
-    
-    const originalStyles = prepareForPDFCapture(element);
-    
-    const canvas = await html2canvas(element, {
-      scale: 2,
-      useCORS: true,
-      logging: false,
-      backgroundColor: '#F0F4F8',
-      windowWidth: 1200
-    });
-    
-    // Rimuovi CSS temporaneo
-    const tempStyleElement = document.getElementById('temp-pdf-style');
-    if (tempStyleElement) tempStyleElement.remove();
-    
-    restoreStyles(element, originalStyles);
-    elementsToHide.forEach((el, i) => { if (el) el.style.display = originalDisplays[i]; });
-    
-    const imgData = canvas.toDataURL('image/png', 1.0);
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
-    
-    const marginX = 5;
-    const marginY = 5;
-    const usableWidth = pdfWidth - (2 * marginX);
-    const ratio = usableWidth / canvas.width;
-    const finalHeight = canvas.height * ratio;
-    
-    let position = 0;
-    let pageNum = 0;
-    
-    while (position < finalHeight) {
-      if (pageNum > 0) pdf.addPage();
-      pdf.addImage(imgData, 'PNG', marginX, marginY - position, usableWidth, finalHeight);
-      position += pdfHeight - (2 * marginY);
-      pageNum++;
-    }
-    
-    const totalPages = pdf.internal.getNumberOfPages();
-    for (let i = 1; i <= totalPages; i++) {
-      pdf.setPage(i);
-      pdf.setFontSize(8);
-      pdf.setTextColor(138, 155, 172);
-      pdf.text(`Budget di Famiglia · Pagina ${i}/${totalPages}`, pdfWidth / 2, pdfHeight - 8, { align: 'center' });
-    }
-    
-    pdf.save(`budget-famiglia-${todayISO()}.pdf`);
-  } catch(err) {
-    alert('Errore PDF: ' + err.message);
-    console.error(err);
-  } finally {
-    showLoading(false);
-  }
+showLoading(true);
+try {
+const { jsPDF } = window.jspdf;
+const doc = new jsPDF('p', 'mm', 'a4');
+const pageWidth = doc.internal.pageSize.getWidth();
+const margin = 15;
+let y = 20;
+doc.setFillColor(74, 144, 217);
+doc.rect(0, 0, pageWidth, 40, 'F');
+doc.setTextColor(255, 255, 255);
+doc.setFontSize(22);
+doc.setFont('helvetica', 'bold');
+doc.text('Budget di Famiglia', margin, 24);
+doc.setFontSize(11);
+doc.setFont('helvetica', 'normal');
+const from = filterFrom || todayISO().slice(0,7) + '-01';
+const to = filterTo || todayISO();
+const mt = state.transactions.filter(t => t.date >= from && t.date <= to && matchesSourceFilter(t)).sort((a,b) => b.date.localeCompare(a.date));
+const income = mt.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0);
+const expense = mt.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0);
+const ti = state.transactions.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0);
+const te = state.transactions.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0);
+const periodLabel = filterMode === 'month' ? `${document.getElementById('filter-month')?.selectedOptions[0]?.textContent || ''} ${document.getElementById('filter-year')?.value || ''}` : `Dal ${fmtDateLabel(new Date(filterFrom + 'T00:00:00'))} al ${fmtDateLabel(new Date(filterTo + 'T00:00:00'))}`;
+doc.text(`Dashboard · ${periodLabel}`, margin, 32);
+y = 55;
+doc.setTextColor(26, 43, 60);
+doc.setFontSize(14);
+doc.setFont('helvetica', 'bold');
+doc.text('Riepilogo', margin, y);
+y += 10;
+const cardWidth = (pageWidth - 2*margin - 12) / 4;
+const stats = [
+{ label: 'ENTRATE', value: fmtEUR(income), color: [92, 184, 92] },
+{ label: 'USCITE', value: fmtEUR(expense), color: [231, 76, 60] },
+{ label: 'SALDO', value: fmtEUR(income - expense), color: [74, 144, 217] },
+{ label: 'RESIDUO', value: fmtEUR(ti - te), color: [155, 89, 182] }
+];
+stats.forEach((stat, i) => {
+const x = margin + i * (cardWidth + 4);
+doc.setFillColor(232, 240, 248);
+doc.roundedRect(x, y, cardWidth, 28, 4, 4, 'F');
+doc.setTextColor(90, 107, 124);
+doc.setFontSize(8);
+doc.setFont('helvetica', 'bold');
+doc.text(stat.label, x + 3, y + 10);
+doc.setTextColor(stat.color[0], stat.color[1], stat.color[2]);
+doc.setFontSize(13);
+doc.text(stat.value, x + 3, y + 22);
+});
+y += 40;
+doc.setTextColor(26, 43, 60);
+doc.setFontSize(14);
+doc.setFont('helvetica', 'bold');
+doc.text(`Movimenti (${mt.length})`, margin, y);
+y += 8;
+const colWidths = [25, 70, 30, 35, 25];
+const headers = ['Data', 'Movimento', 'Importo', 'Fonte', 'Tipo'];
+const rows = mt.map(t => {
+const isIncome = t.type === 'income';
+const src = t.source || 'cash';
+const badgeLabel = src === 'bank' ? 'C/C' : 'Cash';
+const dateLabel = new Date(t.date).toLocaleDateString('it-IT', { day:'2-digit', month:'2-digit', year:'2-digit' });
+const amountSign = isIncome ? '+' : '-';
+return {
+cells: [
+{ text: dateLabel },
+{ text: (t.description || t.category || '').substring(0, 35) },
+{ text: `${amountSign}${fmtEUR(amountValue(t.amount))}`, color: isIncome ? [92, 184, 92] : [231, 76, 60] },
+{ text: badgeLabel },
+{ text: isIncome ? 'Entrata' : 'Uscita' }
+]
+};
+});
+y = drawPDFTable(doc, headers, rows, margin, y, colWidths, pageWidth);
+const pageCount = doc.internal.getNumberOfPages();
+for (let i = 1; i <= pageCount; i++) {
+doc.setPage(i);
+doc.setFontSize(8);
+doc.setTextColor(138, 155, 172);
+doc.text(`Budget di Famiglia · Pagina ${i}/${pageCount}`, pageWidth/2, 290, { align: 'center' });
 }
-
+doc.save(`budget-famiglia-${todayISO()}.pdf`);
+} catch(err) {
+alert('Errore PDF: ' + err.message);
+} finally {
+showLoading(false);
+}
+}
 async function generateStatsPDF() {
-  showLoading(true);
-  try {
-    const { jsPDF } = window.jspdf;
-    
-    const activeTab = document.querySelector('.stats-tab.active');
-    const activeContent = document.querySelector('.stats-tab-content.active');
-    
-    if (!activeTab || !activeContent) {
-      alert('Nessuna tab selezionata');
-      return;
-    }
-    
-    const tabName = activeTab.textContent;
-    const tabId = activeTab.dataset.tab;
-    
-    if (tabId === 'tab-categorie') updateChartCategory();
-    else if (tabId === 'tab-entrate-uscite') updateChartYear();
-    else if (tabId === 'tab-residuo') updateChartResiduo();
-    else if (tabId === 'tab-confronto') updateChartCompare();
-    
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    const originalStyles = prepareForPDFCapture(activeContent);
-    
-    const canvas = await html2canvas(activeContent, {
-      scale: 2,
-      useCORS: true,
-      logging: false,
-      backgroundColor: '#F0F4F8',
-      windowWidth: 1200
-    });
-    
-    restoreStyles(activeContent, originalStyles);
-    
-    const imgData = canvas.toDataURL('image/png', 1.0);
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
-    const margin = 10;
-    
-    pdf.setFillColor(74, 144, 217);
-    pdf.rect(0, 0, pdfWidth, 30, 'F');
-    pdf.setTextColor(255, 255, 255);
-    pdf.setFontSize(18);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text(`Statistiche - ${tabName}`, margin, 20);
-    
-    const imgWidth = pdfWidth - (2 * margin);
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    const maxHeight = pdfHeight - 45;
-    
-    let finalWidth = imgWidth;
-    let finalHeight = imgHeight;
-    
-    if (imgHeight > maxHeight) {
-      const scale = maxHeight / imgHeight;
-      finalHeight = maxHeight;
-      finalWidth = imgWidth * scale;
-    }
-    
-    const xPos = margin + (imgWidth - finalWidth) / 2;
-    const yPos = 35;
-    
-    pdf.addImage(imgData, 'PNG', xPos, yPos, finalWidth, finalHeight);
-    
-    pdf.setFontSize(8);
-    pdf.setTextColor(138, 155, 172);
-    pdf.text(`Budget di Famiglia · Pagina 1/1`, pdfWidth / 2, pdfHeight - 10, { align: 'center' });
-    
-    const year = document.getElementById('chart-year')?.value || new Date().getFullYear();
-    pdf.save(`statistiche-${tabName.replace(/[^a-zA-Z0-9]/g, '_')}-${year}.pdf`);
-  } catch(err) {
-    alert('Errore PDF: ' + err.message);
-    console.error(err);
-  } finally {
-    showLoading(false);
-  }
+showLoading(true);
+try {
+const { jsPDF } = window.jspdf;
+const doc = new jsPDF('p', 'mm', 'a4');
+const pageWidth = doc.internal.pageSize.getWidth();
+const margin = 15;
+let y = 20;
+const year = document.getElementById('chart-year')?.value || new Date().getFullYear().toString();
+const month = document.getElementById('chart-month')?.value || monthKey(todayISO());
+doc.setFillColor(74, 144, 217);
+doc.rect(0, 0, pageWidth, 40, 'F');
+doc.setTextColor(255, 255, 255);
+doc.setFontSize(22);
+doc.setFont('helvetica', 'bold');
+doc.text('Statistiche', margin, 24);
+doc.setFontSize(11);
+doc.setFont('helvetica', 'normal');
+doc.text(`Anno ${year}`, margin, 32);
+y = 55;
+doc.setTextColor(26, 43, 60);
+doc.setFontSize(14);
+doc.setFont('helvetica', 'bold');
+doc.text(`Riepilogo annuale ${year}`, margin, y);
+y += 10;
+const cardWidth = (pageWidth - 2*margin - 12) / 4;
+const uniqueCats = new Set(state.transactions.filter(t => t.type === 'expense').map(t => t.category));
+const totalIncome = state.transactions.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0);
+const totalExpense = state.transactions.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0);
+const stats = [
+{ label: 'ENTRATE TOTALI', value: fmtEUR(totalIncome), color: [92, 184, 92] },
+{ label: 'USCITE TOTALI', value: fmtEUR(totalExpense), color: [231, 76, 60] },
+{ label: 'RISPARMIO ANNUALE', value: fmtEUR(totalIncome - totalExpense), color: [74, 144, 217] },
+{ label: 'CATEGORIE SPESE', value: uniqueCats.size.toString(), color: [155, 89, 182] }
+];
+stats.forEach((stat, i) => {
+const x = margin + i * (cardWidth + 4);
+doc.setFillColor(232, 240, 248);
+doc.roundedRect(x, y, cardWidth, 28, 4, 4, 'F');
+doc.setTextColor(90, 107, 124);
+doc.setFontSize(8);
+doc.setFont('helvetica', 'bold');
+doc.text(stat.label, x + 3, y + 10);
+doc.setTextColor(stat.color[0], stat.color[1], stat.color[2]);
+doc.setFontSize(13);
+doc.text(stat.value, x + 3, y + 22);
+});
+doc.addPage();
+y = 20;
+doc.setTextColor(26, 43, 60);
+doc.setFontSize(14);
+doc.setFont('helvetica', 'bold');
+doc.text(`Dettaglio mensile ${year}`, margin, y);
+y += 10;
+const months = Array.from({length:12}, (_,i) => `${year}-${String(i+1).padStart(2,'0')}`);
+const incomes = months.map(m => state.transactions.filter(t => t.type==='income' && monthKey(t.date)===m).reduce((s,t)=>s+amountValue(t.amount),0));
+const expenses = months.map(m => state.transactions.filter(t => t.type==='expense' && monthKey(t.date)===m).reduce((s,t)=>s+amountValue(t.amount),0));
+const yearColWidths = [30, 45, 45, 45];
+const yearHeaders = ['Mese', 'Entrate', 'Uscite', 'Saldo'];
+const yearRows = months.map((m, i) => {
+const bal = incomes[i] - expenses[i];
+const mLabel = new Date(+year, i, 1).toLocaleDateString('it-IT', { month:'short' });
+return {
+cells: [
+{ text: mLabel.charAt(0).toUpperCase() + mLabel.slice(1) },
+{ text: fmtEUR(incomes[i]), color: [92, 184, 92] },
+{ text: fmtEUR(expenses[i]), color: [231, 76, 60] },
+{ text: fmtEUR(bal), color: bal >= 0 ? [92, 184, 92] : [231, 76, 60] }
+]
+};
+});
+y = drawPDFTable(doc, yearHeaders, yearRows, margin, y, yearColWidths, pageWidth);
+doc.addPage();
+y = 20;
+doc.setTextColor(26, 43, 60);
+doc.setFontSize(14);
+doc.setFont('helvetica', 'bold');
+doc.text(`Entrate vs Uscite - Anno ${year}`, margin, y);
+y += 15;
+updateChartYear();
+await new Promise(resolve => setTimeout(resolve, 1500));
+try {
+const yearChartCanvas = document.getElementById('yearChart');
+const yearChartImg = yearChartCanvas.toDataURL('image/png', 1.0);
+if (yearChartImg && yearChartImg.length > 1000) {
+const imgWidth = pageWidth - 2*margin;
+const imgHeight = 90;
+doc.addImage(yearChartImg, 'PNG', margin, y, imgWidth, imgHeight);
+y += imgHeight + 10;
+} else {
+doc.setTextColor(156, 163, 175);
+doc.setFontSize(10);
+doc.text('Grafico non disponibile', margin, y);
+y += 20;
 }
-
+} catch (imgErr) {
+console.error('Errore cattura grafico:', imgErr);
+doc.setTextColor(156, 163, 175);
+doc.setFontSize(10);
+doc.text('Grafico non disponibile', margin, y);
+y += 20;
+}
+doc.addPage();
+y = 20;
+doc.setTextColor(26, 43, 60);
+doc.setFontSize(14);
+doc.setFont('helvetica', 'bold');
+doc.text(`Residuo mensile - Anno ${year}`, margin, y);
+y += 10;
+const residuoColWidths = [30, 35, 35, 35, 40];
+const residuoHeaders = ['Mese', 'Entrate', 'Uscite', 'Saldo', 'Residuo'];
+let runningTotalPDF = 0;
+state.transactions.forEach(t => { if (t.date.slice(0,4) < year) runningTotalPDF += t.type === 'income' ? amountValue(t.amount) : -amountValue(t.amount); });
+const residuoRows = months.map((m, i) => {
+const mt = state.transactions.filter(t => monthKey(t.date) === m);
+const inc = mt.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0);
+const exp = mt.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0);
+const saldoMese = inc - exp;
+runningTotalPDF += saldoMese;
+const mLabel = new Date(+year, i, 1).toLocaleDateString('it-IT', { month:'short' });
+return {
+cells: [
+{ text: mLabel.charAt(0).toUpperCase() + mLabel.slice(1) },
+{ text: fmtEUR(inc), color: [92, 184, 92] },
+{ text: fmtEUR(exp), color: [231, 76, 60] },
+{ text: fmtEUR(saldoMese), color: saldoMese >= 0 ? [92, 184, 92] : [231, 76, 60] },
+{ text: fmtEUR(runningTotalPDF), color: runningTotalPDF >= 0 ? [92, 184, 92] : [231, 76, 60] }
+]
+};
+});
+y = drawPDFTable(doc, residuoHeaders, residuoRows, margin, y, residuoColWidths, pageWidth);
+y += 10;
+doc.setTextColor(26, 43, 60);
+doc.setFontSize(14);
+doc.setFont('helvetica', 'bold');
+doc.text(`Grafico Andamento Residuo`, margin, y);
+y += 15;
+updateChartResiduo();
+await new Promise(resolve => setTimeout(resolve, 1500));
+try {
+const residuoChartCanvas = document.getElementById('residuoChart');
+const residuoChartImg = residuoChartCanvas.toDataURL('image/png', 1.0);
+if (residuoChartImg && residuoChartImg.length > 1000) {
+const imgWidth = pageWidth - 2*margin;
+const imgHeight = 90;
+doc.addImage(residuoChartImg, 'PNG', margin, y, imgWidth, imgHeight);
+y += imgHeight + 10;
+} else {
+doc.setTextColor(156, 163, 175);
+doc.setFontSize(10);
+doc.text('Grafico non disponibile', margin, y);
+y += 20;
+}
+} catch (imgErr) {
+console.error('Errore cattura grafico:', imgErr);
+doc.setTextColor(156, 163, 175);
+doc.setFontSize(10);
+doc.text('Grafico non disponibile', margin, y);
+y += 20;
+}
+doc.addPage();
+y = 20;
+doc.setTextColor(26, 43, 60);
+doc.setFontSize(14);
+doc.setFont('helvetica', 'bold');
+doc.text(`Spese per categoria - ${monthLabel(month)}`, margin, y);
+y += 15;
+updateChartCategory();
+await new Promise(resolve => setTimeout(resolve, 1500));
+try {
+const categoryChartCanvas = document.getElementById('categoryChart');
+const categoryChartImg = categoryChartCanvas.toDataURL('image/png', 1.0);
+if (categoryChartImg && categoryChartImg.length > 1000) {
+const imgWidth = pageWidth - 2*margin;
+const imgHeight = 90;
+doc.addImage(categoryChartImg, 'PNG', margin, y, imgWidth, imgHeight);
+y += imgHeight + 10;
+} else {
+doc.setTextColor(156, 163, 175);
+doc.setFontSize(10);
+doc.text('Grafico non disponibile', margin, y);
+y += 20;
+}
+} catch (imgErr) {
+console.error('Errore cattura grafico:', imgErr);
+doc.setTextColor(156, 163, 175);
+doc.setFontSize(10);
+doc.text('Grafico non disponibile', margin, y);
+y += 20;
+}
+y += 10;
+doc.setTextColor(26, 43, 60);
+doc.setFontSize(14);
+doc.setFont('helvetica', 'bold');
+doc.text(`Dettaglio spese per categoria`, margin, y);
+y += 10;
+const byCategory = {};
+state.transactions.filter(t => t.type === 'expense' && monthKey(t.date) === month).forEach(t => { byCategory[t.category] = (byCategory[t.category] || 0) + amountValue(t.amount); });
+const cats = Object.keys(byCategory).sort((a,b) => byCategory[b] - byCategory[a]);
+if (cats.length > 0) {
+const catColWidths = [70, 50, 40];
+const catHeaders = ['Categoria', 'Importo', '%'];
+const totalCat = cats.reduce((s,c) => s + byCategory[c], 0);
+const catRows = cats.map((c, i) => {
+const pct = Math.round((byCategory[c] / totalCat) * 100);
+return {
+cells: [
+{ text: c },
+{ text: fmtEUR(byCategory[c]), color: [26, 43, 60] },
+{ text: pct + '%', color: [90, 107, 124] }
+]
+};
+});
+y = drawPDFTable(doc, catHeaders, catRows, margin, y, catColWidths, pageWidth);
+} else {
+doc.setTextColor(156, 163, 175);
+doc.setFontSize(10);
+doc.text('Nessuna spesa nel mese selezionato', margin, y + 5);
+}
+const pageCount = doc.internal.getNumberOfPages();
+for (let i = 1; i <= pageCount; i++) {
+doc.setPage(i);
+doc.setFontSize(8);
+doc.setTextColor(138, 155, 172);
+doc.text(`Budget di Famiglia · Pagina ${i}/${pageCount}`, pageWidth/2, 290, { align: 'center' });
+}
+doc.save(`statistiche-${year}.pdf`);
+} catch(err) {
+alert('Errore PDF: ' + err.message);
+console.error(err);
+} finally {
+showLoading(false);
+}
+}
+function populateBollettaMeseSelect() {
+const select = document.getElementById('bolletta-mese');
+if (!select) return;
+const currentYear = new Date().getFullYear();
+select.innerHTML = '';
+for (let year = currentYear; year >= currentYear - 2; year--) {
+for (let month = 12; month >= 1; month--) {
+const value = `${year}-${String(month).padStart(2, '0')}`;
+const label = `${FILTER_MONTHS[month - 1]} ${year}`;
+const option = document.createElement('option');
+option.value = value;
+option.textContent = label;
+select.appendChild(option);
+}
+}
+const currentMonth = `${currentYear}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+select.value = currentMonth;
+}
+async function loadBolletteData() {
+if (!currentUser) return;
+try {
+const doc = await db.collection('bollette').doc(currentUser.uid).get();
+if (doc.exists) {
+bolletteData = doc.data() || {};
+} else {
+bolletteData = {};
+}
+renderBolletteList();
+} catch (err) {
+console.error('Errore caricamento bollette:', err);
+}
+}
+async function saveBolletteData() {
+if (!currentUser) return;
+try {
+await db.collection('bollette').doc(currentUser.uid).set(bolletteData, { merge: true });
+} catch (err) {
+console.error('Errore salvataggio bollette:', err);
+alert('Errore nel salvataggio: ' + err.message);
+}
+}
+function renderBolletteList() {
+renderBolletteByType('gas', 'bollette-gas-list');
+renderBolletteByType('luce', 'bollette-luce-list');
+}
+function renderBolletteByType(tipo, containerId) {
+const container = document.getElementById(containerId);
+if (!container) return;
+const tipoData = bolletteData[tipo] || {};
+const mesiOrdinati = Object.keys(tipoData).sort().reverse();
+if (mesiOrdinati.length === 0) {
+container.innerHTML = '<div class="bolletta-empty">Nessuna bolletta caricata</div>';
+return;
+}
+let html = '';
+mesiOrdinati.forEach(mese => {
+const meseLabel = monthLabel(mese);
+html += `<div class="bolletta-month-group">
+<div class="bolletta-month-title">${meseLabel}</div>`;
+tipoData[mese].forEach((bolletta, index) => {
+html += `
+<div class="bolletta-item">
+<div class="bolletta-item-info">
+<div class="bolletta-item-icon">
+<i class="ti ti-file-type-pdf"></i>
+</div>
+<div>
+<div class="bolletta-item-name">${escapeHtml(bolletta.nome)}</div>
+<div class="bolletta-item-date">${new Date(bolletta.dataCaricamento).toLocaleDateString('it-IT')}</div>
+</div>
+</div>
+<div class="bolletta-item-actions">
+<button class="btn-bolletta-download" onclick="downloadBolletta('${tipo}', '${mese}', ${index})" title="Scarica">
+<i class="ti ti-download" style="font-size:18px;"></i>
+</button>
+<button class="btn-bolletta-delete" onclick="deleteBolletta('${tipo}', '${mese}', ${index})" title="Elimina">
+<i class="ti ti-trash" style="font-size:18px;"></i>
+</button>
+</div>
+</div>`;
+});
+html += '</div>';
+});
+container.innerHTML = html;
+}
+async function uploadBolletta() {
+const tipo = document.getElementById('bolletta-tipo').value;
+const mese = document.getElementById('bolletta-mese').value;
+const fileInput = document.getElementById('bolletta-file');
+const file = fileInput.files[0];
+if (!file) {
+alert('Seleziona un file PDF');
+return;
+}
+if (file.type !== 'application/pdf') {
+alert('Il file deve essere in formato PDF');
+return;
+}
+if (file.size > 10 * 1024 * 1024) {
+alert('Il file è troppo grande. Dimensione massima: 10MB');
+return;
+}
+const progressDiv = document.getElementById('bolletta-upload-progress');
+const progressFill = document.getElementById('bolletta-progress-fill');
+const progressText = document.getElementById('bolletta-progress-text');
+try {
+progressDiv.classList.remove('hidden');
+const timestamp = Date.now();
+const storagePath = `bollette/${currentUser.uid}/${tipo}/${mese}/${timestamp}_${file.name}`;
+const fileRef = storage.ref().child(storagePath);
+const uploadTask = fileRef.put(file);
+await new Promise((resolve, reject) => {
+uploadTask.on('state_changed',
+(snapshot) => {
+const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+progressFill.style.width = progress + '%';
+progressText.textContent = `Caricamento... ${Math.round(progress)}%`;
+},
+(error) => {
+reject(error);
+},
+async () => {
+const downloadUrl = await uploadTask.snapshot.ref.getDownloadURL();
+if (!bolletteData[tipo]) bolletteData[tipo] = {};
+if (!bolletteData[tipo][mese]) bolletteData[tipo][mese] = [];
+bolletteData[tipo][mese].push({
+nome: file.name,
+url: downloadUrl,
+storagePath: storagePath,
+size: file.size,
+dataCaricamento: new Date().toISOString()
+});
+await saveBolletteData();
+renderBolletteList();
+resolve();
+}
+);
+});
+fileInput.value = '';
+progressDiv.classList.add('hidden');
+progressFill.style.width = '0%';
+alert('Bolletta caricata con successo!');
+} catch (err) {
+progressDiv.classList.add('hidden');
+alert('Errore nel caricamento: ' + err.message);
+}
+}
+window.downloadBolletta = async function(tipo, mese, index) {
+const bolletta = bolletteData[tipo]?.[mese]?.[index];
+if (!bolletta) return;
+try {
+const link = document.createElement('a');
+link.href = bolletta.url;
+link.download = bolletta.nome;
+link.target = '_blank';
+document.body.appendChild(link);
+link.click();
+document.body.removeChild(link);
+} catch (err) {
+alert('Errore nel download: ' + err.message);
+}
+};
+window.deleteBolletta = async function(tipo, mese, index) {
+if (!confirm('Eliminare questa bolletta?')) return;
+const bolletta = bolletteData[tipo]?.[mese]?.[index];
+if (!bolletta) return;
+try {
+if (bolletta.storagePath) {
+const fileRef = storage.ref().child(bolletta.storagePath);
+await fileRef.delete();
+}
+bolletteData[tipo][mese].splice(index, 1);
+if (bolletteData[tipo][mese].length === 0) {
+delete bolletteData[tipo][mese];
+}
+await saveBolletteData();
+renderBolletteList();
+} catch (err) {
+alert('Errore nell\'eliminazione: ' + err.message);
+}
+};
+document.getElementById('btn-upload-bolletta').addEventListener('click', uploadBolletta);
 document.getElementById('btn-pdf-home').addEventListener('click', generateHomePDF);
 document.getElementById('btn-pdf-stats').addEventListener('click', generateStatsPDF);
 })();
