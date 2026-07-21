@@ -1802,31 +1802,39 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 <div id="page-bollette" class="page">
 <h1>Libreria Bollette</h1>
 <div class="panel">
-<h3> Carica nuova bolletta</h3>
-<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
-<div>
-<label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">Tipo bolletta</label>
-<select id="bolletta-tipo" style="width:100%; height:44px;">
-<option value="gas">🔥 Gas</option>
-<option value="luce"> Luce</option>
-</select>
-</div>
-<div>
-<label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">Mese di riferimento</label>
-<select id="bolletta-mese" style="width:100%; height:44px;"></select>
-</div>
-<div>
-<label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">File PDF</label>
-<input type="file" id="bolletta-file" accept=".pdf" style="width:100%; height:44px; padding:10px;">
-</div>
-</div>
-<button id="btn-upload-bolletta" style="width:100%; height:46px; background:var(--accent-gradient); color:#fff; border:none; border-radius:var(--radius-sm); font-size:15px; font-weight:700; cursor:pointer; box-shadow:var(--shadow);">
-<i class="ti ti-upload" style="margin-right:8px;"></i> Carica bolletta
-</button>
-<div id="bolletta-upload-progress" class="upload-progress hidden" style="margin-top:1rem;">
-<div class="progress-bar"><div class="progress-bar-fill" id="bolletta-progress-fill" style="width: 0%"></div></div>
-<div class="progress-text" id="bolletta-progress-text">Caricamento... 0%</div>
-</div>
+  <h3>📤 Carica nuova bolletta</h3>
+  <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+    <div>
+      <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">Tipo bolletta</label>
+      <select id="bolletta-tipo" style="width:100%; height:44px;">
+        <option value="gas">🔥 Gas</option>
+        <option value="luce">⚡ Luce</option>
+      </select>
+    </div>
+    <div>
+      <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">Nome fornitore</label>
+      <input type="text" id="bolletta-fornitore" placeholder="es. Enel, Eni, Hera..." style="width:100%; height:44px; padding:0 14px;">
+    </div>
+    <div>
+      <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">Importo bolletta (€)</label>
+      <input type="number" id="bolletta-importo" placeholder="0,00" min="0" step="0.01" style="width:100%; height:44px; padding:0 14px; text-align:right;">
+    </div>
+    <div>
+      <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">Mese di riferimento</label>
+      <select id="bolletta-mese" style="width:100%; height:44px;"></select>
+    </div>
+    <div>
+      <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">File PDF</label>
+      <input type="file" id="bolletta-file" accept=".pdf" style="width:100%; height:44px; padding:10px;">
+    </div>
+  </div>
+  <button id="btn-upload-bolletta" style="width:100%; height:46px; background:var(--accent-gradient); color:#fff; border:none; border-radius:var(--radius-sm); font-size:15px; font-weight:700; cursor:pointer; box-shadow:var(--shadow);">
+    <i class="ti ti-upload" style="margin-right:8px;"></i> Carica bolletta
+  </button>
+  <div id="bolletta-upload-progress" class="upload-progress hidden" style="margin-top:1rem;">
+    <div class="progress-bar"><div class="progress-bar-fill" id="bolletta-progress-fill" style="width: 0%"></div></div>
+    <div class="progress-text" id="bolletta-progress-text">Caricamento... 0%</div>
+  </div>
 </div>
 <div id="bolletta-list-container">
 <div class="panel">
@@ -3257,106 +3265,156 @@ renderBolletteByType('gas', 'bollette-gas-list');
 renderBolletteByType('luce', 'bollette-luce-list');
 }
 function renderBolletteByType(tipo, containerId) {
-const container = document.getElementById(containerId);
-if (!container) return;
-const tipoData = bolletteData[tipo] || {};
-const mesiOrdinati = Object.keys(tipoData).sort().reverse();
-if (mesiOrdinati.length === 0) {
-container.innerHTML = '<div class="bolletta-empty">Nessuna bolletta caricata</div>';
-return;
-}
-let html = '';
-mesiOrdinati.forEach(mese => {
-const meseLabel = monthLabel(mese);
-html += `<div class="bolletta-month-group">
-<div class="bolletta-month-title">${meseLabel}</div>`;
-tipoData[mese].forEach((bolletta, index) => {
-html += `
-<div class="bolletta-item">
-<div class="bolletta-item-info">
-<div class="bolletta-item-icon">
-<i class="ti ti-file-type-pdf"></i>
-</div>
-<div>
-<div class="bolletta-item-name">${escapeHtml(bolletta.nome)}</div>
-<div class="bolletta-item-date">${new Date(bolletta.dataCaricamento).toLocaleDateString('it-IT')}</div>
-</div>
-</div>
-<div class="bolletta-item-actions">
-<button class="btn-bolletta-download" onclick="downloadBolletta('${tipo}', '${mese}', ${index})" title="Scarica">
-<i class="ti ti-download" style="font-size:18px;"></i>
-</button>
-<button class="btn-bolletta-delete" onclick="deleteBolletta('${tipo}', '${mese}', ${index})" title="Elimina">
-<i class="ti ti-trash" style="font-size:18px;"></i>
-</button>
-</div>
-</div>`;
-});
-html += '</div>';
-});
-container.innerHTML = html;
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  
+  const tipoData = bolletteData[tipo] || {};
+  const mesiOrdinati = Object.keys(tipoData).sort().reverse();
+  
+  if (mesiOrdinati.length === 0) {
+    container.innerHTML = '<div class="bolletta-empty">Nessuna bolletta caricata</div>';
+    return;
+  }
+  
+  let html = '';
+  mesiOrdinati.forEach(mese => {
+    const meseLabel = monthLabel(mese);
+    html += `<div class="bolletta-month-group">
+      <div class="bolletta-month-title">${meseLabel}</div>`;
+    
+    tipoData[mese].forEach((bolletta, index) => {
+      const importoFormattato = bolletta.importo.toLocaleString('it-IT', { 
+        minimumFractionDigits: 2, 
+        maximumFractionDigits: 2 
+      }) + ' €';
+      
+      html += `
+        <div class="bolletta-item">
+          <div class="bolletta-item-info">
+            <div class="bolletta-item-icon">
+              <i class="ti ti-file-type-pdf"></i>
+            </div>
+            <div style="flex:1; min-width:0;">
+              <div class="bolletta-item-name">${escapeHtml(bolletta.fornitore)} - ${escapeHtml(bolletta.nome)}</div>
+              <div style="display:flex; gap:12px; margin-top:4px; flex-wrap:wrap;">
+                <div class="bolletta-item-date">
+                  <i class="ti ti-calendar" style="font-size:12px;"></i> 
+                  ${new Date(bolletta.dataCaricamento).toLocaleDateString('it-IT')}
+                </div>
+                <div style="font-size:13px; font-weight:700; color:var(--accent);">
+                  <i class="ti ti-cash" style="font-size:12px;"></i> 
+                  ${importoFormattato}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bolletta-item-actions">
+            <button class="btn-bolletta-download" onclick="downloadBolletta('${tipo}', '${mese}', ${index})" title="Scarica">
+              <i class="ti ti-download" style="font-size:18px;"></i>
+            </button>
+            <button class="btn-bolletta-delete" onclick="deleteBolletta('${tipo}', '${mese}', ${index})" title="Elimina">
+              <i class="ti ti-trash" style="font-size:18px;"></i>
+            </button>
+          </div>
+        </div>`;
+    });
+    
+    html += '</div>';
+  });
+  
+  container.innerHTML = html;
 }
 async function uploadBolletta() {
-const tipo = document.getElementById('bolletta-tipo').value;
-const mese = document.getElementById('bolletta-mese').value;
-const fileInput = document.getElementById('bolletta-file');
-const file = fileInput.files[0];
-if (!file) {
-alert('Seleziona un file PDF');
-return;
-}
-if (file.type !== 'application/pdf') {
-alert('Il file deve essere in formato PDF');
-return;
-}
-if (file.size > 10 * 1024 * 1024) {
-alert('Il file è troppo grande. Dimensione massima: 10MB');
-return;
-}
-const progressDiv = document.getElementById('bolletta-upload-progress');
-const progressFill = document.getElementById('bolletta-progress-fill');
-const progressText = document.getElementById('bolletta-progress-text');
-try {
-progressDiv.classList.remove('hidden');
-const timestamp = Date.now();
-const storagePath = `bollette/${currentUser.uid}/${tipo}/${mese}/${timestamp}_${file.name}`;
-const fileRef = storage.ref().child(storagePath);
-const uploadTask = fileRef.put(file);
-await new Promise((resolve, reject) => {
-uploadTask.on('state_changed',
-(snapshot) => {
-const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-progressFill.style.width = progress + '%';
-progressText.textContent = `Caricamento... ${Math.round(progress)}%`;
-},
-(error) => {
-reject(error);
-},
-async () => {
-const downloadUrl = await uploadTask.snapshot.ref.getDownloadURL();
-if (!bolletteData[tipo]) bolletteData[tipo] = {};
-if (!bolletteData[tipo][mese]) bolletteData[tipo][mese] = [];
-bolletteData[tipo][mese].push({
-nome: file.name,
-url: downloadUrl,
-storagePath: storagePath,
-size: file.size,
-dataCaricamento: new Date().toISOString()
-});
-await saveBolletteData();
-renderBolletteList();
-resolve();
-}
-);
-});
-fileInput.value = '';
-progressDiv.classList.add('hidden');
-progressFill.style.width = '0%';
-alert('Bolletta caricata con successo!');
-} catch (err) {
-progressDiv.classList.add('hidden');
-alert('Errore nel caricamento: ' + err.message);
-}
+  const tipo = document.getElementById('bolletta-tipo').value;
+  const fornitore = document.getElementById('bolletta-fornitore').value.trim();
+  const importoStr = document.getElementById('bolletta-importo').value;
+  const importo = parseFloat(importoStr);
+  const mese = document.getElementById('bolletta-mese').value;
+  const fileInput = document.getElementById('bolletta-file');
+  const file = fileInput.files[0];
+  
+  if (!fornitore) {
+    alert('Inserisci il nome del fornitore');
+    return;
+  }
+  
+  if (isNaN(importo) || importo <= 0) {
+    alert('Inserisci un importo valido');
+    return;
+  }
+  
+  if (!file) {
+    alert('Seleziona un file PDF');
+    return;
+  }
+  
+  if (file.type !== 'application/pdf') {
+    alert('Il file deve essere in formato PDF');
+    return;
+  }
+  
+  if (file.size > 10 * 1024 * 1024) {
+    alert('Il file è troppo grande. Dimensione massima: 10MB');
+    return;
+  }
+  
+  const progressDiv = document.getElementById('bolletta-upload-progress');
+  const progressFill = document.getElementById('bolletta-progress-fill');
+  const progressText = document.getElementById('bolletta-progress-text');
+  
+  try {
+    progressDiv.classList.remove('hidden');
+    
+    const timestamp = Date.now();
+    const storagePath = `bollette/${currentUser.uid}/${tipo}/${mese}/${timestamp}_${file.name}`;
+    const fileRef = storage.ref().child(storagePath);
+    
+    const uploadTask = fileRef.put(file);
+    
+    await new Promise((resolve, reject) => {
+      uploadTask.on('state_changed',
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          progressFill.style.width = progress + '%';
+          progressText.textContent = `Caricamento... ${Math.round(progress)}%`;
+        },
+        (error) => {
+          reject(error);
+        },
+        async () => {
+          const downloadUrl = await uploadTask.snapshot.ref.getDownloadURL();
+          
+          if (!bolletteData[tipo]) bolletteData[tipo] = {};
+          if (!bolletteData[tipo][mese]) bolletteData[tipo][mese] = [];
+          
+          bolletteData[tipo][mese].push({
+            nome: file.name,
+            fornitore: fornitore,
+            importo: importo,
+            url: downloadUrl,
+            storagePath: storagePath,
+            size: file.size,
+            dataCaricamento: new Date().toISOString()
+          });
+          
+          await saveBolletteData();
+          renderBolletteList();
+          resolve();
+        }
+      );
+    });
+    
+    fileInput.value = '';
+    document.getElementById('bolletta-fornitore').value = '';
+    document.getElementById('bolletta-importo').value = '';
+    progressDiv.classList.add('hidden');
+    progressFill.style.width = '0%';
+    
+    alert('Bolletta caricata con successo!');
+  } catch (err) {
+    progressDiv.classList.add('hidden');
+    alert('Errore nel caricamento: ' + err.message);
+  }
 }
 window.downloadBolletta = async function(tipo, mese, index) {
 const bolletta = bolletteData[tipo]?.[mese]?.[index];
