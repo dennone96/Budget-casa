@@ -196,24 +196,17 @@ font-size: 20px;
 box-shadow: var(--shadow);
 }
 #sidebar nav { flex: 1; padding: 0 0.75rem; }
+.nav-item img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
 .nav-item {
-display: flex;
-align-items: center;
-gap: 14px;
-padding: 14px 16px;
-font-size: 14px;
-font-weight: 600;
-color: var(--text-secondary);
-cursor: pointer;
-border: none;
-background: none;
-width: 100%;
-text-align: left;
-height: auto;
-transition: all 0.2s;
-border-radius: var(--radius-sm);
-margin-bottom: 4px;
-font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 14px;
 }
 .nav-item i {
   font-size: 20px;
@@ -1496,25 +1489,32 @@ Budget
 </div>
 <nav>
   <button class="nav-item active" data-page="page-home">
-    <i class="ti ti-home"></i> Home
+    <img src="icona-home.png" alt="Home" style="width:24px; height:24px;">
+    Home
   </button>
   <button class="nav-item" data-page="page-grafici">
-    <i class="ti ti-chart-pie"></i> Statistiche
+    <img src="icona-statistiche.png" alt="Statistiche" style="width:24px; height:24px;">
+    Statistiche
   </button>
   <button class="nav-item" data-page="page-import">
-    <i class="ti ti-file-spreadsheet"></i> Importa Excel
+    <img src="icona-importa.png" alt="Importa Excel" style="width:24px; height:24px;">
+    Importa Excel
   </button>
   <button class="nav-item" data-page="page-bollette">
-    <i class="ti ti-file-invoice"></i> Libreria Bollette
+    <img src="icona-bollette.png" alt="Libreria Bollette" style="width:24px; height:24px;">
+    Libreria Bollette
   </button>
   <button class="nav-item" data-page="page-promemoria">
-    <i class="ti ti-bell-ringing"></i> Promemoria
+    <img src="icona-promemoria.png" alt="Promemoria" style="width:24px; height:24px;">
+    Promemoria
   </button>
   <button class="nav-item" data-page="page-profilo">
-    <i class="ti ti-user-circle"></i> Profilo
+    <img src="icona-profilo.png" alt="Profilo" style="width:24px; height:24px;">
+    Profilo
   </button>
   <button class="nav-item" data-page="page-categorie">
-    <i class="ti ti-category-2"></i> Categorie
+    <img src="icona-categorie.png" alt="Categorie" style="width:24px; height:24px;">
+    Categorie
   </button>
 </nav>
 <div id="sidebar-footer">
