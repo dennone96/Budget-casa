@@ -2115,15 +2115,19 @@ function showPage(pageId) {
     closeSidebar();
     
     if (pageId === 'page-grafici') {
-      populateCompareSelects();
-      updateChartCategory();
-      updateChartYear();
-      updateChartResiduo();
-      updateChartCompare();
+      try {
+        populateCompareSelects();
+        updateChartCategory();
+        updateChartYear();
+        updateChartResiduo();
+        updateChartCompare();
+      } catch(e) { console.error('Errore grafici:', e); }
     }
     if (pageId === 'page-bollette') {
-      populateBollettaMeseSelect();
-      renderBolletteList();
+      try {
+        populateBollettaMeseSelect();
+        renderBolletteList();
+      } catch(e) { console.error('Errore bollette:', e); }
     }
     if (pageId === 'page-profilo') {
       try { updateProfilePage(); } catch(e) { console.error('Errore profilo:', e); }
@@ -2234,20 +2238,38 @@ alert('Errore nel salvataggio: ' + err.message);
 }
 }
 async function loadBolletteData() {
-if (!currentUser) return;
-if (unsubscribeBollette) {
-unsubscribeBollette();
-}
-unsubscribeBollette = db.collection('bollette').doc(currentUser.uid).onSnapshot((doc) => {
-if (doc.exists) {
-bolletteData = doc.data() || {};
-} else {
-bolletteData = {};
-}
-renderBolletteList();
-}, (err) => {
-console.error('Errore caricamento bollette:', err);
-});
+  if (!currentUser) return;
+  
+  // Annulla listener precedente se esiste
+  if (unsubscribeBollette) {
+    unsubscribeBollette();
+    unsubscribeBollette = null;
+  }
+  
+  try {
+    // Usa onSnapshot per ascoltare i cambiamenti in tempo reale
+    unsubscribeBollette = db.collection('bollette').doc(currentUser.uid).onSnapshot((doc) => {
+      if (doc.exists) {
+        bolletteData = doc.data() || {};
+      } else {
+        bolletteData = {};
+      }
+      // Solo se siamo nella pagina bollette, renderizza
+      if (document.getElementById('page-bollette').classList.contains('active')) {
+        renderBolletteList();
+      }
+    }, (err) => {
+      console.error('Errore caricamento bollette:', err);
+      // Se è un errore di permessi, inizializza comunque dati vuoti
+      if (err.code === 'permission-denied') {
+        bolletteData = {};
+        console.warn('Permessi Firestore non configurati per le bollette');
+      }
+    });
+  } catch (err) {
+    console.error('Errore setup bollette:', err);
+    bolletteData = {};
+  }
 }
 function setTab(type) {
 state.currentType = type;
