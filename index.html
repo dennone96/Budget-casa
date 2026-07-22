@@ -2109,23 +2109,34 @@ function getMonthEnd(year, month) { return new Date(year, month, 0); }
 const navItems = document.querySelectorAll('.nav-item');
 const pages = document.querySelectorAll('.page');
 function showPage(pageId) {
-pages.forEach(p => p.classList.toggle('active', p.id === pageId));
-navItems.forEach(n => n.classList.toggle('active', n.dataset.page === pageId));
-closeSidebar();
-if (pageId === 'page-grafici') {
-populateCompareSelects();
-updateChartCategory();
-updateChartYear();
-updateChartResiduo();
-updateChartCompare();
-}
-if (pageId === 'page-bollette') {
-populateBollettaMeseSelect();
-renderBolletteList();
-}
-if (pageId === 'page-profilo') updateProfilePage();
-if (pageId === 'page-promemoria') renderReminders();
-if (pageId === 'page-categorie') renderCategories();
+  try {
+    pages.forEach(p => p.classList.toggle('active', p.id === pageId));
+    navItems.forEach(n => n.classList.toggle('active', n.dataset.page === pageId));
+    closeSidebar();
+    
+    if (pageId === 'page-grafici') {
+      populateCompareSelects();
+      updateChartCategory();
+      updateChartYear();
+      updateChartResiduo();
+      updateChartCompare();
+    }
+    if (pageId === 'page-bollette') {
+      populateBollettaMeseSelect();
+      renderBolletteList();
+    }
+    if (pageId === 'page-profilo') {
+      try { updateProfilePage(); } catch(e) { console.error('Errore profilo:', e); }
+    }
+    if (pageId === 'page-promemoria') {
+      try { renderReminders(); } catch(e) { console.error('Errore promemoria:', e); }
+    }
+    if (pageId === 'page-categorie') {
+      try { renderCategories(); } catch(e) { console.error('Errore categorie:', e); }
+    }
+  } catch (err) {
+    console.error('Errore navigazione:', err);
+  }
 }
 navItems.forEach(btn => btn.addEventListener('click', () => showPage(btn.dataset.page)));
 document.querySelectorAll('.stats-tab').forEach(tab => {
