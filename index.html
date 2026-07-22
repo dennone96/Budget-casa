@@ -215,15 +215,20 @@ border-radius: var(--radius-sm);
 margin-bottom: 4px;
 font-family: inherit;
 }
-.nav-item i { font-size: 20px; }
-.nav-item:hover {
-background: var(--surface-2);
-color: var(--text-primary);
+.nav-item i {
+  font-size: 20px;
+  font-weight: 400;
+  stroke-width: 1.5;
+  opacity: 0.85;
+  transition: opacity 0.2s;
 }
-.nav-item.active {
-background: var(--accent-light);
-color: var(--accent);
-font-weight: 700;
+
+.nav-item:hover i {
+  opacity: 1;
+}
+
+.nav-item.active i {
+  opacity: 1;
 }
 #sidebar-footer {
 padding: 1rem 1.5rem;
@@ -1490,13 +1495,27 @@ margin-left: 6px;
 Budget
 </div>
 <nav>
-<button class="nav-item active" data-page="page-home"><i class="ti ti-home"></i> Home</button>
-<button class="nav-item" data-page="page-grafici"><i class="ti ti-chart-bar"></i> Statistiche</button>
-<button class="nav-item" data-page="page-import"><i class="ti ti-file-upload"></i> Importa Excel</button>
-<button class="nav-item" data-page="page-bollette"><i class="ti ti-file-invoice"></i> Libreria Bollette</button>
-<button class="nav-item" data-page="page-promemoria"><i class="ti ti-bell"></i> Promemoria</button>
-<button class="nav-item" data-page="page-profilo"><i class="ti ti-user"></i> Profilo</button>
-<button class="nav-item" data-page="page-categorie"><i class="ti ti-category"></i> Categorie</button>
+  <button class="nav-item active" data-page="page-home">
+    <i class="ti ti-home"></i> Home
+  </button>
+  <button class="nav-item" data-page="page-grafici">
+    <i class="ti ti-chart-pie"></i> Statistiche
+  </button>
+  <button class="nav-item" data-page="page-import">
+    <i class="ti ti-file-spreadsheet"></i> Importa Excel
+  </button>
+  <button class="nav-item" data-page="page-bollette">
+    <i class="ti ti-file-invoice"></i> Libreria Bollette
+  </button>
+  <button class="nav-item" data-page="page-promemoria">
+    <i class="ti ti-bell-ringing"></i> Promemoria
+  </button>
+  <button class="nav-item" data-page="page-profilo">
+    <i class="ti ti-user-circle"></i> Profilo
+  </button>
+  <button class="nav-item" data-page="page-categorie">
+    <i class="ti ti-category-2"></i> Categorie
+  </button>
 </nav>
 <div id="sidebar-footer">
 <span id="sidebar-user-email"></span>
