@@ -11,9 +11,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Budget Casa">
-<link rel="apple-touch-icon" href="icon-192.png">
 <meta name="theme-color" content="#4A90D9">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.44.0/iconfont/tabler-icons.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
@@ -197,46 +196,44 @@ box-shadow: var(--shadow);
 }
 #sidebar nav { flex: 1; padding: 0 0.75rem; }
 .nav-item {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 14px 16px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  cursor: pointer;
-  border: none;
-  background: none;
-  width: 100%;
-  text-align: left;
-  height: auto;
-  transition: all 0.2s;
-  border-radius: var(--radius-sm);
-  margin-bottom: 4px;
-  font-family: inherit;
+display: flex;
+align-items: center;
+gap: 14px;
+padding: 14px 16px;
+font-size: 14px;
+font-weight: 600;
+color: var(--text-secondary);
+cursor: pointer;
+border: none;
+background: none;
+width: 100%;
+text-align: left;
+height: auto;
+transition: all 0.2s;
+border-radius: var(--radius-sm);
+margin-bottom: 4px;
+font-family: inherit;
 }
-
-.nav-item i { 
-  font-size: 20px; 
+.nav-item i {
+font-size: 24px;
+font-weight: 400;
+opacity: 0.85;
+transition: opacity 0.2s;
 }
-
-.nav-item img {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-  flex-shrink: 0;
-}
-
 .nav-item:hover {
-  background: var(--surface-2);
-  color: var(--text-primary);
+background: var(--surface-2);
+color: var(--text-primary);
 }
-
+.nav-item:hover i {
+opacity: 1;
+}
 .nav-item.active {
-  background: var(--accent-light);
-  color: var(--accent);
-  font-weight: 700;
+background: var(--accent-light);
+color: var(--accent);
+font-weight: 700;
 }
+.nav-item.active i {
+opacity: 1;
 }
 #sidebar-footer {
 padding: 1rem 1.5rem;
@@ -1305,18 +1302,6 @@ background: var(--surface-2);
 border-radius: var(--radius);
 margin-top: 16px;
 }
-.attachment-file-icon {
-width: 48px;
-height: 48px;
-display: flex;
-align-items: center;
-justify-content: center;
-background: var(--accent-gradient);
-color: #fff;
-border-radius: var(--radius-sm);
-font-size: 22px;
-box-shadow: var(--shadow);
-}
 .attachment-file-details { flex: 1; min-width: 0; }
 .attachment-file-name {
 font-size: 14px;
@@ -1371,136 +1356,136 @@ font-weight: 700;
 }
 .attachment-hidden-input { display: none; }
 .bolletta-table-wrap {
-  overflow-x: auto;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
+overflow-x: auto;
+border-radius: var(--radius-sm);
+border: 1px solid var(--border);
 }
 .bolletta-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-  table-layout: fixed;
+width: 100%;
+border-collapse: collapse;
+font-size: 14px;
+table-layout: fixed;
 }
 .bolletta-table th {
-  background: var(--surface-2);
-  padding: 14px 16px;
-  text-align: center;
-  font-weight: 800;
-  color: var(--text-secondary);
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border-bottom: 2px solid var(--border);
-  width: 25%;
+background: var(--surface-2);
+padding: 14px 16px;
+text-align: center;
+font-weight: 800;
+color: var(--text-secondary);
+font-size: 12px;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+border-bottom: 2px solid var(--border);
+width: 25%;
 }
 .bolletta-table th:first-child {
-  text-align: left;
+text-align: left;
 }
 .bolletta-table td {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
-  text-align: center;
-  vertical-align: middle;
-  width: 25%;
+padding: 12px 16px;
+border-bottom: 1px solid var(--border);
+text-align: center;
+vertical-align: middle;
+width: 25%;
 }
 .bolletta-table tbody tr:last-child td {
-  border-bottom: none;
+border-bottom: none;
 }
 .bolletta-table tbody tr:hover td {
-  background: var(--surface-2);
+background: var(--surface-2);
 }
 .bolletta-table tfoot td {
-  background: var(--accent-light);
-  font-weight: 800;
-  color: var(--accent);
-  border-top: 2px solid var(--accent);
-  padding: 14px 16px;
-  text-align: center;
-  font-size: 14px;
+background: var(--accent-light);
+font-weight: 800;
+color: var(--accent);
+border-top: 2px solid var(--accent);
+padding: 14px 16px;
+text-align: center;
+font-size: 14px;
 }
 .bolletta-table tfoot td:first-child {
-  text-align: left;
-  color: var(--text-primary);
+text-align: left;
+color: var(--text-primary);
 }
 .bolletta-cell-month {
-  font-weight: 700;
-  color: var(--text-primary);
-  text-align: left !important;
-  text-transform: capitalize;
+font-weight: 700;
+color: var(--text-primary);
+text-align: left !important;
+text-transform: capitalize;
 }
 .bolletta-cell-empty {
-  color: var(--text-muted);
-  font-size: 12px;
-  font-style: italic;
-  text-align: center !important;
+color: var(--text-muted);
+font-size: 12px;
+font-style: italic;
+text-align: center !important;
 }
 .bolletta-cell-attachment {
-  cursor: pointer;
-  padding: 10px 12px !important;
-  transition: all 0.2s;
-  border-radius: var(--radius-sm);
-  text-align: center !important;
+cursor: pointer;
+padding: 10px 12px !important;
+transition: all 0.2s;
+border-radius: var(--radius-sm);
+text-align: center !important;
 }
 .bolletta-cell-attachment:hover {
-  background: var(--accent-light);
+background: var(--accent-light);
 }
 .bolletta-cell-total {
-  font-weight: 800;
-  color: var(--accent);
-  font-size: 14px;
+font-weight: 800;
+color: var(--accent);
+font-size: 14px;
 }
 .bolletta-attachment-card {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 10px;
 }
 .bolletta-attachment-icon {
-  width: 36px;
-  height: 36px;
-  background: var(--accent-gradient);
-  color: #fff;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  flex-shrink: 0;
+width: 36px;
+height: 36px;
+background: var(--accent-gradient);
+color: #fff;
+border-radius: 10px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 16px;
+flex-shrink: 0;
 }
 .bolletta-attachment-info {
-  flex: 1;
-  min-width: 0;
-  text-align: left;
+flex: 1;
+min-width: 0;
+text-align: left;
 }
 .bolletta-attachment-name {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text-primary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+font-size: 13px;
+font-weight: 700;
+color: var(--text-primary);
+overflow: hidden;
+text-overflow: ellipsis;
+white-space: nowrap;
 }
 .bolletta-attachment-meta {
-  font-size: 11px;
-  color: var(--text-muted);
-  font-weight: 600;
-  margin-top: 2px;
+font-size: 11px;
+color: var(--text-muted);
+font-weight: 600;
+margin-top: 2px;
 }
 .bolletta-attachment-amount {
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--accent);
-  margin-left: 4px;
+font-size: 12px;
+font-weight: 800;
+color: var(--accent);
+margin-left: 4px;
 }
 .bolletta-multi-badge {
-  display: inline-block;
-  background: var(--accent);
-  color: #fff;
-  font-size: 10px;
-  font-weight: 800;
-  padding: 2px 6px;
-  border-radius: 999px;
-  margin-left: 6px;
+display: inline-block;
+background: var(--accent);
+color: #fff;
+font-size: 10px;
+font-weight: 800;
+padding: 2px 6px;
+border-radius: 999px;
+margin-left: 6px;
 }
 </style>
 </head>
@@ -1530,34 +1515,27 @@ font-weight: 700;
 Budget
 </div>
 <nav>
-  <button class="nav-item active" data-page="page-home">
-    <img src="icona-home.png" alt="Home" style="width:32px; height:32px;">
-    Home
-  </button>
-  <button class="nav-item" data-page="page-grafici">
-    <img src="icona-statistiche.png" alt="Statistiche" style="width:32px; height:32px;">
-    Statistiche
-  </button>
-  <button class="nav-item" data-page="page-import">
-    <img src="icona-importa.png" alt="Importa Excel" style="width:32px; height:32px;">
-    Importa Excel
-  </button>
-  <button class="nav-item" data-page="page-bollette">
-    <img src="icona-bollette.png" alt="Libreria Bollette" style="width:32px; height:32px;">
-    Libreria Bollette
-  </button>
-  <button class="nav-item" data-page="page-promemoria">
-    <img src="icona-promemoria.png" alt="Promemoria" style="width:32px; height:32px;" onerror="this.style.display='none'">
-    Promemoria
-  </button>
-  <button class="nav-item" data-page="page-profilo">
-    <img src="icona-profilo.png" alt="Profilo" style="width:32px; height:32px;" onerror="this.style.display='none'">
-    Profilo
-  </button>
-  <button class="nav-item" data-page="page-categorie">
-    <img src="icona-categorie.png" alt="Categorie" style="width:32px; height:32px;" onerror="this.style.display='none'">
-    Categorie
-  </button>
+<button class="nav-item active" data-page="page-home">
+<i class="ti ti-home"></i> Home
+</button>
+<button class="nav-item" data-page="page-grafici">
+<i class="ti ti-chart-pie"></i> Statistiche
+</button>
+<button class="nav-item" data-page="page-import">
+<i class="ti ti-file-spreadsheet"></i> Importa Excel
+</button>
+<button class="nav-item" data-page="page-bollette">
+<i class="ti ti-file-invoice"></i> Libreria Bollette
+</button>
+<button class="nav-item" data-page="page-promemoria">
+<i class="ti ti-bell-ringing"></i> Promemoria
+</button>
+<button class="nav-item" data-page="page-profilo">
+<i class="ti ti-user-circle"></i> Profilo
+</button>
+<button class="nav-item" data-page="page-categorie">
+<i class="ti ti-category-2"></i> Categorie
+</button>
 </nav>
 <div id="sidebar-footer">
 <span id="sidebar-user-email"></span>
@@ -1861,8 +1839,8 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 <div>
 <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">Tipo bolletta</label>
 <select id="bolletta-tipo" style="width:100%; height:44px;">
-<option value="gas">🔥 Gas</option>
-<option value="luce"> Luce</option>
+<option value="gas"> Gas</option>
+<option value="luce">⚡ Luce</option>
 </select>
 </div>
 <div>
@@ -1891,27 +1869,28 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 </div>
 </div>
 <div class="panel">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:12px;">
-    <h3 style="margin:0;">📊 Riepilogo bollette</h3>
-    <div style="display:flex; align-items:center; gap:10px;">
-      <label style="font-size:13px; font-weight:700; color:var(--text-secondary);">Anno:</label>
-      <select id="bolletta-year-filter" style="width:120px; height:40px; font-weight:700;"></select>
-    </div>
-  </div>
-  <div class="bolletta-table-wrap">
-    <table class="bolletta-table">
-      <thead>
-        <tr>
-          <th>Mese</th>
-          <th>🔥 Gas</th>
-          <th>⚡ Luce</th>
-          <th>💰 Totale</th>
-        </tr>
-      </thead>
-      <tbody id="bolletta-table-body"></tbody>
-      <tfoot id="bolletta-table-foot"></tfoot>
-    </table>
-  </div>
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:12px;">
+<h3 style="margin:0;">📊 Riepilogo bollette</h3>
+<div style="display:flex; align-items:center; gap:10px;">
+<label style="font-size:13px; font-weight:700; color:var(--text-secondary);">Anno:</label>
+<select id="bolletta-year-filter" style="width:120px; height:40px; font-weight:700;"></select>
+</div>
+</div>
+<div class="bolletta-table-wrap">
+<table class="bolletta-table">
+<thead>
+<tr>
+<th>Mese</th>
+<th>🔥 Gas</th>
+<th>⚡ Luce</th>
+<th>💰 Totale</th>
+</tr>
+</thead>
+<tbody id="bolletta-table-body"></tbody>
+<tfoot id="bolletta-table-foot"></tfoot>
+</table>
+</div>
+</div>
 </div>
 <div id="page-promemoria" class="page">
 <h1>Promemoria</h1>
@@ -1972,7 +1951,7 @@ Invia email di reset
 <div id="page-categorie" class="page">
 <h1>Categorie</h1>
 <div class="panel">
-<h3>📤 Uscite</h3>
+<h3> Uscite</h3>
 <ul id="cat-list-expense" class="cat-list"></ul>
 <div class="cat-input-row">
 <input type="text" id="new-cat-expense" placeholder="Nuova categoria">
@@ -2109,38 +2088,37 @@ function getMonthEnd(year, month) { return new Date(year, month, 0); }
 const navItems = document.querySelectorAll('.nav-item');
 const pages = document.querySelectorAll('.page');
 function showPage(pageId) {
-  try {
-    pages.forEach(p => p.classList.toggle('active', p.id === pageId));
-    navItems.forEach(n => n.classList.toggle('active', n.dataset.page === pageId));
-    closeSidebar();
-    
-    if (pageId === 'page-grafici') {
-      try {
-        populateCompareSelects();
-        updateChartCategory();
-        updateChartYear();
-        updateChartResiduo();
-        updateChartCompare();
-      } catch(e) { console.error('Errore grafici:', e); }
-    }
-    if (pageId === 'page-bollette') {
-      try {
-        populateBollettaMeseSelect();
-        renderBolletteList();
-      } catch(e) { console.error('Errore bollette:', e); }
-    }
-    if (pageId === 'page-profilo') {
-      try { updateProfilePage(); } catch(e) { console.error('Errore profilo:', e); }
-    }
-    if (pageId === 'page-promemoria') {
-      try { renderReminders(); } catch(e) { console.error('Errore promemoria:', e); }
-    }
-    if (pageId === 'page-categorie') {
-      try { renderCategories(); } catch(e) { console.error('Errore categorie:', e); }
-    }
-  } catch (err) {
-    console.error('Errore navigazione:', err);
-  }
+try {
+pages.forEach(p => p.classList.toggle('active', p.id === pageId));
+navItems.forEach(n => n.classList.toggle('active', n.dataset.page === pageId));
+closeSidebar();
+if (pageId === 'page-grafici') {
+try {
+populateCompareSelects();
+updateChartCategory();
+updateChartYear();
+updateChartResiduo();
+updateChartCompare();
+} catch(e) { console.error('Errore grafici:', e); }
+}
+if (pageId === 'page-bollette') {
+try {
+populateBollettaMeseSelect();
+renderBolletteList();
+} catch(e) { console.error('Errore bollette:', e); }
+}
+if (pageId === 'page-profilo') {
+try { updateProfilePage(); } catch(e) { console.error('Errore profilo:', e); }
+}
+if (pageId === 'page-promemoria') {
+try { renderReminders(); } catch(e) { console.error('Errore promemoria:', e); }
+}
+if (pageId === 'page-categorie') {
+try { renderCategories(); } catch(e) { console.error('Errore categorie:', e); }
+}
+} catch (err) {
+console.error('Errore navigazione:', err);
+}
 }
 navItems.forEach(btn => btn.addEventListener('click', () => showPage(btn.dataset.page)));
 document.querySelectorAll('.stats-tab').forEach(tab => {
@@ -2238,38 +2216,29 @@ alert('Errore nel salvataggio: ' + err.message);
 }
 }
 async function loadBolletteData() {
-  if (!currentUser) return;
-  
-  // Annulla listener precedente se esiste
-  if (unsubscribeBollette) {
-    unsubscribeBollette();
-    unsubscribeBollette = null;
-  }
-  
-  try {
-    // Usa onSnapshot per ascoltare i cambiamenti in tempo reale
-    unsubscribeBollette = db.collection('bollette').doc(currentUser.uid).onSnapshot((doc) => {
-      if (doc.exists) {
-        bolletteData = doc.data() || {};
-      } else {
-        bolletteData = {};
-      }
-      // Solo se siamo nella pagina bollette, renderizza
-      if (document.getElementById('page-bollette').classList.contains('active')) {
-        renderBolletteList();
-      }
-    }, (err) => {
-      console.error('Errore caricamento bollette:', err);
-      // Se è un errore di permessi, inizializza comunque dati vuoti
-      if (err.code === 'permission-denied') {
-        bolletteData = {};
-        console.warn('Permessi Firestore non configurati per le bollette');
-      }
-    });
-  } catch (err) {
-    console.error('Errore setup bollette:', err);
-    bolletteData = {};
-  }
+if (!currentUser) return;
+if (unsubscribeBollette) {
+unsubscribeBollette();
+unsubscribeBollette = null;
+}
+try {
+unsubscribeBollette = db.collection('bollette').doc(currentUser.uid).onSnapshot((doc) => {
+if (doc.exists) {
+bolletteData = doc.data() || {};
+} else {
+bolletteData = {};
+}
+if (document.getElementById('page-bollette').classList.contains('active')) {
+renderBolletteList();
+}
+}, (err) => {
+console.error('Errore caricamento bollette:', err);
+bolletteData = {};
+});
+} catch (err) {
+console.error('Errore setup bollette:', err);
+bolletteData = {};
+}
 }
 function setTab(type) {
 state.currentType = type;
@@ -2350,7 +2319,6 @@ const byCategory = {};
 mt.forEach(t => { byCategory[t.category] = (byCategory[t.category] || 0) + amountValue(t.amount); });
 const cats = Object.keys(byCategory).filter(c => byCategory[c] > 0);
 const data = cats.map(c => Math.round(byCategory[c] * 100) / 100);
-// Colori unici HSL con golden angle per distinguere ogni categoria
 const colors = cats.map((_, i) => {
 const hue = (i * 137.508) % 360;
 return `hsl(${hue}, 70%, 60%)`;
@@ -2708,7 +2676,6 @@ function updateTransactionsList() {
 const from = filterFrom || todayISO().slice(0,7) + '-01';
 const to = filterTo || todayISO();
 let mt = state.transactions.filter(t => t.date >= from && t.date <= to && matchesSourceFilter(t));
-// Applica filtro di ricerca
 if (searchQuery) {
 mt = mt.filter(t =>
 (t.description || '').toLowerCase().includes(searchQuery) ||
@@ -2782,7 +2749,7 @@ const badgeCls = src === 'bank' ? 'badge-bank' : 'badge-cash';
 const dateLabel = new Date(t.date).toLocaleDateString('it-IT', { day:'2-digit', month:'2-digit', year:'2-digit' });
 const amountColor = isIncome ? 'var(--success)' : 'var(--danger)';
 const amountSign = isIncome ? '+' : '-';
-const hasAttachment = t.attachment ? ' 📎' : '';
+const hasAttachment = t.attachment ? ' ' : '';
 const checkbox = document.createElement('input');
 checkbox.type = 'checkbox';
 checkbox.className = 'tx-checkbox';
@@ -2879,13 +2846,6 @@ const k = 1024;
 const sizes = ['B', 'KB', 'MB', 'GB'];
 const i = Math.floor(Math.log(bytes) / Math.log(k));
 return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-}
-function getFileIcon(mimeType) {
-if (!mimeType) return '📄';
-if (mimeType.includes('pdf')) return '📕';
-if (mimeType.includes('word') || mimeType.includes('document')) return '📘';
-if (mimeType.includes('sheet') || mimeType.includes('excel')) return '📗';
-return '';
 }
 window.downloadAttachment = async function(txId) {
 const t = state.transactions.find(t => t.id === txId);
@@ -3339,7 +3299,6 @@ const margin = 15;
 let y = 20;
 const year = document.getElementById('chart-year')?.value || new Date().getFullYear().toString();
 const month = document.getElementById('chart-month')?.value || monthKey(todayISO());
-// Header
 doc.setFillColor(74, 144, 217);
 doc.rect(0, 0, pageWidth, 40, 'F');
 doc.setTextColor(255, 255, 255);
@@ -3349,7 +3308,6 @@ doc.text('Statistiche', margin, 24);
 doc.setFontSize(11);
 doc.setFont('helvetica', 'normal');
 doc.text(`Anno ${year}`, margin, 32);
-// Sezione 1: Riepilogo annuale
 y = 55;
 doc.setTextColor(26, 43, 60);
 doc.setFontSize(14);
@@ -3378,7 +3336,6 @@ doc.setTextColor(stat.color[0], stat.color[1], stat.color[2]);
 doc.setFontSize(13);
 doc.text(stat.value, x + 3, y + 22);
 });
-// Sezione 2: Dettaglio mensile (pagina 2)
 doc.addPage();
 y = 20;
 doc.setTextColor(26, 43, 60);
@@ -3404,7 +3361,6 @@ cells: [
 };
 });
 y = drawPDFTable(doc, yearHeaders, yearRows, margin, y, yearColWidths, pageWidth);
-// Sezione 3: Entrate vs Uscite (pagina 3) - CON GRAFICO
 doc.addPage();
 y = 20;
 doc.setTextColor(26, 43, 60);
@@ -3412,7 +3368,6 @@ doc.setFontSize(14);
 doc.setFont('helvetica', 'bold');
 doc.text(`Entrate vs Uscite - Anno ${year}`, margin, y);
 y += 15;
-// Aggiorna e attendi il rendering del grafico
 updateChartYear();
 await new Promise(resolve => setTimeout(resolve, 1500));
 try {
@@ -3426,17 +3381,16 @@ y += imgHeight + 10;
 } else {
 doc.setTextColor(156, 163, 175);
 doc.setFontSize(10);
-doc.text('Grafico non disponibile - dati insufficienti', margin, y);
+doc.text('Grafico non disponibile', margin, y);
 y += 20;
 }
 } catch (imgErr) {
-console.error('Errore cattura grafico entrate/uscite:', imgErr);
+console.error('Errore cattura grafico:', imgErr);
 doc.setTextColor(156, 163, 175);
 doc.setFontSize(10);
 doc.text('Grafico non disponibile', margin, y);
 y += 20;
 }
-// Sezione 4: Residuo mensile (pagina 4) - CON GRAFICO
 doc.addPage();
 y = 20;
 doc.setTextColor(26, 43, 60);
@@ -3466,14 +3420,12 @@ cells: [
 };
 });
 y = drawPDFTable(doc, residuoHeaders, residuoRows, margin, y, residuoColWidths, pageWidth);
-// Grafico residuo
 y += 10;
 doc.setTextColor(26, 43, 60);
 doc.setFontSize(14);
 doc.setFont('helvetica', 'bold');
 doc.text(`Grafico Andamento Residuo`, margin, y);
 y += 15;
-// Aggiorna e attendi il rendering del grafico residuo
 updateChartResiduo();
 await new Promise(resolve => setTimeout(resolve, 1500));
 try {
@@ -3487,17 +3439,16 @@ y += imgHeight + 10;
 } else {
 doc.setTextColor(156, 163, 175);
 doc.setFontSize(10);
-doc.text('Grafico non disponibile - dati insufficienti', margin, y);
+doc.text('Grafico non disponibile', margin, y);
 y += 20;
 }
 } catch (imgErr) {
-console.error('Errore cattura grafico residuo:', imgErr);
+console.error('Errore cattura grafico:', imgErr);
 doc.setTextColor(156, 163, 175);
 doc.setFontSize(10);
 doc.text('Grafico non disponibile', margin, y);
 y += 20;
 }
-// Sezione 5: Spese per categoria (pagina 5) - CON GRAFICO
 doc.addPage();
 y = 20;
 doc.setTextColor(26, 43, 60);
@@ -3505,7 +3456,6 @@ doc.setFontSize(14);
 doc.setFont('helvetica', 'bold');
 doc.text(`Spese per categoria - ${monthLabel(month)}`, margin, y);
 y += 15;
-// Aggiorna e attendi il rendering del grafico categorie
 updateChartCategory();
 await new Promise(resolve => setTimeout(resolve, 1500));
 try {
@@ -3519,11 +3469,11 @@ y += imgHeight + 10;
 } else {
 doc.setTextColor(156, 163, 175);
 doc.setFontSize(10);
-doc.text('Grafico non disponibile - nessuna spesa nel mese', margin, y);
+doc.text('Grafico non disponibile', margin, y);
 y += 20;
 }
 } catch (imgErr) {
-console.error('Errore cattura grafico categorie:', imgErr);
+console.error('Errore cattura grafico:', imgErr);
 doc.setTextColor(156, 163, 175);
 doc.setFontSize(10);
 doc.text('Grafico non disponibile', margin, y);
@@ -3558,7 +3508,6 @@ doc.setTextColor(156, 163, 175);
 doc.setFontSize(10);
 doc.text('Nessuna spesa nel mese selezionato', margin, y + 5);
 }
-// Numeri di pagina
 const pageCount = doc.internal.getNumberOfPages();
 for (let i = 1; i <= pageCount; i++) {
 doc.setPage(i);
@@ -3619,119 +3568,94 @@ select.appendChild(option);
 select.value = currentYear;
 }
 function renderBolletteList() {
-  const year = document.getElementById('bolletta-year-filter')?.value || new Date().getFullYear().toString();
-  const tbody = document.getElementById('bolletta-table-body');
-  const tfoot = document.getElementById('bolletta-table-foot');
-  if (!tbody) return;
-  
-  tbody.innerHTML = '';
-  if (tfoot) tfoot.innerHTML = '';
-  
-  let totalGas = 0;
-  let totalLuce = 0;
-  
-  FILTER_MONTHS.forEach((monthName, monthIndex) => {
-    const monthNum = monthIndex + 1;
-    const meseKey = `${year}-${String(monthNum).padStart(2, '0')}`;
-    
-    const tr = document.createElement('tr');
-    
-    // Cella mese
-    const tdMonth = document.createElement('td');
-    tdMonth.className = 'bolletta-cell-month';
-    tdMonth.textContent = monthName;
-    tr.appendChild(tdMonth);
-    
-    // Cella Gas
-    const tdGas = document.createElement('td');
-    renderBollettaCell(tdGas, 'gas', meseKey, monthName);
-    tr.appendChild(tdGas);
-    
-    // Cella Luce
-    const tdLuce = document.createElement('td');
-    renderBollettaCell(tdLuce, 'luce', meseKey, monthName);
-    tr.appendChild(tdLuce);
-    
-    // Cella Totale mensile
-    const tdTotal = document.createElement('td');
-    const gasImporto = getBollettaImporto('gas', meseKey);
-    const luceImporto = getBollettaImporto('luce', meseKey);
-    const meseTotal = gasImporto + luceImporto;
-    
-    totalGas += gasImporto;
-    totalLuce += luceImporto;
-    
-    if (meseTotal > 0) {
-      tdTotal.className = 'bolletta-cell-total';
-      tdTotal.textContent = meseTotal.toLocaleString('it-IT', { 
-        minimumFractionDigits: 2, 
-        maximumFractionDigits: 2 
-      }) + ' €';
-    } else {
-      tdTotal.className = 'bolletta-cell-empty';
-      tdTotal.textContent = '—';
-    }
-    tr.appendChild(tdTotal);
-    
-    tbody.appendChild(tr);
-  });
-  
-  // Riga totale annuo
-  if (tfoot && (totalGas > 0 || totalLuce > 0)) {
-    const grandTotal = totalGas + totalLuce;
-    tfoot.innerHTML = `
-      <tr>
-        <td>TOTALE ANNUO ${year}</td>
-        <td>${totalGas.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</td>
-        <td>${totalLuce.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</td>
-        <td>${grandTotal.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</td>
-      </tr>
-    `;
-  }
+const year = document.getElementById('bolletta-year-filter')?.value || new Date().getFullYear().toString();
+const tbody = document.getElementById('bolletta-table-body');
+const tfoot = document.getElementById('bolletta-table-foot');
+if (!tbody) return;
+tbody.innerHTML = '';
+if (tfoot) tfoot.innerHTML = '';
+let totalGas = 0;
+let totalLuce = 0;
+FILTER_MONTHS.forEach((monthName, monthIndex) => {
+const monthNum = monthIndex + 1;
+const meseKey = `${year}-${String(monthNum).padStart(2, '0')}`;
+const tr = document.createElement('tr');
+const tdMonth = document.createElement('td');
+tdMonth.className = 'bolletta-cell-month';
+tdMonth.textContent = monthName;
+tr.appendChild(tdMonth);
+const tdGas = document.createElement('td');
+renderBollettaCell(tdGas, 'gas', meseKey, monthName);
+tr.appendChild(tdGas);
+const tdLuce = document.createElement('td');
+renderBollettaCell(tdLuce, 'luce', meseKey, monthName);
+tr.appendChild(tdLuce);
+const tdTotal = document.createElement('td');
+const gasImporto = getBollettaImporto('gas', meseKey);
+const luceImporto = getBollettaImporto('luce', meseKey);
+const meseTotal = gasImporto + luceImporto;
+totalGas += gasImporto;
+totalLuce += luceImporto;
+if (meseTotal > 0) {
+tdTotal.className = 'bolletta-cell-total';
+tdTotal.textContent = meseTotal.toLocaleString('it-IT', {
+minimumFractionDigits: 2,
+maximumFractionDigits: 2
+}) + ' €';
+} else {
+tdTotal.className = 'bolletta-cell-empty';
+tdTotal.textContent = '—';
 }
-
+tr.appendChild(tdTotal);
+tbody.appendChild(tr);
+});
+if (tfoot && (totalGas > 0 || totalLuce > 0)) {
+const grandTotal = totalGas + totalLuce;
+tfoot.innerHTML = `
+<tr>
+<td>TOTALE ANNUO ${year}</td>
+<td>${totalGas.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</td>
+<td>${totalLuce.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</td>
+<td>${grandTotal.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</td>
+</tr>
+`;
+}
+}
 function getBollettaImporto(tipo, meseKey) {
-  const attachments = (bolletteData[tipo] && bolletteData[tipo][meseKey]) || [];
-  if (attachments.length === 0) return 0;
-  const bolletta = attachments[attachments.length - 1];
-  return bolletta.importo || 0;
+const attachments = (bolletteData[tipo] && bolletteData[tipo][meseKey]) || [];
+if (attachments.length === 0) return 0;
+const bolletta = attachments[attachments.length - 1];
+return bolletta.importo || 0;
 }
-
 function renderBollettaCell(td, tipo, meseKey, monthName) {
-  const attachments = (bolletteData[tipo] && bolletteData[tipo][meseKey]) || [];
-  
-  if (attachments.length === 0) {
-    td.className = 'bolletta-cell-empty';
-    td.textContent = '—';
-    return;
-  }
-  
-  td.className = 'bolletta-cell-attachment';
-  const bolletta = attachments[attachments.length - 1];
-  
-  const importoFormattato = bolletta.importo.toLocaleString('it-IT', { 
-    minimumFractionDigits: 2, 
-    maximumFractionDigits: 2 
-  }) + ' €';
-  
-  const multiBadge = attachments.length > 1 ? `<span class="bolletta-multi-badge">+${attachments.length - 1}</span>` : '';
-  
-  td.innerHTML = `
-    <div class="bolletta-attachment-card">
-      <div class="bolletta-attachment-icon">
-        <i class="ti ti-file-type-pdf"></i>
-      </div>
-      <div class="bolletta-attachment-info">
-        <div class="bolletta-attachment-name">${escapeHtml(bolletta.fornitore)}${multiBadge}</div>
-        <div class="bolletta-attachment-meta">
-          ${new Date(bolletta.dataCaricamento).toLocaleDateString('it-IT')}
-          <span class="bolletta-attachment-amount">${importoFormattato}</span>
-        </div>
-      </div>
-    </div>
-  `;
-  
-  td.addEventListener('click', () => openBollettaDetail(tipo, meseKey, attachments.length - 1));
+const attachments = (bolletteData[tipo] && bolletteData[tipo][meseKey]) || [];
+if (attachments.length === 0) {
+td.className = 'bolletta-cell-empty';
+td.textContent = '—';
+return;
+}
+td.className = 'bolletta-cell-attachment';
+const bolletta = attachments[attachments.length - 1];
+const importoFormattato = bolletta.importo.toLocaleString('it-IT', {
+minimumFractionDigits: 2,
+maximumFractionDigits: 2
+}) + ' €';
+const multiBadge = attachments.length > 1 ? `<span class="bolletta-multi-badge">+${attachments.length - 1}</span>` : '';
+td.innerHTML = `
+<div class="bolletta-attachment-card">
+<div class="bolletta-attachment-icon">
+<i class="ti ti-file-type-pdf"></i>
+</div>
+<div class="bolletta-attachment-info">
+<div class="bolletta-attachment-name">${escapeHtml(bolletta.fornitore)}${multiBadge}</div>
+<div class="bolletta-attachment-meta">
+${new Date(bolletta.dataCaricamento).toLocaleDateString('it-IT')}
+<span class="bolletta-attachment-amount">${importoFormattato}</span>
+</div>
+</div>
+</div>
+`;
+td.addEventListener('click', () => openBollettaDetail(tipo, meseKey, attachments.length - 1));
 }
 function openBollettaDetail(tipo, meseKey, index) {
 const attachments = bolletteData[tipo]?.[meseKey];
