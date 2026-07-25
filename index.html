@@ -42,6 +42,8 @@
 --info-light: #E8F4FD;
 --purple: #9B59B6;
 --purple-light: #F3E8F9;
+--water: #00BCD4;
+--water-light: #E0F7FA;
 --radius: 24px;
 --radius-sm: 16px;
 --radius-lg: 32px;
@@ -66,6 +68,7 @@
 --warning-light: #3A2E1A;
 --info-light: #1A2E3A;
 --purple-light: #2E1A3A;
+--water-light: #0A2E30;
 }
 }
 * { box-sizing: border-box; }
@@ -558,18 +561,6 @@ cursor: pointer;
 .stat-card.clickable:hover {
 transform: translateY(-4px);
 box-shadow: var(--shadow-lg);
-}
-.stat-card.clickable::after {
-content: '';
-position: absolute;
-top: 12px;
-right: 12px;
-font-size: 14px;
-opacity: 0;
-transition: opacity 0.2s;
-}
-.stat-card.clickable:hover::after {
-opacity: 0.6;
 }
 .panel {
 background: var(--surface);
@@ -1395,17 +1386,18 @@ font-size: 12px;
 text-transform: uppercase;
 letter-spacing: 0.5px;
 border-bottom: 2px solid var(--border);
-width: 25%;
+width: 20%;
 }
 .bolletta-table th:first-child {
 text-align: left;
+width: 20%;
 }
 .bolletta-table td {
 padding: 12px 16px;
 border-bottom: 1px solid var(--border);
 text-align: center;
 vertical-align: middle;
-width: 25%;
+width: 20%;
 }
 .bolletta-table tbody tr:last-child td {
 border-bottom: none;
@@ -1971,8 +1963,9 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 <div>
 <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">Tipo bolletta</label>
 <select id="bolletta-tipo" style="width:100%; height:44px;">
-<option value="gas"> Gas</option>
+<option value="gas">🔥 Gas</option>
 <option value="luce">⚡ Luce</option>
+<option value="acqua">💧 Acqua</option>
 </select>
 </div>
 <div>
@@ -2015,6 +2008,7 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 <th>Mese</th>
 <th>🔥 Gas</th>
 <th>⚡ Luce</th>
+<th>💧 Acqua</th>
 <th>💰 Totale</th>
 </tr>
 </thead>
@@ -2197,6 +2191,22 @@ const DEFAULT_CATEGORIES = {
 expense: ['Spesa', 'Bollette', 'Affitto/Mutuo', 'Trasporti', 'Salute', 'Svago', 'Istruzione', 'Altro'],
 income: ['Stipendio', 'Bonus', 'Regalo', 'Altro']
 };
+
+// === COLORI FISSI PER CATEGORIE ===
+const CATEGORY_COLORS = {
+  'Spesa': '#E74C3C',
+  'Bollette': '#F39C12',
+  'Affitto/Mutuo': '#9B59B6',
+  'Trasporti': '#3498DB',
+  'Salute': '#1ABC9C',
+  'Svago': '#E67E22',
+  'Istruzione': '#27AE60',
+  'Altro': '#4A90D9',
+  'Stipendio': '#27AE60',
+  'Bonus': '#F1C40F',
+  'Regalo': '#E91E63'
+};
+
 let state = { transactions: [], categories: DEFAULT_CATEGORIES, budgets: {}, reminders: [], currentType: 'expense' };
 let bolletteData = {};
 let bollettaDetailData = null;
@@ -2213,6 +2223,20 @@ const FILTER_MONTHS = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giug
 const todayISO = () => fmtDate(new Date());
 const monthKey = (d) => d.slice(0,7);
 const monthLabel = (k) => { const [y,m] = k.split('-'); return new Date(+y, +m-1, 1).toLocaleDateString('it-IT', { month: 'long', year: 'numeric' }); };
+
+function getCategoryColor(category) {
+  if (CATEGORY_COLORS[category]) {
+    return CATEGORY_COLORS[category];
+  }
+  // Fallback: genera colore HSL basato sul nome della categoria
+  let hash = 0;
+  for (let i = 0; i < category.length; i++) {
+    hash = category.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const hue = Math.abs(hash) % 360;
+  return `hsl(${hue}, 70%, 55%)`;
+}
+
 function amountValue(value) {
 if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
 let s = String(value || '').trim().replace(/[\u20ac\s]/g, '');
@@ -2222,7 +2246,6 @@ const n = parseFloat(s);
 return Number.isFinite(n) ? n : 0;
 }
 const fmtEUR = (n) => amountValue(n).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: true }) + ' €';
-const CAT_COLORS = ['#4A90D9','#5CB85C','#E74C3C','#3498DB','#9B59B6','#F39C12','#1ABC9C','#E67E22'];
 function fmtDate(d) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 function fmtDateLabel(d) { return d.toLocaleDateString('it-IT', { day:'2-digit', month:'long', year:'numeric' }); }
 function getMonthEnd(year, month) { return new Date(year, month, 0); }
@@ -2460,10 +2483,8 @@ const byCategory = {};
 mt.forEach(t => { byCategory[t.category] = (byCategory[t.category] || 0) + amountValue(t.amount); });
 const cats = Object.keys(byCategory).filter(c => byCategory[c] > 0);
 const data = cats.map(c => Math.round(byCategory[c] * 100) / 100);
-const colors = cats.map((_, i) => {
-const hue = (i * 137.508) % 360;
-return `hsl(${hue}, 70%, 60%)`;
-});
+// Colori fissi per categoria
+const colors = cats.map(c => getCategoryColor(c));
 const legend = document.getElementById('legend-categories');
 legend.innerHTML = '';
 cats.forEach((c,i) => { const span = document.createElement('span'); span.innerHTML = '<span class="swatch" style="background:' + colors[i] + ';"></span>' + c + ' ' + fmtEUR(data[i]); legend.appendChild(span); });
@@ -2758,7 +2779,7 @@ tr = document.createElement('tr');
 tr.className = 'total-row';
 diff = totalExp2 - totalExp1;
 tr.innerHTML = `
-<td style="font-weight: 800;"> Totale Uscite</td>
+<td style="font-weight: 800;">💸 Totale Uscite</td>
 <td class="text-right" style="font-weight: 700; color: var(--danger)">${fmtEUR(totalExp1)}</td>
 <td class="text-right" style="font-weight: 700; color: var(--danger)">${fmtEUR(totalExp2)}</td>
 <td class="text-right" style="font-weight: 800; color: ${diff >= 0 ? 'var(--danger)' : 'var(--success)'}">
@@ -2854,7 +2875,7 @@ countSpan.textContent = `${selectedTransactions.size} selezionati`;
 bulkBar.appendChild(countSpan);
 const deleteBtn = document.createElement('button');
 deleteBtn.className = 'btn-bulk-delete';
-deleteBtn.textContent = '️ Elimina selezionati';
+deleteBtn.textContent = '🗑️ Elimina selezionati';
 deleteBtn.addEventListener('click', async () => {
 if (!confirm(`Eliminare ${selectedTransactions.size} movimenti selezionati?`)) return;
 state.transactions = state.transactions.filter(t => !selectedTransactions.has(t.id));
@@ -2885,7 +2906,7 @@ row.classList.add('selected');
 }
 const isIncome = t.type === 'income';
 const src = t.source || 'cash';
-const badgeLabel = src === 'bank' ? '🏦 C/C' : '💵 Cash';
+const badgeLabel = src === 'bank' ? '🏦 C/C' : ' Cash';
 const badgeCls = src === 'bank' ? 'badge-bank' : 'badge-cash';
 const dateLabel = new Date(t.date).toLocaleDateString('it-IT', { day:'2-digit', month:'2-digit', year:'2-digit' });
 const amountColor = isIncome ? 'var(--success)' : 'var(--danger)';
@@ -3717,6 +3738,7 @@ tbody.innerHTML = '';
 if (tfoot) tfoot.innerHTML = '';
 let totalGas = 0;
 let totalLuce = 0;
+let totalAcqua = 0;
 FILTER_MONTHS.forEach((monthName, monthIndex) => {
 const monthNum = monthIndex + 1;
 const meseKey = `${year}-${String(monthNum).padStart(2, '0')}`;
@@ -3731,12 +3753,17 @@ tr.appendChild(tdGas);
 const tdLuce = document.createElement('td');
 renderBollettaCell(tdLuce, 'luce', meseKey, monthName);
 tr.appendChild(tdLuce);
+const tdAcqua = document.createElement('td');
+renderBollettaCell(tdAcqua, 'acqua', meseKey, monthName);
+tr.appendChild(tdAcqua);
 const tdTotal = document.createElement('td');
 const gasImporto = getBollettaImporto('gas', meseKey);
 const luceImporto = getBollettaImporto('luce', meseKey);
-const meseTotal = gasImporto + luceImporto;
+const acquaImporto = getBollettaImporto('acqua', meseKey);
+const meseTotal = gasImporto + luceImporto + acquaImporto;
 totalGas += gasImporto;
 totalLuce += luceImporto;
+totalAcqua += acquaImporto;
 if (meseTotal > 0) {
 tdTotal.className = 'bolletta-cell-total';
 tdTotal.textContent = meseTotal.toLocaleString('it-IT', {
@@ -3750,13 +3777,14 @@ tdTotal.textContent = '—';
 tr.appendChild(tdTotal);
 tbody.appendChild(tr);
 });
-if (tfoot && (totalGas > 0 || totalLuce > 0)) {
-const grandTotal = totalGas + totalLuce;
+if (tfoot && (totalGas > 0 || totalLuce > 0 || totalAcqua > 0)) {
+const grandTotal = totalGas + totalLuce + totalAcqua;
 tfoot.innerHTML = `
 <tr>
 <td>TOTALE ANNUO ${year}</td>
 <td>${totalGas.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</td>
 <td>${totalLuce.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</td>
+<td>${totalAcqua.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</td>
 <td>${grandTotal.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</td>
 </tr>
 `;
