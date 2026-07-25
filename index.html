@@ -552,6 +552,26 @@ font-weight: 800;
 margin: 0;
 letter-spacing: -1px;
 }
+.stat-card.clickable {
+cursor: pointer;
+transition: all 0.3s;
+}
+.stat-card.clickable:hover {
+transform: translateY(-4px);
+box-shadow: var(--shadow-lg);
+}
+.stat-card.clickable::after {
+content: '🔍';
+position: absolute;
+top: 12px;
+right: 12px;
+font-size: 14px;
+opacity: 0;
+transition: opacity 0.2s;
+}
+.stat-card.clickable:hover::after {
+opacity: 0.6;
+}
 .panel {
 background: var(--surface);
 border: 1px solid var(--border);
@@ -1487,6 +1507,116 @@ padding: 2px 6px;
 border-radius: 999px;
 margin-left: 6px;
 }
+#detail-stats-overlay {
+display: none;
+position: fixed;
+inset: 0;
+background: rgba(15,25,35,0.6);
+backdrop-filter: blur(8px);
+z-index: 600;
+align-items: center;
+justify-content: center;
+padding: 1rem;
+}
+#detail-stats-overlay.open {
+display: flex;
+}
+#detail-stats-box {
+background: var(--surface);
+border-radius: var(--radius-lg);
+padding: 2rem;
+width: 100%;
+max-width: 440px;
+box-shadow: var(--shadow-xl);
+animation: modalIn 0.3s ease;
+}
+#detail-stats-box h3 {
+margin: 0 0 1.5rem;
+font-size: 22px;
+font-weight: 800;
+letter-spacing: -0.5px;
+display: flex;
+align-items: center;
+gap: 10px;
+}
+.detail-stats-row {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 16px;
+background: var(--surface-2);
+border-radius: var(--radius-sm);
+margin-bottom: 10px;
+border: 1px solid var(--border);
+}
+.detail-stats-row:last-of-type {
+margin-bottom: 0;
+}
+.detail-stats-label {
+display: flex;
+align-items: center;
+gap: 10px;
+font-weight: 700;
+color: var(--text-primary);
+font-size: 14px;
+}
+.detail-stats-icon {
+width: 36px;
+height: 36px;
+border-radius: 10px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 18px;
+flex-shrink: 0;
+}
+.detail-stats-icon.cash {
+background: var(--success-light);
+}
+.detail-stats-icon.bank {
+background: var(--info-light);
+}
+.detail-stats-value {
+font-size: 18px;
+font-weight: 800;
+letter-spacing: -0.5px;
+}
+.detail-stats-value.income {
+color: var(--success);
+}
+.detail-stats-value.expense {
+color: var(--danger);
+}
+.detail-stats-total {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 14px 16px;
+background: var(--accent-light);
+border-radius: var(--radius-sm);
+margin-top: 12px;
+border: 1px solid var(--accent);
+}
+.detail-stats-total-label {
+font-weight: 800;
+color: var(--accent);
+font-size: 14px;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+}
+.detail-stats-total-value {
+font-size: 20px;
+font-weight: 800;
+color: var(--accent);
+letter-spacing: -0.5px;
+}
+.detail-stats-empty {
+text-align: center;
+padding: 20px;
+color: var(--text-muted);
+font-size: 13px;
+font-style: italic;
+}
 </style>
 </head>
 <body>
@@ -1579,11 +1709,11 @@ Date personalizzate
 </div>
 </div>
 <div class="stats-row">
-<div class="stat-card income">
+<div class="stat-card income clickable" onclick="openDetailStats('income')" title="Clicca per dettagli">
 <p>Entrate</p>
 <p style="color: var(--success);" id="stat-income">0,00 €</p>
 </div>
-<div class="stat-card expense">
+<div class="stat-card expense clickable" onclick="openDetailStats('expense')" title="Clicca per dettagli">
 <p>Uscite</p>
 <p style="color: var(--danger);" id="stat-expense">0,00 €</p>
 </div>
@@ -1839,8 +1969,8 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 <div>
 <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">Tipo bolletta</label>
 <select id="bolletta-tipo" style="width:100%; height:44px;">
-<option value="gas"> Gas</option>
-<option value="luce">⚡ Luce</option>
+<option value="gas">🔥 Gas</option>
+<option value="luce"> Luce</option>
 </select>
 </div>
 <div>
@@ -1951,7 +2081,7 @@ Invia email di reset
 <div id="page-categorie" class="page">
 <h1>Categorie</h1>
 <div class="panel">
-<h3> Uscite</h3>
+<h3>📤 Uscite</h3>
 <ul id="cat-list-expense" class="cat-list"></ul>
 <div class="cat-input-row">
 <input type="text" id="new-cat-expense" placeholder="Nuova categoria">
@@ -2034,6 +2164,15 @@ Invia email di reset
 <button id="bolletta-detail-delete" style="width:46px; height:46px; background:var(--danger); color:#fff; border:none; border-radius:var(--radius-sm); cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 512 512"><defs><linearGradient id="trashGrad" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#F04438"/><stop offset="1" stop-color="#B42318"/></linearGradient></defs><rect x="72" y="72" width="368" height="368" rx="92" fill="url(#trashGrad)"/><path d="M202 154c0-17.7 14.3-32 32-32h44c17.7 0 32 14.3 32 32v14h52c11 0 20 9 20 20s-9 20-20 20H150c-11 0-20-9-20-20s9-20 20-20h52v-14Zm40 14h28v-6c0-3.3-2.7-6-6-6h-16c-3.3 0-6 2.7-6 6v6Z" fill="#FFFFFF"/><path d="M170 238c-1.1-13.8 9.8-25.6 23.6-25.6h124.8c13.8 0 24.7 11.8 23.6 25.6l-12.2 144.9c-1.5 17.5-16.1 31.1-33.7 31.1h-80.2c-17.6 0-32.2-13.6-33.7-31.1L170 238Z" fill="#FFFFFF"/></svg>
 </button>
+</div>
+</div>
+</div>
+<div id="detail-stats-overlay">
+<div id="detail-stats-box">
+<h3 id="detail-stats-title">Dettaglio</h3>
+<div id="detail-stats-content"></div>
+<div style="margin-top:1.5rem;">
+<button id="detail-stats-close" style="width:100%; height:46px; background:var(--surface-2); border:1px solid var(--border); color:var(--text-primary); border-radius:var(--radius-sm); font-weight:700; cursor:pointer; font-family:inherit;">Chiudi</button>
 </div>
 </div>
 </div>
@@ -3788,6 +3927,69 @@ progressDiv.classList.add('hidden');
 alert('Errore nel caricamento: ' + err.message);
 }
 }
+function openDetailStats(type) {
+const from = filterFrom || todayISO().slice(0,7) + '-01';
+const to = filterTo || todayISO();
+const mt = state.transactions.filter(t =>
+t.type === type &&
+t.date >= from &&
+t.date <= to &&
+matchesSourceFilter(t)
+);
+const cashTotal = mt
+.filter(t => (t.source || 'cash') === 'cash')
+.reduce((s, t) => s + amountValue(t.amount), 0);
+const bankTotal = mt
+.filter(t => (t.source || 'cash') === 'bank')
+.reduce((s, t) => s + amountValue(t.amount), 0);
+const total = cashTotal + bankTotal;
+const isIncome = type === 'income';
+const title = isIncome ? '💰 Dettaglio Entrate' : '💸 Dettaglio Uscite';
+const valueClass = isIncome ? 'income' : 'expense';
+const periodLabel = filterMode === 'month'
+? `${document.getElementById('filter-month')?.selectedOptions[0]?.textContent || ''} ${document.getElementById('filter-year')?.value || ''}`
+: `Dal ${fmtDateLabel(new Date(filterFrom + 'T00:00:00'))} al ${fmtDateLabel(new Date(filterTo + 'T00:00:00'))}`;
+const contentDiv = document.getElementById('detail-stats-content');
+if (mt.length === 0) {
+contentDiv.innerHTML = `
+<div style="font-size:12px; color:var(--text-muted); font-weight:600; margin-bottom:12px;">${periodLabel}</div>
+<div class="detail-stats-empty">Nessun movimento in questo periodo</div>
+`;
+} else {
+contentDiv.innerHTML = `
+<div style="font-size:12px; color:var(--text-muted); font-weight:600; margin-bottom:12px;">${periodLabel}</div>
+<div class="detail-stats-row">
+<div class="detail-stats-label">
+<div class="detail-stats-icon cash"></div>
+<div>
+<div>Contanti</div>
+<div style="font-size:11px; color:var(--text-muted); font-weight:600;">${mt.filter(t => (t.source || 'cash') === 'cash').length} movimenti</div>
+</div>
+</div>
+<div class="detail-stats-value ${valueClass}">${fmtEUR(cashTotal)}</div>
+</div>
+<div class="detail-stats-row">
+<div class="detail-stats-label">
+<div class="detail-stats-icon bank">🏦</div>
+<div>
+<div>Conto corrente</div>
+<div style="font-size:11px; color:var(--text-muted); font-weight:600;">${mt.filter(t => (t.source || 'cash') === 'bank').length} movimenti</div>
+</div>
+</div>
+<div class="detail-stats-value ${valueClass}">${fmtEUR(bankTotal)}</div>
+</div>
+<div class="detail-stats-total">
+<div class="detail-stats-total-label">Totale ${isIncome ? 'Entrate' : 'Uscite'}</div>
+<div class="detail-stats-total-value">${fmtEUR(total)}</div>
+</div>
+`;
+}
+document.getElementById('detail-stats-title').textContent = title;
+document.getElementById('detail-stats-overlay').classList.add('open');
+}
+function closeDetailStats() {
+document.getElementById('detail-stats-overlay').classList.remove('open');
+}
 document.getElementById('btn-upload-bolletta').addEventListener('click', uploadBolletta);
 document.getElementById('bolletta-year-filter').addEventListener('change', renderBolletteList);
 document.getElementById('bolletta-detail-close').addEventListener('click', closeBollettaDetail);
@@ -3796,6 +3998,10 @@ if (e.target.id === 'bolletta-detail-overlay') closeBollettaDetail();
 });
 document.getElementById('bolletta-detail-download').addEventListener('click', downloadBollettaFromDetail);
 document.getElementById('bolletta-detail-delete').addEventListener('click', deleteBollettaFromDetail);
+document.getElementById('detail-stats-close').addEventListener('click', closeDetailStats);
+document.getElementById('detail-stats-overlay').addEventListener('click', (e) => {
+if (e.target.id === 'detail-stats-overlay') closeDetailStats();
+});
 document.getElementById('btn-pdf-home').addEventListener('click', generateHomePDF);
 document.getElementById('btn-pdf-stats').addEventListener('click', generateStatsPDF);
 })();
