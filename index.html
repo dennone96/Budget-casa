@@ -11,8 +11,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Budget Casa">
+<link rel="apple-touch-icon" href="icon-192.png">
 <meta name="theme-color" content="#4A90D9">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.44.0/iconfont/tabler-icons.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
@@ -42,8 +43,6 @@
 --info-light: #E8F4FD;
 --purple: #9B59B6;
 --purple-light: #F3E8F9;
---water: #00BCD4;
---water-light: #E0F7FA;
 --radius: 24px;
 --radius-sm: 16px;
 --radius-lg: 32px;
@@ -68,7 +67,6 @@
 --warning-light: #3A2E1A;
 --info-light: #1A2E3A;
 --purple-light: #2E1A3A;
---water-light: #0A2E30;
 }
 }
 * { box-sizing: border-box; }
@@ -217,26 +215,15 @@ border-radius: var(--radius-sm);
 margin-bottom: 4px;
 font-family: inherit;
 }
-.nav-item i {
-font-size: 24px;
-font-weight: 400;
-opacity: 0.85;
-transition: opacity 0.2s;
-}
+.nav-item i { font-size: 20px; }
 .nav-item:hover {
 background: var(--surface-2);
 color: var(--text-primary);
-}
-.nav-item:hover i {
-opacity: 1;
 }
 .nav-item.active {
 background: var(--accent-light);
 color: var(--accent);
 font-weight: 700;
-}
-.nav-item.active i {
-opacity: 1;
 }
 #sidebar-footer {
 padding: 1rem 1.5rem;
@@ -554,13 +541,6 @@ font-size: 28px;
 font-weight: 800;
 margin: 0;
 letter-spacing: -1px;
-}
-.stat-card.clickable {
-cursor: pointer;
-}
-.stat-card.clickable:hover {
-transform: translateY(-4px);
-box-shadow: var(--shadow-lg);
 }
 .panel {
 background: var(--surface);
@@ -1144,7 +1124,28 @@ padding: 16px 0;
 border-bottom: 1px solid var(--border);
 }
 .cat-item:last-child { border-bottom: none; }
-.cat-item span { flex: 1; font-size: 15px; font-weight: 700; }
+.cat-item-name {
+flex: 1;
+font-size: 15px;
+font-weight: 700;
+display: flex;
+align-items: center;
+gap: 10px;
+}
+.cat-color-dot {
+width: 22px;
+height: 22px;
+border-radius: 50%;
+cursor: pointer;
+border: 2px solid var(--border);
+transition: all 0.2s;
+flex-shrink: 0;
+}
+.cat-color-dot:hover {
+transform: scale(1.2);
+border-color: var(--accent);
+box-shadow: var(--shadow);
+}
 .cat-item .cat-actions { display: flex; gap: 8px; }
 .cat-input-row { display: flex; gap: 10px; margin-top: 14px; }
 .cat-input-row input { flex: 1; height: 46px; font-weight: 700; }
@@ -1498,118 +1499,113 @@ padding: 2px 6px;
 border-radius: 999px;
 margin-left: 6px;
 }
-#income-expense-overlay {
+#color-picker-overlay {
 display: none;
 position: fixed;
 inset: 0;
 background: rgba(15,25,35,0.6);
 backdrop-filter: blur(8px);
-z-index: 600;
+z-index: 700;
 align-items: center;
 justify-content: center;
 padding: 1rem;
 }
-#income-expense-overlay.open {
-display: flex;
-}
-#income-expense-box {
+#color-picker-overlay.open { display: flex; }
+#color-picker-box {
 background: var(--surface);
 border-radius: var(--radius-lg);
 padding: 2rem;
 width: 100%;
-max-width: 500px;
+max-width: 420px;
 box-shadow: var(--shadow-xl);
 animation: modalIn 0.3s ease;
 }
-#income-expense-box h3 {
-margin: 0 0 1.5rem;
+#color-picker-box h3 {
+margin: 0 0 0.5rem;
 font-size: 22px;
 font-weight: 800;
 letter-spacing: -0.5px;
 }
-.ie-row {
+.color-picker-subtitle {
+font-size: 13px;
+color: var(--text-muted);
+margin-bottom: 1.5rem;
+font-weight: 600;
+}
+.color-picker-preview {
 display: flex;
 align-items: center;
-justify-content: space-between;
-padding: 16px;
+gap: 12px;
+padding: 14px 16px;
 background: var(--surface-2);
 border-radius: var(--radius-sm);
-margin-bottom: 10px;
+margin-bottom: 1.5rem;
 border: 1px solid var(--border);
 }
-.ie-row:last-of-type {
-margin-bottom: 0;
-}
-.ie-label {
-display: flex;
-align-items: center;
-gap: 10px;
-font-weight: 700;
-color: var(--text-primary);
-font-size: 14px;
-}
-.ie-icon {
+.color-picker-preview-dot {
 width: 36px;
 height: 36px;
-border-radius: 10px;
+border-radius: 50%;
+border: 3px solid #fff;
+box-shadow: var(--shadow);
+transition: background-color 0.3s;
+}
+.color-picker-preview-name {
+font-size: 15px;
+font-weight: 700;
+color: var(--text-primary);
+flex: 1;
+}
+.color-picker-preview-hex {
+font-size: 12px;
+font-weight: 700;
+color: var(--text-muted);
+font-family: monospace;
+}
+.color-picker-grid {
+display: grid;
+grid-template-columns: repeat(4, 1fr);
+gap: 10px;
+margin-bottom: 1.5rem;
+}
+.color-picker-option {
+aspect-ratio: 1;
+border-radius: var(--radius-sm);
+cursor: pointer;
+border: 3px solid transparent;
+transition: all 0.2s;
+position: relative;
+}
+.color-picker-option:hover {
+transform: scale(1.1);
+box-shadow: var(--shadow-lg);
+}
+.color-picker-option.selected {
+border-color: var(--text-primary);
+transform: scale(1.05);
+}
+.color-picker-option.selected::after {
+content: '✓';
+position: absolute;
+inset: 0;
 display: flex;
 align-items: center;
 justify-content: center;
-font-size: 18px;
-flex-shrink: 0;
-}
-.ie-icon.cash {
-background: var(--success-light);
-}
-.ie-icon.bank {
-background: var(--info-light);
-}
-.ie-value {
-font-size: 18px;
-font-weight: 800;
-letter-spacing: -0.5px;
-}
-.ie-value.income {
-color: var(--success);
-}
-.ie-value.expense {
-color: var(--danger);
-}
-.ie-total {
-display: flex;
-align-items: center;
-justify-content: space-between;
-padding: 14px 16px;
-background: var(--accent-light);
-border-radius: var(--radius-sm);
-margin-top: 12px;
-border: 1px solid var(--accent);
-}
-.ie-total-label {
-font-weight: 800;
-color: var(--accent);
-font-size: 14px;
-text-transform: uppercase;
-letter-spacing: 0.5px;
-}
-.ie-total-value {
+color: #fff;
 font-size: 20px;
 font-weight: 800;
-color: var(--accent);
-letter-spacing: -0.5px;
+text-shadow: 0 1px 3px rgba(0,0,0,0.5);
 }
-.ie-empty {
-text-align: center;
-padding: 20px;
-color: var(--text-muted);
-font-size: 13px;
-font-style: italic;
+.color-picker-actions {
+display: flex;
+gap: 10px;
 }
-.ie-period {
-font-size: 12px;
-color: var(--text-muted);
-font-weight: 600;
-margin-bottom: 12px;
+.color-picker-actions button {
+flex: 1;
+height: 46px;
+font-size: 14px;
+font-weight: 700;
+border-radius: var(--radius-sm);
 }
 </style>
 </head>
@@ -2078,6 +2074,7 @@ Invia email di reset
 <h1>Categorie</h1>
 <div class="panel">
 <h3>📤 Uscite</h3>
+<p style="font-size:12px; color:var(--text-muted); margin:-8px 0 12px; font-weight:600;">💡 Clicca sul pallino colorato per cambiare il colore della categoria</p>
 <ul id="cat-list-expense" class="cat-list"></ul>
 <div class="cat-input-row">
 <input type="text" id="new-cat-expense" placeholder="Nuova categoria">
@@ -2086,6 +2083,7 @@ Invia email di reset
 </div>
 <div class="panel">
 <h3>📥 Entrate</h3>
+<p style="font-size:12px; color:var(--text-muted); margin:-8px 0 12px; font-weight:600;"> Clicca sul pallino colorato per cambiare il colore della categoria</p>
 <ul id="cat-list-income" class="cat-list"></ul>
 <div class="cat-input-row">
 <input type="text" id="new-cat-income" placeholder="Nuova categoria">
@@ -2163,12 +2161,19 @@ Invia email di reset
 </div>
 </div>
 </div>
-<div id="income-expense-overlay">
-<div id="income-expense-box">
-<h3 id="income-expense-title">Dettaglio</h3>
-<div id="income-expense-content"></div>
-<div style="margin-top: 1.5rem;">
-<button id="income-expense-close" style="width: 100%; height: 46px; background: var(--surface-2); border: 1px solid var(--border); color: var(--text-primary); border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; font-family: inherit;">Chiudi</button>
+<div id="color-picker-overlay">
+<div id="color-picker-box">
+<h3>🎨 Cambia colore</h3>
+<p class="color-picker-subtitle">Scegli un colore per questa categoria</p>
+<div class="color-picker-preview">
+<div class="color-picker-preview-dot" id="color-picker-preview-dot"></div>
+<div class="color-picker-preview-name" id="color-picker-preview-name"></div>
+<div class="color-picker-preview-hex" id="color-picker-preview-hex"></div>
+</div>
+<div class="color-picker-grid" id="color-picker-grid"></div>
+<div class="color-picker-actions">
+<button id="color-picker-cancel" style="background:var(--surface-2); border:1px solid var(--border); color:var(--text-primary);">Annulla</button>
+<button id="color-picker-save" style="background:var(--accent-gradient); color:#fff; border:none;">Salva colore</button>
 </div>
 </div>
 </div>
@@ -2192,8 +2197,26 @@ expense: ['Spesa', 'Bollette', 'Affitto/Mutuo', 'Trasporti', 'Salute', 'Svago', 
 income: ['Stipendio', 'Bonus', 'Regalo', 'Altro']
 };
 
-// === COLORI FISSI PER CATEGORIE ===
-const CATEGORY_COLORS = {
+const COLOR_PALETTE = [
+  { name: 'Rosso', hex: '#E74C3C' },
+  { name: 'Arancione', hex: '#F39C12' },
+  { name: 'Giallo', hex: '#F1C40F' },
+  { name: 'Verde', hex: '#27AE60' },
+  { name: 'Verde acqua', hex: '#1ABC9C' },
+  { name: 'Ciano', hex: '#00BCD4' },
+  { name: 'Blu chiaro', hex: '#3498DB' },
+  { name: 'Blu', hex: '#4A90D9' },
+  { name: 'Blu scuro', hex: '#2C3E50' },
+  { name: 'Indaco', hex: '#3F51B5' },
+  { name: 'Viola', hex: '#9B59B6' },
+  { name: 'Rosa', hex: '#E91E63' },
+  { name: 'Magenta', hex: '#C2185B' },
+  { name: 'Marrone', hex: '#795548' },
+  { name: 'Grigio', hex: '#95A5A6' },
+  { name: 'Nero', hex: '#34495E' }
+];
+
+const DEFAULT_CATEGORY_COLORS = {
   'Spesa': '#E74C3C',
   'Bollette': '#F39C12',
   'Affitto/Mutuo': '#9B59B6',
@@ -2208,6 +2231,7 @@ const CATEGORY_COLORS = {
 };
 
 let state = { transactions: [], categories: DEFAULT_CATEGORIES, budgets: {}, reminders: [], currentType: 'expense' };
+let categoryColors = {};
 let bolletteData = {};
 let bollettaDetailData = null;
 let unsubscribeBollette = null;
@@ -2219,16 +2243,16 @@ let filterFrom = null, filterTo = null, filterMode = 'month';
 let editingCat = { type: null, index: null };
 let selectedTransactions = new Set();
 let searchQuery = '';
+let colorPickerContext = { category: null, type: null, selectedColor: null };
+
 const FILTER_MONTHS = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
 const todayISO = () => fmtDate(new Date());
 const monthKey = (d) => d.slice(0,7);
 const monthLabel = (k) => { const [y,m] = k.split('-'); return new Date(+y, +m-1, 1).toLocaleDateString('it-IT', { month: 'long', year: 'numeric' }); };
 
 function getCategoryColor(category) {
-  if (CATEGORY_COLORS[category]) {
-    return CATEGORY_COLORS[category];
-  }
-  // Fallback: genera colore HSL basato sul nome della categoria
+  if (categoryColors[category]) return categoryColors[category];
+  if (DEFAULT_CATEGORY_COLORS[category]) return DEFAULT_CATEGORY_COLORS[category];
   let hash = 0;
   for (let i = 0; i < category.length; i++) {
     hash = category.charCodeAt(i) + ((hash << 5) - hash);
@@ -2359,8 +2383,10 @@ state.transactions = data.transactions || [];
 state.categories = data.categories || DEFAULT_CATEGORIES;
 state.budgets = data.budgets || {};
 state.reminders = data.reminders || [];
+categoryColors = data.categoryColors || {};
 } else {
-userDocRef().set({ transactions: [], categories: DEFAULT_CATEGORIES, budgets: {}, reminders: [] });
+userDocRef().set({ transactions: [], categories: DEFAULT_CATEGORIES, budgets: {}, reminders: [], categoryColors: {} });
+categoryColors = {};
 }
 setTab(state.currentType);
 renderAll();
@@ -2369,6 +2395,13 @@ document.getElementById('save-status').textContent = 'I dati sono sincronizzati 
 }
 async function saveTransactions() { try { await userDocRef().update({ transactions: state.transactions }); } catch(e) { document.getElementById('save-status').textContent = 'Errore: ' + e.message; } }
 async function saveCategories() { try { await userDocRef().update({ categories: state.categories }); } catch(e) {} }
+async function saveCategoryColors() {
+try {
+await userDocRef().update({ categoryColors: categoryColors });
+} catch(e) {
+console.error('Errore salvataggio colori:', e);
+}
+}
 async function saveReminders() { try { await userDocRef().update({ reminders: state.reminders }); } catch(e) {} }
 async function saveBolletteData() {
 if (!currentUser) return;
@@ -2483,7 +2516,6 @@ const byCategory = {};
 mt.forEach(t => { byCategory[t.category] = (byCategory[t.category] || 0) + amountValue(t.amount); });
 const cats = Object.keys(byCategory).filter(c => byCategory[c] > 0);
 const data = cats.map(c => Math.round(byCategory[c] * 100) / 100);
-// Colori fissi per categoria
 const colors = cats.map(c => getCategoryColor(c));
 const legend = document.getElementById('legend-categories');
 legend.innerHTML = '';
@@ -2815,7 +2847,7 @@ tr = document.createElement('tr');
 tr.className = 'total-row';
 diff = saldo2 - saldo1;
 tr.innerHTML = `
-<td style="font-weight: 800;">📊 Saldo Finale</td>
+<td style="font-weight: 800;"> Saldo Finale</td>
 <td class="text-right" style="font-weight: 700; color: ${saldo1 >= 0 ? 'var(--success)' : 'var(--danger)'}">${fmtEUR(saldo1)}</td>
 <td class="text-right" style="font-weight: 700; color: ${saldo2 >= 0 ? 'var(--success)' : 'var(--danger)'}">${fmtEUR(saldo2)}</td>
 <td class="text-right" style="font-weight: 800; color: ${diff >= 0 ? 'var(--success)' : 'var(--danger)'}">
@@ -2906,7 +2938,7 @@ row.classList.add('selected');
 }
 const isIncome = t.type === 'income';
 const src = t.source || 'cash';
-const badgeLabel = src === 'bank' ? '🏦 C/C' : ' Cash';
+const badgeLabel = src === 'bank' ? '🏦 C/C' : '💵 Cash';
 const badgeCls = src === 'bank' ? 'badge-bank' : 'badge-cash';
 const dateLabel = new Date(t.date).toLocaleDateString('it-IT', { day:'2-digit', month:'2-digit', year:'2-digit' });
 const amountColor = isIncome ? 'var(--success)' : 'var(--danger)';
@@ -2968,7 +3000,7 @@ document.getElementById('detail-title').textContent = isIncome ? 'Entrata' : 'Us
 document.getElementById('detail-desc').textContent = t.description || t.category || '—';
 document.getElementById('detail-amount').innerHTML = `<span style="font-size:22px; font-weight:800; color:${isIncome?'var(--success)':'var(--danger)'}; letter-spacing:-0.5px;">${isIncome?'+':'-'}${fmtEUR(t.amount)}</span>`;
 document.getElementById('detail-category').textContent = t.category || '—';
-const srcLabel = (t.source === 'bank') ? '🏦 Conto corrente' : '💵 Contanti';
+const srcLabel = (t.source === 'bank') ? ' Conto corrente' : '💵 Contanti';
 document.getElementById('detail-date').textContent = new Date(t.date).toLocaleDateString('it-IT', {weekday:'long', year:'numeric', month:'long', day:'numeric'}) + ' · ' + srcLabel;
 renderAttachment(t);
 document.getElementById('detail-overlay').classList.add('open');
@@ -2990,7 +3022,7 @@ const infoDiv = document.createElement('div');
 infoDiv.className = 'attachment-file-info';
 infoDiv.innerHTML = `<div class="attachment-file-details" style="flex:1;"><div class="attachment-file-name">${escapeHtml(t.attachment.name)}</div><div class="attachment-file-size">${formatFileSize(t.attachment.size)}</div></div><div class="attachment-actions">
 <button class="btn-download-attachment" onclick="downloadAttachment('${t.id}')" title="Scarica" style="background: linear-gradient(135deg, #2F80ED 0%, #1558C0 100%); border-radius: 12px;">
-<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2 2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
 </button>
 <button class="btn-remove-attachment" onclick="removeAttachment('${t.id}')" title="Rimuovi" style="background: linear-gradient(135deg, #F04438 0%, #B42318 100%); border-radius: 12px;">
 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
@@ -3255,27 +3287,48 @@ document.getElementById('btn-reset-password').addEventListener('click', async ()
 const msgEl = document.getElementById('profile-msg'); msgEl.textContent = '';
 try { await auth.sendPasswordResetEmail(currentUser.email); msgEl.style.color = 'var(--success)'; msgEl.textContent = 'Email inviata!'; } catch(e) { msgEl.style.color = 'var(--danger)'; msgEl.textContent = 'Errore: ' + e.message; }
 });
+
 function renderCategories() {
 const renderList = (type, listId) => {
 const ul = document.getElementById(listId); ul.innerHTML = '';
 state.categories[type].forEach((cat, idx) => {
 const li = document.createElement('li'); li.className = 'cat-item';
-li.innerHTML = `<span>${escapeHtml(cat)}</span><div class="cat-actions">
+const currentColor = getCategoryColor(cat);
+li.innerHTML = `
+<div class="cat-item-name">
+<div class="cat-color-dot" data-type="${type}" data-category="${escapeHtml(cat)}" style="background-color: ${currentColor};" title="Clicca per cambiare colore"></div>
+<span>${escapeHtml(cat)}</span>
+</div>
+<div class="cat-actions">
 <button class="btn-edit-tx" data-type="${type}" data-idx="${idx}" title="Modifica" style="background: linear-gradient(135deg, #2F80ED 0%, #1558C0 100%); border-radius: 12px;">
-<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512"><defs><linearGradient id="buttonGradientEdit" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#2F80ED"/><stop offset="1" stop-color="#1558C0"/></linearGradient><filter id="softShadowEdit" x="44" y="44" width="424" height="424" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#0B2E63" flood-opacity="0.24"/></filter></defs><rect x="72" y="72" width="368" height="368" rx="92" fill="url(#buttonGradientEdit)" filter="url(#softShadowEdit)"/><path d="M338.7 130.8c12.6-12.6 33.1-12.6 45.7 0l17.8 17.8c12.6 12.6 12.6 33.1 0 45.7l-24.5 24.5-63.5-63.5 24.5-24.5Z" fill="#FFFFFF"/><path d="M287.7 181.8 151.8 317.7c-3.2 3.2-5.4 7.2-6.5 11.6l-17.5 69.9c-2.5 9.9 6.5 18.9 16.4 16.4l69.9-17.5c4.4-1.1 8.4-3.3 11.6-6.5l135.9-135.9-73.9-73.9Z" fill="#FFFFFF"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512"><defs><linearGradient id="buttonGradientEdit" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#2F80ED"/><stop offset="1" stop-color="#1558C0"/></linearGradient><filter id="softShadowEdit" x="44" y="44" width="424" height="424" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#0B2E63" flood-opacity="0.24"/></filter></defs><rect x="72" y="72" width="368" height="368" rx="92" fill="url(#buttonGradientEdit)" filter="url(#softShadowEdit)"/><path d="M338.7 130.8c12.6-12.6 33.1-12.6 45.7 0l17.8 17.8c12.6 12.6 12.6 33.1 0 45.7l-24.5 24.5-63.5-63.5 24.5-24.5Z" fill="#FFFFFF"/><path d="M287.7 181.8 151.8 317.7c-3.2 3.2-5.4 7.2-6.5 11.6l-17.5 69.9c-2.5 9.9 6.5 18.9 16.4 16.4l69.9-17.5c4.4-1.1 8.4-3.3 11.6-6.5l135.9-135.9-73.9-73.9Z" fill="#FFFFFF"/><path d="M287.7 181.8 361.6 255.7 338 279.3 264.1 205.4l23.6-23.6Z" fill="#DDEBFF"/><path d="M151.8 317.7c-3.2 3.2-5.4 7.2-6.5 11.6l-10.3 41 40.9 40.9 40.9-10.3c4.4-1.1 8.4-3.3 11.6-6.5l-76.6-76.7Z" fill="#EAF3FF"/><path d="M135 370.3 127.8 399.2c-2.5 9.9 6.5 18.9 16.4 16.4l28.9-7.2L135 370.3Z" fill="#102A43"/></svg>
 </button>
 <button class="btn-delete" data-type="${type}" data-idx="${idx}" title="Elimina" style="background: linear-gradient(135deg, #F04438 0%, #B42318 100%); border-radius: 12px;">
 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512"><defs><linearGradient id="buttonGradient" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#F04438"/><stop offset="1" stop-color="#B42318"/></linearGradient><filter id="softShadow" x="44" y="44" width="424" height="424" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#65160F" flood-opacity="0.24"/></filter></defs><rect x="72" y="72" width="368" height="368" rx="92" fill="url(#buttonGradient)" filter="url(#softShadow)"/><path d="M202 154c0-17.7 14.3-32 32-32h44c17.7 0 32 14.3 32 32v14h52c11 0 20 9 20 20s-9 20-20 20H150c-11 0-20-9-20-20s9-20 20-20h52v-14Zm40 14h28v-6c0-3.3-2.7-6-6-6h-16c-3.3 0-6 2.7-6 6v6Z" fill="#FFFFFF"/><path d="M170 238c-1.1-13.8 9.8-25.6 23.6-25.6h124.8c13.8 0 24.7 11.8 23.6 25.6l-12.2 144.9c-1.5 17.5-16.1 31.1-33.7 31.1h-80.2c-17.6 0-32.2-13.6-33.7-31.1L170 238Z" fill="#FFFFFF"/></svg>
 </button>
-</div>`;
+</div>
+`;
 ul.appendChild(li);
+});
+ul.querySelectorAll('.cat-color-dot').forEach(dot => {
+dot.addEventListener('click', (e) => {
+e.stopPropagation();
+const type = dot.getAttribute('data-type');
+const category = dot.getAttribute('data-category');
+openColorPicker(type, category);
+});
 });
 ul.querySelectorAll('.btn-delete').forEach(btn => btn.addEventListener('click', async () => {
 const type = btn.getAttribute('data-type');
 const idx = parseInt(btn.getAttribute('data-idx'));
 if (state.categories[type].length <= 1) { alert('Deve esserci almeno una categoria.'); return; }
 if (!confirm(`Eliminare la categoria "${state.categories[type][idx]}"?`)) return;
+const catName = state.categories[type][idx];
 state.categories[type].splice(idx, 1);
+if (categoryColors[catName]) {
+delete categoryColors[catName];
+saveCategoryColors();
+}
 await saveCategories(); renderCategories(); populateCategorySelect();
 }));
 ul.querySelectorAll('.btn-edit-tx').forEach(btn => btn.addEventListener('click', () => {
@@ -3287,6 +3340,61 @@ openCatEditModal(type, idx);
 renderList('expense', 'cat-list-expense');
 renderList('income', 'cat-list-income');
 }
+
+function openColorPicker(type, category) {
+colorPickerContext = {
+type: type,
+category: category,
+selectedColor: getCategoryColor(category)
+};
+document.getElementById('color-picker-preview-name').textContent = category;
+document.getElementById('color-picker-preview-dot').style.backgroundColor = colorPickerContext.selectedColor;
+document.getElementById('color-picker-preview-hex').textContent = colorPickerContext.selectedColor;
+renderColorPalette();
+document.getElementById('color-picker-overlay').classList.add('open');
+}
+
+function renderColorPalette() {
+const grid = document.getElementById('color-picker-grid');
+grid.innerHTML = '';
+COLOR_PALETTE.forEach(color => {
+const option = document.createElement('div');
+option.className = 'color-picker-option' + (color.hex === colorPickerContext.selectedColor ? ' selected' : '');
+option.style.backgroundColor = color.hex;
+option.title = color.name;
+option.addEventListener('click', () => {
+colorPickerContext.selectedColor = color.hex;
+document.getElementById('color-picker-preview-dot').style.backgroundColor = color.hex;
+document.getElementById('color-picker-preview-hex').textContent = color.hex;
+grid.querySelectorAll('.color-picker-option').forEach(opt => opt.classList.remove('selected'));
+option.classList.add('selected');
+});
+grid.appendChild(option);
+});
+}
+
+function closeColorPicker() {
+document.getElementById('color-picker-overlay').classList.remove('open');
+colorPickerContext = { category: null, type: null, selectedColor: null };
+}
+
+async function saveSelectedColor() {
+if (!colorPickerContext.category || !colorPickerContext.selectedColor) return;
+categoryColors[colorPickerContext.category] = colorPickerContext.selectedColor;
+await saveCategoryColors();
+renderCategories();
+if (document.getElementById('page-grafici').classList.contains('active')) {
+updateChartCategory();
+}
+closeColorPicker();
+}
+
+document.getElementById('color-picker-cancel').addEventListener('click', closeColorPicker);
+document.getElementById('color-picker-save').addEventListener('click', saveSelectedColor);
+document.getElementById('color-picker-overlay').addEventListener('click', (e) => {
+if (e.target.id === 'color-picker-overlay') closeColorPicker();
+});
+
 function openCatEditModal(type, idx) {
 editingCat = { type, index: idx };
 document.getElementById('cat-edit-input').value = state.categories[type][idx];
@@ -3296,8 +3404,14 @@ document.getElementById('cat-edit-cancel').addEventListener('click', () => { doc
 document.getElementById('cat-edit-save').addEventListener('click', async () => {
 const newName = document.getElementById('cat-edit-input').value.trim();
 if (!newName) { alert('Inserisci un nome valido.'); return; }
-if (editingCat.type && state.categories[editingCat.type].includes(newName) && newName !== state.categories[editingCat.type][editingCat.index]) { alert('Categoria già esistente.'); return; }
+const oldName = state.categories[editingCat.type][editingCat.index];
+if (editingCat.type && state.categories[editingCat.type].includes(newName) && newName !== oldName) { alert('Categoria già esistente.'); return; }
 state.categories[editingCat.type][editingCat.index] = newName;
+if (newName !== oldName && categoryColors[oldName]) {
+categoryColors[newName] = categoryColors[oldName];
+delete categoryColors[oldName];
+saveCategoryColors();
+}
 await saveCategories(); renderCategories(); populateCategorySelect();
 document.getElementById('cat-edit-modal').style.display = 'none';
 });
