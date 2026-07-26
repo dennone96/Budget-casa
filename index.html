@@ -1607,6 +1607,107 @@ font-size: 14px;
 font-weight: 700;
 border-radius: var(--radius-sm);
 }
+#income-expense-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15,25,35,0.6);
+  backdrop-filter: blur(8px);
+  z-index: 600;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+#income-expense-overlay.open { display: flex; }
+#income-expense-box {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: var(--shadow-xl);
+  animation: modalIn 0.3s ease;
+}
+#income-expense-box h3 {
+  margin: 0 0 1.5rem;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+.ie-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  margin-bottom: 10px;
+  border: 1px solid var(--border);
+}
+.ie-row:last-of-type { margin-bottom: 0; }
+.ie-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+.ie-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.ie-icon.cash { background: var(--success-light); }
+.ie-icon.bank { background: var(--info-light); }
+.ie-value {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+.ie-value.income { color: var(--success); }
+.ie-value.expense { color: var(--danger); }
+.ie-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: var(--accent-light);
+  border-radius: var(--radius-sm);
+  margin-top: 12px;
+  border: 1px solid var(--accent);
+}
+.ie-total-label {
+  font-weight: 800;
+  color: var(--accent);
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.ie-total-value {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--accent);
+  letter-spacing: -0.5px;
+}
+.ie-empty {
+  text-align: center;
+  padding: 20px;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-style: italic;
+}
+.ie-period {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 12px;
+}  
 </style>
 </head>
 <body>
@@ -2177,6 +2278,15 @@ Invia email di reset
 </div>
 </div>
 </div>
+<div id="income-expense-overlay">
+  <div id="income-expense-box">
+    <h3 id="income-expense-title">Dettaglio</h3>
+    <div id="income-expense-content"></div>
+    <div style="margin-top: 1.5rem;">
+      <button id="income-expense-close" style="width: 100%; height: 46px; background: var(--surface-2); border: 1px solid var(--border); color: var(--text-primary); border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; font-family: inherit;">Chiudi</button>
+    </div>
+  </div>
+</div>  
 <div id="pdf-loading"><div class="spinner"></div><span>Generazione PDF...</span></div>
 <script>
 (function(){
@@ -4150,6 +4260,77 @@ document.getElementById('bolletta-detail-download').addEventListener('click', do
 document.getElementById('bolletta-detail-delete').addEventListener('click', deleteBollettaFromDetail);
 document.getElementById('btn-pdf-home').addEventListener('click', generateHomePDF);
 document.getElementById('btn-pdf-stats').addEventListener('click', generateStatsPDF);
+function openIncomeExpenseDetail(type) {
+  const from = filterFrom || todayISO().slice(0,7) + '-01';
+  const to = filterTo || todayISO();
+  const mt = state.transactions.filter(t =>
+    t.type === type &&
+    t.date >= from &&
+    t.date <= to &&
+    matchesSourceFilter(t)
+  );
+  const cashTotal = mt
+    .filter(t => (t.source || 'cash') === 'cash')
+    .reduce((s, t) => s + amountValue(t.amount), 0);
+  const bankTotal = mt
+    .filter(t => (t.source || 'cash') === 'bank')
+    .reduce((s, t) => s + amountValue(t.amount), 0);
+  const total = cashTotal + bankTotal;
+  const isIncome = type === 'income';
+  const title = isIncome ? '💰 Dettaglio Entrate' : '💸 Dettaglio Uscite';
+  const valueClass = isIncome ? 'income' : 'expense';
+  const periodLabel = filterMode === 'month'
+    ? `${document.getElementById('filter-month')?.selectedOptions[0]?.textContent || ''} ${document.getElementById('filter-year')?.value || ''}`
+    : `Dal ${fmtDateLabel(new Date(filterFrom + 'T00:00:00'))} al ${fmtDateLabel(new Date(filterTo + 'T00:00:00'))}`;
+  const contentDiv = document.getElementById('income-expense-content');
+  if (mt.length === 0) {
+    contentDiv.innerHTML = `
+      <div class="ie-period">${periodLabel}</div>
+      <div class="ie-empty">Nessun movimento in questo periodo</div>
+    `;
+  } else {
+    contentDiv.innerHTML = `
+      <div class="ie-period">${periodLabel}</div>
+      <div class="ie-row">
+        <div class="ie-label">
+          <div class="ie-icon cash">💵</div>
+          <div>
+            <div>Contanti</div>
+            <div style="font-size:11px; color:var(--text-muted); font-weight:600;">${mt.filter(t => (t.source || 'cash') === 'cash').length} movimenti</div>
+          </div>
+        </div>
+        <div class="ie-value ${valueClass}">${fmtEUR(cashTotal)}</div>
+      </div>
+      <div class="ie-row">
+        <div class="ie-label">
+          <div class="ie-icon bank">🏦</div>
+          <div>
+            <div>Conto corrente</div>
+            <div style="font-size:11px; color:var(--text-muted); font-weight:600;">${mt.filter(t => (t.source || 'cash') === 'bank').length} movimenti</div>
+          </div>
+        </div>
+        <div class="ie-value ${valueClass}">${fmtEUR(bankTotal)}</div>
+      </div>
+      <div class="ie-total">
+        <div class="ie-total-label">Totale ${isIncome ? 'Entrate' : 'Uscite'}</div>
+        <div class="ie-total-value">${fmtEUR(total)}</div>
+      </div>
+    `;
+  }
+  document.getElementById('income-expense-title').textContent = title;
+  document.getElementById('income-expense-overlay').classList.add('open');
+}
+
+function closeIncomeExpenseDetail() {
+  document.getElementById('income-expense-overlay').classList.remove('open');
+}
+
+document.getElementById('income-expense-close').addEventListener('click', closeIncomeExpenseDetail);
+document.getElementById('income-expense-overlay').addEventListener('click', (e) => {
+  if (e.target.id === 'income-expense-overlay') closeIncomeExpenseDetail();
+});
+document.getElementById('card-income').addEventListener('click', () => openIncomeExpenseDetail('income'));
+document.getElementById('card-expense').addEventListener('click', () => openIncomeExpenseDetail('expense'));
 })();
 </script>
 </body>
