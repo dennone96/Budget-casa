@@ -21,7 +21,9 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-storage-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-/* Toggle Switch stile iOS */
+
+<style>
+/* === TOGGLE SWITCH E FILTRI (Spostato DENTRO il tag style) === */
 .toggle-container {
   display: flex;
   align-items: center;
@@ -35,11 +37,7 @@
   user-select: none;
   transition: all 0.3s ease;
 }
-
-.toggle-container:hover {
-  border-color: var(--accent);
-}
-
+.toggle-container:hover { border-color: var(--accent); }
 .toggle-switch {
   position: relative;
   width: 48px;
@@ -49,7 +47,6 @@
   transition: background 0.3s ease;
   flex-shrink: 0;
 }
-
 .toggle-switch::after {
   content: '';
   position: absolute;
@@ -62,27 +59,16 @@
   transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
-
-.toggle-container.active .toggle-switch {
-  background: #5CB85C;
-}
-
-.toggle-container.active .toggle-switch::after {
-  transform: translateX(22px);
-}
-
+.toggle-container.active .toggle-switch { background: #5CB85C; }
+.toggle-container.active .toggle-switch::after { transform: translateX(22px); }
 .toggle-label {
   font-size: 13px;
   font-weight: 700;
   color: var(--text-secondary);
   transition: color 0.3s ease;
 }
+.toggle-container.active .toggle-label { color: #5CB85C; }
 
-.toggle-container.active .toggle-label {
-  color: #5CB85C;
-}
-
-/* Layout filtri a sinistra */
 .home-date-filter {
   width: 100%;
   flex-direction: column;
@@ -90,7 +76,6 @@
   gap: 12px;
   margin-top: 12px;
 }
-
 .filter-row {
   display: flex;
   align-items: center;
@@ -98,23 +83,9 @@
   flex-wrap: wrap;
   width: 100%;
 }
-
-.filter-row .home-date-field {
-  flex: 0 1 auto;
-}
-
-.filter-row .home-date-field label {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text-secondary);
-}
-
-.filter-row .home-date-field select,
-.filter-row .home-date-field input {
-  height: 40px;
-  min-width: 120px;
-}
-
+.filter-row .home-date-field { flex: 0 1 auto; }
+.filter-row .home-date-field label { font-size: 13px; font-weight: 700; color: var(--text-secondary); }
+.filter-row .home-date-field select, .filter-row .home-date-field input { height: 40px; min-width: 120px; }
 #btn-apply-range {
   height: 40px;
   padding: 0 20px;
@@ -127,12 +98,7 @@
   cursor: pointer;
   transition: all 0.2s;
 }
-
-#btn-apply-range:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-lg);
-}
-
+#btn-apply-range:hover { transform: translateY(-1px); box-shadow: var(--shadow-lg); }
 #custom-range {
   display: flex;
   align-items: center;
@@ -144,28 +110,13 @@
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   margin-top: 4px;
-  }
-
-#custom-range.hidden {
-  display: none;
 }
+#custom-range.hidden { display: none; }
+#custom-range .home-date-field { flex: 0 1 auto; }
+#custom-range .home-date-field label { font-size: 12px; font-weight: 700; color: var(--text-muted); }
+#custom-range .home-date-field input { height: 36px; min-width: 140px; font-size: 13px; }
 
-#custom-range .home-date-field {
-  flex: 0 1 auto;
-}
-
-#custom-range .home-date-field label {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-#custom-range .home-date-field input {
-  height: 36px;
-  min-width: 140px;
-  font-size: 13px;
-}  
-<style>
+/* === RESTO DEL CSS ORIGINALE === */
 :root {
 --bg: #F0F4F8;
 --surface: #FFFFFF;
