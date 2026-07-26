@@ -197,39 +197,59 @@ box-shadow: var(--shadow);
 }
 #sidebar nav { flex: 1; padding: 0 0.75rem; }
 .nav-item {
-display: flex;
-align-items: center;
-gap: 14px;
-padding: 14px 16px;
-font-size: 14px;
-font-weight: 600;
-color: var(--text-secondary);
-cursor: pointer;
-border: none;
-background: none;
-width: 100%;
-text-align: left;
-height: auto;
-transition: all 0.2s;
-border-radius: var(--radius-sm);
-margin-bottom: 4px;
-font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  height: auto;
+  transition: all 0.2s;
+  border-radius: var(--radius-sm);
+  margin-bottom: 4px;
+  font-family: inherit;
 }
+
 .nav-item i {
   font-size: 20px;
+  font-weight: 400;
+  opacity: 0.85;
+  transition: opacity 0.2s;
   display: inline-block;
-  margin-right: 14px;
-}  
-.nav-item i { font-size: 20px; }
+  flex-shrink: 0;
+}
+
 .nav-item:hover {
-background: var(--surface-2);
-color: var(--text-primary);
+  background: var(--surface-2);
+  color: var(--text-primary);
 }
+
+.nav-item:hover i {
+  opacity: 1;
+}
+
 .nav-item.active {
-background: var(--accent-light);
-color: var(--accent);
-font-weight: 700;
+  background: var(--accent-light);
+  color: var(--accent);
+  font-weight: 700;
 }
+
+.nav-item.active i {
+  opacity: 1;
+}
+.nav-item i[class*="ti-"]::before {
+  display: inline-block;
+  font-style: normal;
+  font-variant: normal;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+}  
 #sidebar-footer {
 padding: 1rem 1.5rem;
 border-top: 1px solid var(--border);
@@ -1741,27 +1761,27 @@ border-radius: var(--radius-sm);
 Budget
 </div>
 <nav>
-<button class="nav-item active" data-page="page-home">
-<i class="ti ti-home"></i> Home
-</button>
-<button class="nav-item" data-page="page-grafici">
-<i class="ti ti-chart-pie"></i> Statistiche
-</button>
-<button class="nav-item" data-page="page-import">
-<i class="ti ti-file-spreadsheet"></i> Importa Excel
-</button>
-<button class="nav-item" data-page="page-bollette">
-<i class="ti ti-file-invoice"></i> Libreria Bollette
-</button>
-<button class="nav-item" data-page="page-promemoria">
-<i class="ti ti-bell-ringing"></i> Promemoria
-</button>
-<button class="nav-item" data-page="page-profilo">
-<i class="ti ti-user-circle"></i> Profilo
-</button>
-<button class="nav-item" data-page="page-categorie">
-<i class="ti ti-category-2"></i> Categorie
-</button>
+  <button class="nav-item active" data-page="page-home">
+    <i class="ti ti-home"></i> Home
+  </button>
+  <button class="nav-item" data-page="page-grafici">
+    <i class="ti ti-chart-pie"></i> Statistiche
+  </button>
+  <button class="nav-item" data-page="page-import">
+    <i class="ti ti-file-spreadsheet"></i> Importa Excel
+  </button>
+  <button class="nav-item" data-page="page-bollette">
+    <i class="ti ti-file-invoice"></i> Libreria Bollette
+  </button>
+  <button class="nav-item" data-page="page-promemoria">
+    <i class="ti ti-bell-ringing"></i> Promemoria
+  </button>
+  <button class="nav-item" data-page="page-profilo">
+    <i class="ti ti-user-circle"></i> Profilo
+  </button>
+  <button class="nav-item" data-page="page-categorie">
+    <i class="ti ti-category-2"></i> Categorie
+  </button>
 </nav>
 <div id="sidebar-footer">
 <span id="sidebar-user-email"></span>
