@@ -21,6 +21,150 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-storage-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+/* Toggle Switch stile iOS */
+.toggle-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 16px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.3s ease;
+}
+
+.toggle-container:hover {
+  border-color: var(--accent);
+}
+
+.toggle-switch {
+  position: relative;
+  width: 48px;
+  height: 26px;
+  background: var(--border);
+  border-radius: 999px;
+  transition: background 0.3s ease;
+  flex-shrink: 0;
+}
+
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.toggle-container.active .toggle-switch {
+  background: #5CB85C;
+}
+
+.toggle-container.active .toggle-switch::after {
+  transform: translateX(22px);
+}
+
+.toggle-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
+}
+
+.toggle-container.active .toggle-label {
+  color: #5CB85C;
+}
+
+/* Layout filtri a sinistra */
+.home-date-filter {
+  width: 100%;
+  flex-direction: column;
+  align-items: flex-start !important;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.filter-row .home-date-field {
+  flex: 0 1 auto;
+}
+
+.filter-row .home-date-field label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.filter-row .home-date-field select,
+.filter-row .home-date-field input {
+  height: 40px;
+  min-width: 120px;
+}
+
+#btn-apply-range {
+  height: 40px;
+  padding: 0 20px;
+  background: var(--accent-gradient);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+#btn-apply-range:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg);
+}
+
+#custom-range {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  margin-top: 4px;
+  }
+
+#custom-range.hidden {
+  display: none;
+}
+
+#custom-range .home-date-field {
+  flex: 0 1 auto;
+}
+
+#custom-range .home-date-field label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+#custom-range .home-date-field input {
+  height: 36px;
+  min-width: 140px;
+  font-size: 13px;
+}  
 <style>
 :root {
 --bg: #F0F4F8;
@@ -1793,35 +1937,39 @@ Budget
 <div class="home-header">
 <h1>Dashboard</h1>
 <div class="home-date-filter" aria-label="Filtro periodo">
-<button id="btn-pdf-home" class="btn-pdf"><i class="ti ti-file-type-pdf"></i> PDF</button>
-<div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-<div class="home-date-field">
-<label for="filter-month">Mese</label>
-<select id="filter-month"></select>
+  <button id="btn-pdf-home" class="btn-pdf" style="margin-bottom: 8px;"><i class="ti ti-file-type-pdf"></i> PDF</button>
+  
+  <div class="filter-row">
+    <div class="home-date-field">
+      <label for="filter-month">Mese</label>
+      <select id="filter-month"></select>
+    </div>
+    <div class="home-date-field">
+      <label for="filter-year">Anno</label>
+      <select id="filter-year"></select>
+    </div>
+    <button id="btn-apply-range" type="button">Filtra</button>
+    
+    <div class="toggle-container" id="custom-toggle-container">
+      <div class="toggle-switch"></div>
+      <span class="toggle-label" id="toggle-label-text">No</span>
+    </div>
+  </div>
+  
+<div id="custom-range" class="hidden">
+  <div class="home-date-field">
+    <label for="filter-from">Dal</label>
+    <input type="date" id="filter-from">
+  </div>
+  <div class="home-date-field">
+    <label for="filter-to">Al</label>
+    <input type="date" id="filter-to">
+  </div>
+  <button id="btn-apply-custom" type="button" style="height:36px; padding:0 16px; background:var(--success); color:#fff; border:none; border-radius:999px; font-weight:700; font-size:13px; cursor:pointer;">Applica</button>
 </div>
-<div class="home-date-field">
-<label for="filter-year">Anno</label>
-<select id="filter-year"></select>
-</div>
-<button id="btn-apply-range" type="button">Filtra</button>
-</div>
-<div style="margin-top:8px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-<label class="filter-custom-toggle" for="filter-custom-toggle" style="margin:0;">
-<input type="checkbox" id="filter-custom-toggle">
-Date personalizzate
-</label>
-<div id="custom-range" class="custom-date-range hidden">
-<div class="home-date-field">
-<label for="filter-from">Dal</label>
-<input type="date" id="filter-from">
-</div>
-<div class="home-date-field">
-<label for="filter-to">Al</label>
-<input type="date" id="filter-to">
-</div>
-</div>
-</div>
-<p id="filter-label"></p>
+document.getElementById('btn-apply-custom').addEventListener('click', applyCustomRangeFilter);
+  
+  <p id="filter-label"></p>
 </div>
 </div>
 <div class="stats-row">
@@ -2616,21 +2764,21 @@ monthSel.value = [...monthSel.options].some(o => o.value === prevMonth) ? prevMo
 yearSel.value = [...yearSel.options].some(o => o.value === prevYear) ? prevYear : String(new Date().getFullYear());
 }
 function applyMonthYearFilter() {
-filterMode = 'month';
-const month = parseInt(document.getElementById('filter-month').value, 10);
-const year = parseInt(document.getElementById('filter-year').value, 10);
-if (!year) return;
-if (month === 0) { filterFrom = `${year}-01-01`; filterTo = `${year}-12-31`; }
-else { filterFrom = `${year}-${String(month).padStart(2,'0')}-01`; filterTo = fmtDate(getMonthEnd(year, month)); }
-updateFilterLabel(); updateStats(); updateTransactionsList();
+  filterMode = 'month';
+  const month = parseInt(document.getElementById('filter-month').value, 10);
+  const year = parseInt(document.getElementById('filter-year').value, 10);
+  if (!year) return;
+  if (month === 0) { filterFrom = `${year}-01-01`; filterTo = `${year}-12-31`; }
+  else { filterFrom = `${year}-${String(month).padStart(2,'0')}-01`; filterTo = fmtDate(getMonthEnd(year, month)); }
+  updateFilterLabel(); updateStats(); updateTransactionsList();
 }
 function applyCustomRangeFilter() {
-filterMode = 'custom';
-const from = document.getElementById('filter-from').value;
-const to = document.getElementById('filter-to').value;
-if (!from || !to || from > to) { alert('Seleziona un intervallo valido.'); return; }
-filterFrom = from; filterTo = to;
-updateFilterLabel(); updateStats(); updateTransactionsList();
+  filterMode = 'custom';
+  const from = document.getElementById('filter-from').value;
+  const to = document.getElementById('filter-to').value;
+  if (!from || !to || from > to) { alert('Seleziona un intervallo valido.'); return; }
+  filterFrom = from; filterTo = to;
+  updateFilterLabel(); updateStats(); updateTransactionsList();
 }
 function updateFilterLabel() {
 const el = document.getElementById('filter-label');
@@ -2641,7 +2789,29 @@ else { el.textContent = `Dal ${fmtDateLabel(new Date(filterFrom + 'T00:00:00'))}
 document.getElementById('btn-apply-range').addEventListener('click', () => { if (document.getElementById('filter-custom-toggle').checked) applyCustomRangeFilter(); else applyMonthYearFilter(); });
 document.getElementById('filter-month').addEventListener('change', () => { if (!document.getElementById('filter-custom-toggle').checked) applyMonthYearFilter(); });
 document.getElementById('filter-year').addEventListener('change', () => { if (!document.getElementById('filter-custom-toggle').checked) applyMonthYearFilter(); });
-document.getElementById('filter-custom-toggle').addEventListener('change', (e) => { document.getElementById('custom-range').classList.toggle('hidden', !e.target.checked); if (e.target.checked) { document.getElementById('filter-from').value = filterFrom; document.getElementById('filter-to').value = filterTo; } else { applyMonthYearFilter(); } });
+// Toggle switch personalizzato
+const toggleContainer = document.getElementById('custom-toggle-container');
+const toggleLabelText = document.getElementById('toggle-label-text');
+const customRange = document.getElementById('custom-range');
+let customDatesEnabled = false;
+
+toggleContainer.addEventListener('click', () => {
+  customDatesEnabled = !customDatesEnabled;
+  toggleContainer.classList.toggle('active', customDatesEnabled);
+  toggleLabelText.textContent = customDatesEnabled ? 'Sì' : 'No';
+  
+  if (customDatesEnabled) {
+    customRange.classList.remove('hidden');
+    document.getElementById('filter-from').value = filterFrom || '';
+    document.getElementById('filter-to').value = filterTo || '';
+  } else {
+    customRange.classList.add('hidden');
+    applyMonthYearFilter();
+  }
+});
+
+// Rimuovi il vecchio event listener
+// document.getElementById('filter-custom-toggle').addEventListener('change', ...);
 populateHomePeriodFilters();
 applyMonthYearFilter();
 function updateChartCategory() {
