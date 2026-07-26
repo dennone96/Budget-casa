@@ -1916,9 +1916,8 @@ Budget
     <label for="filter-to">Al</label>
     <input type="date" id="filter-to">
   </div>
-  <button id="btn-apply-custom" type="button" style="height:36px; padding:0 16px; background:var(--success); color:#fff; border:none; border-radius:999px; font-weight:700; font-size:13px; cursor:pointer;">Applica</button>
+  <button id="btn-apply-custom" type="button" style="height:36px; padding:0 16px; background:#5CB85C; color:#fff; border:none; border-radius:999px; font-weight:700; font-size:13px; cursor:pointer; transition:all 0.2s;">Applica</button>
 </div>
-document.getElementById('btn-apply-custom').addEventListener('click', applyCustomRangeFilter);
   
   <p id="filter-label"></p>
 </div>
@@ -2732,10 +2731,15 @@ function applyCustomRangeFilter() {
   updateFilterLabel(); updateStats(); updateTransactionsList();
 }
 function updateFilterLabel() {
-const el = document.getElementById('filter-label');
-if (!el || !filterFrom || !filterTo) return;
-if (filterMode === 'month') { const month = document.getElementById('filter-month')?.selectedOptions[0]?.textContent || ''; const year = document.getElementById('filter-year')?.value || ''; el.textContent = `${month} ${year}`.trim(); }
-else { el.textContent = `Dal ${fmtDateLabel(new Date(filterFrom + 'T00:00:00'))} al ${fmtDateLabel(new Date(filterTo + 'T00:00:00'))}`; }
+  const el = document.getElementById('filter-label');
+  if (!el || !filterFrom || !filterTo) return;
+  if (filterMode === 'month') { 
+    const month = document.getElementById('filter-month')?.selectedOptions[0]?.textContent || ''; 
+    const year = document.getElementById('filter-year')?.value || ''; 
+    el.textContent = `${month} ${year}`.trim(); 
+  } else { 
+    el.textContent = `Dal ${fmtDateLabel(new Date(filterFrom + 'T00:00:00'))} al ${fmtDateLabel(new Date(filterTo + 'T00:00:00'))}`; 
+  }
 }
 document.getElementById('btn-apply-range').addEventListener('click', () => { if (document.getElementById('filter-custom-toggle').checked) applyCustomRangeFilter(); else applyMonthYearFilter(); });
 document.getElementById('filter-month').addEventListener('change', () => { if (!document.getElementById('filter-custom-toggle').checked) applyMonthYearFilter(); });
@@ -2746,19 +2750,41 @@ const toggleLabelText = document.getElementById('toggle-label-text');
 const customRange = document.getElementById('custom-range');
 let customDatesEnabled = false;
 
-toggleContainer.addEventListener('click', () => {
-  customDatesEnabled = !customDatesEnabled;
-  toggleContainer.classList.toggle('active', customDatesEnabled);
-  toggleLabelText.textContent = customDatesEnabled ? 'Sì' : 'No';
-  
-  if (customDatesEnabled) {
-    customRange.classList.remove('hidden');
-    document.getElementById('filter-from').value = filterFrom || '';
-    document.getElementById('filter-to').value = filterTo || '';
-  } else {
-    customRange.classList.add('hidden');
-    applyMonthYearFilter();
+if (toggleContainer) {
+  toggleContainer.addEventListener('click', () => {
+    customDatesEnabled = !customDatesEnabled;
+    toggleContainer.classList.toggle('active', customDatesEnabled);
+    toggleLabelText.textContent = customDatesEnabled ? 'Sì' : 'No';
+    
+    if (customDatesEnabled) {
+      customRange.classList.remove('hidden');
+      document.getElementById('filter-from').value = filterFrom || '';
+      document.getElementById('filter-to').value = filterTo || '';
+    } else {
+      customRange.classList.add('hidden');
+      applyMonthYearFilter();
+    }
+  });
+}
+
+// Pulsante Applica date personalizzate
+document.getElementById('btn-apply-custom').addEventListener('click', applyCustomRangeFilter);
+
+// Funzione per applicare il range personalizzato
+function applyCustomRangeFilter() {
+  filterMode = 'custom';
+  const from = document.getElementById('filter-from').value;
+  const to = document.getElementById('filter-to').value;
+  if (!from || !to || from > to) { 
+    alert('Seleziona un intervallo valido.'); 
+    return; 
   }
+  filterFrom = from; 
+  filterTo = to;
+  updateFilterLabel(); 
+  updateStats(); 
+  updateTransactionsList();
+}
 });
 
 // Rimuovi il vecchio event listener
