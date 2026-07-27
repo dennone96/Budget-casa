@@ -2785,7 +2785,6 @@ function applyCustomRangeFilter() {
   updateStats(); 
   updateTransactionsList();
 }
-});
 
 // Rimuovi il vecchio event listener
 // document.getElementById('filter-custom-toggle').addEventListener('change', ...);
@@ -4353,8 +4352,6 @@ progressDiv.classList.add('hidden');
 alert('Errore nel caricamento: ' + err.message);
 }
 }
-// ✅ SOLO QUESTO BLOCCO (tutto insieme, nell'ordine giusto)
-
 function openIncomeExpenseDetail(type) {
   const from = filterFrom || todayISO().slice(0,7) + '-01';
   const to = filterTo || todayISO();
