@@ -21,6 +21,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-storage-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>  
 
 <style>
 /* === TOGGLE SWITCH E FILTRI (Spostato DENTRO il tag style) === */
@@ -2006,29 +2007,37 @@ Aggiungi movimento
 <button class="stats-tab" data-tab="tab-confronto">Confronto</button>
 </div>
 <div id="tab-categorie" class="stats-tab-content active">
-<div class="row-between">
-<h2>Spese per categoria</h2>
-<select id="chart-month"></select>
-</div>
-<div class="panel">
-<div class="legend" id="legend-categories"></div>
-<div class="chart-wrap" style="height:320px; display:flex; align-items:center; justify-content:center;">
-<canvas id="categoryChart"></canvas>
-</div>
-</div>
-<div class="panel">
-<h3>Dati dettagliati</h3>
-<table class="data-table" id="table-category">
-<thead>
-<tr>
-<th>Categoria</th>
-<th class="text-right">Importo</th>
-<th class="text-right">%</th>
-</tr>
-</thead>
-<tbody id="table-category-body"></tbody>
-</table>
-</div>
+  <div class="row-between">
+    <h2>Spese per categoria</h2>
+    <div style="display:flex; gap:10px; align-items:center;">
+      <select id="chart-month"></select>
+      <button id="btn-pdf-categorie" class="btn-pdf" style="height:40px; font-size:13px;">
+        <i class="ti ti-file-type-pdf"></i> PDF
+      </button>
+    </div>
+  </div>
+  
+  <div id="categorie-screenshot-area">
+    <div class="panel">
+      <div class="legend" id="legend-categories"></div>
+      <div class="chart-wrap" style="height:320px; display:flex; align-items:center; justify-content:center;">
+        <canvas id="categoryChart"></canvas>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Dati dettagliati</h3>
+      <table class="data-table" id="table-category">
+        <thead>
+          <tr>
+            <th>Categoria</th>
+            <th class="text-right">Importo</th>
+            <th class="text-right">%</th>
+          </tr>
+        </thead>
+        <tbody id="table-category-body"></tbody>
+      </table>
+    </div>
+  </div>
 </div>
 <div id="tab-entrate-uscite" class="stats-tab-content">
 <div class="row-between">
@@ -4435,6 +4444,63 @@ document.getElementById('bolletta-detail-download').addEventListener('click', do
 document.getElementById('bolletta-detail-delete').addEventListener('click', deleteBollettaFromDetail);
 document.getElementById('btn-pdf-home').addEventListener('click', generateHomePDF);
 document.getElementById('btn-pdf-stats').addEventListener('click', generateStatsPDF);
+// === PDF SCREENSHOT CATEGORIE ===
+async function generateCategoryPDF() {
+  showLoading(true);
+  try {
+    // Aspetta che il grafico sia renderizzato
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const element = document.getElementById('categorie-screenshot-area');
+    if (!element) {
+      alert('Sezione categorie non trovata.');
+      return;
+    }
+    
+    // Cattura screenshot con html2canvas
+    const canvas = await html2canvas(element, {
+      backgroundColor: '#F0F4F8',
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      windowWidth: element.scrollWidth,
+      windowHeight: element.scrollHeight
+    });
+    
+    const imgData = canvas.toDataURL('image/png');
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4');
+    
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 10;
+    const imgWidth = pageWidth - 2 * margin;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    
+    // Se l'immagine è più alta della pagina, aggiungi più pagine
+    let heightLeft = imgHeight;
+    let position = margin;
+    
+    doc.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+    heightLeft -= (doc.internal.pageSize.getHeight() - margin);
+    
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight + margin;
+      doc.addPage();
+      doc.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+      heightLeft -= (doc.internal.pageSize.getHeight() - margin);
+    }
+    
+    const month = document.getElementById('chart-month')?.selectedOptions[0]?.textContent || '';
+    doc.save(`categorie-${month.replace(/\s+/g, '-').toLowerCase()}.pdf`);
+  } catch(err) {
+    alert('Errore PDF: ' + err.message);
+    console.error(err);
+  } finally {
+    showLoading(false);
+  }
+}
+
+document.getElementById('btn-pdf-categorie').addEventListener('click', generateCategoryPDF);  
 
 })();
 </script>
