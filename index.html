@@ -4517,22 +4517,33 @@ async function generateScreenshotPDF(elementId, filename) {
     showLoading(false);
   }
 }
-
-// === EVENT LISTENER PER I PULSANTI PDF ===
-document.getElementById('btn-pdf-categorie').addEventListener('click', () => {
-  generateScreenshotPDF('screenshot-categorie', 'categorie');
-});
-
-document.getElementById('btn-pdf-entrate-uscite').addEventListener('click', () => {
-  generateScreenshotPDF('screenshot-entrate-uscite', 'entrate-uscite');
-});
-
-document.getElementById('btn-pdf-residuo').addEventListener('click', () => {
-  generateScreenshotPDF('screenshot-residuo', 'residuo');
-});
-
-document.getElementById('btn-pdf-confronto').addEventListener('click', () => {
-  generateScreenshotPDF('screenshot-confronto', 'confronto');
+// === DELEGAMENTO EVENTI PER I PULSANTI PDF (FIX) ===
+// Usa il delegamento per evitare problemi di elementi non trovati
+document.addEventListener('DOMContentLoaded', function() {
+  const container = document.getElementById('page-grafici');
+  if (!container) {
+    console.error('Container page-grafici non trovato');
+    return;
+  }
+  
+  container.addEventListener('click', function(e) {
+    const target = e.target.closest('button');
+    if (!target) return;
+    
+    const id = target.id;
+    
+    const pdfMap = {
+      'btn-pdf-categorie': { elementId: 'screenshot-categorie', filename: 'statistiche-categorie' },
+      'btn-pdf-entrate-uscite': { elementId: 'screenshot-entrate-uscite', filename: 'statistiche-entrate-uscite' },
+      'btn-pdf-residuo': { elementId: 'screenshot-residuo', filename: 'statistiche-residuo' },
+      'btn-pdf-confronto': { elementId: 'screenshot-confronto', filename: 'statistiche-confronto' }
+    };
+    
+    if (pdfMap[id]) {
+      const { elementId, filename } = pdfMap[id];
+      generateScreenshotPDF(elementId, filename);
+    }
+  });
 });
 
 })();
