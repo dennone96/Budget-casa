@@ -2769,9 +2769,24 @@ function updateFilterLabel() {
     el.textContent = `Dal ${fmtDateLabel(new Date(filterFrom + 'T00:00:00'))} al ${fmtDateLabel(new Date(filterTo + 'T00:00:00'))}`; 
   }
 }
-document.getElementById('btn-apply-range').addEventListener('click', () => { if (document.getElementById('filter-custom-toggle').checked) applyCustomRangeFilter(); else applyMonthYearFilter(); });
-document.getElementById('filter-month').addEventListener('change', () => { if (!document.getElementById('filter-custom-toggle').checked) applyMonthYearFilter(); });
-document.getElementById('filter-year').addEventListener('change', () => { if (!document.getElementById('filter-custom-toggle').checked) applyMonthYearFilter(); });
+// === GESTIONE FILTRI HOME (FIX) ===
+document.getElementById('btn-apply-range').addEventListener('click', () => { 
+  const isCustom = document.getElementById('custom-toggle-container')?.classList.contains('active') || false;
+  if (isCustom) {
+    applyCustomRangeFilter();
+  } else {
+    applyMonthYearFilter();
+  }
+});
+document.getElementById('filter-month').addEventListener('change', () => { 
+  const isCustom = document.getElementById('custom-toggle-container')?.classList.contains('active') || false;
+  if (!isCustom) applyMonthYearFilter(); 
+});
+
+document.getElementById('filter-year').addEventListener('change', () => { 
+  const isCustom = document.getElementById('custom-toggle-container')?.classList.contains('active') || false;
+  if (!isCustom) applyMonthYearFilter(); 
+});
 // Toggle switch personalizzato
 const toggleContainer = document.getElementById('custom-toggle-container');
 const toggleLabelText = document.getElementById('toggle-label-text');
