@@ -1996,131 +1996,150 @@ Aggiungi movimento
 <p id="save-status">I dati sono sincronizzati con il tuo account.</p>
 </div>
 <div id="page-grafici" class="page">
-<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:12px;">
-<h1 style="margin:0;">Statistiche</h1>
-<button id="btn-pdf-stats" class="btn-pdf"><i class="ti ti-file-type-pdf"></i> PDF</button>
-</div>
-<div class="stats-tabs">
-<button class="stats-tab active" data-tab="tab-categorie">Categorie</button>
-<button class="stats-tab" data-tab="tab-entrate-uscite">Entrate/Uscite</button>
-<button class="stats-tab" data-tab="tab-residuo">Residuo</button>
-<button class="stats-tab" data-tab="tab-confronto">Confronto</button>
-</div>
-<div id="tab-categorie" class="stats-tab-content active">
-  <div class="row-between">
-    <h2>Spese per categoria</h2>
-    <div style="display:flex; gap:10px; align-items:center;">
-      <select id="chart-month"></select>
-      <button id="btn-pdf-categorie" class="btn-pdf" style="height:40px; font-size:13px;">
-        <i class="ti ti-file-type-pdf"></i> PDF
-      </button>
-    </div>
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:12px;">
+    <h1 style="margin:0;">Statistiche</h1>
   </div>
-  
-  <div id="categorie-screenshot-area">
-    <div class="panel">
-      <div class="legend" id="legend-categories"></div>
-      <div class="chart-wrap" style="height:320px; display:flex; align-items:center; justify-content:center;">
-        <canvas id="categoryChart"></canvas>
+  <div class="stats-tabs">
+    <button class="stats-tab active" data-tab="tab-categorie">Categorie</button>
+    <button class="stats-tab" data-tab="tab-entrate-uscite">Entrate/Uscite</button>
+    <button class="stats-tab" data-tab="tab-residuo">Residuo</button>
+    <button class="stats-tab" data-tab="tab-confronto">Confronto</button>
+  </div>
+
+  <!-- TAB CATEGORIE -->
+  <div id="tab-categorie" class="stats-tab-content active">
+    <div id="screenshot-categorie">
+      <div class="row-between">
+        <h2>Spese per categoria</h2>
+        <select id="chart-month"></select>
+      </div>
+      <div class="panel">
+        <div class="legend" id="legend-categories"></div>
+        <div class="chart-wrap" style="height:320px; display:flex; align-items:center; justify-content:center;">
+          <canvas id="categoryChart"></canvas>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Dati dettagliati</h3>
+        <table class="data-table" id="table-category">
+          <thead>
+            <tr>
+              <th>Categoria</th>
+              <th class="text-right">Importo</th>
+              <th class="text-right">%</th>
+            </tr>
+          </thead>
+          <tbody id="table-category-body"></tbody>
+        </table>
       </div>
     </div>
-    <div class="panel">
-      <h3>Dati dettagliati</h3>
-      <table class="data-table" id="table-category">
-        <thead>
-          <tr>
-            <th>Categoria</th>
-            <th class="text-right">Importo</th>
-            <th class="text-right">%</th>
-          </tr>
-        </thead>
-        <tbody id="table-category-body"></tbody>
-      </table>
+    <div style="margin-top:12px; text-align:right;">
+      <button id="btn-pdf-categorie" class="btn-pdf"><i class="ti ti-file-type-pdf"></i> PDF</button>
     </div>
   </div>
-</div>
-<div id="tab-entrate-uscite" class="stats-tab-content">
-<div class="row-between">
-<h2>Entrate vs Uscite</h2>
-<select id="chart-year"></select>
-</div>
-<div class="panel">
-<div class="chart-wrap">
-<canvas id="yearChart"></canvas>
-</div>
-</div>
-<div class="panel">
-<h3>Dati dettagliati</h3>
-<table class="data-table" id="table-year">
-<thead>
-<tr>
-<th>Mese</th>
-<th class="text-right">Entrate</th>
-<th class="text-right">Uscite</th>
-<th class="text-right">Saldo</th>
-</tr>
-</thead>
-<tbody id="table-year-body"></tbody>
-</table>
-</div>
-</div>
-<div id="tab-residuo" class="stats-tab-content">
-<div class="row-between">
-<h2>Residuo mensile</h2>
-<select id="chart-residuo-year"></select>
-</div>
-<div class="panel">
-<p style="font-size:13px; color:var(--text-secondary); margin:0 0 12px; font-weight:600;">Andamento del residuo in cassa mese per mese.</p>
-<div class="chart-wrap">
-<canvas id="residuoChart"></canvas>
-</div>
-</div>
-<div class="panel">
-<h3>Andamento residuo</h3>
-<table class="data-table" id="table-residuo">
-<thead>
-<tr>
-<th>Mese</th>
-<th class="text-right">Entrate</th>
-<th class="text-right">Uscite</th>
-<th class="text-right">Saldo</th>
-<th class="text-right">Residuo</th>
-</tr>
-</thead>
-<tbody id="table-residuo-body"></tbody>
-</table>
-</div>
-</div>
-<div id="tab-confronto" class="stats-tab-content">
-<div class="row-between" style="margin-top: 1rem;">
-<h2>Confronto mesi</h2>
-<div style="display:flex; gap:10px; align-items:center;">
-<select id="compare-month-1"></select>
-<span style="font-weight:800; color:var(--text-muted);">vs</span>
-<select id="compare-month-2"></select>
-</div>
-</div>
-<div class="panel">
-<p style="font-size:13px; color:var(--text-secondary); margin:0 0 12px; font-weight:600;">Confronto entrate e uscite tra due mesi.</p>
-<div class="chart-wrap">
-<canvas id="compareChart"></canvas>
-</div>
-</div>
-<div class="panel">
-<h3>Dati dettagliati</h3>
-<table class="data-table" id="table-compare">
-<thead>
-<tr>
-<th></th>
-<th class="text-right" id="compare-header-1">Mese 1</th>
-<th class="text-right" id="compare-header-2">Mese 2</th>
-<th class="text-right">Differenza</th>
-</tr>
-</thead>
-<tbody id="table-compare-body"></tbody>
-</table>
-</div>
-</div>
+
+  <!-- TAB ENTRATE/USCITE -->
+  <div id="tab-entrate-uscite" class="stats-tab-content">
+    <div id="screenshot-entrate-uscite">
+      <div class="row-between">
+        <h2>Entrate vs Uscite</h2>
+        <select id="chart-year"></select>
+      </div>
+      <div class="panel">
+        <div class="chart-wrap">
+          <canvas id="yearChart"></canvas>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Dati dettagliati</h3>
+        <table class="data-table" id="table-year">
+          <thead>
+            <tr>
+              <th>Mese</th>
+              <th class="text-right">Entrate</th>
+              <th class="text-right">Uscite</th>
+              <th class="text-right">Saldo</th>
+            </tr>
+          </thead>
+          <tbody id="table-year-body"></tbody>
+        </table>
+      </div>
+    </div>
+    <div style="margin-top:12px; text-align:right;">
+      <button id="btn-pdf-entrate-uscite" class="btn-pdf"><i class="ti ti-file-type-pdf"></i> PDF</button>
+    </div>
+  </div>
+
+  <!-- TAB RESIDUO -->
+  <div id="tab-residuo" class="stats-tab-content">
+    <div id="screenshot-residuo">
+      <div class="row-between">
+        <h2>Residuo mensile</h2>
+        <select id="chart-residuo-year"></select>
+      </div>
+      <div class="panel">
+        <p style="font-size:13px; color:var(--text-secondary); margin:0 0 12px; font-weight:600;">Andamento del residuo in cassa mese per mese.</p>
+        <div class="chart-wrap">
+          <canvas id="residuoChart"></canvas>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Andamento residuo</h3>
+        <table class="data-table" id="table-residuo">
+          <thead>
+            <tr>
+              <th>Mese</th>
+              <th class="text-right">Entrate</th>
+              <th class="text-right">Uscite</th>
+              <th class="text-right">Saldo</th>
+              <th class="text-right">Residuo</th>
+            </tr>
+          </thead>
+          <tbody id="table-residuo-body"></tbody>
+        </table>
+      </div>
+    </div>
+    <div style="margin-top:12px; text-align:right;">
+      <button id="btn-pdf-residuo" class="btn-pdf"><i class="ti ti-file-type-pdf"></i> PDF</button>
+    </div>
+  </div>
+
+  <!-- TAB CONFRONTO -->
+  <div id="tab-confronto" class="stats-tab-content">
+    <div id="screenshot-confronto">
+      <div class="row-between" style="margin-top: 1rem;">
+        <h2>Confronto mesi</h2>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <select id="compare-month-1"></select>
+          <span style="font-weight:800; color:var(--text-muted);">vs</span>
+          <select id="compare-month-2"></select>
+        </div>
+      </div>
+      <div class="panel">
+        <p style="font-size:13px; color:var(--text-secondary); margin:0 0 12px; font-weight:600;">Confronto entrate e uscite tra due mesi.</p>
+        <div class="chart-wrap">
+          <canvas id="compareChart"></canvas>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Dati dettagliati</h3>
+        <table class="data-table" id="table-compare">
+          <thead>
+            <tr>
+              <th></th>
+              <th class="text-right" id="compare-header-1">Mese 1</th>
+              <th class="text-right" id="compare-header-2">Mese 2</th>
+              <th class="text-right">Differenza</th>
+            </tr>
+          </thead>
+          <tbody id="table-compare-body"></tbody>
+        </table>
+      </div>
+    </div>
+    <div style="margin-top:12px; text-align:right;">
+      <button id="btn-pdf-confronto" class="btn-pdf"><i class="ti ti-file-type-pdf"></i> PDF</button>
+    </div>
+  </div>
 </div>
 <div id="page-import" class="page">
 <h1>Importa da Excel</h1>
@@ -4444,16 +4463,16 @@ document.getElementById('bolletta-detail-download').addEventListener('click', do
 document.getElementById('bolletta-detail-delete').addEventListener('click', deleteBollettaFromDetail);
 document.getElementById('btn-pdf-home').addEventListener('click', generateHomePDF);
 document.getElementById('btn-pdf-stats').addEventListener('click', generateStatsPDF);
-// === PDF SCREENSHOT CATEGORIE ===
-async function generateCategoryPDF() {
+// === FUNZIONE GENERICA PER SCREENSHOT PDF ===
+async function generateScreenshotPDF(elementId, filename) {
   showLoading(true);
   try {
-    // Aspetta che il grafico sia renderizzato
+    // Aspetta che i grafici siano renderizzati
     await new Promise(resolve => setTimeout(resolve, 500));
     
-    const element = document.getElementById('categorie-screenshot-area');
+    const element = document.getElementById(elementId);
     if (!element) {
-      alert('Sezione categorie non trovata.');
+      alert('Sezione non trovata.');
       return;
     }
     
@@ -4476,7 +4495,7 @@ async function generateCategoryPDF() {
     const imgWidth = pageWidth - 2 * margin;
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
     
-    // Se l'immagine è più alta della pagina, aggiungi più pagine
+    // Gestione multi-pagina
     let heightLeft = imgHeight;
     let position = margin;
     
@@ -4490,8 +4509,7 @@ async function generateCategoryPDF() {
       heightLeft -= (doc.internal.pageSize.getHeight() - margin);
     }
     
-    const month = document.getElementById('chart-month')?.selectedOptions[0]?.textContent || '';
-    doc.save(`categorie-${month.replace(/\s+/g, '-').toLowerCase()}.pdf`);
+    doc.save(`${filename}.pdf`);
   } catch(err) {
     alert('Errore PDF: ' + err.message);
     console.error(err);
@@ -4500,7 +4518,22 @@ async function generateCategoryPDF() {
   }
 }
 
-document.getElementById('btn-pdf-categorie').addEventListener('click', generateCategoryPDF);  
+// === EVENT LISTENER PER I PULSANTI PDF ===
+document.getElementById('btn-pdf-categorie').addEventListener('click', () => {
+  generateScreenshotPDF('screenshot-categorie', 'categorie');
+});
+
+document.getElementById('btn-pdf-entrate-uscite').addEventListener('click', () => {
+  generateScreenshotPDF('screenshot-entrate-uscite', 'entrate-uscite');
+});
+
+document.getElementById('btn-pdf-residuo').addEventListener('click', () => {
+  generateScreenshotPDF('screenshot-residuo', 'residuo');
+});
+
+document.getElementById('btn-pdf-confronto').addEventListener('click', () => {
+  generateScreenshotPDF('screenshot-confronto', 'confronto');
+});
 
 })();
 </script>
