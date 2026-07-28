@@ -99,6 +99,34 @@
   cursor: pointer;
   transition: all 0.2s;
 }
+/* Riga separata per il toggle switch */
+.filter-row.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+  width: 100%;
+}
+
+/* Stile per il testo accanto al toggle */
+.toggle-label-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Quando il toggle è attivo, il testo diventa verde */
+.toggle-container.active + .toggle-label-text {
+  color: #5CB85C;
+}
+
+/* Oppure se vuoi che il testo sia sempre visibile ma cambi colore */
+.toggle-label-text.active {
+  color: #5CB85C;
+}  
 #btn-apply-range:hover { transform: translateY(-1px); box-shadow: var(--shadow-lg); }
 #custom-range {
   display: flex;
@@ -1901,24 +1929,27 @@ Budget
       <select id="filter-year"></select>
     </div>
     <button id="btn-apply-range" type="button">Filtra</button>
-    
-    <div class="toggle-container" id="custom-toggle-container">
-      <div class="toggle-switch"></div>
-      <span class="toggle-label" id="toggle-label-text">No</span>
-    </div>
   </div>
   
-<div id="custom-range" class="hidden">
-  <div class="home-date-field">
-    <label for="filter-from">Dal</label>
-    <input type="date" id="filter-from">
+  <!-- Toggle switch per periodo personalizzato - spostato in una riga separata -->
+  <div class="filter-row toggle-row">
+    <div class="toggle-container" id="custom-toggle-container">
+      <div class="toggle-switch"></div>
+    </div>
+    <span class="toggle-label-text" id="toggle-label-text">Periodo personalizzato</span>
   </div>
-  <div class="home-date-field">
-    <label for="filter-to">Al</label>
-    <input type="date" id="filter-to">
+  
+  <div id="custom-range" class="hidden">
+    <div class="home-date-field">
+      <label for="filter-from">Dal</label>
+      <input type="date" id="filter-from">
+    </div>
+    <div class="home-date-field">
+      <label for="filter-to">Al</label>
+      <input type="date" id="filter-to">
+    </div>
+    <button id="btn-apply-custom" type="button" style="height:36px; padding:0 16px; background:#5CB85C; color:#fff; border:none; border-radius:999px; font-weight:700; font-size:13px; cursor:pointer; transition:all 0.2s;">Applica</button>
   </div>
-  <button id="btn-apply-custom" type="button" style="height:36px; padding:0 16px; background:#5CB85C; color:#fff; border:none; border-radius:999px; font-weight:700; font-size:13px; cursor:pointer; transition:all 0.2s;">Applica</button>
-</div>
   
   <p id="filter-label"></p>
 </div>
@@ -2794,20 +2825,24 @@ const customRange = document.getElementById('custom-range');
 let customDatesEnabled = false;
 
 if (toggleContainer) {
-  toggleContainer.addEventListener('click', () => {
-    customDatesEnabled = !customDatesEnabled;
-    toggleContainer.classList.toggle('active', customDatesEnabled);
-    toggleLabelText.textContent = customDatesEnabled ? 'Sì' : 'No';
-    
-    if (customDatesEnabled) {
-      customRange.classList.remove('hidden');
-      document.getElementById('filter-from').value = filterFrom || '';
-      document.getElementById('filter-to').value = filterTo || '';
-    } else {
-      customRange.classList.add('hidden');
-      applyMonthYearFilter();
-    }
-  });
+  // Rendi cliccabile anche il testo
+  toggleContainer.addEventListener('click', toggleCustomDates);
+  toggleLabelText.addEventListener('click', toggleCustomDates);
+}
+
+function toggleCustomDates() {
+  customDatesEnabled = !customDatesEnabled;
+  toggleContainer.classList.toggle('active', customDatesEnabled);
+  toggleLabelText.classList.toggle('active', customDatesEnabled);
+  
+  if (customDatesEnabled) {
+    customRange.classList.remove('hidden');
+    document.getElementById('filter-from').value = filterFrom || '';
+    document.getElementById('filter-to').value = filterTo || '';
+  } else {
+    customRange.classList.add('hidden');
+    applyMonthYearFilter();
+  }
 }
 
 // Pulsante Applica date personalizzate
