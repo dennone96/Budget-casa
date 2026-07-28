@@ -4461,91 +4461,57 @@ document.getElementById('bolletta-detail-overlay').addEventListener('click', (e)
 });
 document.getElementById('bolletta-detail-download').addEventListener('click', downloadBollettaFromDetail);
 document.getElementById('bolletta-detail-delete').addEventListener('click', deleteBollettaFromDetail);
-document.getElementById('btn-pdf-home').addEventListener('click', generateHomePDF);
-document.getElementById('btn-pdf-stats').addEventListener('click', generateStatsPDF);
-// === FUNZIONE GENERICA PER SCREENSHOT PDF ===
-async function generateScreenshotPDF(elementId, filename) {
-  showLoading(true);
-  try {
-    // Aspetta che i grafici siano renderizzati
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    const element = document.getElementById(elementId);
-    if (!element) {
-      alert('Sezione non trovata.');
-      return;
-    }
-    
-    // Cattura screenshot con html2canvas
-    const canvas = await html2canvas(element, {
-      backgroundColor: '#F0F4F8',
-      scale: 2,
-      useCORS: true,
-      logging: false,
-      windowWidth: element.scrollWidth,
-      windowHeight: element.scrollHeight
-    });
-    
-    const imgData = canvas.toDataURL('image/png');
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('p', 'mm', 'a4');
-    
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const margin = 10;
-    const imgWidth = pageWidth - 2 * margin;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    
-    // Gestione multi-pagina
-    let heightLeft = imgHeight;
-    let position = margin;
-    
-    doc.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
-    heightLeft -= (doc.internal.pageSize.getHeight() - margin);
-    
-    while (heightLeft > 0) {
-      position = heightLeft - imgHeight + margin;
-      doc.addPage();
-      doc.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
-      heightLeft -= (doc.internal.pageSize.getHeight() - margin);
-    }
-    
-    doc.save(`${filename}.pdf`);
-  } catch(err) {
-    alert('Errore PDF: ' + err.message);
-    console.error(err);
-  } finally {
-    showLoading(false);
-  }
-}
-// === DELEGAMENTO EVENTI PER I PULSANTI PDF (FIX) ===
-// Usa il delegamento per evitare problemi di elementi non trovati
-document.addEventListener('DOMContentLoaded', function() {
-  const container = document.getElementById('page-grafici');
-  if (!container) {
-    console.error('Container page-grafici non trovato');
-    return;
+// === INIZIALIZZAZIONE PULSANTI PDF (VERIFICHE DI SICUREZZA) ===
+function initPdfButtons() {
+  // Pulsanti PDF Home e Statistiche
+  const btnPdfHome = document.getElementById('btn-pdf-home');
+  const btnPdfStats = document.getElementById('btn-pdf-stats');
+  
+  if (btnPdfHome) {
+    btnPdfHome.addEventListener('click', generateHomePDF);
   }
   
-  container.addEventListener('click', function(e) {
-    const target = e.target.closest('button');
-    if (!target) return;
-    
-    const id = target.id;
-    
-    const pdfMap = {
-      'btn-pdf-categorie': { elementId: 'screenshot-categorie', filename: 'statistiche-categorie' },
-      'btn-pdf-entrate-uscite': { elementId: 'screenshot-entrate-uscite', filename: 'statistiche-entrate-uscite' },
-      'btn-pdf-residuo': { elementId: 'screenshot-residuo', filename: 'statistiche-residuo' },
-      'btn-pdf-confronto': { elementId: 'screenshot-confronto', filename: 'statistiche-confronto' }
-    };
-    
-    if (pdfMap[id]) {
-      const { elementId, filename } = pdfMap[id];
-      generateScreenshotPDF(elementId, filename);
-    }
-  });
-});
+  if (btnPdfStats) {
+    btnPdfStats.addEventListener('click', generateStatsPDF);
+  }
+  
+  // Pulsanti PDF per le singole statistiche
+  const btnCategorie = document.getElementById('btn-pdf-categorie');
+  const btnEntrateUscite = document.getElementById('btn-pdf-entrate-uscite');
+  const btnResiduo = document.getElementById('btn-pdf-residuo');
+  const btnConfronto = document.getElementById('btn-pdf-confronto');
+  
+  if (btnCategorie) {
+    btnCategorie.addEventListener('click', function() {
+      generateScreenshotPDF('screenshot-categorie', 'statistiche-categorie');
+    });
+  }
+  
+  if (btnEntrateUscite) {
+    btnEntrateUscite.addEventListener('click', function() {
+      generateScreenshotPDF('screenshot-entrate-uscite', 'statistiche-entrate-uscite');
+    });
+  }
+  
+  if (btnResiduo) {
+    btnResiduo.addEventListener('click', function() {
+      generateScreenshotPDF('screenshot-residuo', 'statistiche-residuo');
+    });
+  }
+  
+  if (btnConfronto) {
+    btnConfronto.addEventListener('click', function() {
+      generateScreenshotPDF('screenshot-confronto', 'statistiche-confronto');
+    });
+  }
+}
 
+// Esegui quando il DOM è caricato
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initPdfButtons);
+} else {
+  initPdfButtons();
+}
 })();
 </script>
 </body>
