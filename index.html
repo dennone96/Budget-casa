@@ -4461,6 +4461,56 @@ document.getElementById('bolletta-detail-overlay').addEventListener('click', (e)
 });
 document.getElementById('bolletta-detail-download').addEventListener('click', downloadBollettaFromDetail);
 document.getElementById('bolletta-detail-delete').addEventListener('click', deleteBollettaFromDetail);
+async function generateScreenshotPDF(elementId, filename) {
+  showLoading(true);
+  try {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const element = document.getElementById(elementId);
+    if (!element) {
+      alert('Sezione non trovata: ' + elementId);
+      return;
+    }
+    
+    const canvas = await html2canvas(element, {
+      backgroundColor: '#F0F4F8',
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      windowWidth: element.scrollWidth,
+      windowHeight: element.scrollHeight
+    });
+    
+    const imgData = canvas.toDataURL('image/png');
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4');
+    
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 10;
+    const imgWidth = pageWidth - 2 * margin;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    
+    let heightLeft = imgHeight;
+    let position = margin;
+    
+    doc.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+    heightLeft -= (doc.internal.pageSize.getHeight() - margin);
+    
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight + margin;
+      doc.addPage();
+      doc.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+      heightLeft -= (doc.internal.pageSize.getHeight() - margin);
+    }
+    
+    doc.save(`${filename}.pdf`);
+  } catch(err) {
+    alert('Errore PDF: ' + err.message);
+    console.error(err);
+  } finally {
+    showLoading(false);
+  }
+}  
 // === INIZIALIZZAZIONE PULSANTI PDF (VERIFICHE DI SICUREZZA) ===
 function initPdfButtons() {
   // Pulsanti PDF Home e Statistiche
