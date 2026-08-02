@@ -3923,13 +3923,12 @@ async function generateHomePDF() {
     const margin = 15;
     let y = 15;
 
-    // === HEADER: TITOLO E TOTALE ===
+    // === HEADER: TITOLO E PERIODO ===
     const from = filterFrom || todayISO().slice(0,7) + '-01';
     const to = filterTo || todayISO();
     const mt = state.transactions.filter(t => t.date >= from && t.date <= to && matchesSourceFilter(t));
     const income = mt.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0);
     const expense = mt.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0);
-    const saldo = income - expense;
 
     // Titolo
     doc.setTextColor(26, 43, 60);
@@ -3950,21 +3949,14 @@ async function generateHomePDF() {
     
     y += 12;
 
-    // === TOTALE SALDO (grande) ===
-    doc.setFontSize(34);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(saldo >= 0 ? 92 : 231, saldo >= 0 ? 184 : 76, saldo >= 0 ? 92 : 60);
-    doc.text(`${saldo >= 0 ? '+' : ''}${fmtEUR(saldo)}`, margin, y + 10);
-    y += 18;
-
-    // === RIGA RIEPILOGO ENTRATE/USCITE ===
+    // === RIGA RIEPILOGO ENTRATE/USCITE (senza frecce) ===
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(92, 184, 92);
-    doc.text(`↑ Entrate: ${fmtEUR(income)}`, margin, y + 2);
+    doc.text(`Entrate: ${fmtEUR(income)}`, margin, y + 2);
     
     doc.setTextColor(231, 76, 60);
-    doc.text(`↓ Uscite: ${fmtEUR(expense)}`, margin + 60, y + 2);
+    doc.text(`Uscite: ${fmtEUR(expense)}`, margin + 55, y + 2);
     
     doc.setDrawColor(222, 226, 230);
     doc.setLineWidth(0.3);
@@ -3972,7 +3964,6 @@ async function generateHomePDF() {
     y += 18;
 
     // === INTESTAZIONE TABELLA ===
-    // "Transazione" e "Importo" come nell'immagine
     const colWidths = [75, 35, 35, 25];
     const headers = ['Transazione', 'Metodo', 'Giustificativo', 'Importo'];
     
@@ -3989,9 +3980,29 @@ async function generateHomePDF() {
 
     // === LISTA MOVIMENTI ===
     const sortedMt = [...mt].sort((a,b) => b.date.localeCompare(a.date));
-    const lineHeight = 7;
+    const lineHeight = 9; // Aumentato per fare spazio ai badge
     let rowCount = 0;
     
+    // Funzione per disegnare badge come nell'app
+    function drawBadge(doc, x, y, source) {
+      const isBank = source === 'bank';
+      const bgColor = isBank ? [52, 152, 219] : [92, 184, 92];
+      const bgLight = isBank ? [232, 244, 253] : [232, 245, 233];
+      const text = isBank ? '🏦 C/C' : '💵 Cash';
+      
+      // Sfondo badge (arrotondato)
+      const badgeWidth = 28;
+      const badgeHeight = 6;
+      doc.setFillColor(bgLight[0], bgLight[1], bgLight[2]);
+      doc.roundedRect(x, y - 3, badgeWidth, badgeHeight, 3, 3, 'F');
+      
+      // Testo badge
+      doc.setFontSize(6);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(bgColor[0], bgColor[1], bgColor[2]);
+      doc.text(text, x + 2, y + 1.5);
+    }
+
     sortedMt.forEach((t) => {
       // Controllo spazio
       if (y > pageHeight - 20) {
@@ -4028,10 +4039,8 @@ async function generateHomePDF() {
       doc.text(`${dateLabel} · ${desc}`, colX + 2, y + 4);
       colX += colWidths[0];
       
-      // Metodo (fonte)
-      doc.setTextColor(108, 117, 125);
-      const method = src === 'bank' ? 'Bonifico' : 'Contanti';
-      doc.text(method, colX + 2, y + 4);
+      // Metodo (fonte) - con badge come nell'app
+      drawBadge(doc, colX + 2, y + 4, src);
       colX += colWidths[1];
       
       // Giustificativo (categoria)
@@ -4055,8 +4064,7 @@ async function generateHomePDF() {
       rowCount++;
     });
 
-    // === SEZIONE "Esporta le transazioni" (fittizia) ===
-    // Aggiungi un piccolo footer con il numero di transazioni
+    // === FOOTER ===
     y = pageHeight - 12;
     doc.setFontSize(8);
     doc.setFont('helvetica', 'normal');
