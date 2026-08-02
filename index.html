@@ -3980,18 +3980,18 @@ async function generateHomePDF() {
 
     // === LISTA MOVIMENTI ===
     const sortedMt = [...mt].sort((a,b) => b.date.localeCompare(a.date));
-    const lineHeight = 9; // Aumentato per fare spazio ai badge
+    const lineHeight = 9;
     let rowCount = 0;
     
-    // Funzione per disegnare badge come nell'app
+    // Funzione per disegnare badge - SENZA EMOJI
     function drawBadge(doc, x, y, source) {
       const isBank = source === 'bank';
       const bgColor = isBank ? [52, 152, 219] : [92, 184, 92];
       const bgLight = isBank ? [232, 244, 253] : [232, 245, 233];
-      const text = isBank ? '🏦 C/C' : '💵 Cash';
+      const text = isBank ? 'C/C' : 'Cash';
       
       // Sfondo badge (arrotondato)
-      const badgeWidth = 28;
+      const badgeWidth = 22;
       const badgeHeight = 6;
       doc.setFillColor(bgLight[0], bgLight[1], bgLight[2]);
       doc.roundedRect(x, y - 3, badgeWidth, badgeHeight, 3, 3, 'F');
@@ -4035,18 +4035,21 @@ async function generateHomePDF() {
       
       // Transazione: data + descrizione
       doc.setTextColor(26, 43, 60);
-      const desc = (t.description || t.category || '').substring(0, 25);
+      // Rimuovi le emoji dalla descrizione
+      let desc = (t.description || t.category || '').substring(0, 25);
+      desc = desc.replace(/[\u{1F600}-\u{1F6FF}]/gu, '').trim(); // Rimuovi emoji
       doc.text(`${dateLabel} · ${desc}`, colX + 2, y + 4);
       colX += colWidths[0];
       
-      // Metodo (fonte) - con badge come nell'app
+      // Metodo (fonte) - con badge senza emoji
       drawBadge(doc, colX + 2, y + 4, src);
       colX += colWidths[1];
       
-      // Giustificativo (categoria)
+      // Giustificativo (categoria) - rimuovi emoji
       doc.setTextColor(108, 117, 125);
-      const category = t.category || '—';
-      doc.text(category, colX + 2, y + 4);
+      let category = t.category || '—';
+      category = category.replace(/[\u{1F600}-\u{1F6FF}]/gu, '').trim(); // Rimuovi emoji
+      doc.text(category || '—', colX + 2, y + 4);
       colX += colWidths[2];
       
       // Importo
