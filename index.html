@@ -1929,6 +1929,74 @@ border-radius: var(--radius-sm);
     body {
         font-family: 'Plus Jakarta Sans', sans-serif;
     }  
+.ie-period {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 12px;
+}  
+
+/* === OTTIMIZZAZIONI PER ANDROID (WEBVIEW) === */
+@media only screen and (max-width: 600px) {
+  /* Riduci leggermente i font per mobile */
+  h1 { font-size: 24px !important; }
+  h2 { font-size: 18px !important; }
+  h3 { font-size: 15px !important; }
+  body { font-size: 14px !important; }
+  
+  /* Riquadri statistiche più compatti */
+  .stat-card { padding: 12px !important; }
+  .stat-card p:first-child { font-size: 11px !important; }
+  .stat-card p:last-child { font-size: 20px !important; }
+  
+  /* Grafici - dimensioni adattate al 100% del contenitore */
+  .chart-wrap { height: 250px !important; max-height: 250px !important; }
+  .chart-wrap canvas { width: 100% !important; height: auto !important; }
+  
+  /* Tabella movimenti */
+  .tx-row, .tx-header { font-size: 12px !important; }
+  .tx-desc-text { font-size: 13px !important; }
+  .tx-col-amount { font-size: 14px !important; }
+  
+  /* Riquadri delle bollette */
+  .bolletta-table { font-size: 12px !important; }
+  .bolletta-table th, .bolletta-table td { padding: 8px 10px !important; }
+  .bolletta-cell-month { font-size: 13px !important; }
+  
+  /* Legenda grafici */
+  .legend span { font-size: 12px !important; }
+  
+  /* Pulsanti */
+  button, input, select { font-size: 13px !important; height: 40px !important; }
+  
+  /* Scroll orizzontale per le tabelle su mobile */
+  .bolletta-table-wrap {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  .bolletta-table {
+    min-width: 500px !important;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  /* Dispositivi molto piccoli */
+  h1 { font-size: 20px !important; }
+  h2 { font-size: 16px !important; }
+  .stat-card p:last-child { font-size: 18px !important; }
+  .chart-wrap { height: 200px !important; max-height: 200px !important; }
+  
+  /* Layout a colonna per i riquadri */
+  .stats-row {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+}
+/* === FINE OTTIMIZZAZIONI PER ANDROID === */
+
+</style>
+</head>
+<body>  
 </style>
 </head>
 <body>
@@ -2949,42 +3017,51 @@ function applyCustomRangeFilter() {
 populateHomePeriodFilters();
 applyMonthYearFilter();
 function updateChartCategory() {
-const month = document.getElementById('chart-month').value || monthKey(todayISO());
-const mt = state.transactions.filter(t => t.type === 'expense' && monthKey(t.date) === month);
-const byCategory = {};
-mt.forEach(t => { byCategory[t.category] = (byCategory[t.category] || 0) + amountValue(t.amount); });
-const cats = Object.keys(byCategory).filter(c => byCategory[c] > 0);
-const data = cats.map(c => Math.round(byCategory[c] * 100) / 100);
-const colors = cats.map(c => getCategoryColor(c));
-const legend = document.getElementById('legend-categories');
-legend.innerHTML = '';
-cats.forEach((c,i) => { const span = document.createElement('span'); span.innerHTML = '<span class="swatch" style="background:' + colors[i] + ';"></span>' + c + ' ' + fmtEUR(data[i]); legend.appendChild(span); });
-if (chartCategory) chartCategory.destroy();
-if (data.length === 0) {
-legend.innerHTML = '<span style="color:var(--text-muted); font-size:13px;">Nessuna spesa in questo mese.</span>';
-document.getElementById('table-category-body').innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 20px; color: var(--text-muted);">Nessuna spesa in questo mese</td></tr>';
-return;
+  const month = document.getElementById('chart-month').value || monthKey(todayISO());
+  const mt = state.transactions.filter(t => t.type === 'expense' && monthKey(t.date) === month);
+  const byCategory = {};
+  mt.forEach(t => { byCategory[t.category] = (byCategory[t.category] || 0) + amountValue(t.amount); });
+  const cats = Object.keys(byCategory).filter(c => byCategory[c] > 0);
+  const data = cats.map(c => Math.round(byCategory[c] * 100) / 100);
+  const colors = cats.map(c => getCategoryColor(c));
+  
+  const legend = document.getElementById('legend-categories');
+  legend.innerHTML = '';
+  cats.forEach((c,i) => { const span = document.createElement('span'); span.innerHTML = '<span class="swatch" style="background:' + colors[i] + ';"></span>' + c + ' ' + fmtEUR(data[i]); legend.appendChild(span); });
+  
+  if (chartCategory) chartCategory.destroy();
+  if (data.length === 0) {
+    legend.innerHTML = '<span style="color:var(--text-muted); font-size:13px;">Nessuna spesa in questo mese.</span>';
+    document.getElementById('table-category-body').innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 20px; color: var(--text-muted);">Nessuna spesa in questo mese</td></tr>';
+    return;
+  }
+  
+  // Determina se siamo su dispositivo mobile
+  const isMobile = window.innerWidth <= 600;
+  
+  chartCategory = new Chart(document.getElementById('categoryChart'), {
+    type: 'pie',
+    data: { labels: cats, datasets: [{ data, backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }] },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      aspectRatio: isMobile ? 1.2 : 2,  // Ratio diverso per mobile
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1A2B3C',
+          titleFont: { family: 'Plus Jakarta Sans', size: isMobile ? 11 : 13, weight: '800' },
+          bodyFont: { family: 'Plus Jakarta Sans', size: isMobile ? 11 : 13 },
+          padding: isMobile ? 10 : 14,
+          cornerRadius: 12,
+          callbacks: { label: ctx => ctx.label + ': ' + fmtEUR(ctx.parsed) + ' (' + ((ctx.parsed/data.reduce((a,b)=>a+b,0))*100).toFixed(1) + '%)' }
+        }
+      }
+    }
+  });
+  
+  // ... resto del codice
 }
-chartCategory = new Chart(document.getElementById('categoryChart'), {
-type: 'pie',
-data: { labels: cats, datasets: [{ data, backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }] },
-options: {
-responsive: true,
-maintainAspectRatio: true,
-aspectRatio: 2,
-plugins: {
-legend: { display: false },
-tooltip: {
-backgroundColor: '#1A2B3C',
-titleFont: { family: 'Plus Jakarta Sans', size: 13, weight: '800' },
-bodyFont: { family: 'Plus Jakarta Sans', size: 13 },
-padding: 14,
-cornerRadius: 12,
-callbacks: { label: ctx => ctx.label + ': ' + fmtEUR(ctx.parsed) + ' (' + ((ctx.parsed/data.reduce((a,b)=>a+b,0))*100).toFixed(1) + '%)' }
-}
-}
-}
-});
 const tbody = document.getElementById('table-category-body');
 tbody.innerHTML = '';
 const total = data.reduce((a, b) => a + b, 0);
@@ -4803,6 +4880,43 @@ if (document.readyState === 'loading') {
 } else {
   initPdfButtons();
 }
+// === EVENT LISTENER PER I PULSANTI PDF ===
+document.getElementById('btn-pdf-categorie').addEventListener('click', () => {
+  generateScreenshotPDF('screenshot-categorie', 'categorie');
+});
+
+document.getElementById('btn-pdf-entrate-uscite').addEventListener('click', () => {
+  generateScreenshotPDF('screenshot-entrate-uscite', 'entrate-uscite');
+});
+
+document.getElementById('btn-pdf-residuo').addEventListener('click', () => {
+  generateScreenshotPDF('screenshot-residuo', 'residuo');
+});
+
+document.getElementById('btn-pdf-confronto').addEventListener('click', () => {
+  generateScreenshotPDF('screenshot-confronto', 'confronto');
+});
+
+// === LISTENER PER RIDIMENSIONAMENTO (PUNTO 4) ===
+let resizeTimeout;
+
+window.addEventListener('resize', function() {
+  clearTimeout(resizeTimeout);
+  resizeTimeout = setTimeout(function() {
+    // Ricarica i grafici dopo il ridimensionamento
+    if (document.getElementById('page-grafici').classList.contains('active')) {
+      const activeTab = document.querySelector('.stats-tab.active');
+      if (activeTab) {
+        const tabId = activeTab.dataset.tab;
+        if (tabId === 'tab-categorie') updateChartCategory();
+        else if (tabId === 'tab-entrate-uscite') updateChartYear();
+        else if (tabId === 'tab-residuo') updateChartResiduo();
+        else if (tabId === 'tab-confronto') updateChartCompare();
+      }
+    }
+  }, 500);
+});
+// === FINE LISTENER PER RIDIMENSIONAMENTO ===
 })();
 </script>
 </body>
