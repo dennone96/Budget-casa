@@ -3305,65 +3305,88 @@ function updateChartCategory() {
   
   const legend = document.getElementById('legend-categories');
   legend.innerHTML = '';
-  cats.forEach((c,i) => { const span = document.createElement('span'); span.innerHTML = '<span class="swatch" style="background:' + colors[i] + ';"></span>' + c + ' ' + fmtEUR(data[i]); legend.appendChild(span); });
   
-  if (chartCategory) chartCategory.destroy();
+  // Controlla se ci sono dati
   if (data.length === 0) {
     legend.innerHTML = '<span style="color:var(--text-muted); font-size:13px;">Nessuna spesa in questo mese.</span>';
     document.getElementById('table-category-body').innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 20px; color: var(--text-muted);">Nessuna spesa in questo mese</td></tr>';
+    if (chartCategory) chartCategory.destroy();
     return;
   }
   
-  // Determina se siamo su dispositivo mobile
-  const isMobile = window.innerWidth <= 600;
+  // Mostra la legenda
+  cats.forEach((c, i) => { 
+    const span = document.createElement('span'); 
+    span.innerHTML = '<span class="swatch" style="background:' + colors[i] + ';"></span>' + c + ' ' + fmtEUR(data[i]); 
+    legend.appendChild(span); 
+  });
   
+  // Distruggi il grafico precedente se esiste
+  if (chartCategory) chartCategory.destroy();
+  
+  // Crea il nuovo grafico
   chartCategory = new Chart(document.getElementById('categoryChart'), {
     type: 'pie',
-    data: { labels: cats, datasets: [{ data, backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }] },
+    data: { 
+      labels: cats, 
+      datasets: [{ 
+        data: data, 
+        backgroundColor: colors, 
+        borderWidth: 2, 
+        borderColor: '#fff' 
+      }] 
+    },
     options: {
       responsive: true,
       maintainAspectRatio: true,
-      aspectRatio: isMobile ? 1.2 : 2,  // Ratio diverso per mobile
+      aspectRatio: 2,
       plugins: {
         legend: { display: false },
         tooltip: {
           backgroundColor: '#1A2B3C',
-          titleFont: { family: 'Plus Jakarta Sans', size: isMobile ? 11 : 13, weight: '800' },
-          bodyFont: { family: 'Plus Jakarta Sans', size: isMobile ? 11 : 13 },
-          padding: isMobile ? 10 : 14,
+          titleFont: { family: 'Plus Jakarta Sans', size: 13, weight: '800' },
+          bodyFont: { family: 'Plus Jakarta Sans', size: 13 },
+          padding: 14,
           cornerRadius: 12,
-          callbacks: { label: ctx => ctx.label + ': ' + fmtEUR(ctx.parsed) + ' (' + ((ctx.parsed/data.reduce((a,b)=>a+b,0))*100).toFixed(1) + '%)' }
+          callbacks: { 
+            label: function(ctx) {
+              const total = data.reduce((a, b) => a + b, 0);
+              const pct = ((ctx.parsed / total) * 100).toFixed(1);
+              return ctx.label + ': ' + fmtEUR(ctx.parsed) + ' (' + pct + '%)';
+            }
+          }
         }
       }
     }
   });
   
-  // ... resto del codice
-}
-const tbody = document.getElementById('table-category-body');
-tbody.innerHTML = '';
-const total = data.reduce((a, b) => a + b, 0);
-cats.forEach((c, i) => {
-  const pct = ((data[i] / total) * 100).toFixed(1);
-  const row = document.createElement('tr');
-  row.innerHTML = `
-    <td><span style="display: inline-block; width: 14px; height: 14px; border-radius: 4px; background: ${colors[i]}; margin-right: 10px; vertical-align: middle;"></span><span style="font-weight:700;">${escapeHtml(c)}</span></td>
-    <td class="text-right" style="font-weight: 700;">${fmtEUR(data[i])}</td>
-    <td class="text-right" style="color: var(--text-secondary); font-weight:700;">${pct}%</td>
-  `;
-  tbody.appendChild(row);
-});
-
-// Aggiungi riga totale
-if (cats.length > 0) {
-  const totalRow = document.createElement('tr');
-  totalRow.className = 'total-row';
-  totalRow.innerHTML = `
-    <td style="font-weight: 800; font-size: 14px;">📊 TOTALE SPESE</td>
-    <td class="text-right" style="font-weight: 800; font-size: 14px; color: var(--danger);">${fmtEUR(total)}</td>
-    <td class="text-right" style="font-weight: 800; font-size: 14px; color: var(--text-secondary);">100%</td>
-  `;
-  tbody.appendChild(totalRow);
+  // Popola la tabella dettagliata
+  const tbody = document.getElementById('table-category-body');
+  tbody.innerHTML = '';
+  const total = data.reduce((a, b) => a + b, 0);
+  
+  cats.forEach((c, i) => {
+    const pct = ((data[i] / total) * 100).toFixed(1);
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td><span style="display: inline-block; width: 14px; height: 14px; border-radius: 4px; background: ${colors[i]}; margin-right: 10px; vertical-align: middle;"></span><span style="font-weight:700;">${escapeHtml(c)}</span></td>
+      <td class="text-right" style="font-weight: 700;">${fmtEUR(data[i])}</td>
+      <td class="text-right" style="color: var(--text-secondary); font-weight:700;">${pct}%</td>
+    `;
+    tbody.appendChild(row);
+  });
+  
+  // Aggiungi riga totale
+  if (cats.length > 0) {
+    const totalRow = document.createElement('tr');
+    totalRow.className = 'total-row';
+    totalRow.innerHTML = `
+      <td style="font-weight: 800; font-size: 14px;">📊 TOTALE SPESE</td>
+      <td class="text-right" style="font-weight: 800; font-size: 14px; color: var(--danger);">${fmtEUR(total)}</td>
+      <td class="text-right" style="font-weight: 800; font-size: 14px; color: var(--text-secondary);">100%</td>
+    `;
+    tbody.appendChild(totalRow);
+  }
 }
 function updateChartYear() {
 const year = document.getElementById('chart-year').value || new Date().getFullYear().toString();
