@@ -1993,10 +1993,88 @@ border-radius: var(--radius-sm);
   }
 }
 /* === FINE OTTIMIZZAZIONI PER ANDROID === */
+/* === OTTIMIZZAZIONI ANDROID - COMPLETE === */
+@media only screen and (max-width: 600px) {
+  /* Layout riquadri statistiche */
+  .stats-row-top {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+  .stats-row-bottom {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Form nuovo movimento */
+  .ios-label {
+    font-size: 12px !important;
+    min-width: 70px !important;
+  }
+  .ios-input-field {
+    font-size: 13px !important;
+    padding: 8px 10px !important;
+    height: 38px !important;
+  }
+  .ios-row {
+    padding: 0 10px !important;
+    min-height: 44px !important;
+    gap: 8px !important;
+  }
+  .ios-select {
+    font-size: 13px !important;
+  }
+  #btn-add {
+    height: 44px !important;
+    font-size: 14px !important;
+  }
+  
+  /* Pannelli e contenitore */
+  #main {
+    padding: 1rem 0.8rem !important;
+    padding-top: 4rem !important;
+    overflow-x: hidden !important;
+  }
+  .panel {
+    padding: 1rem 0.8rem !important;
+    border-radius: 16px !important;
+  }
+  .panel h3 {
+    font-size: 15px !important;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  /* Tab Uscita/Entrata */
+  .tabs button {
+    font-size: 12px !important;
+    padding: 4px 12px !important;
+    height: 32px !important;
+  }
+}
 
-</style>
-</head>
-<body>  
+@media only screen and (max-width: 400px) {
+  /* Schermi molto piccoli */
+  .ios-label {
+    font-size: 11px !important;
+    min-width: 60px !important;
+  }
+  .ios-input-field {
+    font-size: 12px !important;
+    padding: 6px 8px !important;
+    height: 34px !important;
+  }
+  .ios-row {
+    min-height: 38px !important;
+    gap: 6px !important;
+  }
+  .stat-card {
+    padding: 8px !important;
+  }
+  .stat-card p:first-child {
+    font-size: 9px !important;
+  }
+  .stat-card p:last-child {
+    font-size: 14px !important;
+  }
+}
 </style>
 </head>
 <body>
