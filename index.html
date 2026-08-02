@@ -5194,6 +5194,77 @@ window.addEventListener('resize', function() {
   }, 500);
 });
 // === FINE LISTENER PER RIDIMENSIONAMENTO ===
+// === FIX: RIAVVIA I CLICK SUI MOVIMENTI ===
+function fixTransactionClicks() {
+  // Usa il delegamento degli eventi sul contenitore
+  const container = document.getElementById('transactions-list');
+  if (!container) return;
+  
+  // Rimuovi eventuali listener vecchi (per evitare duplicati)
+  container.removeEventListener('click', handleTransactionClick);
+  
+  // Aggiungi il listener
+  container.addEventListener('click', handleTransactionClick);
+}
+
+function handleTransactionClick(e) {
+  // Cerca l'elemento cliccato
+  const target = e.target;
+  
+  // Cerca se il click è su .tx-col-desc o su un suo discendente
+  const descElement = target.closest('.tx-col-desc');
+  if (descElement) {
+    const id = descElement.getAttribute('data-id');
+    if (id) {
+      e.preventDefault();
+      e.stopPropagation();
+      openDetailModal(id);
+      return;
+    }
+  }
+  
+  // Cerca se il click è su .tx-desc-text
+  const textElement = target.closest('.tx-desc-text');
+  if (textElement) {
+    const parentDesc = textElement.closest('.tx-col-desc');
+    if (parentDesc) {
+      const id = parentDesc.getAttribute('data-id');
+      if (id) {
+        e.preventDefault();
+        e.stopPropagation();
+        openDetailModal(id);
+        return;
+      }
+    }
+  }
+  
+  // Cerca se il click è su qualsiasi elemento con data-id
+  const dataElement = target.closest('[data-id]');
+  if (dataElement) {
+    const id = dataElement.getAttribute('data-id');
+    if (id) {
+      e.preventDefault();
+      e.stopPropagation();
+      openDetailModal(id);
+      return;
+    }
+  }
+}
+
+// Esegui il fix quando la pagina è caricata
+document.addEventListener('DOMContentLoaded', function() {
+  // Aspetta che i movimenti siano renderizzati
+  setTimeout(fixTransactionClicks, 500);
+});
+
+// Esegui anche dopo ogni aggiornamento della lista
+// Modifica la funzione updateTransactionsList per chiamare fixTransactionClicks
+const originalUpdateTransactionsList = updateTransactionsList;
+updateTransactionsList = function() {
+  originalUpdateTransactionsList.apply(this, arguments);
+  // Riavviamo i click dopo che la lista è stata aggiornata
+  setTimeout(fixTransactionClicks, 100);
+};
 })();
 </script>
 </body>
