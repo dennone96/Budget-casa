@@ -3923,219 +3923,154 @@ async function generateHomePDF() {
     const margin = 15;
     let y = 15;
 
-    // === HEADER ===
-    doc.setFillColor(74, 144, 217);
-    doc.rect(0, 0, pageWidth, 45, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(22);
-    doc.setFont('helvetica', 'bold');
-    doc.text('🏠 Budget di Famiglia', margin, 22);
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'normal');
-    
-    // Periodo
+    // === HEADER: TITOLO E TOTALE ===
     const from = filterFrom || todayISO().slice(0,7) + '-01';
     const to = filterTo || todayISO();
-    const periodLabel = filterMode === 'month' 
-      ? `${document.getElementById('filter-month')?.selectedOptions[0]?.textContent || ''} ${document.getElementById('filter-year')?.value || ''}` 
-      : `Dal ${fmtDateLabel(new Date(filterFrom + 'T00:00:00'))} al ${fmtDateLabel(new Date(filterTo + 'T00:00:00'))}`;
-    doc.text(`Dashboard · ${periodLabel}`, margin, 34);
-
-    // === RIEPILOGO STATISTICHE (4 RIQUADRI) ===
-    y = 58;
-    
-    // Calcola i dati
     const mt = state.transactions.filter(t => t.date >= from && t.date <= to && matchesSourceFilter(t));
     const income = mt.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0);
     const expense = mt.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0);
-    const ti = state.transactions.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0);
-    const te = state.transactions.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0);
-    
-    const cardWidth = (pageWidth - 2*margin - 8) / 2;
-    const cardHeight = 30;
-    const cardGap = 4;
-    
-    // Configurazione dei riquadri
-    const cards = [
-      { label: 'ENTRATE', value: fmtEUR(income), color: [92, 184, 92], icon: '↑' },
-      { label: 'USCITE', value: fmtEUR(expense), color: [231, 76, 60], icon: '↓' },
-      { label: 'SALDO PERIODO', value: fmtEUR(income - expense), color: [74, 144, 217], icon: '=' },
-      { label: 'RESIDUO TOTALE', value: fmtEUR(ti - te), color: [155, 89, 182], icon: '≈' }
-    ];
-    
-    // Prima riga: Entrate e Uscite
-    cards.slice(0, 2).forEach((card, i) => {
-      const x = margin + i * (cardWidth + cardGap);
-      
-      // Sfondo
-      doc.setFillColor(248, 249, 250);
-      doc.setDrawColor(222, 226, 230);
-      doc.setLineWidth(0.5);
-      doc.roundedRect(x, y, cardWidth, cardHeight, 4, 4, 'FD');
-      
-      // Bordo sinistro colorato
-      doc.setFillColor(card.color[0], card.color[1], card.color[2]);
-      doc.rect(x, y, 4, cardHeight, 'F');
-      
-      // Icona
-      doc.setFontSize(14);
-      doc.setTextColor(card.color[0], card.color[1], card.color[2]);
-      doc.text(card.icon, x + 8, y + 9);
-      
-      // Label
-      doc.setFontSize(8);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(108, 117, 125);
-      doc.text(card.label, x + 22, y + 9);
-      
-      // Valore
-      doc.setFontSize(14);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(card.color[0], card.color[1], card.color[2]);
-      doc.text(card.value, x + 22, y + 23);
-    });
-    
-    y += cardHeight + cardGap;
-    
-    // Seconda riga: Saldo e Residuo (larghezza intera)
-    cards.slice(2, 4).forEach((card, i) => {
-      const x = margin + i * (cardWidth + cardGap);
-      
-      doc.setFillColor(248, 249, 250);
-      doc.setDrawColor(222, 226, 230);
-      doc.setLineWidth(0.5);
-      doc.roundedRect(x, y, cardWidth, cardHeight, 4, 4, 'FD');
-      
-      doc.setFillColor(card.color[0], card.color[1], card.color[2]);
-      doc.rect(x, y, 4, cardHeight, 'F');
-      
-      doc.setFontSize(14);
-      doc.setTextColor(card.color[0], card.color[1], card.color[2]);
-      doc.text(card.icon, x + 8, y + 9);
-      
-      doc.setFontSize(8);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(108, 117, 125);
-      doc.text(card.label, x + 22, y + 9);
-      
-      doc.setFontSize(14);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(card.color[0], card.color[1], card.color[2]);
-      doc.text(card.value, x + 22, y + 23);
-    });
-    
-    y += cardHeight + 10;
+    const saldo = income - expense;
 
-    // === LISTA MOVIMENTI ===
+    // Titolo
+    doc.setTextColor(26, 43, 60);
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Budget di Famiglia', margin, y + 8);
+    
+    y += 12;
+    
+    // Periodo
+    const periodLabel = filterMode === 'month' 
+      ? `${document.getElementById('filter-month')?.selectedOptions[0]?.textContent || ''} ${document.getElementById('filter-year')?.value || ''}` 
+      : `Dal ${fmtDateLabel(new Date(filterFrom + 'T00:00:00'))} al ${fmtDateLabel(new Date(filterTo + 'T00:00:00'))}`;
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(108, 117, 125);
+    doc.text(`Lista movimenti di ${periodLabel}`, margin, y + 4);
+    
+    y += 12;
+
+    // === TOTALE SALDO (grande) ===
+    doc.setFontSize(34);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(saldo >= 0 ? 92 : 231, saldo >= 0 ? 184 : 76, saldo >= 0 ? 92 : 60);
+    doc.text(`${saldo >= 0 ? '+' : ''}${fmtEUR(saldo)}`, margin, y + 10);
+    y += 18;
+
+    // === RIGA RIEPILOGO ENTRATE/USCITE ===
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(92, 184, 92);
+    doc.text(`↑ Entrate: ${fmtEUR(income)}`, margin, y + 2);
+    
+    doc.setTextColor(231, 76, 60);
+    doc.text(`↓ Uscite: ${fmtEUR(expense)}`, margin + 60, y + 2);
+    
     doc.setDrawColor(222, 226, 230);
     doc.setLineWidth(0.3);
-    doc.line(margin, y, pageWidth - margin, y);
-    y += 5;
-    
-    doc.setTextColor(26, 43, 60);
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text(`📋 Movimenti (${mt.length})`, margin, y);
-    y += 8;
+    doc.line(margin, y + 8, pageWidth - margin, y + 8);
+    y += 18;
 
-    // HEADER TABELLA
-    const colWidths = [25, 65, 32, 30, 25];
-    const headers = ['Data', 'Movimento', 'Importo', 'Fonte', 'Tipo'];
+    // === INTESTAZIONE TABELLA ===
+    // "Transazione" e "Importo" come nell'immagine
+    const colWidths = [75, 35, 35, 25];
+    const headers = ['Transazione', 'Metodo', 'Giustificativo', 'Importo'];
     
-    doc.setFillColor(232, 240, 248);
-    doc.rect(margin, y, pageWidth - 2*margin, 7, 'F');
-    doc.setFontSize(7);
+    doc.setFontSize(8);
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(90, 107, 124);
+    doc.setTextColor(108, 117, 125);
     let colX = margin;
     headers.forEach((h, i) => {
-      doc.text(h, colX + 2, y + 4.5);
+      doc.text(h, colX, y + 3);
       colX += colWidths[i];
     });
-    y += 8.5;
     
-    // RIGHE MOVIMENTI
+    y += 8;
+
+    // === LISTA MOVIMENTI ===
     const sortedMt = [...mt].sort((a,b) => b.date.localeCompare(a.date));
-    const lineHeight = 6.5;
+    const lineHeight = 7;
     let rowCount = 0;
     
     sortedMt.forEach((t) => {
-      // Se non c'è più spazio, nuova pagina
+      // Controllo spazio
       if (y > pageHeight - 20) {
         doc.addPage();
         y = 15;
         
-        // Ripeti header su nuova pagina
-        doc.setFillColor(232, 240, 248);
-        doc.rect(margin, y, pageWidth - 2*margin, 7, 'F');
-        doc.setFontSize(7);
+        // Ripeti header
+        doc.setFontSize(8);
         doc.setFont('helvetica', 'bold');
-        doc.setTextColor(90, 107, 124);
+        doc.setTextColor(108, 117, 125);
         colX = margin;
         headers.forEach((h, i) => {
-          doc.text(h, colX + 2, y + 4.5);
+          doc.text(h, colX, y + 3);
           colX += colWidths[i];
         });
-        y += 8.5;
+        y += 8;
       }
       
       const isIncome = t.type === 'income';
       const src = t.source || 'cash';
-      const badgeLabel = src === 'bank' ? 'C/C' : 'Cash';
       const dateLabel = new Date(t.date).toLocaleDateString('it-IT', { day:'2-digit', month:'2-digit', year:'2-digit' });
       const amountSign = isIncome ? '+' : '-';
       const amountColor = isIncome ? [92, 184, 92] : [231, 76, 60];
       
-      // Sfondo alternato
-      if (rowCount % 2 === 1) {
-        doc.setFillColor(250, 251, 252);
-        doc.rect(margin, y, pageWidth - 2*margin, lineHeight, 'F');
-      }
-      
-      doc.setFontSize(7);
+      // Riga movimenti
+      doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
       
       colX = margin;
       
-      // Data
+      // Transazione: data + descrizione
       doc.setTextColor(26, 43, 60);
-      doc.text(dateLabel, colX + 2, y + 4.5);
+      const desc = (t.description || t.category || '').substring(0, 25);
+      doc.text(`${dateLabel} · ${desc}`, colX + 2, y + 4);
       colX += colWidths[0];
       
-      // Movimento (descrizione troncata)
-      const desc = (t.description || t.category || '').substring(0, 20);
-      doc.text(desc, colX + 2, y + 4.5);
+      // Metodo (fonte)
+      doc.setTextColor(108, 117, 125);
+      const method = src === 'bank' ? 'Bonifico' : 'Contanti';
+      doc.text(method, colX + 2, y + 4);
       colX += colWidths[1];
       
-      // Importo
-      doc.setTextColor(amountColor[0], amountColor[1], amountColor[2]);
-      doc.setFont('helvetica', 'bold');
-      const amountText = `${amountSign}${fmtEUR(amountValue(t.amount))}`;
-      doc.text(amountText, colX + 2, y + 4.5);
+      // Giustificativo (categoria)
+      doc.setTextColor(108, 117, 125);
+      const category = t.category || '—';
+      doc.text(category, colX + 2, y + 4);
       colX += colWidths[2];
       
-      // Fonte
-      doc.setTextColor(108, 117, 125);
-      doc.setFont('helvetica', 'normal');
-      doc.text(badgeLabel, colX + 2, y + 4.5);
-      colX += colWidths[3];
+      // Importo
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(amountColor[0], amountColor[1], amountColor[2]);
+      const amountText = `${amountSign}${fmtEUR(amountValue(t.amount))}`;
+      doc.text(amountText, colX + 2, y + 4);
       
-      // Tipo
-      doc.setTextColor(isIncome ? [92, 184, 92] : [231, 76, 60]);
-      doc.text(isIncome ? 'Entrata' : 'Uscita', colX + 2, y + 4.5);
+      // Linea separatrice
+      doc.setDrawColor(240, 242, 245);
+      doc.setLineWidth(0.3);
+      doc.line(margin, y + 6.5, pageWidth - margin, y + 6.5);
       
       y += lineHeight;
       rowCount++;
     });
 
-    // === FOOTER (Numero pagina) ===
+    // === SEZIONE "Esporta le transazioni" (fittizia) ===
+    // Aggiungi un piccolo footer con il numero di transazioni
+    y = pageHeight - 12;
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(173, 181, 189);
+    doc.text(`${mt.length} transazioni · Generato il ${new Date().toLocaleDateString('it-IT')}`, margin, y);
+    
+    // Numero pagina
     const pageCount = doc.internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
       doc.setFontSize(7);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(173, 181, 189);
-      doc.text(`Budget di Famiglia · Pagina ${i}/${pageCount} · ${new Date().toLocaleDateString('it-IT')}`, pageWidth/2, pageHeight - 8, { align: 'center' });
+      doc.text(`Pagina ${i}/${pageCount}`, pageWidth - margin - 15, pageHeight - 8);
     }
     
     doc.save(`budget-famiglia-${todayISO()}.pdf`);
