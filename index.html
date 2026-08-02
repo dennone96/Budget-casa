@@ -2075,6 +2075,91 @@ border-radius: var(--radius-sm);
     font-size: 14px !important;
   }
 }
+/* === OTTIMIZZAZIONI MOVIMENTI PER ANDROID === */
+@media only screen and (max-width: 600px) {
+  /* Layout tabella movimenti */
+  .tx-row, .tx-header {
+    font-size: 11px !important;
+    gap: 6px !important;
+    padding: 10px 10px !important;
+    grid-template-columns: 24px 55px 1fr 65px 0 0 !important;
+  }
+  
+  .tx-col-date {
+    font-size: 10px !important;
+    min-width: 50px !important;
+  }
+  .tx-desc-text {
+    font-size: 12px !important;
+  }
+  .tx-col-amount {
+    font-size: 13px !important;
+  }
+  .tx-checkbox {
+    width: 16px !important;
+    height: 16px !important;
+  }
+  
+  /* Barra di ricerca */
+  .search-bar input {
+    height: 38px !important;
+    font-size: 13px !important;
+    padding: 0 10px 0 36px !important;
+    background-size: 16px !important;
+    background-position: 10px center !important;
+  }
+  
+  /* Filtri sorgente */
+  .source-filter button {
+    height: 30px !important;
+    font-size: 11px !important;
+    padding: 0 10px !important;
+  }
+  
+  /* Bulk actions */
+  .bulk-actions-bar {
+    padding: 8px 10px !important;
+    gap: 6px !important;
+  }
+  .bulk-actions-bar button {
+    height: 28px !important;
+    font-size: 11px !important;
+    padding: 0 10px !important;
+  }
+  
+  /* Margini pagina */
+  #main {
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+  }
+  .panel {
+    padding: 12px 8px !important;
+    border-radius: 12px !important;
+  }
+}
+
+@media only screen and (max-width: 400px) {
+  .tx-row, .tx-header {
+    font-size: 10px !important;
+    gap: 4px !important;
+    padding: 8px 6px !important;
+    grid-template-columns: 18px 45px 1fr 55px 0 0 !important;
+  }
+  .tx-col-date {
+    font-size: 9px !important;
+    min-width: 40px !important;
+  }
+  .tx-desc-text {
+    font-size: 11px !important;
+  }
+  .tx-col-amount {
+    font-size: 12px !important;
+  }
+  .tx-checkbox {
+    width: 14px !important;
+    height: 14px !important;
+  }
+}  
 </style>
 </head>
 <body>
