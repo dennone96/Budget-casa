@@ -3087,7 +3087,6 @@ if (cats.length > 0) {
   `;
   tbody.appendChild(totalRow);
 }
-}
 function updateChartYear() {
 const year = document.getElementById('chart-year').value || new Date().getFullYear().toString();
 const months = Array.from({length:12}, (_,i) => `${year}-${String(i+1).padStart(2,'0')}`);
