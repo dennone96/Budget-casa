@@ -2159,7 +2159,38 @@ border-radius: var(--radius-sm);
     width: 14px !important;
     height: 14px !important;
   }
-}  
+}
+@media screen and (max-width: 600px) {
+  body, #main, #transactions-list, .tx-row, .tx-header {
+    font-size: 12px !important;
+  }
+  
+  .tx-row, .tx-header {
+    font-size: 11px !important;
+    padding: 8px 6px !important;
+    grid-template-columns: 20px 50px 1fr 60px 0px 0px !important;
+    gap: 4px !important;
+  }
+  
+  .tx-col-date {
+    font-size: 9px !important;
+    min-width: 40px !important;
+  }
+  
+  .tx-desc-text {
+    font-size: 11px !important;
+  }
+  
+  .tx-col-amount {
+    font-size: 12px !important;
+  }
+  
+  .tx-checkbox {
+    width: 14px !important;
+    height: 14px !important;
+  }
+}
+  
 </style>
 </head>
 <body>
