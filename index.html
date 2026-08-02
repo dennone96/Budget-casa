@@ -1906,6 +1906,29 @@ border-radius: var(--radius-sm);
 #table-category-body .total-row:hover td {
   background: var(--accent-light) !important;
 }  
+ /* Impedisce lo scroll orizzontale e forza le dimensioni */
+    html, body {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        -webkit-text-size-adjust: 100%;
+    }
+
+    /* Assicura che il padding non allarghi gli elementi oltre il 100% */
+    * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Evita che grafici o tabelle escano dai bordi */
+    img, table, canvas, .chart-container {
+        max-width: 100% !important;
+    }
+
+    body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+    }  
 </style>
 </head>
 <body>
