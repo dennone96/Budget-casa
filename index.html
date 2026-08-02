@@ -2190,6 +2190,39 @@ border-radius: var(--radius-sm);
     height: 14px !important;
   }
 }
+@media screen and (max-width: 600px) {
+  /* Assicura che la descrizione del movimento sia cliccabile */
+  .tx-col-desc {
+    cursor: pointer !important;
+    pointer-events: auto !important;
+    z-index: 10 !important;
+    position: relative !important;
+  }
+  
+  /* Assicura che tutta la riga non blocchi i click */
+  .tx-row {
+    pointer-events: auto !important;
+    cursor: default !important;
+  }
+  
+  /* Assicura che i pulsanti nelle azioni siano cliccabili */
+  .tx-col-actions button {
+    pointer-events: auto !important;
+    z-index: 20 !important;
+    position: relative !important;
+  }
+  
+  /* Rimuovi eventuali overlay che bloccano i click */
+  #transactions-list {
+    pointer-events: auto !important;
+  }
+  
+  /* Assicura che il testo della descrizione sia cliccabile */
+  .tx-desc-text {
+    pointer-events: auto !important;
+    cursor: pointer !important;
+  }
+}  
   
 </style>
 </head>
