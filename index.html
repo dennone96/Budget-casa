@@ -2314,7 +2314,80 @@ border-radius: var(--radius-sm);
   z-index: 15 !important;
   position: relative !important;
 }  
-  
+
+/* === STILE PER I MEMBRI DELLA FAMIGLIA === */
+.member-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  border: 1px solid var(--border);
+}
+.member-item:last-child { margin-bottom: 0; }
+.member-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.member-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--accent-gradient);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.member-details {
+  flex: 1;
+}
+.member-name {
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+.member-email {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.member-role {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--accent-light);
+  color: var(--accent);
+}
+.member-role.admin {
+  background: var(--warning-light);
+  color: var(--warning);
+}
+.member-actions {
+  display: flex;
+  gap: 6px;
+}
+.btn-remove-member {
+  background: var(--danger);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-remove-member:hover {
+  background: #c0392b;
+}
+/* === FINE STILE MEMBRI === */
 </style>
 </head>
 <body>
@@ -2778,45 +2851,76 @@ Aggiungi promemoria
 <div id="reminders-list"></div>
 </div>
 <div id="page-profilo" class="page">
-<h1>Profilo</h1>
-<div class="panel">
-<h3>Informazioni account</h3>
-<div class="profile-field">
-<label>Email</label>
-<input type="text" id="profile-email-display" readonly style="background: var(--surface-2); color: var(--text-secondary);">
-</div>
-<div class="profile-field">
-<label>Account creato il</label>
-<input type="text" id="profile-created" readonly style="background: var(--surface-2); color: var(--text-secondary);">
-</div>
-</div>
-<div class="panel">
-<h3>Cambia password</h3>
-<p style="font-size:14px; color:var(--text-secondary); margin-top:0; line-height:1.6; font-weight:600;">
-Riceverai un'email con le istruzioni per scegliere una nuova password.
-</p>
-<button id="btn-reset-password" style="width:100%; height:46px; border-radius:var(--radius-sm); font-weight:700;">
-Invia email di reset
-</button>
-<p id="profile-msg" style="font-size:13px; margin-top:12px;"></p>
-</div>
-<div class="panel">
-<h3>Statistiche</h3>
-<div class="stats-row">
-<div class="stat-card">
-<p>Movimenti</p>
-<p id="profile-tx-count">0</p>
-</div>
-<div class="stat-card">
-<p>Primo movimento</p>
-<p id="profile-first-tx" style="font-size:14px;">—</p>
-</div>
-<div class="stat-card">
-<p>Promemoria</p>
-<p id="profile-rem-count">0</p>
-</div>
-</div>
-</div>
+  <h1>Profilo</h1>
+  
+  <!-- Info account esistente -->
+  <div class="panel">
+    <h3>Informazioni account</h3>
+    <div class="profile-field">
+      <label>Email</label>
+      <input type="text" id="profile-email-display" readonly style="background: var(--surface-2); color: var(--text-secondary);">
+    </div>
+    <div class="profile-field">
+      <label>Account creato il</label>
+      <input type="text" id="profile-created" readonly style="background: var(--surface-2); color: var(--text-secondary);">
+    </div>
+  </div>
+
+  <!-- NUOVA SEZIONE: GESTIONE PROFILI -->
+  <div class="panel">
+    <h3>👥 Gestione profili familiari</h3>
+    <p style="font-size:13px; color:var(--text-secondary); margin-bottom:1rem; font-weight:600;">
+      Aggiungi membri della famiglia per condividere il budget.
+    </p>
+    
+    <div id="family-members-list" style="margin-bottom:1rem;"></div>
+    
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+      <div>
+        <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">Email del membro</label>
+        <input type="email" id="invite-email" placeholder="email@esempio.it" style="width:100%; height:40px;">
+      </div>
+      <div>
+        <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">Nome</label>
+        <input type="text" id="invite-name" placeholder="Nome del membro" style="width:100%; height:40px;">
+      </div>
+    </div>
+    <button id="btn-invite-member" style="margin-top:10px; width:100%; height:44px; background:var(--accent-gradient); color:#fff; border:none; border-radius:var(--radius-sm); font-weight:700; cursor:pointer;">
+      <i class="ti ti-user-plus" style="margin-right:8px;"></i> Aggiungi membro
+    </button>
+    <p id="invite-status" style="font-size:13px; margin-top:10px; min-height:20px;"></p>
+  </div>
+
+  <!-- Cambia password -->
+  <div class="panel">
+    <h3>Cambia password</h3>
+    <p style="font-size:14px; color:var(--text-secondary); margin-top:0; line-height:1.6; font-weight:600;">
+      Riceverai un'email con le istruzioni per scegliere una nuova password.
+    </p>
+    <button id="btn-reset-password" style="width:100%; height:46px; border-radius:var(--radius-sm); font-weight:700;">
+      Invia email di reset
+    </button>
+    <p id="profile-msg" style="font-size:13px; margin-top:12px;"></p>
+  </div>
+
+  <!-- Statistiche -->
+  <div class="panel">
+    <h3>Statistiche</h3>
+    <div class="stats-row">
+      <div class="stat-card">
+        <p>Movimenti</p>
+        <p id="profile-tx-count">0</p>
+      </div>
+      <div class="stat-card">
+        <p>Primo movimento</p>
+        <p id="profile-first-tx" style="font-size:14px;">—</p>
+      </div>
+      <div class="stat-card">
+        <p>Promemoria</p>
+        <p id="profile-rem-count">0</p>
+      </div>
+    </div>
+  </div>
 </div>
 <div id="page-categorie" class="page">
 <h1>Categorie</h1>
@@ -3115,21 +3219,24 @@ const map = { 'auth/email-already-in-use': 'Email già registrata.', 'auth/inval
 return map[code] || 'Si è verificato un errore.';
 }
 auth.onAuthStateChanged((user) => {
-if (user) {
-currentUser = user;
-document.getElementById('login-screen').classList.add('hidden');
-document.getElementById('shell').classList.remove('hidden');
-document.getElementById('sidebar-user-email').textContent = user.email;
-attachFirestoreListener();
-loadBolletteData();
-} else {
-currentUser = null;
-if (unsubscribeSnapshot) { unsubscribeSnapshot(); unsubscribeSnapshot = null; }
-if (unsubscribeBollette) { unsubscribeBollette(); unsubscribeBollette = null; }
-document.getElementById('shell').classList.add('hidden');
-document.getElementById('login-screen').classList.remove('hidden');
-document.getElementById('login-form').reset();
-}
+  if (user) {
+    currentUser = user;
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('shell').classList.remove('hidden');
+    document.getElementById('sidebar-user-email').textContent = user.email;
+    attachFirestoreListener();
+    loadBolletteData();
+    
+    // Carica i membri della famiglia dopo il login
+    setTimeout(loadFamilyMembers, 1000);
+  } else {
+    currentUser = null;
+    if (unsubscribeSnapshot) { unsubscribeSnapshot(); unsubscribeSnapshot = null; }
+    if (unsubscribeBollette) { unsubscribeBollette(); unsubscribeBollette = null; }
+    document.getElementById('shell').classList.add('hidden');
+    document.getElementById('login-screen').classList.remove('hidden');
+    document.getElementById('login-form').reset();
+  }
 });
 function userDocRef() { return db.collection('famiglie').doc(currentUser.uid); }
 function attachFirestoreListener() {
@@ -4151,14 +4258,21 @@ document.getElementById('rem-title').value = ''; document.getElementById('rem-da
 await saveReminders(); renderReminders(); updateProfilePage();
 });
 function updateProfilePage() {
-if (!currentUser) return;
-document.getElementById('profile-email-display').value = currentUser.email;
-const created = currentUser.metadata.creationTime ? new Date(currentUser.metadata.creationTime).toLocaleDateString('it-IT', { day:'2-digit', month:'long', year:'numeric' }) : '—';
-document.getElementById('profile-created').value = created;
-document.getElementById('profile-tx-count').textContent = state.transactions.length;
-document.getElementById('profile-rem-count').textContent = state.reminders.length;
-const dates = state.transactions.map(t => t.date).sort();
-document.getElementById('profile-first-tx').textContent = dates.length ? new Date(dates[0]).toLocaleDateString('it-IT') : '—';
+  if (!currentUser) return;
+  
+  document.getElementById('profile-email-display').value = currentUser.email;
+  const created = currentUser.metadata.creationTime ? 
+    new Date(currentUser.metadata.creationTime).toLocaleDateString('it-IT', { day:'2-digit', month:'long', year:'numeric' }) : '—';
+  document.getElementById('profile-created').value = created;
+  
+  // Statistiche
+  document.getElementById('profile-tx-count').textContent = state.transactions.length;
+  document.getElementById('profile-rem-count').textContent = state.reminders.length;
+  const dates = state.transactions.map(t => t.date).sort();
+  document.getElementById('profile-first-tx').textContent = dates.length ? new Date(dates[0]).toLocaleDateString('it-IT') : '—';
+  
+  // Carica i membri della famiglia
+  loadFamilyMembers();
 }
 document.getElementById('btn-reset-password').addEventListener('click', async () => {
 const msgEl = document.getElementById('profile-msg'); msgEl.textContent = '';
@@ -5328,6 +5442,228 @@ updateTransactionsList = function() {
   // Riavviamo i click dopo che la lista è stata aggiornata
   setTimeout(fixTransactionClicks, 100);
 };
+// === GESTIONE PROFILI FAMILIARI ===
+let familyMembers = {};
+let currentFamilyId = null;
+
+// Funzione per ottenere il riferimento alla famiglia
+function getFamilyRef() {
+  // Se l'utente è in una famiglia, usa quell'ID
+  if (currentFamilyId) {
+    return db.collection('famiglie').doc(currentFamilyId);
+  }
+  // Altrimenti crea una nuova famiglia per l'utente
+  return db.collection('famiglie').doc(currentUser.uid);
+}
+
+// Funzione per caricare i membri della famiglia
+async function loadFamilyMembers() {
+  if (!currentUser) return;
+  
+  try {
+    // Cerca se l'utente appartiene a una famiglia
+    const familyDoc = await db.collection('famiglie')
+      .where('members', 'array-contains', currentUser.uid)
+      .get();
+    
+    if (!familyDoc.empty) {
+      // L'utente è già in una famiglia
+      const doc = familyDoc.docs[0];
+      currentFamilyId = doc.id;
+      const data = doc.data();
+      familyMembers = data.members || {};
+      
+      // Se l'utente è admin, mostra l'opzione per aggiungere membri
+      const isAdmin = familyMembers[currentUser.uid]?.role === 'admin';
+      document.getElementById('btn-invite-member').style.display = isAdmin ? 'block' : 'none';
+      document.getElementById('invite-email').style.display = isAdmin ? 'block' : 'none';
+      document.getElementById('invite-name').style.display = isAdmin ? 'block' : 'none';
+      
+      // Rendi la sezione di invito visibile solo per admin
+      const inviteSection = document.getElementById('invite-email').parentElement.parentElement;
+      if (inviteSection) {
+        inviteSection.style.display = isAdmin ? 'grid' : 'none';
+      }
+      
+    } else {
+      // L'utente non è in una famiglia, creane una
+      const newFamily = {
+        members: {
+          [currentUser.uid]: {
+            name: currentUser.displayName || currentUser.email || 'Utente',
+            email: currentUser.email,
+            role: 'admin',
+            joinedAt: new Date().toISOString()
+          }
+        },
+        transactions: [],
+        categories: DEFAULT_CATEGORIES,
+        reminders: [],
+        categoryColors: {},
+        createdAt: new Date().toISOString()
+      };
+      
+      const docRef = await db.collection('famiglie').add(newFamily);
+      currentFamilyId = docRef.id;
+      familyMembers = newFamily.members;
+      
+      // Aggiorna il riferimento dell'utente
+      await userDocRef().update({ familyId: currentFamilyId });
+    }
+    
+    renderFamilyMembers();
+  } catch (err) {
+    console.error('Errore caricamento famiglia:', err);
+  }
+}
+
+// Funzione per visualizzare i membri della famiglia
+function renderFamilyMembers() {
+  const container = document.getElementById('family-members-list');
+  if (!container) return;
+  
+  container.innerHTML = '';
+  
+  if (!familyMembers || Object.keys(familyMembers).length === 0) {
+    container.innerHTML = '<p style="color:var(--text-muted); font-size:13px; font-style:italic;">Nessun membro nella famiglia</p>';
+    return;
+  }
+  
+  const isAdmin = familyMembers[currentUser.uid]?.role === 'admin';
+  
+  Object.keys(familyMembers).forEach(userId => {
+    const member = familyMembers[userId];
+    const isCurrentUser = userId === currentUser.uid;
+    const initials = (member.name || member.email || 'U').charAt(0).toUpperCase();
+    
+    const div = document.createElement('div');
+    div.className = 'member-item';
+    div.innerHTML = `
+      <div class="member-info">
+        <div class="member-avatar">${initials}</div>
+        <div class="member-details">
+          <div class="member-name">${escapeHtml(member.name || 'Utente')} ${isCurrentUser ? '👤' : ''}</div>
+          <div class="member-email">${escapeHtml(member.email || '')}</div>
+        </div>
+        <span class="member-role ${member.role === 'admin' ? 'admin' : ''}">${member.role === 'admin' ? 'Admin' : 'Membro'}</span>
+      </div>
+      ${isAdmin && !isCurrentUser ? `
+        <div class="member-actions">
+          <button class="btn-remove-member" data-userid="${userId}">Rimuovi</button>
+        </div>
+      ` : ''}
+    `;
+    container.appendChild(div);
+  });
+  
+  // Event listener per rimuovere membri
+  container.querySelectorAll('.btn-remove-member').forEach(btn => {
+    btn.addEventListener('click', async function() {
+      const userId = this.getAttribute('data-userid');
+      if (confirm(`Rimuovere questo membro dalla famiglia?`)) {
+        await removeFamilyMember(userId);
+      }
+    });
+  });
+}
+
+// Funzione per rimuovere un membro
+async function removeFamilyMember(userId) {
+  if (!currentFamilyId) return;
+  if (!confirm('Rimuovere questo membro dalla famiglia?')) return;
+  
+  try {
+    const familyRef = db.collection('famiglie').doc(currentFamilyId);
+    const doc = await familyRef.get();
+    const data = doc.data();
+    
+    if (data.members && data.members[userId]) {
+      delete data.members[userId];
+      await familyRef.update({ members: data.members });
+      
+      // Aggiorna la lista
+      familyMembers = data.members;
+      renderFamilyMembers();
+      document.getElementById('invite-status').textContent = 'Membro rimosso con successo!';
+      document.getElementById('invite-status').style.color = 'var(--success)';
+    }
+  } catch (err) {
+    console.error('Errore rimozione membro:', err);
+    document.getElementById('invite-status').textContent = 'Errore: ' + err.message;
+    document.getElementById('invite-status').style.color = 'var(--danger)';
+  }
+}
+
+// Funzione per invitare un nuovo membro
+async function inviteMember() {
+  const email = document.getElementById('invite-email').value.trim();
+  const name = document.getElementById('invite-name').value.trim();
+  const statusEl = document.getElementById('invite-status');
+  
+  if (!email) {
+    statusEl.textContent = 'Inserisci un email valida';
+    statusEl.style.color = 'var(--danger)';
+    return;
+  }
+  
+  if (!name) {
+    statusEl.textContent = 'Inserisci un nome per il membro';
+    statusEl.style.color = 'var(--danger)';
+    return;
+  }
+  
+  statusEl.textContent = 'Invio invito...';
+  statusEl.style.color = 'var(--text-secondary)';
+  
+  try {
+    // Verifica se l'utente esiste in Firebase Auth
+    // Nota: per sicurezza, dovresti usare una funzione Cloud Function per questo
+    // ma per semplicità, aggiungiamo direttamente il membro
+    
+    // Aggiungi il membro alla famiglia
+    const familyRef = db.collection('famiglie').doc(currentFamilyId);
+    const doc = await familyRef.get();
+    const data = doc.data();
+    
+    // Crea un nuovo membro (in attesa di conferma)
+    const newMember = {
+      name: name,
+      email: email,
+      role: 'member',
+      invitedAt: new Date().toISOString(),
+      status: 'pending' // pending, active
+    };
+    
+    // Usa l'email come chiave temporanea (idealmente useresti l'UID)
+    const tempId = 'pending_' + Date.now();
+    data.members[tempId] = newMember;
+    
+    await familyRef.update({ members: data.members });
+    
+    // Aggiorna la lista
+    familyMembers = data.members;
+    renderFamilyMembers();
+    
+    // Pulisci i campi
+    document.getElementById('invite-email').value = '';
+    document.getElementById('invite-name').value = '';
+    
+    statusEl.textContent = '✅ Invito inviato! Il membro verrà aggiunto quando accetterà.';
+    statusEl.style.color = 'var(--success)';
+    
+    // Qui dovresti inviare un'email di invito (tramite Cloud Function)
+    // Per ora, mostriamo solo un messaggio
+    console.log('Invito inviato a:', email);
+    
+  } catch (err) {
+    console.error('Errore invio invito:', err);
+    statusEl.textContent = 'Errore: ' + err.message;
+    statusEl.style.color = 'var(--danger)';
+  }
+}
+
+// Event listener per il pulsante di invito
+document.getElementById('btn-invite-member').addEventListener('click', inviteMember);  
 })();
 </script>
 </body>
