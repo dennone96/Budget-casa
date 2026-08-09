@@ -5896,19 +5896,38 @@ async function inviteMember() {
     statusEl.style.color = 'var(--danger)';
   }
 }
+// === EVENT LISTENER SEMPLIFICATI ===
+// Reset password
+const resetBtn = document.getElementById('btn-reset-password');
+if (resetBtn) {
+  resetBtn.onclick = function() {
+    const msgEl = document.getElementById('profile-msg');
+    if (!msgEl) return;
+    msgEl.textContent = '';
+    
+    if (!currentUser || !currentUser.email) {
+      msgEl.style.color = 'var(--danger)';
+      msgEl.textContent = 'Errore: utente non trovato';
+      return;
+    }
+    
+    auth.sendPasswordResetEmail(currentUser.email)
+      .then(() => {
+        msgEl.style.color = 'var(--success)';
+        msgEl.textContent = '✅ Email inviata!';
+      })
+      .catch((e) => {
+        msgEl.style.color = 'var(--danger)';
+        msgEl.textContent = 'Errore: ' + (e.message || 'Impossibile inviare l\'email');
+      });
+  };
+}
 
-// Event listener per il pulsante di invito
-document.addEventListener('DOMContentLoaded', function() {
-  const inviteBtn = document.getElementById('btn-invite-member');
-  if (inviteBtn) {
-    inviteBtn.addEventListener('click', inviteMember);
-  }
-  
-  const resetBtn = document.getElementById('btn-reset-password');
-  if (resetBtn) {
-    resetBtn.addEventListener('click', resetPassword);
-  }
-});
+// Invito membro
+const inviteBtn = document.getElementById('btn-invite-member');
+if (inviteBtn) {
+  inviteBtn.onclick = inviteMember;
+}
   
 })();
 </script>
