@@ -5731,29 +5731,6 @@ async function createSharedFamilyDocument() {
   }
 }
 
-// === CREA IL DOCUMENTO CONDIVISO DELLA FAMIGLIA ===
-async function createSharedFamilyDocument() {
-  if (!currentFamilyId) return;
-  
-  try {
-    const familyDataToSave = {
-      transactions: state.transactions || [],
-      categories: state.categories || DEFAULT_CATEGORIES,
-      reminders: state.reminders || [],
-      categoryColors: categoryColors || {},
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    
-    await db.collection('famiglie').doc(currentFamilyId).set(familyDataToSave);
-    familyData = familyDataToSave;
-    
-    document.getElementById('save-status').textContent = 'Famiglia creata!';
-  } catch (err) {
-    console.error('Errore creazione documento famiglia:', err);
-  }
-}
-
 // Funzione per visualizzare i membri della famiglia
 function renderFamilyMembers() {
   const container = document.getElementById('family-members-list');
