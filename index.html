@@ -4265,7 +4265,6 @@ function updateProfilePage() {
     new Date(currentUser.metadata.creationTime).toLocaleDateString('it-IT', { day:'2-digit', month:'long', year:'numeric' }) : '—';
   document.getElementById('profile-created').value = created;
   
-  // Statistiche
   document.getElementById('profile-tx-count').textContent = state.transactions.length;
   document.getElementById('profile-rem-count').textContent = state.reminders.length;
   const dates = state.transactions.map(t => t.date).sort();
@@ -5442,25 +5441,8 @@ updateTransactionsList = function() {
   // Riavviamo i click dopo che la lista è stata aggiornata
   setTimeout(fixTransactionClicks, 100);
 };
-// === GESTIONE PROFILI FAMILIARI ===
+// === GESTIONE PROFILI FAMILIARI (VERSIONE SEMPLIFICATA) ===
 let familyMembers = {};
-let currentFamilyId = null;
-
-// Funzione per ottenere il riferimento alla famiglia
-function getFamilyRef() {
-  if (!currentUser) {
-    console.error('Nessun utente loggato');
-    return null;
-  }
-  
-  // Se l'utente è in una famiglia, usa quell'ID
-  if (currentFamilyId) {
-    return db.collection('famiglie').doc(currentFamilyId);
-  }
-  
-  // Altrimenti crea una nuova famiglia per l'utente
-  return db.collection('famiglie').doc(currentUser.uid);
-}
 
 // Funzione per caricare i membri della famiglia
 async function loadFamilyMembers() {
@@ -5473,45 +5455,23 @@ async function loadFamilyMembers() {
   if (!container) return;
   
   try {
-    // Cerca se l'utente appartiene a una famiglia
-    const familyQuery = await db.collection('famiglie')
-      .where('members', 'array-contains', currentUser.uid)
-      .get();
+    // Usa il documento dell'utente per memorizzare i membri della famiglia
+    const userDoc = await userDocRef().get();
+    const data = userDoc.data();
     
-    if (!familyQuery.empty) {
-      // L'utente è già in una famiglia
-      const doc = familyQuery.docs[0];
-      currentFamilyId = doc.id;
-      const data = doc.data();
-      familyMembers = data.members || {};
-      
-      // Aggiorna il riferimento dell'utente
-      await userDocRef().update({ familyId: currentFamilyId });
-      
+    if (data && data.familyMembers) {
+      familyMembers = data.familyMembers;
     } else {
-      // L'utente non è in una famiglia, creane una
-      const newFamily = {
-        members: {
-          [currentUser.uid]: {
-            name: currentUser.displayName || currentUser.email || 'Utente',
-            email: currentUser.email,
-            role: 'admin',
-            joinedAt: new Date().toISOString()
-          }
-        },
-        transactions: state.transactions || [],
-        categories: state.categories || DEFAULT_CATEGORIES,
-        reminders: state.reminders || [],
-        categoryColors: categoryColors || {},
-        createdAt: new Date().toISOString()
+      // Inizializza con il membro corrente
+      familyMembers = {
+        [currentUser.uid]: {
+          name: currentUser.displayName || currentUser.email || 'Utente',
+          email: currentUser.email,
+          role: 'admin',
+          joinedAt: new Date().toISOString()
+        }
       };
-      
-      const docRef = await db.collection('famiglie').add(newFamily);
-      currentFamilyId = docRef.id;
-      familyMembers = newFamily.members;
-      
-      // Aggiorna il riferimento dell'utente
-      await userDocRef().update({ familyId: currentFamilyId });
+      await userDocRef().update({ familyMembers: familyMembers });
     }
     
     renderFamilyMembers();
@@ -5521,6 +5481,7 @@ async function loadFamilyMembers() {
     container.innerHTML = `<p style="color:var(--danger); font-size:13px;">Errore: ${err.message}</p>`;
   }
 }
+
 // Funzione per visualizzare i membri della famiglia
 function renderFamilyMembers() {
   const container = document.getElementById('family-members-list');
@@ -5584,30 +5545,12 @@ function renderFamilyMembers() {
 
 // Funzione per rimuovere un membro
 async function removeFamilyMember(userId) {
-  if (!currentFamilyId) {
-    alert('Nessuna famiglia trovata');
-    return;
-  }
-  
   if (!confirm('Rimuovere questo membro dalla famiglia?')) return;
   
   try {
-    const familyRef = db.collection('famiglie').doc(currentFamilyId);
-    const doc = await familyRef.get();
-    
-    if (!doc.exists) {
-      alert('Famiglia non trovata');
-      return;
-    }
-    
-    const data = doc.data();
-    
-    if (data.members && data.members[userId]) {
-      delete data.members[userId];
-      await familyRef.update({ members: data.members });
-      
-      // Aggiorna la lista
-      familyMembers = data.members;
+    if (familyMembers[userId]) {
+      delete familyMembers[userId];
+      await userDocRef().update({ familyMembers: familyMembers });
       renderFamilyMembers();
       
       const statusEl = document.getElementById('invite-status');
@@ -5644,29 +5587,13 @@ async function inviteMember() {
     return;
   }
   
-  if (!currentFamilyId) {
-    statusEl.textContent = 'Errore: nessuna famiglia trovata. Ricarica la pagina.';
-    statusEl.style.color = 'var(--danger)';
-    return;
-  }
-  
   statusEl.textContent = 'Invio invito...';
   statusEl.style.color = 'var(--text-secondary)';
   
   try {
-    const familyRef = db.collection('famiglie').doc(currentFamilyId);
-    const doc = await familyRef.get();
-    
-    if (!doc.exists) {
-      statusEl.textContent = 'Errore: famiglia non trovata';
-      statusEl.style.color = 'var(--danger)';
-      return;
-    }
-    
-    const data = doc.data();
-    
-    // Crea un nuovo membro
-    const newMember = {
+    // Aggiungi il nuovo membro alla lista
+    const tempId = 'pending_' + Date.now();
+    familyMembers[tempId] = {
       name: name,
       email: email,
       role: 'member',
@@ -5674,17 +5601,10 @@ async function inviteMember() {
       status: 'pending'
     };
     
-    // Usa l'email come chiave temporanea
-    const tempId = 'pending_' + Date.now();
-    data.members[tempId] = newMember;
+    await userDocRef().update({ familyMembers: familyMembers });
     
-    await familyRef.update({ members: data.members });
-    
-    // Aggiorna la lista
-    familyMembers = data.members;
     renderFamilyMembers();
     
-    // Pulisci i campi
     document.getElementById('invite-email').value = '';
     document.getElementById('invite-name').value = '';
     
@@ -5697,6 +5617,7 @@ async function inviteMember() {
     statusEl.style.color = 'var(--danger)';
   }
 }
+
 // Event listener per il pulsante di invito
 document.addEventListener('DOMContentLoaded', function() {
   const inviteBtn = document.getElementById('btn-invite-member');
