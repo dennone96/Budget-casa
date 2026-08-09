@@ -3271,17 +3271,7 @@ auth.onAuthStateChanged((user) => {
     document.getElementById('login-form').reset();
   }
 });
-    
-    document.getElementById('save-status').textContent = 'Caricamento dati famiglia...';
-  } else {
-    currentUser = null;
-    if (unsubscribeSnapshot) { unsubscribeSnapshot(); unsubscribeSnapshot = null; }
-    if (unsubscribeBollette) { unsubscribeBollette(); unsubscribeBollette = null; }
-    document.getElementById('shell').classList.add('hidden');
-    document.getElementById('login-screen').classList.remove('hidden');
-    document.getElementById('login-form').reset();
-  }
-});
+
 function userDocRef() { return db.collection('famiglie').doc(currentUser.uid); }
 function attachFirestoreListener() {
 unsubscribeSnapshot = userDocRef().onSnapshot((doc) => {
@@ -5730,7 +5720,6 @@ async function createSharedFamilyDocument() {
     console.error('Errore creazione documento famiglia:', err);
   }
 }
-
 // Funzione per visualizzare i membri della famiglia
 function renderFamilyMembers() {
   const container = document.getElementById('family-members-list');
