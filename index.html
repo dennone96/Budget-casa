@@ -3806,19 +3806,13 @@ const typeDiv = document.createElement('div');
 typeDiv.className = 'tx-col-type';
 typeDiv.innerHTML = `<span class="badge-source ${badgeCls}">${badgeLabel}</span>`;
 row.appendChild(typeDiv);
-const actionsDiv = document.createElement('div');
-actionsDiv.className = 'tx-col-actions';
-actionsDiv.innerHTML = `
-<button data-id="${t.id}" class="btn-edit-tx" aria-label="Modifica"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 512 512"><defs><linearGradient id="buttonGradientEdit" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#2F80ED"/><stop offset="1" stop-color="#1558C0"/></linearGradient><filter id="softShadowEdit" x="44" y="44" width="424" height="424" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#0B2E63" flood-opacity="0.24"/></filter></defs><rect x="72" y="72" width="368" height="368" rx="92" fill="url(#buttonGradientEdit)" filter="url(#softShadowEdit)"/><path d="M338.7 130.8c12.6-12.6 33.1-12.6 45.7 0l17.8 17.8c12.6 12.6 12.6 33.1 0 45.7l-24.5 24.5-63.5-63.5 24.5-24.5Z" fill="#FFFFFF"/><path d="M287.7 181.8 151.8 317.7c-3.2 3.2-5.4 7.2-6.5 11.6l-17.5 69.9c-2.5 9.9 6.5 18.9 16.4 16.4l69.9-17.5c4.4-1.1 8.4-3.3 11.6-6.5l135.9-135.9-73.9-73.9Z" fill="#FFFFFF"/><path d="M287.7 181.8 361.6 255.7 338 279.3 264.1 205.4l23.6-23.6Z" fill="#DDEBFF"/><path d="M151.8 317.7c-3.2 3.2-5.4 7.2-6.5 11.6l-10.3 41 40.9 40.9 40.9-10.3c4.4-1.1 8.4-3.3 11.6-6.5l-76.6-76.7Z" fill="#EAF3FF"/><path d="M135 370.3 127.8 399.2c-2.5 9.9 6.5 18.9 16.4 16.4l28.9-7.2L135 370.3Z" fill="#102A43"/></svg></button>
-<button data-id="${t.id}" class="btn-delete" aria-label="Elimina"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 512 512"><defs><linearGradient id="buttonGradient" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#F04438"/><stop offset="1" stop-color="#B42318"/></linearGradient><filter id="softShadow" x="44" y="44" width="424" height="424" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#65160F" flood-opacity="0.24"/></filter></defs><rect x="72" y="72" width="368" height="368" rx="92" fill="url(#buttonGradient)" filter="url(#softShadow)"/><path d="M202 154c0-17.7 14.3-32 32-32h44c17.7 0 32 14.3 32 32v14h52c11 0 20 9 20 20s-9 20-20 20H150c-11 0-20-9-20-20s9-20 20-20h52v-14Zm40 14h28v-6c0-3.3-2.7-6-6-6h-16c-3.3 0-6 2.7-6 6v6Z" fill="#FFFFFF"/><path d="M170 238c-1.1-13.8 9.8-25.6 23.6-25.6h124.8c13.8 0 24.7 11.8 23.6 25.6l-12.2 144.9c-1.5 17.5-16.1 31.1-33.7 31.1h-80.2c-17.6 0-32.2-13.6-33.7-31.1L170 238Z" fill="#FFFFFF"/><path d="M222 257c8.8 0 16 7.2 16 16v86c0 8.8-7.2 16-16 16s-16-7.2-16-16v-86c0-8.8 7.2-16 16-16Zm68 0c8.8 0 16 7.2 16 16v86c0 8.8-7.2 16-16 16s-16-7.2-16-16v-86c0-8.8 7.2-16 16-16Z" fill="#FBD5D1"/><path d="M179.4 260h153.2l-2.2 26H181.6l-2.2-26Z" fill="#FEE4E2"/></svg></button>
-`;
-row.appendChild(actionsDiv);
+const emptyDiv = document.createElement('div');
+emptyDiv.className = 'tx-col-actions';
+emptyDiv.style.visibility = 'hidden';  // Nasconde la colonna ma mantiene lo spazio
+row.appendChild(emptyDiv);
 list.appendChild(row);
 });
 list.querySelectorAll('.tx-col-desc').forEach(el => el.addEventListener('click', () => openDetailModal(el.getAttribute('data-id'))));
-list.querySelectorAll('.btn-delete').forEach(btn => btn.addEventListener('click', async (e) => { e.stopPropagation(); if (!confirm('Eliminare questo movimento?')) return; state.transactions = state.transactions.filter(t => t.id !== btn.getAttribute('data-id')); renderAll(); await saveTransactions(); }));
-list.querySelectorAll('.btn-edit-tx').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); openEditModal(btn.getAttribute('data-id')); }));
-}
 let detailId = null;
 function openDetailModal(id) {
 const t = state.transactions.find(t => t.id === id); if (!t) return;
