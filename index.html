@@ -2902,6 +2902,16 @@ Aggiungi promemoria
     </button>
     <p id="invite-status" style="font-size:13px; margin-top:10px; min-height:20px;"></p>
   </div>
+    <div class="panel">
+    <h3>🔧 Manutenzione</h3>
+    <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">
+      Se i dati non vengono visualizzati correttamente, clicca su "Correggi collegamento famiglia".
+    </p>
+    <button id="btn-fix-family" style="width:100%; height:40px; background:var(--warning); color:#fff; border:none; border-radius:var(--radius-sm); font-weight:700; cursor:pointer;">
+      🔄 Correggi collegamento famiglia
+    </button>
+    <p id="fix-status" style="font-size:12px; color:var(--text-muted); margin-top:8px; min-height:20px;"></p>
+  </div>
 
   <!-- Cambia password -->
   <div class="panel">
@@ -3240,11 +3250,27 @@ auth.onAuthStateChanged((user) => {
     document.getElementById('shell').classList.remove('hidden');
     document.getElementById('sidebar-user-email').textContent = user.email;
     
-    // CARICA I DATI DELLA FAMIGLIA PRIMA DI TUTTO
-    loadFamilyMembers().then(() => {
+    // === CODICE 5: CARICA MEMBRI E CORREGGI IL FAMILYID ===
+    loadFamilyMembers().then(async () => {
+      // Correggi il familyId se necessario
+      await fixMemberFamilyId();
+      
+      // Ora carica i dati
+      await loadSharedFamilyData();
       attachFirestoreListener();
       loadBolletteData();
     });
+    
+    document.getElementById('save-status').textContent = 'Caricamento dati famiglia...';
+  } else {
+    currentUser = null;
+    if (unsubscribeSnapshot) { unsubscribeSnapshot(); unsubscribeSnapshot = null; }
+    if (unsubscribeBollette) { unsubscribeBollette(); unsubscribeBollette = null; }
+    document.getElementById('shell').classList.add('hidden');
+    document.getElementById('login-screen').classList.remove('hidden');
+    document.getElementById('login-form').reset();
+  }
+});
     
     document.getElementById('save-status').textContent = 'Caricamento dati famiglia...';
   } else {
@@ -5544,55 +5570,39 @@ async function loadFamilyMembers() {
             familyMembers: familyMembers,
             familyId: currentFamilyId
           });
-        } else {
-          // Se non c'è invito, l'utente è l'admin di una nuova famiglia
-          currentFamilyId = currentUser.uid;
-          familyMembers = {
-            [currentUser.uid]: {
-              name: currentUser.displayName || currentUser.email || 'Utente',
-              email: currentUser.email,
-              role: 'admin',
-              status: 'active',
-              joinedAt: new Date().toISOString()
-            }
-          };
-          await userDocRef().update({ 
-            familyMembers: familyMembers,
-            familyId: currentFamilyId
-          });
         }
       }
     } else {
       // 3. L'utente non ha un familyId: cerca se è stato invitato
-      // Cerca in tutti i documenti famiglia se l'utente è membro
       const allFamilies = await db.collection('famiglie').get();
       let foundFamily = false;
       
       for (const doc of allFamilies.docs) {
         const data = doc.data();
-        if (data.members && data.members[currentUser.uid]) {
-          // Trovato! L'utente è già membro di questa famiglia
-          currentFamilyId = doc.id;
-          familyMembers = data.members;
-          foundFamily = true;
-          
-          // Aggiorna il documento dell'utente
-          await userDocRef().update({ 
-            familyMembers: familyMembers,
-            familyId: currentFamilyId
-          });
-          break;
-        }
+        const docId = doc.id;
         
-        // Cerca invito pendente per email
+        // Cerca se l'utente è già membro o ha un invito pendente
         if (data.members) {
+          // Controlla se l'utente è già membro con il suo UID
+          if (data.members[currentUser.uid]) {
+            currentFamilyId = docId;
+            familyMembers = data.members;
+            foundFamily = true;
+            
+            await userDocRef().update({ 
+              familyMembers: familyMembers,
+              familyId: currentFamilyId
+            });
+            break;
+          }
+          
+          // Cerca invito pendente per email
           const pendingInvite = Object.keys(data.members).find(key => 
             data.members[key].email === currentUser.email && data.members[key].status === 'pending'
           );
           
           if (pendingInvite) {
-            // Trovato invito pendente!
-            currentFamilyId = doc.id;
+            currentFamilyId = docId;
             familyMembers = data.members;
             
             // Aggiorna l'invito con l'UID reale
@@ -5604,7 +5614,6 @@ async function loadFamilyMembers() {
               joinedAt: new Date().toISOString()
             };
             
-            // Salva le modifiche
             await db.collection('famiglie').doc(currentFamilyId).update({ 
               members: familyMembers 
             });
@@ -5638,7 +5647,8 @@ async function loadFamilyMembers() {
       }
     }
     
-    // 5. Ora carica i dati della famiglia
+    // 5. ORA CARICA I DATI DELLA FAMIGLIA USANDO currentFamilyId
+    console.log('Caricamento dati famiglia (ID):', currentFamilyId);
     await loadSharedFamilyData();
     renderFamilyMembers();
     
@@ -5658,7 +5668,7 @@ async function loadSharedFamilyData() {
   }
   
   try {
-    console.log('Caricamento dati famiglia:', currentFamilyId);
+    console.log('Caricamento dati famiglia con ID:', currentFamilyId);
     
     const familyDoc = await db.collection('famiglie').doc(currentFamilyId).get();
     
@@ -5679,8 +5689,7 @@ async function loadSharedFamilyData() {
       renderAll();
       document.getElementById('save-status').textContent = '✅ Dati della famiglia caricati.';
     } else {
-      // Il documento famiglia non esiste: crealo
-      console.log('Documento famiglia non trovato, creazione in corso...');
+      console.log('Documento famiglia non trovato per ID:', currentFamilyId);
       await createSharedFamilyDocument();
     }
   } catch (err) {
@@ -5928,7 +5937,76 @@ const inviteBtn = document.getElementById('btn-invite-member');
 if (inviteBtn) {
   inviteBtn.onclick = inviteMember;
 }
+async function fixMemberFamilyId() {
+  if (!currentUser) return;
   
+  try {
+    // Leggi il documento dell'utente
+    const userDoc = await userDocRef().get();
+    const userData = userDoc.data();
+    
+    // Se non ha un familyId, non fare nulla
+    if (!userData || !userData.familyId) {
+      console.log('Nessun familyId da correggere');
+      return;
+    }
+    
+    // Verifica se il familyId ha transazioni
+    const familyDoc = await db.collection('famiglie').doc(userData.familyId).get();
+    const data = familyDoc.data();
+    
+    if (data && data.transactions && data.transactions.length > 0) {
+      console.log('✅ Il familyId ha transazioni:', data.transactions.length);
+      return; // Tutto ok
+    }
+    
+    // Cerca un altro documento che ha transazioni (l'admin)
+    const allFamilies = await db.collection('famiglie').get();
+    for (const doc of allFamilies.docs) {
+      const docData = doc.data();
+      if (docData.transactions && docData.transactions.length > 0) {
+        // Trovato! Correggi il familyId
+        const correctFamilyId = doc.id;
+        console.log('🔄 Correggendo familyId da', userData.familyId, 'a', correctFamilyId);
+        
+        // Aggiorna il documento utente
+        await userDocRef().update({ 
+          familyId: correctFamilyId,
+          familyMembers: docData.members || {}
+        });
+        
+        currentFamilyId = correctFamilyId;
+        familyMembers = docData.members || {};
+        
+        console.log('✅ familyId corretto!');
+        return;
+      }
+    }
+    
+    console.log('Nessun documento con transazioni trovato');
+  } catch (err) {
+    console.error('Errore fixMemberFamilyId:', err);
+  }
+}  
+document.getElementById('btn-fix-family').addEventListener('click', async function() {
+  const statusEl = document.getElementById('fix-status');
+  if (!statusEl) return;
+  
+  statusEl.textContent = '🔄 Correzione in corso...';
+  statusEl.style.color = 'var(--text-secondary)';
+  
+  try {
+    await fixMemberFamilyId();
+    await loadSharedFamilyData();
+    renderAll();
+    
+    statusEl.textContent = '✅ Correzione completata! Transazioni: ' + state.transactions.length;
+    statusEl.style.color = 'var(--success)';
+  } catch (err) {
+    statusEl.textContent = '❌ Errore: ' + err.message;
+    statusEl.style.color = 'var(--danger)';
+  }
+});  
 })();
 </script>
 </body>
