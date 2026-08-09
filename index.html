@@ -805,7 +805,7 @@ height: auto !important;
 }
 .tx-row {
 display: grid;
-grid-template-columns: 30px 100px 1fr 120px 100px 90px;
+grid-template-columns: 30px 100px 1fr 120px 100px;
 align-items: center;
 gap: 12px;
 padding: 16px 20px;
@@ -859,7 +859,7 @@ letter-spacing: -0.5px;
 .tx-col-actions { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
 .tx-header {
 display: grid;
-grid-template-columns: 30px 100px 1fr 120px 100px 90px;
+grid-template-columns: 30px 100px 1fr 120px 100px;
 gap: 12px;
 padding: 8px 20px;
 font-size: 11px;
@@ -2447,7 +2447,6 @@ Aggiungi movimento
 <span>Movimento</span>
 <span style="text-align:right;">Importo</span>
 <span style="text-align:center;">Tipo</span>
-<span></span>
 </div>
 <div id="transactions-list"></div>
 <p id="save-status">I dati sono sincronizzati con il tuo account.</p>
@@ -3695,33 +3694,144 @@ searchQuery = e.target.value.toLowerCase().trim();
 updateTransactionsList();
 });
 function updateTransactionsList() {
-const from = filterFrom || todayISO().slice(0,7) + '-01';
-const to = filterTo || todayISO();
-let mt = state.transactions.filter(t => t.date >= from && t.date <= to && matchesSourceFilter(t));
-if (searchQuery) {
-mt = mt.filter(t =>
-(t.description || '').toLowerCase().includes(searchQuery) ||
-(t.category || '').toLowerCase().includes(searchQuery)
-);
-}
-mt.sort((a,b) => b.date.localeCompare(a.date));
-const list = document.getElementById('transactions-list');
-list.innerHTML = '';
-const bulkContainer = document.getElementById('bulk-actions-container');
-bulkContainer.innerHTML = '';
-if (mt.length > 0) {
-const bulkBar = document.createElement('div');
-bulkBar.className = 'bulk-actions-bar';
-const selectAllLabel = document.createElement('label');
-selectAllLabel.style.cssText = 'display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:700; font-size:14px;';
-const selectAllCheckbox = document.createElement('input');
-selectAllCheckbox.type = 'checkbox';
-selectAllCheckbox.checked = mt.every(t => selectedTransactions.has(t.id));
-selectAllCheckbox.addEventListener('change', (e) => {
-if (e.target.checked) {
-mt.forEach(t => selectedTransactions.add(t.id));
-} else {
-mt.forEach(t => selectedTransactions.delete(t.id));
+  const from = filterFrom || todayISO().slice(0,7) + '-01';
+  const to = filterTo || todayISO();
+  let mt = state.transactions.filter(t => t.date >= from && t.date <= to && matchesSourceFilter(t));
+  if (searchQuery) {
+    mt = mt.filter(t =>
+      (t.description || '').toLowerCase().includes(searchQuery) ||
+      (t.category || '').toLowerCase().includes(searchQuery)
+    );
+  }
+  mt.sort((a,b) => b.date.localeCompare(a.date));
+  const list = document.getElementById('transactions-list');
+  list.innerHTML = '';
+  const bulkContainer = document.getElementById('bulk-actions-container');
+  bulkContainer.innerHTML = '';
+  
+  if (mt.length > 0) {
+    const bulkBar = document.createElement('div');
+    bulkBar.className = 'bulk-actions-bar';
+    const selectAllLabel = document.createElement('label');
+    selectAllLabel.style.cssText = 'display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:700; font-size:14px;';
+    const selectAllCheckbox = document.createElement('input');
+    selectAllCheckbox.type = 'checkbox';
+    selectAllCheckbox.checked = mt.every(t => selectedTransactions.has(t.id));
+    selectAllCheckbox.addEventListener('change', (e) => {
+      if (e.target.checked) {
+        mt.forEach(t => selectedTransactions.add(t.id));
+      } else {
+        mt.forEach(t => selectedTransactions.delete(t.id));
+      }
+      updateTransactionsList();
+    });
+    selectAllLabel.appendChild(selectAllCheckbox);
+    selectAllLabel.appendChild(document.createTextNode(' Seleziona tutti'));
+    bulkBar.appendChild(selectAllLabel);
+    
+    if (selectedTransactions.size > 0) {
+      const countSpan = document.createElement('span');
+      countSpan.className = 'bulk-count';
+      countSpan.textContent = `${selectedTransactions.size} selezionati`;
+      bulkBar.appendChild(countSpan);
+      
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'btn-bulk-delete';
+      deleteBtn.textContent = '🗑️ Elimina selezionati';
+      deleteBtn.addEventListener('click', async () => {
+        if (!confirm(`Eliminare ${selectedTransactions.size} movimenti selezionati?`)) return;
+        state.transactions = state.transactions.filter(t => !selectedTransactions.has(t.id));
+        selectedTransactions.clear();
+        await saveTransactions();
+        renderAll();
+      });
+      bulkBar.appendChild(deleteBtn);
+      
+      const clearBtn = document.createElement('button');
+      clearBtn.className = 'btn-bulk-clear';
+      clearBtn.textContent = '✖ Deseleziona';
+      clearBtn.addEventListener('click', () => {
+        selectedTransactions.clear();
+        updateTransactionsList();
+      });
+      bulkBar.appendChild(clearBtn);
+    }
+    bulkContainer.appendChild(bulkBar);
+  }
+  
+  if (mt.length === 0) {
+    list.innerHTML = '<p class="empty-msg">' + (searchQuery ? 'Nessun movimento trovato con questa ricerca' : 'Nessun movimento in questo periodo.') + '</p>';
+    return;
+  }
+  
+  mt.forEach(t => {
+    const row = document.createElement('div'); 
+    row.className = 'tx-row';
+    if (selectedTransactions.has(t.id)) {
+      row.classList.add('selected');
+    }
+    
+    const isIncome = t.type === 'income';
+    const src = t.source || 'cash';
+    const badgeLabel = src === 'bank' ? '🏦 C/C' : '💵 Cash';
+    const badgeCls = src === 'bank' ? 'badge-bank' : 'badge-cash';
+    const dateLabel = new Date(t.date).toLocaleDateString('it-IT', { day:'2-digit', month:'2-digit', year:'2-digit' });
+    const amountColor = isIncome ? 'var(--success)' : 'var(--danger)';
+    const amountSign = isIncome ? '+' : '-';
+    const hasAttachment = t.attachment ? ' 📎' : '';
+    
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.className = 'tx-checkbox';
+    checkbox.checked = selectedTransactions.has(t.id);
+    checkbox.addEventListener('change', (e) => {
+      if (e.target.checked) {
+        selectedTransactions.add(t.id);
+      } else {
+        selectedTransactions.delete(t.id);
+      }
+      updateTransactionsList();
+    });
+    row.appendChild(checkbox);
+    
+    const dateDiv = document.createElement('div');
+    dateDiv.className = 'tx-col-date';
+    dateDiv.textContent = dateLabel;
+    row.appendChild(dateDiv);
+    
+    const descDiv = document.createElement('div');
+    descDiv.className = 'tx-col-desc';
+    descDiv.setAttribute('data-id', t.id);
+    descDiv.setAttribute('title', 'Dettagli');
+    descDiv.setAttribute('role', 'button');
+    descDiv.setAttribute('tabindex', '0');
+    descDiv.innerHTML = `<span class="tx-desc-text">${escapeHtml(t.description || t.category)}${hasAttachment}</span><span style="font-size:12px; color:var(--text-muted); font-weight:700;">${escapeHtml(t.category)}</span>`;
+    row.appendChild(descDiv);
+    
+    const amountDiv = document.createElement('div');
+    amountDiv.className = 'tx-col-amount';
+    amountDiv.style.color = amountColor;
+    amountDiv.textContent = `${amountSign}${fmtEUR(amountValue(t.amount))}`;
+    row.appendChild(amountDiv);
+    
+    const typeDiv = document.createElement('div');
+    typeDiv.className = 'tx-col-type';
+    typeDiv.innerHTML = `<span class="badge-source ${badgeCls}">${badgeLabel}</span>`;
+    row.appendChild(typeDiv);
+    
+    // === RIMOSSI I PULSANTI MODIFICA ED ELIMINA ===
+    // Non creiamo più actionsDiv con i pulsanti
+    // Aggiungiamo una colonna vuota per mantenere l'allineamento
+    const emptyDiv = document.createElement('div');
+    emptyDiv.className = 'tx-col-actions';
+    emptyDiv.style.visibility = 'hidden';  // Nasconde la colonna ma mantiene lo spazio
+    row.appendChild(emptyDiv);
+    
+    list.appendChild(row);
+  });
+  
+  // I click sulla descrizione aprono i dettagli
+  list.querySelectorAll('.tx-col-desc').forEach(el => el.addEventListener('click', () => openDetailModal(el.getAttribute('data-id'))));
 }
 updateTransactionsList();
 });
