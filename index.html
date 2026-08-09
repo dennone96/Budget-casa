@@ -442,100 +442,104 @@ max-width: 1200px;
 width: 100%;
 }
 @media (max-width: 900px) {
-#hamburger { display: flex; }
-#sidebar { transform: translateX(calc(-1 * var(--sidebar-w))); }
-#sidebar.open { transform: translateX(0); }
-#sidebar-overlay.open { display: block; }
-#main {
-margin-left: 0;
-padding: 1.5rem 1rem 3rem;
-padding-top: 4.5rem;
-max-width: 100%;
-}
-.stats-row {
-grid-template-columns: 1fr 1fr;
-gap: 10px;
-}
-.stat-card {
-padding: 1rem;
-}
-.stat-card p:first-child {
-font-size: 11px;
-}
-.stat-card p:last-child {
-font-size: 18px;
-}
-.tx-row, .tx-header {
-font-size: 12px;
-grid-template-columns: 30px 70px 1fr 90px 0 80px;
-}
-.tx-col-type {
-display: none;
-}
-.ios-row {
-padding: 0 10px;
-min-height: 48px;
-}
-.ios-label {
-font-size: 13px;
-min-width: 80px;
-}
-.home-header {
-flex-direction: column;
-gap: 12px;
-}
-.home-date-filter {
-width: 100%;
-flex-direction: column;
-align-items: stretch;
-}
-.home-date-field {
-flex: 1 1 100%;
-}
-.home-date-field input,
-.home-date-field select {
-width: 100%;
-}
-.filter-custom-toggle {
-width: 100%;
-justify-content: center;
-}
-.custom-date-range {
-flex-direction: column;
-width: 100%;
-}
-#btn-apply-range {
-width: 100%;
-justify-content: center;
-}
-.source-filter button {
-font-size: 12px;
-padding: 0 12px;
-height: 36px;
-}
+  #hamburger { display: flex; }
+  #sidebar { transform: translateX(calc(-1 * var(--sidebar-w))); }
+  #sidebar.open { transform: translateX(0); }
+  #sidebar-overlay.open { display: block; }
+  #main {
+    margin-left: 0;
+    padding: 1.5rem 1rem 3rem;
+    padding-top: 4.5rem;
+    max-width: 100%;
+  }
+  .stats-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .stat-card {
+    padding: 1rem;
+  }
+  .stat-card p:first-child {
+    font-size: 11px;
+  }
+  .stat-card p:last-child {
+    font-size: 18px;
+  }
+  .tx-row, .tx-header {
+    font-size: 12px;
+    grid-template-columns: 30px 70px 1fr 90px 0 80px;
+  }
+  .tx-col-type {
+    display: none;
+  }
+  .ios-row {
+    padding: 0 10px;
+    min-height: 48px;
+  }
+  .ios-label {
+    font-size: 13px;
+    min-width: 80px;
+  }
+  .home-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .home-date-filter {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .home-date-field {
+    flex: 1 1 100%;
+  }
+  .home-date-field input,
+  .home-date-field select {
+    width: 100%;
+  }
+  .filter-custom-toggle {
+    width: 100%;
+    justify-content: center;
+  }
+  .custom-date-range {
+    flex-direction: column;
+    width: 100%;
+  }
+  #btn-apply-range {
+    width: 100%;
+    justify-content: center;
+  }
+  .source-filter button {
+    font-size: 12px;
+    padding: 0 12px;
+    height: 36px;
+  }
+  .stats-tabs {
+    gap: 4px;
+  }
+  .stats-tab {
+    padding: 10px 14px;
+    font-size: 12px;
+  }
+  .chart-wrap {
+    height: 250px;
+  }
 }
 @media (max-width: 480px) {
-  /* ... altre regole ... */
-  
   .tx-row, .tx-header {
     font-size: 10px !important;
     grid-template-columns: 20px 45px 1fr 40px 45px !important;
     gap: 4px !important;
     padding: 8px 4px !important;
   }
-  
   .tx-col-date {
     font-size: 8px !important;
   }
-  
   .tx-desc-text {
     font-size: 10px !important;
   }
-  
   .tx-col-amount {
     font-size: 10px !important;
   }
-  
   button, input, select {
     min-height: 36px !important;
     font-size: 12px !important;
