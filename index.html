@@ -5448,42 +5448,45 @@ let currentFamilyId = null;
 
 // Funzione per ottenere il riferimento alla famiglia
 function getFamilyRef() {
+  if (!currentUser) {
+    console.error('Nessun utente loggato');
+    return null;
+  }
+  
   // Se l'utente è in una famiglia, usa quell'ID
   if (currentFamilyId) {
     return db.collection('famiglie').doc(currentFamilyId);
   }
+  
   // Altrimenti crea una nuova famiglia per l'utente
   return db.collection('famiglie').doc(currentUser.uid);
 }
 
 // Funzione per caricare i membri della famiglia
 async function loadFamilyMembers() {
-  if (!currentUser) return;
+  if (!currentUser) {
+    console.error('Nessun utente loggato');
+    return;
+  }
+  
+  const container = document.getElementById('family-members-list');
+  if (!container) return;
   
   try {
     // Cerca se l'utente appartiene a una famiglia
-    const familyDoc = await db.collection('famiglie')
+    const familyQuery = await db.collection('famiglie')
       .where('members', 'array-contains', currentUser.uid)
       .get();
     
-    if (!familyDoc.empty) {
+    if (!familyQuery.empty) {
       // L'utente è già in una famiglia
-      const doc = familyDoc.docs[0];
+      const doc = familyQuery.docs[0];
       currentFamilyId = doc.id;
       const data = doc.data();
       familyMembers = data.members || {};
       
-      // Se l'utente è admin, mostra l'opzione per aggiungere membri
-      const isAdmin = familyMembers[currentUser.uid]?.role === 'admin';
-      document.getElementById('btn-invite-member').style.display = isAdmin ? 'block' : 'none';
-      document.getElementById('invite-email').style.display = isAdmin ? 'block' : 'none';
-      document.getElementById('invite-name').style.display = isAdmin ? 'block' : 'none';
-      
-      // Rendi la sezione di invito visibile solo per admin
-      const inviteSection = document.getElementById('invite-email').parentElement.parentElement;
-      if (inviteSection) {
-        inviteSection.style.display = isAdmin ? 'grid' : 'none';
-      }
+      // Aggiorna il riferimento dell'utente
+      await userDocRef().update({ familyId: currentFamilyId });
       
     } else {
       // L'utente non è in una famiglia, creane una
@@ -5496,10 +5499,10 @@ async function loadFamilyMembers() {
             joinedAt: new Date().toISOString()
           }
         },
-        transactions: [],
-        categories: DEFAULT_CATEGORIES,
-        reminders: [],
-        categoryColors: {},
+        transactions: state.transactions || [],
+        categories: state.categories || DEFAULT_CATEGORIES,
+        reminders: state.reminders || [],
+        categoryColors: categoryColors || {},
         createdAt: new Date().toISOString()
       };
       
@@ -5512,11 +5515,12 @@ async function loadFamilyMembers() {
     }
     
     renderFamilyMembers();
+    
   } catch (err) {
     console.error('Errore caricamento famiglia:', err);
+    container.innerHTML = `<p style="color:var(--danger); font-size:13px;">Errore: ${err.message}</p>`;
   }
 }
-
 // Funzione per visualizzare i membri della famiglia
 function renderFamilyMembers() {
   const container = document.getElementById('family-members-list');
@@ -5529,11 +5533,22 @@ function renderFamilyMembers() {
     return;
   }
   
-  const isAdmin = familyMembers[currentUser.uid]?.role === 'admin';
+  const isAdmin = familyMembers[currentUser?.uid]?.role === 'admin';
+  
+  // Mostra/nascondi la sezione di invito in base al ruolo admin
+  const inviteSection = document.getElementById('invite-email')?.parentElement?.parentElement;
+  if (inviteSection) {
+    inviteSection.style.display = isAdmin ? 'grid' : 'none';
+  }
+  
+  const inviteBtn = document.getElementById('btn-invite-member');
+  if (inviteBtn) {
+    inviteBtn.style.display = isAdmin ? 'block' : 'none';
+  }
   
   Object.keys(familyMembers).forEach(userId => {
     const member = familyMembers[userId];
-    const isCurrentUser = userId === currentUser.uid;
+    const isCurrentUser = userId === currentUser?.uid;
     const initials = (member.name || member.email || 'U').charAt(0).toUpperCase();
     
     const div = document.createElement('div');
@@ -5569,12 +5584,22 @@ function renderFamilyMembers() {
 
 // Funzione per rimuovere un membro
 async function removeFamilyMember(userId) {
-  if (!currentFamilyId) return;
+  if (!currentFamilyId) {
+    alert('Nessuna famiglia trovata');
+    return;
+  }
+  
   if (!confirm('Rimuovere questo membro dalla famiglia?')) return;
   
   try {
     const familyRef = db.collection('famiglie').doc(currentFamilyId);
     const doc = await familyRef.get();
+    
+    if (!doc.exists) {
+      alert('Famiglia non trovata');
+      return;
+    }
+    
     const data = doc.data();
     
     if (data.members && data.members[userId]) {
@@ -5584,13 +5609,20 @@ async function removeFamilyMember(userId) {
       // Aggiorna la lista
       familyMembers = data.members;
       renderFamilyMembers();
-      document.getElementById('invite-status').textContent = 'Membro rimosso con successo!';
-      document.getElementById('invite-status').style.color = 'var(--success)';
+      
+      const statusEl = document.getElementById('invite-status');
+      if (statusEl) {
+        statusEl.textContent = '✅ Membro rimosso con successo!';
+        statusEl.style.color = 'var(--success)';
+      }
     }
   } catch (err) {
     console.error('Errore rimozione membro:', err);
-    document.getElementById('invite-status').textContent = 'Errore: ' + err.message;
-    document.getElementById('invite-status').style.color = 'var(--danger)';
+    const statusEl = document.getElementById('invite-status');
+    if (statusEl) {
+      statusEl.textContent = 'Errore: ' + err.message;
+      statusEl.style.color = 'var(--danger)';
+    }
   }
 }
 
@@ -5612,29 +5644,37 @@ async function inviteMember() {
     return;
   }
   
+  if (!currentFamilyId) {
+    statusEl.textContent = 'Errore: nessuna famiglia trovata. Ricarica la pagina.';
+    statusEl.style.color = 'var(--danger)';
+    return;
+  }
+  
   statusEl.textContent = 'Invio invito...';
   statusEl.style.color = 'var(--text-secondary)';
   
   try {
-    // Verifica se l'utente esiste in Firebase Auth
-    // Nota: per sicurezza, dovresti usare una funzione Cloud Function per questo
-    // ma per semplicità, aggiungiamo direttamente il membro
-    
-    // Aggiungi il membro alla famiglia
     const familyRef = db.collection('famiglie').doc(currentFamilyId);
     const doc = await familyRef.get();
+    
+    if (!doc.exists) {
+      statusEl.textContent = 'Errore: famiglia non trovata';
+      statusEl.style.color = 'var(--danger)';
+      return;
+    }
+    
     const data = doc.data();
     
-    // Crea un nuovo membro (in attesa di conferma)
+    // Crea un nuovo membro
     const newMember = {
       name: name,
       email: email,
       role: 'member',
       invitedAt: new Date().toISOString(),
-      status: 'pending' // pending, active
+      status: 'pending'
     };
     
-    // Usa l'email come chiave temporanea (idealmente useresti l'UID)
+    // Usa l'email come chiave temporanea
     const tempId = 'pending_' + Date.now();
     data.members[tempId] = newMember;
     
@@ -5648,12 +5688,8 @@ async function inviteMember() {
     document.getElementById('invite-email').value = '';
     document.getElementById('invite-name').value = '';
     
-    statusEl.textContent = '✅ Invito inviato! Il membro verrà aggiunto quando accetterà.';
+    statusEl.textContent = '✅ Invito inviato!';
     statusEl.style.color = 'var(--success)';
-    
-    // Qui dovresti inviare un'email di invito (tramite Cloud Function)
-    // Per ora, mostriamo solo un messaggio
-    console.log('Invito inviato a:', email);
     
   } catch (err) {
     console.error('Errore invio invito:', err);
@@ -5661,9 +5697,19 @@ async function inviteMember() {
     statusEl.style.color = 'var(--danger)';
   }
 }
-
 // Event listener per il pulsante di invito
-document.getElementById('btn-invite-member').addEventListener('click', inviteMember);  
+document.addEventListener('DOMContentLoaded', function() {
+  const inviteBtn = document.getElementById('btn-invite-member');
+  if (inviteBtn) {
+    inviteBtn.addEventListener('click', inviteMember);
+  }
+  
+  const resetBtn = document.getElementById('btn-reset-password');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', resetPassword);
+  }
+});
+  
 })();
 </script>
 </body>
