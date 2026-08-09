@@ -3813,6 +3813,7 @@ row.appendChild(emptyDiv);
 list.appendChild(row);
 });
 list.querySelectorAll('.tx-col-desc').forEach(el => el.addEventListener('click', () => openDetailModal(el.getAttribute('data-id'))));
+}
 let detailId = null;
 function openDetailModal(id) {
 const t = state.transactions.find(t => t.id === id); if (!t) return;
