@@ -3239,11 +3239,14 @@ auth.onAuthStateChanged((user) => {
     document.getElementById('login-screen').classList.add('hidden');
     document.getElementById('shell').classList.remove('hidden');
     document.getElementById('sidebar-user-email').textContent = user.email;
-    attachFirestoreListener();
-    loadBolletteData();
     
-    // Carica i membri della famiglia dopo il login
-    setTimeout(loadFamilyMembers, 1000);
+    // CARICA I DATI DELLA FAMIGLIA PRIMA DI TUTTO
+    loadFamilyMembers().then(() => {
+      attachFirestoreListener();
+      loadBolletteData();
+    });
+    
+    document.getElementById('save-status').textContent = 'Caricamento dati famiglia...';
   } else {
     currentUser = null;
     if (unsubscribeSnapshot) { unsubscribeSnapshot(); unsubscribeSnapshot = null; }
@@ -3273,16 +3276,21 @@ document.getElementById('save-status').textContent = 'I dati sono sincronizzati 
 }, (err) => { document.getElementById('save-status').textContent = 'Errore: ' + err.message; });
 }
 // === SALVA I DATI NELLA FAMIGLIA CONDIVISA ===
+// === SALVA I DATI NELLA FAMIGLIA CONDIVISA ===
 async function saveTransactions() {
-  if (!currentFamilyId) return;
+  if (!currentFamilyId) {
+    console.warn('Nessun familyId, i dati non vengono salvati');
+    return;
+  }
   
   try {
     await db.collection('famiglie').doc(currentFamilyId).update({
       transactions: state.transactions,
       updatedAt: new Date().toISOString()
     });
-    document.getElementById('save-status').textContent = 'Dati salvati!';
+    document.getElementById('save-status').textContent = '✅ Dati salvati!';
   } catch(e) {
+    console.error('Errore salvataggio transazioni:', e);
     document.getElementById('save-status').textContent = 'Errore: ' + e.message;
   }
 }
@@ -4319,8 +4327,12 @@ function updateProfilePage() {
   const dates = state.transactions.map(t => t.date).sort();
   document.getElementById('profile-first-tx').textContent = dates.length ? new Date(dates[0]).toLocaleDateString('it-IT') : '—';
   
-  // Carica i membri della famiglia
-  loadFamilyMembers();
+  // Carica i membri della famiglia SOLO se non sono già stati caricati
+  if (!currentFamilyId) {
+    loadFamilyMembers();
+  } else {
+    renderFamilyMembers();
+  }
 }
 document.getElementById('btn-reset-password').addEventListener('click', async () => {
 const msgEl = document.getElementById('profile-msg'); msgEl.textContent = '';
@@ -5504,49 +5516,18 @@ async function loadFamilyMembers() {
   if (!container) return;
   
   try {
-    // Carica i membri della famiglia dal documento utente
+    // 1. Leggi il documento dell'utente corrente
     const userDoc = await userDocRef().get();
-    const data = userDoc.data();
+    const userData = userDoc.data();
     
-    if (data && data.familyMembers) {
-      familyMembers = data.familyMembers;
+    // 2. Se l'utente ha già un familyId, usalo
+    if (userData && userData.familyId) {
+      currentFamilyId = userData.familyId;
+      familyMembers = userData.familyMembers || {};
       
-      // Trova l'admin della famiglia (ha il familyId)
-      // Il familyId è memorizzato nel documento dell'utente admin
-      if (data.familyId) {
-        currentFamilyId = data.familyId;
-      } else {
-        // Cerca il familyId nei membri
-        for (const [uid, member] of Object.entries(familyMembers)) {
-          if (member.role === 'admin') {
-            // L'admin potrebbe avere il familyId nel suo documento
-            const adminDoc = await db.collection('famiglie').doc(uid).get();
-            if (adminDoc.exists && adminDoc.data().familyId) {
-              currentFamilyId = adminDoc.data().familyId;
-              break;
-            }
-          }
-        }
-      }
-      
-      // Se ancora non abbiamo un familyId, usiamo l'UID dell'admin
-      if (!currentFamilyId) {
-        const adminUid = Object.keys(familyMembers).find(uid => familyMembers[uid].role === 'admin');
-        if (adminUid) {
-          currentFamilyId = adminUid;
-        } else {
-          currentFamilyId = currentUser.uid;
-        }
-      }
-      
-      // Controlla se l'utente corrente è nella lista
-      if (familyMembers[currentUser.uid]) {
-        if (familyMembers[currentUser.uid].status === 'pending') {
-          familyMembers[currentUser.uid].status = 'active';
-          await userDocRef().update({ familyMembers: familyMembers });
-        }
-      } else {
-        // Cerca invito pendente
+      // Se l'utente non è nella lista dei membri, lo aggiungiamo
+      if (!familyMembers[currentUser.uid]) {
+        // Cerca un invito pendente per questa email
         const pendingInvite = Object.keys(familyMembers).find(key => 
           familyMembers[key].email === currentUser.email && familyMembers[key].status === 'pending'
         );
@@ -5559,14 +5540,12 @@ async function loadFamilyMembers() {
             status: 'active',
             joinedAt: new Date().toISOString()
           };
-          
-          // Aggiorna il familyId nel documento dell'utente
           await userDocRef().update({ 
             familyMembers: familyMembers,
             familyId: currentFamilyId
           });
         } else {
-          // Nuovo utente: crea la sua famiglia personale
+          // Se non c'è invito, l'utente è l'admin di una nuova famiglia
           currentFamilyId = currentUser.uid;
           familyMembers = {
             [currentUser.uid]: {
@@ -5584,39 +5563,103 @@ async function loadFamilyMembers() {
         }
       }
     } else {
-      // Primo accesso: crea la famiglia
-      currentFamilyId = currentUser.uid;
-      familyMembers = {
-        [currentUser.uid]: {
-          name: currentUser.displayName || currentUser.email || 'Utente',
-          email: currentUser.email,
-          role: 'admin',
-          status: 'active',
-          joinedAt: new Date().toISOString()
+      // 3. L'utente non ha un familyId: cerca se è stato invitato
+      // Cerca in tutti i documenti famiglia se l'utente è membro
+      const allFamilies = await db.collection('famiglie').get();
+      let foundFamily = false;
+      
+      for (const doc of allFamilies.docs) {
+        const data = doc.data();
+        if (data.members && data.members[currentUser.uid]) {
+          // Trovato! L'utente è già membro di questa famiglia
+          currentFamilyId = doc.id;
+          familyMembers = data.members;
+          foundFamily = true;
+          
+          // Aggiorna il documento dell'utente
+          await userDocRef().update({ 
+            familyMembers: familyMembers,
+            familyId: currentFamilyId
+          });
+          break;
         }
-      };
-      await userDocRef().update({ 
-        familyMembers: familyMembers,
-        familyId: currentFamilyId
-      });
+        
+        // Cerca invito pendente per email
+        if (data.members) {
+          const pendingInvite = Object.keys(data.members).find(key => 
+            data.members[key].email === currentUser.email && data.members[key].status === 'pending'
+          );
+          
+          if (pendingInvite) {
+            // Trovato invito pendente!
+            currentFamilyId = doc.id;
+            familyMembers = data.members;
+            
+            // Aggiorna l'invito con l'UID reale
+            const memberData = familyMembers[pendingInvite];
+            delete familyMembers[pendingInvite];
+            familyMembers[currentUser.uid] = {
+              ...memberData,
+              status: 'active',
+              joinedAt: new Date().toISOString()
+            };
+            
+            // Salva le modifiche
+            await db.collection('famiglie').doc(currentFamilyId).update({ 
+              members: familyMembers 
+            });
+            await userDocRef().update({ 
+              familyMembers: familyMembers,
+              familyId: currentFamilyId
+            });
+            
+            foundFamily = true;
+            break;
+          }
+        }
+      }
+      
+      // 4. Se non è stato trovato, crea una nuova famiglia per l'utente
+      if (!foundFamily) {
+        currentFamilyId = currentUser.uid;
+        familyMembers = {
+          [currentUser.uid]: {
+            name: currentUser.displayName || currentUser.email || 'Utente',
+            email: currentUser.email,
+            role: 'admin',
+            status: 'active',
+            joinedAt: new Date().toISOString()
+          }
+        };
+        await userDocRef().update({ 
+          familyMembers: familyMembers,
+          familyId: currentFamilyId
+        });
+      }
     }
     
-    renderFamilyMembers();
-    
-    // RICARICA I DATI DALLA FAMIGLIA CONDIVISA
+    // 5. Ora carica i dati della famiglia
     await loadSharedFamilyData();
+    renderFamilyMembers();
     
   } catch (err) {
     console.error('Errore caricamento famiglia:', err);
-    container.innerHTML = `<p style="color:var(--danger); font-size:13px;">Errore: ${err.message}</p>`;
+    if (container) {
+      container.innerHTML = `<p style="color:var(--danger); font-size:13px;">Errore: ${err.message}</p>`;
+    }
   }
 }
 
 // === CARICA I DATI CONDIVISI DELLA FAMIGLIA ===
 async function loadSharedFamilyData() {
-  if (!currentFamilyId) return;
+  if (!currentFamilyId) {
+    console.error('Nessun familyId disponibile');
+    return;
+  }
   
   try {
+    console.log('Caricamento dati famiglia:', currentFamilyId);
+    
     const familyDoc = await db.collection('famiglie').doc(currentFamilyId).get();
     
     if (familyDoc.exists) {
@@ -5629,16 +5672,53 @@ async function loadSharedFamilyData() {
       state.reminders = data.reminders || [];
       categoryColors = data.categoryColors || {};
       
+      console.log('Dati famiglia caricati:', state.transactions.length, 'transazioni');
+      
       // Aggiorna la UI
       setTab(state.currentType);
       renderAll();
-      document.getElementById('save-status').textContent = 'Dati della famiglia caricati.';
+      document.getElementById('save-status').textContent = '✅ Dati della famiglia caricati.';
     } else {
-      // Crea il documento della famiglia
+      // Il documento famiglia non esiste: crealo
+      console.log('Documento famiglia non trovato, creazione in corso...');
       await createSharedFamilyDocument();
     }
   } catch (err) {
     console.error('Errore caricamento dati famiglia:', err);
+    document.getElementById('save-status').textContent = 'Errore caricamento dati: ' + err.message;
+  }
+}
+
+// === CREA IL DOCUMENTO CONDIVISO DELLA FAMIGLIA ===
+async function createSharedFamilyDocument() {
+  if (!currentFamilyId) return;
+  
+  try {
+    const familyDataToSave = {
+      members: familyMembers || {
+        [currentUser.uid]: {
+          name: currentUser.displayName || currentUser.email || 'Utente',
+          email: currentUser.email,
+          role: 'admin',
+          status: 'active',
+          joinedAt: new Date().toISOString()
+        }
+      },
+      transactions: state.transactions || [],
+      categories: state.categories || DEFAULT_CATEGORIES,
+      reminders: state.reminders || [],
+      categoryColors: categoryColors || {},
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    await db.collection('famiglie').doc(currentFamilyId).set(familyDataToSave);
+    familyData = familyDataToSave;
+    
+    console.log('Documento famiglia creato con ID:', currentFamilyId);
+    document.getElementById('save-status').textContent = '✅ Famiglia creata!';
+  } catch (err) {
+    console.error('Errore creazione documento famiglia:', err);
   }
 }
 
