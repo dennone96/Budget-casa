@@ -2404,6 +2404,18 @@ border-radius: var(--radius-sm);
 <button type="button" id="login-toggle">Registrati</button>
 </p>
 </form>
+<!-- === CODICE 3: MESSAGGIO PER UTENTI INVITATI === -->
+<div style="margin-top:16px; padding:16px; background:var(--surface-2); border-radius:var(--radius-sm); border:1px solid var(--border); text-align:center;">
+  <p style="margin:0; font-size:13px; color:var(--text-secondary);">
+    💌 <strong>Sei stato invitato?</strong><br>
+    <span style="font-size:12px; color:var(--text-muted);">
+      Registrati con l'email che hai ricevuto per accedere al budget familiare.
+    </span>
+  </p>
+  <p style="margin:8px 0 0; font-size:12px; color:var(--text-muted);">
+    👉 <span style="font-weight:700; color:var(--accent);">Non hai ricevuto un invito?</span> Clicca su "Registrati" e crea il tuo budget personale.
+  </p>
+</div>
 </div>
 <div id="shell" class="hidden">
 <button id="hamburger" aria-label="Apri menu">
@@ -5455,19 +5467,58 @@ async function loadFamilyMembers() {
   if (!container) return;
   
   try {
-    // Usa il documento dell'utente per memorizzare i membri della famiglia
+    // Carica i membri della famiglia dal documento utente
     const userDoc = await userDocRef().get();
     const data = userDoc.data();
     
     if (data && data.familyMembers) {
       familyMembers = data.familyMembers;
+      
+      // VERIFICA: Se l'utente corrente è nelle familyMembers, aggiorna il suo stato
+      if (familyMembers[currentUser.uid]) {
+        // Utente già registrato, aggiorna lo stato
+        if (familyMembers[currentUser.uid].status === 'pending') {
+          familyMembers[currentUser.uid].status = 'active';
+          await userDocRef().update({ familyMembers: familyMembers });
+        }
+      } else {
+        // L'utente non è nella lista, potrebbe essere un nuovo membro
+        // Controlla se la sua email è in lista (invito pendente)
+        const pendingInvite = Object.keys(familyMembers).find(key => 
+          familyMembers[key].email === currentUser.email && familyMembers[key].status === 'pending'
+        );
+        
+        if (pendingInvite) {
+          // Trova l'invito pendente e aggiorna con l'UID reale
+          const memberData = familyMembers[pendingInvite];
+          delete familyMembers[pendingInvite];
+          familyMembers[currentUser.uid] = {
+            ...memberData,
+            status: 'active',
+            joinedAt: new Date().toISOString()
+          };
+          await userDocRef().update({ familyMembers: familyMembers });
+        } else {
+          // Nuovo utente che si registra senza invito
+          // Aggiungilo come admin della propria famiglia
+          familyMembers[currentUser.uid] = {
+            name: currentUser.displayName || currentUser.email || 'Utente',
+            email: currentUser.email,
+            role: 'admin',
+            status: 'active',
+            joinedAt: new Date().toISOString()
+          };
+          await userDocRef().update({ familyMembers: familyMembers });
+        }
+      }
     } else {
-      // Inizializza con il membro corrente
+      // Primo accesso: crea la famiglia con l'utente come admin
       familyMembers = {
         [currentUser.uid]: {
           name: currentUser.displayName || currentUser.email || 'Utente',
           email: currentUser.email,
           role: 'admin',
+          status: 'active',
           joinedAt: new Date().toISOString()
         }
       };
@@ -5591,14 +5642,25 @@ async function inviteMember() {
   statusEl.style.color = 'var(--text-secondary)';
   
   try {
-    // Aggiungi il nuovo membro alla lista
+    // Verifica se l'email è già nella lista
+    const existingMember = Object.keys(familyMembers).find(key => 
+      familyMembers[key].email === email
+    );
+    
+    if (existingMember) {
+      statusEl.textContent = '⚠️ Questa email è già stata invitata';
+      statusEl.style.color = 'var(--warning)';
+      return;
+    }
+    
+    // Aggiungi il nuovo membro
     const tempId = 'pending_' + Date.now();
     familyMembers[tempId] = {
       name: name,
       email: email,
       role: 'member',
-      invitedAt: new Date().toISOString(),
-      status: 'pending'
+      status: 'pending',
+      invitedAt: new Date().toISOString()
     };
     
     await userDocRef().update({ familyMembers: familyMembers });
@@ -5608,7 +5670,12 @@ async function inviteMember() {
     document.getElementById('invite-email').value = '';
     document.getElementById('invite-name').value = '';
     
-    statusEl.textContent = '✅ Invito inviato!';
+    statusEl.innerHTML = `
+      ✅ Invito inviato a <strong>${email}</strong>!<br>
+      <small style="color:var(--text-muted);">
+        L'utente dovrà registrarsi con questa email per accedere al budget.
+      </small>
+    `;
     statusEl.style.color = 'var(--success)';
     
   } catch (err) {
