@@ -6102,39 +6102,6 @@ function renderCalendar() {
     </div>
   `;
 }  
-// === GESTIONE PULSANTI LISTE E CALENDARIO ===
-const btnListe = document.getElementById('btn-liste');
-const btnCalendario = document.getElementById('btn-calendario');
-const listeContent = document.getElementById('liste-content');
-const calendarioContent = document.getElementById('calendario-content');
-
-if (btnListe && listeContent) {
-  btnListe.addEventListener('click', () => {
-    // Nascondi calendario se visibile
-    if (calendarioContent) calendarioContent.style.display = 'none';
-    
-    // Mostra/nascondi liste
-    if (listeContent.style.display === 'none' || listeContent.style.display === '') {
-      listeContent.style.display = 'block';
-    } else {
-      listeContent.style.display = 'none';
-    }
-  });
-}
-
-if (btnCalendario && calendarioContent) {
-  btnCalendario.addEventListener('click', () => {
-    // Nascondi liste se visibile
-    if (listeContent) listeContent.style.display = 'none';
-    
-    // Mostra/nascondi calendario
-    if (calendarioContent.style.display === 'none' || calendarioContent.style.display === '') {
-      calendarioContent.style.display = 'block';
-    } else {
-      calendarioContent.style.display = 'none';
-    }
-  });
-}  
 })();
 </script>
 </body>
