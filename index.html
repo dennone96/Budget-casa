@@ -2493,7 +2493,26 @@ border-radius: var(--radius-sm);
 .btn-lista-delete:hover {
   background: #c0392b;
 }
-  
+/* === FORZA TEMA CHIARO PER ANDROID === */
+html, body, #main, .page, .panel, .stat-card, .tx-row {
+  background-color: #F0F4F8 !important;
+  color: #1A2B3C !important;
+}
+
+/* Forza il colore delle superfici */
+.surface, #sidebar, #login-screen .panel {
+  background-color: #FFFFFF !important;
+}
+
+/* Forza il colore dei testi */
+h1, h2, h3, p, span, label, .tx-desc-text, .tx-col-date, .tx-col-amount {
+  color: #1A2B3C !important;
+}
+
+/* Forza il colore dei bordi */
+.border, .tx-row, .stat-card, .panel {
+  border-color: #D0DCE8 !important;
+}  
   
 </style>
 </head>
