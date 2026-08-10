@@ -2956,7 +2956,7 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 <div id="page-promemoria" class="page">
   <h1>Promemoria</h1>
   
-  <!-- Due pulsanti principali - uno sopra l'altro -->
+  <!-- Pulsanti -->
   <div style="display:flex; flex-direction:column; gap:16px; margin-bottom:24px;">
     
     <!-- Pulsante Liste -->
@@ -2965,25 +2965,20 @@ Movimenti in contanti. Stesse colonne del conto corrente.
       border: 2px solid var(--border);
       border-radius: var(--radius-lg);
       padding: 24px 20px;
-      text-align: center;
       cursor: pointer;
       transition: all 0.3s ease;
       box-shadow: var(--shadow-sm);
-      position: relative;
-      overflow: hidden;
       width: 100%;
-    " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='var(--shadow-lg)'" 
-    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-sm)'">
-      
-      <div style="display:flex; align-items:center; justify-content:center; gap:16px;">
-        <div style="font-size: 36px;">📋</div>
-        <div style="text-align:left;">
-          <div style="font-size: 20px; font-weight: 800; color: var(--text-primary);">Liste</div>
-          <div style="font-size: 13px; color: var(--text-muted); font-weight: 600;">
+    ">
+      <div style="display:flex; align-items:center; gap:16px;">
+        <div style="font-size:36px;">📋</div>
+        <div style="text-align:left; flex:1;">
+          <div style="font-size:20px; font-weight:800; color:var(--text-primary);">Liste</div>
+          <div style="font-size:13px; color:var(--text-muted); font-weight:600;">
             <span id="liste-count">0</span> liste
           </div>
         </div>
-        <div style="margin-left:auto; font-size:20px; color:var(--text-muted);">›</div>
+        <div style="font-size:20px; color:var(--text-muted);">›</div>
       </div>
     </div>
     
@@ -2993,32 +2988,28 @@ Movimenti in contanti. Stesse colonne del conto corrente.
       border: 2px solid var(--border);
       border-radius: var(--radius-lg);
       padding: 24px 20px;
-      text-align: center;
       cursor: pointer;
       transition: all 0.3s ease;
       box-shadow: var(--shadow-sm);
-      position: relative;
-      overflow: hidden;
       width: 100%;
-    " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='var(--shadow-lg)'" 
-    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-sm)'">
-      
-      <div style="display:flex; align-items:center; justify-content:center; gap:16px;">
-        <div style="font-size: 36px;">📅</div>
-        <div style="text-align:left;">
-          <div style="font-size: 20px; font-weight: 800; color: var(--text-primary);">Calendario</div>
-          <div style="font-size: 13px; color: var(--text-muted); font-weight: 600;">
+    ">
+      <div style="display:flex; align-items:center; gap:16px;">
+        <div style="font-size:36px;">📅</div>
+        <div style="text-align:left; flex:1;">
+          <div style="font-size:20px; font-weight:800; color:var(--text-primary);">Calendario</div>
+          <div style="font-size:13px; color:var(--text-muted); font-weight:600;">
             <span id="eventi-count">0</span> eventi questa settimana
           </div>
         </div>
-        <div style="margin-left:auto; font-size:20px; color:var(--text-muted);">›</div>
+        <div style="font-size:20px; color:var(--text-muted);">›</div>
       </div>
     </div>
     
   </div>
 
   <!-- Contenitore per i contenuti dinamici -->
-  <div id="promemoria-content">
+  <div id="promemoria-content"></div>
+</div>
     <!-- Qui verrà caricato il contenuto di Liste o Calendario -->
     <div style="text-align: center; padding: 40px 20px; color: var(--text-muted);">
       <div style="font-size: 48px; margin-bottom: 16px;">👆</div>
@@ -6202,9 +6193,7 @@ function updateListCount() {
 }
 
 function showShoppingLists() {
-  // USA IL CONTAINER CORRETTO
   const container = document.getElementById('promemoria-content');
-  
   if (!container) {
     console.error('❌ Container promemoria-content non trovato!');
     return;
@@ -6212,20 +6201,31 @@ function showShoppingLists() {
   
   console.log('✅ Mostrando liste in promemoria-content');
   
-  let html = `
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-      <h2 style="margin:0; font-size:18px;">🛒 Liste della spesa</h2>
-      <button id="btn-new-lista" style="background:var(--accent-gradient); color:#fff; border:none; border-radius:999px; padding:8px 18px; font-weight:700; font-size:13px; cursor:pointer;">
-        + Nuova lista
-      </button>
-    </div>
-    <div id="shopping-lists-container">
+  // Pulisci il container
+  container.innerHTML = '';
+  
+  // Crea il contenuto delle liste
+  const wrapper = document.createElement('div');
+  
+  // Intestazione
+  const header = document.createElement('div');
+  header.style.cssText = 'display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;';
+  header.innerHTML = `
+    <h2 style="margin:0; font-size:18px;">🛒 Liste della spesa</h2>
+    <button id="btn-new-lista" style="background:var(--accent-gradient); color:#fff; border:none; border-radius:999px; padding:8px 18px; font-weight:700; font-size:13px; cursor:pointer;">
+      + Nuova lista
+    </button>
   `;
+  wrapper.appendChild(header);
+  
+  // Lista delle liste
+  const listContainer = document.createElement('div');
+  listContainer.id = 'shopping-lists-container';
   
   const listKeys = Object.keys(shoppingLists);
   
   if (listKeys.length === 0) {
-    html += `
+    listContainer.innerHTML = `
       <div style="text-align:center; padding:60px 20px; color:var(--text-muted);">
         <div style="font-size:64px; margin-bottom:16px;">🛒</div>
         <p style="font-size:18px; font-weight:700; color:var(--text-primary);">Nessuna lista</p>
@@ -6244,52 +6244,52 @@ function showShoppingLists() {
       const checkedCount = lista.items ? lista.items.filter(item => item.checked).length : 0;
       const isCompleted = lista.completed || false;
       
-      html += `
-        <div class="lista-card" data-id="${key}" style="
-          background: var(--surface);
-          border: 1px solid var(--border);
-          border-radius: var(--radius-sm);
-          padding: 16px 18px;
-          margin-bottom: 12px;
-          cursor: pointer;
-          transition: all 0.2s;
-          ${isCompleted ? 'opacity: 0.6;' : ''}
-        ">
-          <div style="display:flex; align-items:center; justify-content:space-between;">
-            <div style="display:flex; align-items:center; gap:12px; flex:1;">
-              <input type="checkbox" class="lista-complete-checkbox" data-id="${key}" ${isCompleted ? 'checked' : ''} style="width:22px; height:22px; accent-color:var(--accent); cursor:pointer;">
-              <div>
-                <div style="font-weight:700; font-size:16px; ${isCompleted ? 'text-decoration:line-through; color:var(--text-muted);' : 'color:var(--text-primary);'}">
-                  ${escapeHtml(lista.name)}
-                </div>
-                <div style="font-size:12px; color:var(--text-muted); font-weight:600;">
-                  ${checkedCount}/${itemsCount} elementi
-                </div>
+      const card = document.createElement('div');
+      card.className = 'lista-card';
+      card.setAttribute('data-id', key);
+      card.style.cssText = `
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 16px 18px;
+        margin-bottom: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+        ${isCompleted ? 'opacity: 0.6;' : ''}
+      `;
+      card.innerHTML = `
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+          <div style="display:flex; align-items:center; gap:12px; flex:1;">
+            <input type="checkbox" class="lista-complete-checkbox" data-id="${key}" ${isCompleted ? 'checked' : ''} style="width:22px; height:22px; accent-color:var(--accent); cursor:pointer;">
+            <div>
+              <div style="font-weight:700; font-size:16px; ${isCompleted ? 'text-decoration:line-through; color:var(--text-muted);' : 'color:var(--text-primary);'}">
+                ${escapeHtml(lista.name)}
+              </div>
+              <div style="font-size:12px; color:var(--text-muted); font-weight:600;">
+                ${checkedCount}/${itemsCount} elementi
               </div>
             </div>
-            <div style="display:flex; gap:8px;">
-              <span style="font-size:13px; color:var(--text-muted);">›</span>
-            </div>
           </div>
+          <div style="font-size:13px; color:var(--text-muted);">›</div>
         </div>
       `;
+      listContainer.appendChild(card);
     });
   }
   
-  html += `</div>`;
+  wrapper.appendChild(listContainer);
+  container.appendChild(wrapper);
   
-  // SOSTITUISCI IL CONTENUTO DEL CONTAINER
-  container.innerHTML = html;
-  
-  // Event listener per "Nuova lista"
+  // EVENT LISTENER: Pulsante "Nuova lista"
   const newListBtn = document.getElementById('btn-new-lista');
   if (newListBtn) {
-    newListBtn.addEventListener('click', function() {
+    newListBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
       showCreateListModal();
     });
   }
   
-  // Event listener per le card
+  // EVENT LISTENER: Click sulla card della lista
   document.querySelectorAll('.lista-card').forEach(card => {
     card.addEventListener('click', function(e) {
       if (e.target.classList.contains('lista-complete-checkbox')) return;
@@ -6300,7 +6300,7 @@ function showShoppingLists() {
     });
   });
   
-  // Event listener per i checkbox
+  // EVENT LISTENER: Checkbox completamento lista
   document.querySelectorAll('.lista-complete-checkbox').forEach(checkbox => {
     checkbox.addEventListener('change', async function(e) {
       e.stopPropagation();
@@ -6600,53 +6600,39 @@ function showListItems(listId) {
     });
   });
 }
-// === PULSANTI PROMEMORIA (APPROCCIO ROBUSTO) ===
-// Attendiamo che il DOM sia completamente caricato
+// === PULSANTI PROMEMORIA ===
 document.addEventListener('DOMContentLoaded', function() {
-  // Verifica che gli elementi esistano
+  // Pulsante Liste
   const btnListe = document.getElementById('btn-liste');
+  if (btnListe) {
+    btnListe.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('📋 Pulsante Liste cliccato!');
+      loadShoppingLists().then(() => {
+        showShoppingLists();
+      });
+    });
+  }
+  
+  // Pulsante Calendario
   const btnCalendario = document.getElementById('btn-calendario');
-  const container = document.getElementById('promemoria-content');
-  
-  console.log('btn-liste:', btnListe);
-  console.log('btn-calendario:', btnCalendario);
-  console.log('promemoria-content:', container);
-  
-  // Usa il delegamento sul container invece che sul document
-  if (container) {
-    container.addEventListener('click', function(e) {
-      // Cerca se il click è su btn-liste o suoi figli
-      const listeBtn = e.target.closest('#btn-liste');
-      if (listeBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        console.log('📋 Apertura Liste...');
-        loadShoppingLists().then(() => {
-          showShoppingLists();
-        });
-        return;
-      }
-      
-      // Cerca se il click è su btn-calendario o suoi figli
-      const calendarBtn = e.target.closest('#btn-calendario');
-      if (calendarBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        console.log('📅 Apertura Calendario...');
-        if (container) {
-          container.innerHTML = `
-            <div style="text-align:center; padding:40px 20px; color:var(--text-muted);">
-              <div style="font-size:48px; margin-bottom:16px;">📅</div>
-              <p style="font-size:16px; font-weight:600;">Calendario Eventi</p>
-              <p style="font-size:13px;">Funzionalità in arrivo...</p>
-            </div>
-          `;
-        }
-        return;
+  if (btnCalendario) {
+    btnCalendario.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('📅 Pulsante Calendario cliccato!');
+      const container = document.getElementById('promemoria-content');
+      if (container) {
+        container.innerHTML = `
+          <div style="text-align:center; padding:40px 20px; color:var(--text-muted);">
+            <div style="font-size:48px; margin-bottom:16px;">📅</div>
+            <p style="font-size:16px; font-weight:600;">Calendario Eventi</p>
+            <p style="font-size:13px;">Funzionalità in arrivo...</p>
+          </div>
+        `;
       }
     });
-  } else {
-    console.error('❌ Container promemoria-content non trovato!');
   }
 });
 })();
