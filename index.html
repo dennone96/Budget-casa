@@ -6608,35 +6608,38 @@ function showListItems(listId) {
     });
   });
 }
-// === PULSANTI PROMEMORIA ===
-document.addEventListener('DOMContentLoaded', function() {
-  const btnListe = document.getElementById('btn-liste');
-  const btnCalendario = document.getElementById('btn-calendario');
-  
-  if (btnListe) {
-    btnListe.addEventListener('click', function(e) {
-      e.preventDefault();
-      console.log('Pulsante Liste cliccato');
-      loadShoppingLists().then(() => {
-        showShoppingLists();
-      });
+// === PULSANTI PROMEMORIA (VERSIONE FINALE) ===
+// Usa il delegamento degli eventi - funziona sempre
+document.addEventListener('click', function(e) {
+  // Cerca se il click è su btn-liste o suoi figli
+  const listeBtn = e.target.closest('#btn-liste');
+  if (listeBtn) {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('📋 Apertura Liste...');
+    loadShoppingLists().then(() => {
+      showShoppingLists();
     });
+    return;
   }
   
-  if (btnCalendario) {
-    btnCalendario.addEventListener('click', function(e) {
-      e.preventDefault();
-      const container = document.getElementById('promemoria-content');
-      if (container) {
-        container.innerHTML = `
-          <div style="text-align:center; padding:40px 20px; color:var(--text-muted);">
-            <div style="font-size:48px; margin-bottom:16px;">📅</div>
-            <p style="font-size:16px; font-weight:600;">Calendario Eventi</p>
-            <p style="font-size:13px;">Funzionalità in arrivo...</p>
-          </div>
-        `;
-      }
-    });
+  // Cerca se il click è su btn-calendario o suoi figli
+  const calendarBtn = e.target.closest('#btn-calendario');
+  if (calendarBtn) {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('📅 Apertura Calendario...');
+    const container = document.getElementById('promemoria-content');
+    if (container) {
+      container.innerHTML = `
+        <div style="text-align:center; padding:40px 20px; color:var(--text-muted);">
+          <div style="font-size:48px; margin-bottom:16px;">📅</div>
+          <p style="font-size:16px; font-weight:600;">Calendario Eventi</p>
+          <p style="font-size:13px;">Funzionalità in arrivo...</p>
+        </div>
+      `;
+    }
+    return;
   }
 });
 })();
