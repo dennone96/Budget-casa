@@ -3296,7 +3296,8 @@ let searchQuery = '';
 let colorPickerContext = { category: null, type: null, selectedColor: null };
 // === NUOVE VARIABILI PER LA GESTIONE DELLA FAMIGLIA ===
 let currentFamilyId = null;
-let familyData = null;   
+let familyData = null;
+let familyMembers = {};  
 
 const FILTER_MONTHS = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
 const todayISO = () => fmtDate(new Date());
@@ -3352,10 +3353,15 @@ if (pageId === 'page-profilo') {
 try { updateProfilePage(); } catch(e) { console.error('Errore profilo:', e); }
 }
 if (pageId === 'page-promemoria') {
-try { 
-  renderReminders(); 
-  loadShoppingLists();  // ← AGGIUNGI QUESTA RIGA
-} catch(e) { console.error('Errore promemoria:', e); }
+  try { 
+    // Non chiamare renderReminders() perché gli elementi non esistono più
+    loadShoppingLists(); 
+    // Mostra le liste se non c'è contenuto
+    const content = document.getElementById('promemoria-content');
+    if (content && !content.innerHTML.includes('lista')) {
+      showShoppingLists();
+    }
+  } catch(e) { console.error('Errore promemoria:', e); }
 }
 if (pageId === 'page-categorie') {
 try { renderCategories(); } catch(e) { console.error('Errore categorie:', e); }
@@ -4482,16 +4488,22 @@ if (diff <= 7) return { label: `Tra ${diff} giorni`, cls: 'soon' };
 return { label: new Date(dateStr).toLocaleDateString('it-IT'), cls: '' };
 }
 function renderReminders() {
-const list = document.getElementById('reminders-list'); list.innerHTML = '';
-if (!state.reminders.length) { list.innerHTML = '<p class="empty-msg">Nessun promemoria.</p>'; return; }
-const sorted = [...state.reminders].sort((a,b) => a.date.localeCompare(b.date));
-sorted.forEach(r => {
-const status = reminderStatus(r.date);
-const row = document.createElement('div'); row.className = 'reminder-row';
-row.innerHTML = `<div class="reminder-left"><p>${escapeHtml(r.title)}</p><p>${r.note ? escapeHtml(r.note) : '&nbsp;'}</p></div><span class="reminder-badge ${status.cls}">${status.label}</span><button class="btn-delete rem-del" data-id="${r.id}" style="background: linear-gradient(135deg, #F04438 0%, #B42318 100%); border-radius: 12px;"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512"><defs><linearGradient id="buttonGradient" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#F04438"/><stop offset="1" stop-color="#B42318"/></linearGradient><filter id="softShadow" x="44" y="44" width="424" height="424" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#65160F" flood-opacity="0.24"/></filter></defs><rect x="72" y="72" width="368" height="368" rx="92" fill="url(#buttonGradient)" filter="url(#softShadow)"/><path d="M202 154c0-17.7 14.3-32 32-32h44c17.7 0 32 14.3 32 32v14h52c11 0 20 9 20 20s-9 20-20 20H150c-11 0-20-9-20-20s9-20 20-20h52v-14Zm40 14h28v-6c0-3.3-2.7-6-6-6h-16c-3.3 0-6 2.7-6 6v6Z" fill="#FFFFFF"/><path d="M170 238c-1.1-13.8 9.8-25.6 23.6-25.6h124.8c13.8 0 24.7 11.8 23.6 25.6l-12.2 144.9c-1.5 17.5-16.1 31.1-33.7 31.1h-80.2c-17.6 0-32.2-13.6-33.7-31.1L170 238Z" fill="#FFFFFF"/></svg></button>`;
-list.appendChild(row);
-});
-list.querySelectorAll('.rem-del').forEach(btn => btn.addEventListener('click', async () => { state.reminders = state.reminders.filter(r => r.id !== btn.getAttribute('data-id')); await saveReminders(); renderReminders(); updateProfilePage(); }));
+  const list = document.getElementById('reminders-list');
+  if (!list) return;  // ← AGGIUNGI QUESTO CONTROLLO
+  
+  list.innerHTML = '';
+  if (!state.reminders.length) { 
+    list.innerHTML = '<p class="empty-msg">Nessun promemoria.</p>'; 
+    return; 
+  }
+  const sorted = [...state.reminders].sort((a,b) => a.date.localeCompare(b.date));
+  sorted.forEach(r => {
+    const status = reminderStatus(r.date);
+    const row = document.createElement('div'); row.className = 'reminder-row';
+    row.innerHTML = `<div class="reminder-left"><p>${escapeHtml(r.title)}</p><p>${r.note ? escapeHtml(r.note) : '&nbsp;'}</p></div><span class="reminder-badge ${status.cls}">${status.label}</span><button class="btn-delete rem-del" data-id="${r.id}" style="background: linear-gradient(135deg, #F04438 0%, #B42318 100%); border-radius: 12px;"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512"><defs><linearGradient id="buttonGradient" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#F04438"/><stop offset="1" stop-color="#B42318"/></linearGradient><filter id="softShadow" x="44" y="44" width="424" height="424" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#65160F" flood-opacity="0.24"/></filter></defs><rect x="72" y="72" width="368" height="368" rx="92" fill="url(#buttonGradient)" filter="url(#softShadow)"/><path d="M202 154c0-17.7 14.3-32 32-32h44c17.7 0 32 14.3 32 32v14h52c11 0 20 9 20 20s-9 20-20 20H150c-11 0-20-9-20-20s9-20 20-20h52v-14Zm40 14h28v-6c0-3.3-2.7-6-6-6h-16c-3.3 0-6 2.7-6 6v6Z" fill="#FFFFFF"/><path d="M170 238c-1.1-13.8 9.8-25.6 23.6-25.6h124.8c13.8 0 24.7 11.8 23.6 25.6l-12.2 144.9c-1.5 17.5-16.1 31.1-33.7 31.1h-80.2c-17.6 0-32.2-13.6-33.7-31.1L170 238Z" fill="#FFFFFF"/></svg></button>`;
+    list.appendChild(row);
+  });
+  list.querySelectorAll('.rem-del').forEach(btn => btn.addEventListener('click', async () => { state.reminders = state.reminders.filter(r => r.id !== btn.getAttribute('data-id')); await saveReminders(); renderReminders(); updateProfilePage(); }));
 }
 document.getElementById('btn-add-reminder').addEventListener('click', async () => {
 const title = document.getElementById('rem-title').value.trim(); const date = document.getElementById('rem-date').value; const note = document.getElementById('rem-note').value.trim();
@@ -5688,8 +5700,6 @@ updateTransactionsList = function() {
   // Riavviamo i click dopo che la lista è stata aggiornata
   setTimeout(fixTransactionClicks, 100);
 };
-// === GESTIONE PROFILI FAMILIARI (VERSIONE SEMPLIFICATA) ===
-let familyMembers = {};
 
 // Funzione per caricare i membri della famiglia
 async function loadFamilyMembers() {
