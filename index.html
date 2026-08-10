@@ -6201,28 +6201,24 @@ function updateListCount() {
   if (countEl) countEl.textContent = count;
 }
 
-// === MOSTRA LE LISTE DELLA SPESA ===
 function showShoppingLists() {
+  // USA IL CONTAINER CORRETTO
   const container = document.getElementById('promemoria-content');
+  
   if (!container) {
-    console.warn('Container promemoria-content non trovato');
+    console.error('❌ Container promemoria-content non trovato!');
     return;
   }
   
-  // Assicurati che shoppingLists sia un oggetto
-  if (!shoppingLists) {
-    shoppingLists = {};
-  }
+  console.log('✅ Mostrando liste in promemoria-content');
+  
   let html = `
-    <!-- Intestazione -->
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
       <h2 style="margin:0; font-size:18px;">🛒 Liste della spesa</h2>
       <button id="btn-new-lista" style="background:var(--accent-gradient); color:#fff; border:none; border-radius:999px; padding:8px 18px; font-weight:700; font-size:13px; cursor:pointer;">
         + Nuova lista
       </button>
     </div>
-    
-    <!-- Lista delle liste -->
     <div id="shopping-lists-container">
   `;
   
@@ -6237,7 +6233,6 @@ function showShoppingLists() {
       </div>
     `;
   } else {
-    // Ordina le liste: prima quelle non completate, poi quelle completate
     const sortedKeys = listKeys.sort((a, b) => {
       if (shoppingLists[a].completed === shoppingLists[b].completed) return 0;
       return shoppingLists[a].completed ? 1 : -1;
@@ -6259,8 +6254,7 @@ function showShoppingLists() {
           cursor: pointer;
           transition: all 0.2s;
           ${isCompleted ? 'opacity: 0.6;' : ''}
-        " onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
-          
+        ">
           <div style="display:flex; align-items:center; justify-content:space-between;">
             <div style="display:flex; align-items:center; gap:12px; flex:1;">
               <input type="checkbox" class="lista-complete-checkbox" data-id="${key}" ${isCompleted ? 'checked' : ''} style="width:22px; height:22px; accent-color:var(--accent); cursor:pointer;">
@@ -6282,13 +6276,12 @@ function showShoppingLists() {
     });
   }
   
-  html += `
-    </div>
-  `;
+  html += `</div>`;
   
+  // SOSTITUISCI IL CONTENUTO DEL CONTAINER
   container.innerHTML = html;
   
-  // === EVENT LISTENER: Pulsante "Nuova lista" ===
+  // Event listener per "Nuova lista"
   const newListBtn = document.getElementById('btn-new-lista');
   if (newListBtn) {
     newListBtn.addEventListener('click', function() {
@@ -6296,7 +6289,7 @@ function showShoppingLists() {
     });
   }
   
-  // === EVENT LISTENER: Click sulla card della lista ===
+  // Event listener per le card
   document.querySelectorAll('.lista-card').forEach(card => {
     card.addEventListener('click', function(e) {
       if (e.target.classList.contains('lista-complete-checkbox')) return;
@@ -6307,7 +6300,7 @@ function showShoppingLists() {
     });
   });
   
-  // === EVENT LISTENER: Checkbox completamento lista ===
+  // Event listener per i checkbox
   document.querySelectorAll('.lista-complete-checkbox').forEach(checkbox => {
     checkbox.addEventListener('change', async function(e) {
       e.stopPropagation();
@@ -6320,7 +6313,6 @@ function showShoppingLists() {
     });
   });
 }
-
 // === MOSTRA IL MODALE PER CREARE UNA NUOVA LISTA ===
 function showCreateListModal() {
   const overlay = document.createElement('div');
@@ -6609,14 +6601,11 @@ function showListItems(listId) {
   });
 }
 // === PULSANTI PROMEMORIA (VERSIONE FINALE) ===
-// Usa il delegamento degli eventi - funziona sempre
 document.addEventListener('click', function(e) {
-  // Cerca se il click è su btn-liste o suoi figli
-  const listeBtn = e.target.closest('#btn-liste');
-  if (listeBtn) {
+  const btnListe = e.target.closest('#btn-liste');
+  if (btnListe) {
     e.preventDefault();
-    e.stopPropagation();
-    console.log('📋 Apertura Liste...');
+    console.log('📋 Pulsante Liste cliccato');
     loadShoppingLists().then(() => {
       showShoppingLists();
     });
