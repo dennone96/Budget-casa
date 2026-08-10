@@ -6586,26 +6586,45 @@ function showListItems(listId) {
     });
   });
 }
+// === PULSANTI PROMEMORIA (FIX) ===
+// Assicurati che le funzioni siano definite prima di questo punto
 
-// === EVENT LISTENER PER I PULSANTI PROMEMORIA ===
-document.getElementById('btn-liste').addEventListener('click', function() {
-  loadShoppingLists().then(() => {
-    showShoppingLists();
-  });
-});
-
-document.getElementById('btn-calendario').addEventListener('click', function() {
-  const container = document.getElementById('promemoria-content');
-  if (container) {
-    container.innerHTML = `
-      <div style="text-align:center; padding:40px 20px; color:var(--text-muted);">
-        <div style="font-size:48px; margin-bottom:16px;">📅</div>
-        <p style="font-size:16px; font-weight:600;">Calendario Eventi</p>
-        <p style="font-size:13px;">Funzionalità in arrivo...</p>
-      </div>
-    `;
+// Usa DOMContentLoaded per assicurarti che gli elementi esistano
+document.addEventListener('DOMContentLoaded', function() {
+  const btnListe = document.getElementById('btn-liste');
+  const btnCalendario = document.getElementById('btn-calendario');
+  
+  if (btnListe) {
+    btnListe.addEventListener('click', function(e) {
+      e.preventDefault();
+      console.log('Pulsante Liste cliccato');
+      loadShoppingLists().then(() => {
+        showShoppingLists();
+      });
+    });
+  } else {
+    console.warn('btn-liste non trovato!');
   }
-});  
+  
+  if (btnCalendario) {
+    btnCalendario.addEventListener('click', function(e) {
+      e.preventDefault();
+      console.log('Pulsante Calendario cliccato');
+      const container = document.getElementById('promemoria-content');
+      if (container) {
+        container.innerHTML = `
+          <div style="text-align:center; padding:40px 20px; color:var(--text-muted);">
+            <div style="font-size:48px; margin-bottom:16px;">📅</div>
+            <p style="font-size:16px; font-weight:600;">Calendario Eventi</p>
+            <p style="font-size:13px;">Funzionalità in arrivo...</p>
+          </div>
+        `;
+      }
+    });
+  } else {
+    console.warn('btn-calendario non trovato!');
+  }
+});
 })();
 </script>
 </body>
