@@ -2848,13 +2848,63 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 </div>
 </div>
 <div id="page-promemoria" class="page">
-<h1>Promemoria</h1>
-<div class="panel">
-<h3>Aggiungi promemoria</h3>
-<div class="reminder-form">
-<input type="text" id="rem-title" placeholder="Titolo (es. Bolletta luce)">
-<input type="date" id="rem-date">
-<input type="text" id="rem-note" placeholder="Note (opzionale)" class="reminder-form-note">
+  <h1>Promemoria</h1>
+  
+  <!-- Pulsanti Liste e Calendario -->
+  <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:20px;">
+    <div class="reminder-row" id="btn-liste" style="cursor:pointer;">
+      <div class="reminder-left">
+        <p>📋 Liste</p>
+        <p id="liste-count">0 liste</p>
+      </div>
+      <span class="reminder-badge">›</span>
+    </div>
+    
+    <div id="liste-content" style="display:none; padding:20px; background:var(--surface-2); border-radius:var(--radius-sm); border:1px solid var(--border);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="margin:0;">Le tue liste</h3>
+        <button id="btn-nuova-lista" style="background:var(--accent-gradient); color:#fff; border:none; border-radius:var(--radius-sm); padding:8px 16px; font-weight:700; cursor:pointer; font-family:inherit;">+ Nuova lista</button>
+      </div>
+      <div id="liste-container">
+        <div style="padding:20px; text-align:center; color:var(--text-muted);">
+          <p>🛒 Le tue liste della spesa appariranno qui</p>
+          <p style="font-size:13px;">Funzionalità in sviluppo...</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="reminder-row" id="btn-calendario" style="cursor:pointer;">
+      <div class="reminder-left">
+        <p>📅 Calendario</p>
+        <p id="calendario-count">0 eventi questa settimana</p>
+      </div>
+      <span class="reminder-badge">›</span>
+    </div>
+    
+    <div id="calendario-content" style="display:none; padding:20px; background:var(--surface-2); border-radius:var(--radius-sm); border:1px solid var(--border);">
+      <h3 style="margin:0 0 16px 0;">Eventi</h3>
+      <div id="calendario-container">
+        <div style="padding:20px; text-align:center; color:var(--text-muted);">
+          <p>📅 Il tuo calendario apparirà qui</p>
+          <p style="font-size:13px;">Funzionalità in sviluppo...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Sezione promemoria esistente -->
+  <div class="panel">
+    <h3>Aggiungi promemoria</h3>
+    <div class="reminder-form">
+      <input type="text" id="rem-title" placeholder="Titolo (es. Bolletta luce)">
+      <input type="date" id="rem-date">
+      <input type="text" id="rem-note" placeholder="Note (opzionale)" class="reminder-form-note">
+    </div>
+    <button id="btn-add-reminder" style="margin-top:14px; width:100%; height:46px; background:var(--accent-gradient); color:#fff; border:none; border-radius:var(--radius-sm); font-weight:700; box-shadow:var(--shadow);">
+      Aggiungi promemoria
+    </button>
+  </div>
+  <div id="reminders-list"></div>
 </div>
 <button id="btn-add-reminder" style="margin-top:14px; width:100%; height:46px; background:var(--accent-gradient); color:#fff; border:none; border-radius:var(--radius-sm); font-weight:700; box-shadow:var(--shadow);">
 Aggiungi promemoria
@@ -6051,6 +6101,39 @@ function renderCalendar() {
       <p style="font-size:13px;">Funzionalità in sviluppo...</p>
     </div>
   `;
+}  
+// === GESTIONE PULSANTI LISTE E CALENDARIO ===
+const btnListe = document.getElementById('btn-liste');
+const btnCalendario = document.getElementById('btn-calendario');
+const listeContent = document.getElementById('liste-content');
+const calendarioContent = document.getElementById('calendario-content');
+
+if (btnListe && listeContent) {
+  btnListe.addEventListener('click', () => {
+    // Nascondi calendario se visibile
+    if (calendarioContent) calendarioContent.style.display = 'none';
+    
+    // Mostra/nascondi liste
+    if (listeContent.style.display === 'none' || listeContent.style.display === '') {
+      listeContent.style.display = 'block';
+    } else {
+      listeContent.style.display = 'none';
+    }
+  });
+}
+
+if (btnCalendario && calendarioContent) {
+  btnCalendario.addEventListener('click', () => {
+    // Nascondi liste se visibile
+    if (listeContent) listeContent.style.display = 'none';
+    
+    // Mostra/nascondi calendario
+    if (calendarioContent.style.display === 'none' || calendarioContent.style.display === '') {
+      calendarioContent.style.display = 'block';
+    } else {
+      calendarioContent.style.display = 'none';
+    }
+  });
 }  
 })();
 </script>
