@@ -2387,7 +2387,290 @@ border-radius: var(--radius-sm);
 .btn-remove-member:hover {
   background: #c0392b;
 }
-/* === FINE STILE MEMBRI === */
+/* === STILE PER LE LISTE DELLA SPESA === */
+.lista-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.lista-card:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow);
+  transform: translateX(4px);
+}
+.lista-card.completata {
+  opacity: 0.6;
+}
+.lista-card .lista-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+.lista-card .lista-checkbox {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--accent);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.lista-card .lista-nome {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text-primary);
+}
+.lista-card .lista-nome.completato {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+.lista-card .lista-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.lista-card .lista-arrow {
+  font-size: 18px;
+  color: var(--text-muted);
+}
+.lista-card .lista-delete {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 18px;
+  padding: 4px 8px;
+  transition: all 0.2s;
+  border-radius: var(--radius-sm);
+}
+.lista-card .lista-delete:hover {
+  color: var(--danger);
+  background: var(--danger-light);
+}
+
+/* Modale per creare lista */
+.lista-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,25,35,0.6);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.lista-modal-overlay.open {
+  display: flex;
+}
+.lista-modal {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: var(--shadow-xl);
+  animation: modalIn 0.3s ease;
+}
+.lista-modal h3 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 800;
+}
+.lista-modal p {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.lista-modal input {
+  width: 100%;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  padding: 0 16px;
+  font-size: 16px;
+  font-weight: 600;
+  background: var(--surface-2);
+  color: var(--text-primary);
+  outline: none;
+  transition: all 0.2s;
+}
+.lista-modal input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-light);
+}
+.lista-modal .modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+.lista-modal .modal-actions button {
+  flex: 1;
+  height: 46px;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.lista-modal .btn-cancel {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+.lista-modal .btn-cancel:hover {
+  background: var(--border);
+}
+.lista-modal .btn-create {
+  background: var(--accent-gradient);
+  color: #fff;
+  border: none;
+  flex: 2;
+}
+.lista-modal .btn-create:hover {
+  transform: scale(1.02);
+  box-shadow: var(--shadow);
+}
+
+/* Elementi della lista */
+.item-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 6px;
+  transition: all 0.2s;
+}
+.item-row:hover {
+  border-color: var(--accent);
+}
+.item-row .item-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.item-row .item-nome {
+  flex: 1;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+.item-row .item-nome.completato {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+.item-row .item-delete {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px 8px;
+  transition: all 0.2s;
+  border-radius: var(--radius-sm);
+}
+.item-row .item-delete:hover {
+  color: var(--danger);
+  background: var(--danger-light);
+}
+
+/* Barra azioni lista */
+.lista-actions-bar {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+.lista-actions-bar input {
+  flex: 1;
+  height: 42px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  padding: 0 14px;
+  font-size: 14px;
+  font-weight: 600;
+  background: var(--surface-2);
+  color: var(--text-primary);
+  outline: none;
+  transition: all 0.2s;
+}
+.lista-actions-bar input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-light);
+}
+.lista-actions-bar .btn-add-item {
+  height: 42px;
+  padding: 0 20px;
+  background: var(--accent-gradient);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.lista-actions-bar .btn-add-item:hover {
+  transform: scale(1.02);
+  box-shadow: var(--shadow);
+}
+
+.btn-back-liste {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0 0 12px 0;
+}
+.btn-back-liste:hover {
+  color: var(--accent);
+}
+
+.btn-delete-lista {
+  background: var(--danger);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 6px 14px;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-delete-lista:hover {
+  background: #c0392b;
+  transform: scale(1.05);
+}
+
+.lista-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.lista-header h2 {
+  margin: 0;
+  font-size: 18px;
+}
+.lista-header .lista-count {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 600;
+}  
 </style>
 </head>
 <body>
@@ -3232,7 +3515,9 @@ if (pageId === 'page-profilo') {
 try { updateProfilePage(); } catch(e) { console.error('Errore profilo:', e); }
 }
 if (pageId === 'page-promemoria') {
-try { renderReminders(); } catch(e) { console.error('Errore promemoria:', e); }
+  try { 
+    loadShoppingLists();
+  } catch(e) { console.error('Errore promemoria:', e); }
 }
 if (pageId === 'page-categorie') {
 try { renderCategories(); } catch(e) { console.error('Errore categorie:', e); }
@@ -6020,57 +6305,395 @@ document.getElementById('btn-fix-family').addEventListener('click', async functi
     statusEl.style.color = 'var(--danger)';
   }
 });
-// === GESTIONE PULSANTI LISTE E CALENDARIO ===
-const btnListe = document.getElementById('btn-liste');
-const btnCalendario = document.getElementById('btn-calendario');
-const listeContent = document.getElementById('liste-content');
-const calendarioContent = document.getElementById('calendario-content');
-const remindersList = document.getElementById('reminders-list');
+// === GESTIONE LISTE DELLA SPESA ===
+let shoppingLists = {};
+let currentListId = null;
 
-if (btnListe && listeContent) {
-  btnListe.addEventListener('click', () => {
-    // Nascondi calendario se visibile
-    if (calendarioContent) calendarioContent.style.display = 'none';
+// Carica le liste dal documento utente
+async function loadShoppingLists() {
+  if (!currentUser) {
+    console.warn('Nessun utente loggato');
+    return;
+  }
+  
+  try {
+    const userDoc = await userDocRef().get();
+    const data = userDoc.data();
     
-    // Mostra/nascondi liste
-    if (listeContent.style.display === 'none' || listeContent.style.display === '') {
-      listeContent.style.display = 'block';
-      renderShoppingLists(); // Funzione per mostrare le liste
+    if (data && data.shoppingLists) {
+      shoppingLists = data.shoppingLists;
     } else {
-      listeContent.style.display = 'none';
+      shoppingLists = {};
+      await userDocRef().update({ shoppingLists: shoppingLists });
     }
-  });
+    
+    updateListCount();
+    renderShoppingLists();
+  } catch (err) {
+    console.error('Errore caricamento liste:', err);
+  }
 }
 
-if (btnCalendario && calendarioContent) {
-  btnCalendario.addEventListener('click', () => {
-    // Nascondi liste se visibile
-    if (listeContent) listeContent.style.display = 'none';
-    
-    // Mostra/nascondi calendario
-    if (calendarioContent.style.display === 'none' || calendarioContent.style.display === '') {
-      calendarioContent.style.display = 'block';
-      renderCalendar(); // Funzione per mostrare il calendario
-    } else {
-      calendarioContent.style.display = 'none';
-    }
-  });
+// Salva le liste
+async function saveShoppingLists() {
+  if (!currentUser) return;
+  
+  try {
+    await userDocRef().update({ shoppingLists: shoppingLists });
+    updateListCount();
+  } catch (err) {
+    console.error('Errore salvataggio liste:', err);
+  }
 }
 
-// Funzione per renderizzare le liste della spesa
+// Aggiorna il contatore delle liste
+function updateListCount() {
+  const count = Object.keys(shoppingLists).length;
+  const countEl = document.getElementById('liste-count');
+  if (countEl) countEl.textContent = count;
+}
+
+// === RENDERIZZA LA LISTA DELLE LISTE ===
 function renderShoppingLists() {
   const container = document.getElementById('liste-container');
   if (!container) return;
   
-  // Qui puoi aggiungere la logica per mostrare le liste della spesa
-  // Per ora mostro un messaggio placeholder
+  const listKeys = Object.keys(shoppingLists);
+  
+  if (listKeys.length === 0) {
+    container.innerHTML = `
+      <div style="text-align:center; padding:40px 20px; color:var(--text-muted);">
+        <div style="font-size:48px; margin-bottom:12px;">🛒</div>
+        <p style="font-size:16px; font-weight:600; color:var(--text-primary);">Nessuna lista</p>
+        <p style="font-size:13px;">Clicca su "+ Nuova lista" per iniziare</p>
+      </div>
+    `;
+    return;
+  }
+  
+  // Ordina: prima le non completate
+  const sortedKeys = listKeys.sort((a, b) => {
+    if (shoppingLists[a].completata === shoppingLists[b].completata) return 0;
+    return shoppingLists[a].completata ? 1 : -1;
+  });
+  
+  let html = '';
+  sortedKeys.forEach(key => {
+    const lista = shoppingLists[key];
+    const itemsCount = lista.items ? lista.items.length : 0;
+    const completati = lista.items ? lista.items.filter(item => item.completato).length : 0;
+    const isCompletata = lista.completata || false;
+    
+    html += `
+      <div class="lista-card ${isCompletata ? 'completata' : ''}" data-id="${key}">
+        <div class="lista-info">
+          <input type="checkbox" class="lista-checkbox" data-id="${key}" ${isCompletata ? 'checked' : ''}>
+          <div>
+            <div class="lista-nome ${isCompletata ? 'completato' : ''}">${escapeHtml(lista.nome)}</div>
+            <div class="lista-meta">${completati}/${itemsCount} elementi</div>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="lista-arrow">›</span>
+          <button class="lista-delete" data-id="${key}" title="Elimina lista">✕</button>
+        </div>
+      </div>
+    `;
+  });
+  
+  container.innerHTML = html;
+  
+  // Event listener: Click sulla card per aprire la lista
+  container.querySelectorAll('.lista-card').forEach(card => {
+    card.addEventListener('click', function(e) {
+      if (e.target.classList.contains('lista-checkbox') || e.target.classList.contains('lista-delete')) return;
+      const id = this.getAttribute('data-id');
+      if (id && shoppingLists[id]) {
+        openList(id);
+      }
+    });
+  });
+  
+  // Event listener: Checkbox completamento lista
+  container.querySelectorAll('.lista-checkbox').forEach(checkbox => {
+    checkbox.addEventListener('change', async function(e) {
+      e.stopPropagation();
+      const id = this.getAttribute('data-id');
+      if (id && shoppingLists[id]) {
+        shoppingLists[id].completata = this.checked;
+        await saveShoppingLists();
+        renderShoppingLists();
+      }
+    });
+  });
+  
+  // Event listener: Elimina lista
+  container.querySelectorAll('.lista-delete').forEach(btn => {
+    btn.addEventListener('click', async function(e) {
+      e.stopPropagation();
+      const id = this.getAttribute('data-id');
+      const lista = shoppingLists[id];
+      if (lista && confirm(`Eliminare la lista "${lista.nome}"?`)) {
+        delete shoppingLists[id];
+        await saveShoppingLists();
+        renderShoppingLists();
+        updateListCount();
+      }
+    });
+  });
+}
+
+// === APRE UNA LISTA SPECIFICA ===
+function openList(listId) {
+  const lista = shoppingLists[listId];
+  if (!lista) return;
+  
+  currentListId = listId;
+  const container = document.getElementById('liste-container');
+  
+  const items = lista.items || [];
+  const completati = items.filter(item => item.completato).length;
+  
+  let html = `
+    <button class="btn-back-liste" id="btn-back-liste">← Torna alle liste</button>
+    
+    <div class="lista-header">
+      <div>
+        <h2 style="font-size:20px; ${lista.completata ? 'text-decoration:line-through; color:var(--text-muted);' : ''}">
+          ${escapeHtml(lista.nome)}
+        </h2>
+        <div class="lista-count">${completati}/${items.length} elementi</div>
+      </div>
+      <button class="btn-delete-lista" id="btn-delete-lista">🗑️ Elimina lista</button>
+    </div>
+    
+    <div id="items-container">
+  `;
+  
+  if (items.length === 0) {
+    html += `
+      <div style="text-align:center; padding:30px 20px; color:var(--text-muted);">
+        <div style="font-size:36px; margin-bottom:8px;">📝</div>
+        <p style="font-size:14px; font-weight:600;">Lista vuota</p>
+        <p style="font-size:13px;">Aggiungi i primi elementi</p>
+      </div>
+    `;
+  } else {
+    items.forEach((item, index) => {
+      html += `
+        <div class="item-row">
+          <input type="checkbox" class="item-checkbox" data-index="${index}" ${item.completato ? 'checked' : ''}>
+          <span class="item-nome ${item.completato ? 'completato' : ''}">${escapeHtml(item.nome)}</span>
+          <button class="item-delete" data-index="${index}">✕</button>
+        </div>
+      `;
+    });
+  }
+  
+  html += `
+    </div>
+    
+    <div class="lista-actions-bar">
+      <input type="text" id="nuovo-item-input" placeholder="Aggiungi un elemento...">
+      <button class="btn-add-item" id="btn-add-item">Aggiungi</button>
+    </div>
+  `;
+  
+  container.innerHTML = html;
+  
+  // Event listener: Torna alle liste
+  document.getElementById('btn-back-liste').addEventListener('click', renderShoppingLists);
+  
+  // Event listener: Elimina lista
+  document.getElementById('btn-delete-lista').addEventListener('click', async function() {
+    if (confirm(`Eliminare la lista "${lista.nome}"?`)) {
+      delete shoppingLists[listId];
+      await saveShoppingLists();
+      renderShoppingLists();
+      updateListCount();
+    }
+  });
+  
+  // Event listener: Aggiungi elemento
+  document.getElementById('btn-add-item').addEventListener('click', async function() {
+    const input = document.getElementById('nuovo-item-input');
+    const nome = input.value.trim();
+    
+    if (!nome) {
+      input.style.borderColor = '#E74C3C';
+      input.style.boxShadow = '0 0 0 4px #FDE8E8';
+      setTimeout(() => {
+        input.style.borderColor = '';
+        input.style.boxShadow = '';
+      }, 1500);
+      return;
+    }
+    
+    if (!shoppingLists[listId].items) {
+      shoppingLists[listId].items = [];
+    }
+    
+    shoppingLists[listId].items.push({
+      nome: nome,
+      completato: false
+    });
+    
+    await saveShoppingLists();
+    openList(listId);
+  });
+  
+  // Event listener: Enter nel campo input
+  document.getElementById('nuovo-item-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      document.getElementById('btn-add-item').click();
+    }
+  });
+  
+  // Event listener: Checkbox elemento
+  document.querySelectorAll('.item-checkbox').forEach(checkbox => {
+    checkbox.addEventListener('change', async function() {
+      const index = parseInt(this.getAttribute('data-index'));
+      if (shoppingLists[listId] && shoppingLists[listId].items[index]) {
+        shoppingLists[listId].items[index].completato = this.checked;
+        await saveShoppingLists();
+        openList(listId);
+      }
+    });
+  });
+  
+  // Event listener: Elimina elemento
+  document.querySelectorAll('.item-delete').forEach(btn => {
+    btn.addEventListener('click', async function() {
+      const index = parseInt(this.getAttribute('data-index'));
+      if (shoppingLists[listId] && shoppingLists[listId].items[index]) {
+        const itemNome = shoppingLists[listId].items[index].nome;
+        if (confirm(`Eliminare "${itemNome}"?`)) {
+          shoppingLists[listId].items.splice(index, 1);
+          await saveShoppingLists();
+          openList(listId);
+        }
+      }
+    });
+  });
+}
+
+// === MODALE PER CREARE UNA NUOVA LISTA ===
+function showCreateListModal() {
+  const overlay = document.createElement('div');
+  overlay.className = 'lista-modal-overlay open';
+  overlay.innerHTML = `
+    <div class="lista-modal">
+      <h3>📋 Nuova lista</h3>
+      <p>Inserisci il nome della lista della spesa</p>
+      <input type="text" id="new-lista-input" placeholder="es. Spesa settimanale" autofocus>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="modal-cancel-lista">Annulla</button>
+        <button class="btn-create" id="modal-create-lista">Crea lista</button>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(overlay);
+  
+  setTimeout(() => {
+    const input = document.getElementById('new-lista-input');
+    if (input) input.focus();
+  }, 100);
+  
+  document.getElementById('modal-cancel-lista').addEventListener('click', function() {
+    overlay.remove();
+  });
+  
+  document.getElementById('modal-create-lista').addEventListener('click', async function() {
+    const input = document.getElementById('new-lista-input');
+    const nome = input.value.trim();
+    
+    if (!nome) {
+      input.style.borderColor = '#E74C3C';
+      input.style.boxShadow = '0 0 0 4px #FDE8E8';
+      return;
+    }
+    
+    const key = Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+    shoppingLists[key] = {
+      nome: nome,
+      items: [],
+      completata: false,
+      createdAt: new Date().toISOString()
+    };
+    
+    await saveShoppingLists();
+    overlay.remove();
+    renderShoppingLists();
+    updateListCount();
+  });
+  
+  document.getElementById('new-lista-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      document.getElementById('modal-create-lista').click();
+    }
+  });
+  
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) {
+      overlay.remove();
+    }
+  });
+}
+
+// === RENDERIZZA IL CALENDARIO (placeholder) ===
+function renderCalendar() {
+  const container = document.getElementById('calendario-container');
+  if (!container) return;
+  
   container.innerHTML = `
-    <div style="padding:20px; text-align:center; color:var(--text-muted);">
-      <p>🛒 Le tue liste della spesa appariranno qui</p>
-      <p style="font-size:13px;">Funzionalità in sviluppo...</p>
+    <div style="text-align:center; padding:40px 20px; color:var(--text-muted);">
+      <div style="font-size:48px; margin-bottom:12px;">📅</div>
+      <p style="font-size:16px; font-weight:600; color:var(--text-primary);">Calendario Eventi</p>
+      <p style="font-size:13px;">Funzionalità in arrivo...</p>
     </div>
   `;
 }
+
+// === GESTIONE PULSANTI LISTE E CALENDARIO ===
+document.addEventListener('DOMContentLoaded', function() {
+  const btnListe = document.getElementById('btn-liste');
+  const btnCalendario = document.getElementById('btn-calendario');
+  const listeContent = document.getElementById('liste-content');
+  const calendarioContent = document.getElementById('calendario-content');
+  
+  if (btnListe && listeContent) {
+    btnListe.addEventListener('click', function() {
+      if (calendarioContent) calendarioContent.style.display = 'none';
+      
+      if (listeContent.style.display === 'none' || listeContent.style.display === '') {
+        listeContent.style.display = 'block';
+        loadShoppingLists();
+      } else {
+        listeContent.style.display = 'none';
+      }
+    });
+  }
+  
+  if (btnCalendario && calendarioContent) {
+    btnCalendario.addEventListener('click', function() {
+      if (listeContent) listeContent.style.display = 'none';
+      
+      if (calendarioContent.style.display === 'none' || calendarioContent.style.display === '') {
+        calendarioContent.style.display = 'block';
+        renderCalendar();
+      } else {
+        calendarioContent.style.display = 'none';
+      }
+    });
+  }
+  
+  const btnNuovaLista = document.getElementById('btn-nuova-lista');
+  if (btnNuovaLista) {
+    btnNuovaLista.addEventListener('click', showCreateListModal);
+  }
+});
+
 
 // Funzione per renderizzare il calendario
 function renderCalendar() {
