@@ -3297,7 +3297,8 @@ let colorPickerContext = { category: null, type: null, selectedColor: null };
 // === NUOVE VARIABILI PER LA GESTIONE DELLA FAMIGLIA ===
 let currentFamilyId = null;
 let familyData = null;
-let familyMembers = {};  
+let familyMembers = {};
+let shoppingLists = {};   
 
 const FILTER_MONTHS = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
 const todayISO = () => fmtDate(new Date());
@@ -3354,12 +3355,14 @@ try { updateProfilePage(); } catch(e) { console.error('Errore profilo:', e); }
 }
 if (pageId === 'page-promemoria') {
   try { 
-    // Non chiamare renderReminders() perché gli elementi non esistono più
-    loadShoppingLists(); 
+    // Non chiamare renderReminders() perché l'elemento non esiste più
+    // loadShoppingLists(); // Carica le liste
     // Mostra le liste se non c'è contenuto
     const content = document.getElementById('promemoria-content');
-    if (content && !content.innerHTML.includes('lista')) {
-      showShoppingLists();
+    if (content) {
+      loadShoppingLists().then(() => {
+        showShoppingLists();
+      });
     }
   } catch(e) { console.error('Errore promemoria:', e); }
 }
@@ -6153,12 +6156,13 @@ document.getElementById('btn-fix-family').addEventListener('click', async functi
     statusEl.style.color = 'var(--danger)';
   }
 });  
-// === GESTIONE LISTE DELLA SPESA ===
-let shoppingLists = {};
 
 // Carica le liste dal documento utente
 async function loadShoppingLists() {
-  if (!currentUser) return;
+  if (!currentUser) {
+    console.warn('Nessun utente loggato');
+    return;
+  }
   
   try {
     const userDoc = await userDocRef().get();
@@ -6172,6 +6176,7 @@ async function loadShoppingLists() {
     }
     
     updateListCount();
+    console.log('Liste caricate:', Object.keys(shoppingLists).length);
   } catch (err) {
     console.error('Errore caricamento liste:', err);
   }
@@ -6199,8 +6204,15 @@ function updateListCount() {
 // === MOSTRA LE LISTE DELLA SPESA ===
 function showShoppingLists() {
   const container = document.getElementById('promemoria-content');
-  if (!container) return;
+  if (!container) {
+    console.warn('Container promemoria-content non trovato');
+    return;
+  }
   
+  // Assicurati che shoppingLists sia un oggetto
+  if (!shoppingLists) {
+    shoppingLists = {};
+  }
   let html = `
     <!-- Intestazione -->
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
