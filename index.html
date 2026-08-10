@@ -2388,6 +2388,113 @@ border-radius: var(--radius-sm);
   background: #c0392b;
 }
 /* === FINE STILE MEMBRI === */
+
+/* === STILE PER I PULSANTI PROMEMORIA === */
+.promemoria-card {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.promemoria-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.promemoria-card:active {
+  transform: scale(0.97);
+}
+
+.promemoria-card .icon {
+  font-size: 48px;
+  margin-bottom: 8px;
+}
+
+.promemoria-card .title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.promemoria-card .subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+/* Stile per i contenuti delle liste */
+.lista-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 10px;
+  transition: all 0.2s;
+}
+
+.lista-item:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-sm);
+}
+
+.lista-item .lista-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lista-item .lista-checkbox {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.lista-item .lista-nome {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text-primary);
+}
+
+.lista-item .lista-count {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.lista-item .lista-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-lista-delete {
+  background: var(--danger);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-lista-delete:hover {
+  background: #c0392b;
+}
+  
+  
 </style>
 </head>
 <body>
@@ -2848,19 +2955,67 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 </div>
 </div>
 <div id="page-promemoria" class="page">
-<h1>Promemoria</h1>
-<div class="panel">
-<h3>Aggiungi promemoria</h3>
-<div class="reminder-form">
-<input type="text" id="rem-title" placeholder="Titolo (es. Bolletta luce)">
-<input type="date" id="rem-date">
-<input type="text" id="rem-note" placeholder="Note (opzionale)" class="reminder-form-note">
-</div>
-<button id="btn-add-reminder" style="margin-top:14px; width:100%; height:46px; background:var(--accent-gradient); color:#fff; border:none; border-radius:var(--radius-sm); font-weight:700; box-shadow:var(--shadow);">
-Aggiungi promemoria
-</button>
-</div>
-<div id="reminders-list"></div>
+  <h1>Promemoria</h1>
+  
+  <!-- Due pulsanti principali -->
+  <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+    
+    <!-- Pulsante Liste -->
+    <div id="btn-liste" style="
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
+    " onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='var(--shadow-lg)'" 
+    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-sm)'">
+      
+      <div style="font-size: 48px; margin-bottom: 8px;">📋</div>
+      <div style="font-size: 20px; font-weight: 800; color: var(--text-primary);">Liste</div>
+      <div style="font-size: 13px; color: var(--text-muted); font-weight: 600; margin-top: 4px;">
+        <span id="liste-count">0</span> liste
+      </div>
+    </div>
+    
+    <!-- Pulsante Calendario -->
+    <div id="btn-calendario" style="
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
+    " onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='var(--shadow-lg)'" 
+    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-sm)'">
+      
+      <div style="font-size: 48px; margin-bottom: 8px;">📅</div>
+      <div style="font-size: 20px; font-weight: 800; color: var(--text-primary);">Calendario</div>
+      <div style="font-size: 13px; color: var(--text-muted); font-weight: 600; margin-top: 4px;">
+        <span id="eventi-count">0</span> eventi questa settimana
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenitore per i contenuti dinamici -->
+  <div id="promemoria-content">
+    <!-- Qui verrà caricato il contenuto di Liste o Calendario -->
+    <div style="text-align: center; padding: 40px 20px; color: var(--text-muted);">
+      <div style="font-size: 48px; margin-bottom: 16px;">👆</div>
+      <p style="font-size: 16px; font-weight: 600;">Seleziona una delle opzioni sopra</p>
+      <p style="font-size: 13px;">Crea liste della spesa o gestisci i tuoi eventi</p>
+    </div>
+  </div>
+  
+  <!-- Vecchio contenuto rimosso -->
 </div>
 <div id="page-profilo" class="page">
   <h1>Profilo</h1>
@@ -3185,7 +3340,10 @@ if (pageId === 'page-profilo') {
 try { updateProfilePage(); } catch(e) { console.error('Errore profilo:', e); }
 }
 if (pageId === 'page-promemoria') {
-try { renderReminders(); } catch(e) { console.error('Errore promemoria:', e); }
+try { 
+  renderReminders(); 
+  loadShoppingLists();  // ← AGGIUNGI QUESTA RIGA
+} catch(e) { console.error('Errore promemoria:', e); }
 }
 if (pageId === 'page-categorie') {
 try { renderCategories(); } catch(e) { console.error('Errore categorie:', e); }
