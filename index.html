@@ -2861,6 +2861,20 @@ Aggiungi promemoria
 </button>
 </div>
 <div id="reminders-list"></div>
+<!-- Contenuto Liste (nascosto di default) -->
+<div id="liste-content" style="display:none; margin-top:20px;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+    <h3 style="margin:0;">📋 Le tue liste</h3>
+    <button id="btn-nuova-lista" style="background:var(--accent-gradient); color:#fff; border:none; border-radius:var(--radius-sm); padding:8px 16px; font-weight:700; cursor:pointer; font-family:inherit;">+ Nuova lista</button>
+  </div>
+  <div id="liste-container"></div>
+</div>
+
+<!-- Contenuto Calendario (nascosto di default) -->
+<div id="calendario-content" style="display:none; margin-top:20px;">
+  <h3 style="margin:0 0 16px 0;">📅 Calendario</h3>
+  <div id="calendario-container"></div>
+</div>  
 </div>
 <div id="page-profilo" class="page">
   <h1>Profilo</h1>
@@ -5972,7 +5986,72 @@ document.getElementById('btn-fix-family').addEventListener('click', async functi
     statusEl.textContent = '❌ Errore: ' + err.message;
     statusEl.style.color = 'var(--danger)';
   }
-});  
+});
+// === GESTIONE PULSANTI LISTE E CALENDARIO ===
+const btnListe = document.getElementById('btn-liste');
+const btnCalendario = document.getElementById('btn-calendario');
+const listeContent = document.getElementById('liste-content');
+const calendarioContent = document.getElementById('calendario-content');
+const remindersList = document.getElementById('reminders-list');
+
+if (btnListe && listeContent) {
+  btnListe.addEventListener('click', () => {
+    // Nascondi calendario se visibile
+    if (calendarioContent) calendarioContent.style.display = 'none';
+    
+    // Mostra/nascondi liste
+    if (listeContent.style.display === 'none' || listeContent.style.display === '') {
+      listeContent.style.display = 'block';
+      renderShoppingLists(); // Funzione per mostrare le liste
+    } else {
+      listeContent.style.display = 'none';
+    }
+  });
+}
+
+if (btnCalendario && calendarioContent) {
+  btnCalendario.addEventListener('click', () => {
+    // Nascondi liste se visibile
+    if (listeContent) listeContent.style.display = 'none';
+    
+    // Mostra/nascondi calendario
+    if (calendarioContent.style.display === 'none' || calendarioContent.style.display === '') {
+      calendarioContent.style.display = 'block';
+      renderCalendar(); // Funzione per mostrare il calendario
+    } else {
+      calendarioContent.style.display = 'none';
+    }
+  });
+}
+
+// Funzione per renderizzare le liste della spesa
+function renderShoppingLists() {
+  const container = document.getElementById('liste-container');
+  if (!container) return;
+  
+  // Qui puoi aggiungere la logica per mostrare le liste della spesa
+  // Per ora mostro un messaggio placeholder
+  container.innerHTML = `
+    <div style="padding:20px; text-align:center; color:var(--text-muted);">
+      <p>🛒 Le tue liste della spesa appariranno qui</p>
+      <p style="font-size:13px;">Funzionalità in sviluppo...</p>
+    </div>
+  `;
+}
+
+// Funzione per renderizzare il calendario
+function renderCalendar() {
+  const container = document.getElementById('calendario-container');
+  if (!container) return;
+  
+  // Qui puoi aggiungere la logica per mostrare il calendario
+  container.innerHTML = `
+    <div style="padding:20px; text-align:center; color:var(--text-muted);">
+      <p>📅 Il tuo calendario apparirà qui</p>
+      <p style="font-size:13px;">Funzionalità in sviluppo...</p>
+    </div>
+  `;
+}  
 })();
 </script>
 </body>
