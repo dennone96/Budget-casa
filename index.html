@@ -2957,28 +2957,34 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 <div id="page-promemoria" class="page">
   <h1>Promemoria</h1>
   
-  <!-- Due pulsanti principali -->
-  <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+  <!-- Due pulsanti principali - uno sopra l'altro -->
+  <div style="display:flex; flex-direction:column; gap:16px; margin-bottom:24px;">
     
     <!-- Pulsante Liste -->
     <div id="btn-liste" style="
       background: var(--surface);
       border: 2px solid var(--border);
       border-radius: var(--radius-lg);
-      padding: 24px 16px;
+      padding: 24px 20px;
       text-align: center;
       cursor: pointer;
       transition: all 0.3s ease;
       box-shadow: var(--shadow-sm);
       position: relative;
       overflow: hidden;
-    " onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='var(--shadow-lg)'" 
+      width: 100%;
+    " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='var(--shadow-lg)'" 
     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-sm)'">
       
-      <div style="font-size: 48px; margin-bottom: 8px;">📋</div>
-      <div style="font-size: 20px; font-weight: 800; color: var(--text-primary);">Liste</div>
-      <div style="font-size: 13px; color: var(--text-muted); font-weight: 600; margin-top: 4px;">
-        <span id="liste-count">0</span> liste
+      <div style="display:flex; align-items:center; justify-content:center; gap:16px;">
+        <div style="font-size: 36px;">📋</div>
+        <div style="text-align:left;">
+          <div style="font-size: 20px; font-weight: 800; color: var(--text-primary);">Liste</div>
+          <div style="font-size: 13px; color: var(--text-muted); font-weight: 600;">
+            <span id="liste-count">0</span> liste
+          </div>
+        </div>
+        <div style="margin-left:auto; font-size:20px; color:var(--text-muted);">›</div>
       </div>
     </div>
     
@@ -2987,22 +2993,29 @@ Movimenti in contanti. Stesse colonne del conto corrente.
       background: var(--surface);
       border: 2px solid var(--border);
       border-radius: var(--radius-lg);
-      padding: 24px 16px;
+      padding: 24px 20px;
       text-align: center;
       cursor: pointer;
       transition: all 0.3s ease;
       box-shadow: var(--shadow-sm);
       position: relative;
       overflow: hidden;
-    " onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='var(--shadow-lg)'" 
+      width: 100%;
+    " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='var(--shadow-lg)'" 
     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-sm)'">
       
-      <div style="font-size: 48px; margin-bottom: 8px;">📅</div>
-      <div style="font-size: 20px; font-weight: 800; color: var(--text-primary);">Calendario</div>
-      <div style="font-size: 13px; color: var(--text-muted); font-weight: 600; margin-top: 4px;">
-        <span id="eventi-count">0</span> eventi questa settimana
+      <div style="display:flex; align-items:center; justify-content:center; gap:16px;">
+        <div style="font-size: 36px;">📅</div>
+        <div style="text-align:left;">
+          <div style="font-size: 20px; font-weight: 800; color: var(--text-primary);">Calendario</div>
+          <div style="font-size: 13px; color: var(--text-muted); font-weight: 600;">
+            <span id="eventi-count">0</span> eventi questa settimana
+          </div>
+        </div>
+        <div style="margin-left:auto; font-size:20px; color:var(--text-muted);">›</div>
       </div>
     </div>
+    
   </div>
 
   <!-- Contenitore per i contenuti dinamici -->
