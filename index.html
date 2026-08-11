@@ -7451,7 +7451,87 @@ document.addEventListener('DOMContentLoaded', function() {
     console.warn('⚠️ btn-nuovo-evento non trovato');
   }
 });
+// === DETTAGLIO ENTRATE/USCITE ===
+function openIncomeExpenseDetail(type) {
+  const from = filterFrom || todayISO().slice(0,7) + '-01';
+  const to = filterTo || todayISO();
+  const mt = state.transactions.filter(t =>
+    t.type === type &&
+    t.date >= from &&
+    t.date <= to &&
+    matchesSourceFilter(t)
+  );
+  
+  const cashTotal = mt
+    .filter(t => (t.source || 'cash') === 'cash')
+    .reduce((s, t) => s + amountValue(t.amount), 0);
+  const bankTotal = mt
+    .filter(t => (t.source || 'cash') === 'bank')
+    .reduce((s, t) => s + amountValue(t.amount), 0);
+  const total = cashTotal + bankTotal;
+  
+  const isIncome = type === 'income';
+  const title = isIncome ? '💰 Dettaglio Entrate' : '💸 Dettaglio Uscite';
+  const valueClass = isIncome ? 'income' : 'expense';
+  
+  const periodLabel = filterMode === 'month'
+    ? `${document.getElementById('filter-month')?.selectedOptions[0]?.textContent || ''} ${document.getElementById('filter-year')?.value || ''}`
+    : `Dal ${fmtDateLabel(new Date(filterFrom + 'T00:00:00'))} al ${fmtDateLabel(new Date(filterTo + 'T00:00:00'))}`;
+  
+  const contentDiv = document.getElementById('income-expense-content');
+  
+  if (mt.length === 0) {
+    contentDiv.innerHTML = `
+      <div class="ie-period">${periodLabel}</div>
+      <div class="ie-empty">Nessun movimento in questo periodo</div>
+    `;
+  } else {
+    contentDiv.innerHTML = `
+      <div class="ie-period">${periodLabel}</div>
+      <div class="ie-row">
+        <div class="ie-label">
+          <div class="ie-icon cash">💵</div>
+          <div>
+            <div>Contanti</div>
+            <div style="font-size:11px; color:var(--text-muted); font-weight:600;">${mt.filter(t => (t.source || 'cash') === 'cash').length} movimenti</div>
+          </div>
+        </div>
+        <div class="ie-value ${valueClass}">${fmtEUR(cashTotal)}</div>
+      </div>
+      <div class="ie-row">
+        <div class="ie-label">
+          <div class="ie-icon bank">🏦</div>
+          <div>
+            <div>Conto corrente</div>
+            <div style="font-size:11px; color:var(--text-muted); font-weight:600;">${mt.filter(t => (t.source || 'cash') === 'bank').length} movimenti</div>
+          </div>
+        </div>
+        <div class="ie-value ${valueClass}">${fmtEUR(bankTotal)}</div>
+      </div>
+      <div class="ie-total">
+        <div class="ie-total-label">Totale ${isIncome ? 'Entrate' : 'Uscite'}</div>
+        <div class="ie-total-value">${fmtEUR(total)}</div>
+      </div>
+    `;
+  }
+  
+  document.getElementById('income-expense-title').textContent = title;
+  document.getElementById('income-expense-overlay').classList.add('open');
+}
 
+function closeIncomeExpenseDetail() {
+  document.getElementById('income-expense-overlay').classList.remove('open');
+}
+
+// Event listener per i click sui riquadri
+document.getElementById('card-income').addEventListener('click', () => openIncomeExpenseDetail('income'));
+document.getElementById('card-expense').addEventListener('click', () => openIncomeExpenseDetail('expense'));
+
+// Event listener per chiudere il popup
+document.getElementById('income-expense-close').addEventListener('click', closeIncomeExpenseDetail);
+document.getElementById('income-expense-overlay').addEventListener('click', (e) => {
+  if (e.target.id === 'income-expense-overlay') closeIncomeExpenseDetail();
+});
 })();
 </script>
 </body>
