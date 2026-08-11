@@ -3463,6 +3463,10 @@ let colorPickerContext = { category: null, type: null, selectedColor: null };
 let currentFamilyId = null;
 let familyData = null;   
 
+// === VARIABILI PER LE LISTE DELLA SPESA ===
+let shoppingLists = {};
+let currentListId = null;
+
 const FILTER_MONTHS = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
 const todayISO = () => fmtDate(new Date());
 const monthKey = (d) => d.slice(0,7);
@@ -6307,9 +6311,6 @@ document.getElementById('btn-fix-family').addEventListener('click', async functi
     statusEl.style.color = 'var(--danger)';
   }
 });
-// === GESTIONE LISTE DELLA SPESA (PAGINA PRINCIPALE) ===
-let shoppingLists = {};
-let currentListId = null;
 
 // Carica le liste dal documento utente
 async function loadShoppingLists() {
