@@ -2696,6 +2696,196 @@ border-radius: var(--radius-sm);
   transform: scale(1.02);
   box-shadow: var(--shadow);
 }
+/* === STILE PER GLI EVENTI === */
+.giorno-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-primary);
+  transition: all 0.2s;
+  position: relative;
+  background: var(--surface-2);
+}
+.giorno-cell:hover {
+  background: var(--accent-light);
+  transform: scale(1.05);
+}
+.giorno-cell.altro-mese {
+  color: var(--text-muted);
+  opacity: 0.4;
+}
+.giorno-cell.oggi {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 800;
+}
+.giorno-cell.selezionato {
+  border: 2px solid var(--accent);
+  background: var(--accent-light);
+}
+.giorno-cell.has-event::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.giorno-cell.oggi.has-event::after {
+  background: #fff;
+}
+
+/* Evento card */
+.evento-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  border-left: 4px solid var(--accent);
+  transition: all 0.2s;
+}
+.evento-card:hover {
+  background: var(--accent-light);
+  transform: translateX(4px);
+}
+.evento-card .evento-ora {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 60px;
+}
+.evento-card .evento-titolo {
+  flex: 1;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+.evento-card .evento-delete {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px 8px;
+  transition: all 0.2s;
+  border-radius: var(--radius-sm);
+}
+.evento-card .evento-delete:hover {
+  color: var(--danger);
+  background: var(--danger-light);
+}
+
+/* Modale evento */
+.evento-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,25,35,0.6);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.evento-modal-overlay.open {
+  display: flex;
+}
+.evento-modal {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: var(--shadow-xl);
+  animation: modalIn 0.3s ease;
+}
+.evento-modal h3 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 800;
+}
+.evento-modal p {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.evento-modal .campo {
+  margin-bottom: 14px;
+}
+.evento-modal .campo label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+.evento-modal .campo input,
+.evento-modal .campo select,
+.evento-modal .campo textarea {
+  width: 100%;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  padding: 0 14px;
+  font-size: 14px;
+  font-weight: 600;
+  background: var(--surface-2);
+  color: var(--text-primary);
+  outline: none;
+  transition: all 0.2s;
+}
+.evento-modal .campo textarea {
+  height: 80px;
+  padding: 10px 14px;
+  resize: vertical;
+}
+.evento-modal .campo input:focus,
+.evento-modal .campo select:focus,
+.evento-modal .campo textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-light);
+}
+.evento-modal .modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+.evento-modal .modal-actions button {
+  flex: 1;
+  height: 46px;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.evento-modal .btn-cancel {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+.evento-modal .btn-cancel:hover {
+  background: var(--border);
+}
+.evento-modal .btn-create {
+  background: var(--accent-gradient);
+  color: #fff;
+  border: none;
+  flex: 2;
+}
+.evento-modal .btn-create:hover {
+  transform: scale(1.02);
+  box-shadow: var(--shadow);
+}  
 </style>
 </head>
 <body>
@@ -2748,8 +2938,11 @@ Budget
   <button class="nav-item" data-page="page-bollette">
     <i class="ti ti-file-invoice"></i> Libreria Bollette
   </button>
-  <button class="nav-item" data-page="page-liste">  <!-- ← AGGIUNGI QUESTA RIGA -->
+  <button class="nav-item" data-page="page-liste">
     <i class="ti ti-shopping-cart"></i> Liste spesa
+  </button>
+  <button class="nav-item" data-page="page-eventi">  <!-- ← AGGIUNGI -->
+    <i class="ti ti-calendar-event"></i> Promemoria eventi
   </button>
   <button class="nav-item" data-page="page-profilo">
     <i class="ti ti-user-circle"></i> Profilo
@@ -3189,6 +3382,42 @@ Movimenti in contanti. Stesse colonne del conto corrente.
     </div>
   </div>
 </div>
+<div id="page-eventi" class="page">
+  <h1>📅 Promemoria eventi</h1>
+  
+  <!-- Mese corrente -->
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+    <button id="btn-mese-prec" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--text-secondary);">‹</button>
+    <h2 id="mese-titolo" style="margin:0; font-size:20px; font-weight:800;">Agosto 2026</h2>
+    <button id="btn-mese-succ" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--text-secondary);">›</button>
+  </div>
+  
+  <!-- Calendario -->
+  <div style="background:var(--surface); border-radius:var(--radius); padding:16px; border:1px solid var(--border); margin-bottom:20px;">
+    <div style="display:grid; grid-template-columns:repeat(7, 1fr); gap:4px; text-align:center; font-weight:700; font-size:12px; color:var(--text-muted); margin-bottom:8px;">
+      <div>L</div><div>M</div><div>M</div><div>G</div><div>V</div><div>S</div><div>D</div>
+    </div>
+    <div id="calendario-giorni" style="display:grid; grid-template-columns:repeat(7, 1fr); gap:4px;">
+      <!-- Generato da JavaScript -->
+    </div>
+  </div>
+  
+  <!-- Eventi del giorno selezionato -->
+  <div style="background:var(--surface); border-radius:var(--radius); padding:16px; border:1px solid var(--border);">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <h3 id="giorno-selezionato-titolo" style="margin:0; font-size:16px; font-weight:700;">Oggi - Lunedì 10 Agosto</h3>
+      <button id="btn-nuovo-evento" style="background:var(--accent-gradient); color:#fff; border:none; border-radius:999px; padding:6px 16px; font-weight:700; font-size:13px; cursor:pointer;">
+        + Nuovo evento
+      </button>
+    </div>
+    <div id="eventi-del-giorno">
+      <div style="text-align:center; padding:20px; color:var(--text-muted);">
+        <p style="font-size:14px;">Niente programmato</p>
+        <p style="font-size:12px;">Clicca su "+ Nuovo evento" per aggiungere un evento</p>
+      </div>
+    </div>
+  </div>
+</div>  
 <div id="page-profilo" class="page">
   <h1>Profilo</h1>
   
@@ -3462,6 +3691,7 @@ let familyMembers = {};
 // === VARIABILI PER LE LISTE DELLA SPESA ===
 let shoppingLists = {};
 let currentListId = null;
+let eventsData = {};  
 
 const FILTER_MONTHS = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
 const todayISO = () => fmtDate(new Date());
@@ -3521,6 +3751,13 @@ if (pageId === 'page-liste') {
     console.error('Errore liste:', e); 
   }
 }
+if (pageId === 'page-eventi') {
+  try {
+    loadEvents();
+  } catch(e) { 
+    console.error('Errore eventi:', e); 
+  }
+}  
 if (pageId === 'page-profilo') {
 try { updateProfilePage(); } catch(e) { console.error('Errore profilo:', e); }
 }
@@ -6667,6 +6904,278 @@ function initListPage() {
     setTimeout(initListPage, 500);
   }
 }  
+// === GESTIONE EVENTI CALENDARIO ===
+// (TUTTO IL CODICE JAVASCRIPT PER GLI EVENTI)
+
+let currentMonth = new Date().getMonth();
+let currentYear = new Date().getFullYear();
+let selectedDate = new Date();
+
+// Carica gli eventi
+async function loadEvents() {
+  if (!currentUser) return;
+  
+  try {
+    const userDoc = await userDocRef().get();
+    const data = userDoc.data();
+    
+    if (data && data.events) {
+      eventsData = data.events;
+    } else {
+      eventsData = {};
+      await userDocRef().update({ events: eventsData });
+    }
+    
+    renderCalendar();
+  } catch (err) {
+    console.error('Errore caricamento eventi:', err);
+  }
+}
+
+// Salva gli eventi
+async function saveEvents() {
+  if (!currentUser) return;
+  
+  try {
+    await userDocRef().update({ events: eventsData });
+  } catch (err) {
+    console.error('Errore salvataggio eventi:', err);
+  }
+}
+
+// Renderizza il calendario
+function renderCalendar() {
+  const container = document.getElementById('calendario-giorni');
+  if (!container) return;
+  
+  const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+  document.getElementById('mese-titolo').textContent = monthNames[currentMonth] + ' ' + currentYear;
+  
+  const firstDay = new Date(currentYear, currentMonth, 1);
+  const lastDay = new Date(currentYear, currentMonth + 1, 0);
+  const daysInMonth = lastDay.getDate();
+  const startDay = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+  
+  const today = new Date();
+  const todayStr = today.toISOString().slice(0, 10);
+  
+  let html = '';
+  
+  // Giorni del mese precedente
+  const prevMonthLastDay = new Date(currentYear, currentMonth, 0).getDate();
+  for (let i = startDay - 1; i >= 0; i--) {
+    const day = prevMonthLastDay - i;
+    html += `<div class="giorno-cell altro-mese" data-date="${currentYear}-${String(currentMonth).padStart(2,'0')}-${String(day).padStart(2,'0')}">${day}</div>`;
+  }
+  
+  // Giorni del mese corrente
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const isToday = dateStr === todayStr;
+    const isSelected = dateStr === selectedDate.toISOString().slice(0, 10);
+    const hasEvent = eventsData[dateStr] && eventsData[dateStr].length > 0;
+    
+    let classes = 'giorno-cell';
+    if (isToday) classes += ' oggi';
+    if (isSelected) classes += ' selezionato';
+    if (hasEvent) classes += ' has-event';
+    
+    html += `<div class="${classes}" data-date="${dateStr}">${day}</div>`;
+  }
+  
+  // Giorni del mese successivo
+  const totalCells = startDay + daysInMonth;
+  const remainingCells = (7 - (totalCells % 7)) % 7;
+  for (let day = 1; day <= remainingCells; day++) {
+    html += `<div class="giorno-cell altro-mese" data-date="${currentYear}-${String(currentMonth + 2).padStart(2,'0')}-${String(day).padStart(2,'0')}">${day}</div>`;
+  }
+  
+  container.innerHTML = html;
+  
+  // Event listener sui giorni
+  container.querySelectorAll('.giorno-cell').forEach(cell => {
+    cell.addEventListener('click', function() {
+      const dateStr = this.dataset.date;
+      if (dateStr) {
+        selectedDate = new Date(dateStr);
+        renderCalendar();
+        renderEventsForDay(dateStr);
+      }
+    });
+  });
+  
+  // Seleziona il giorno corrente
+  const todayDateStr = today.toISOString().slice(0, 10);
+  renderEventsForDay(todayDateStr);
+}
+
+// Renderizza gli eventi del giorno selezionato
+function renderEventsForDay(dateStr) {
+  const container = document.getElementById('eventi-del-giorno');
+  if (!container) return;
+  
+  const date = new Date(dateStr);
+  const dayNames = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica'];
+  const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+  
+  const isToday = dateStr === new Date().toISOString().slice(0, 10);
+  const dayName = dayNames[date.getDay() === 0 ? 6 : date.getDay() - 1];
+  document.getElementById('giorno-selezionato-titolo').textContent = 
+    (isToday ? 'Oggi - ' : '') + dayName + ' ' + date.getDate() + ' ' + monthNames[date.getMonth()];
+  
+  const events = eventsData[dateStr] || [];
+  
+  if (events.length === 0) {
+    container.innerHTML = `
+      <div style="text-align:center; padding:20px; color:var(--text-muted);">
+        <p style="font-size:14px;">Niente programmato</p>
+        <p style="font-size:12px;">Clicca su "+ Nuovo evento" per aggiungere un evento</p>
+      </div>
+    `;
+    return;
+  }
+  
+  let html = '';
+  events.forEach((event, index) => {
+    html += `
+      <div class="evento-card">
+        <div class="evento-ora">${event.ora || 'Tutto il giorno'}</div>
+        <div class="evento-titolo">${escapeHtml(event.titolo)}</div>
+        <button class="evento-delete" data-index="${index}" data-date="${dateStr}">✕</button>
+      </div>
+    `;
+  });
+  
+  container.innerHTML = html;
+  
+  // Event listener per eliminare evento
+  container.querySelectorAll('.evento-delete').forEach(btn => {
+    btn.addEventListener('click', async function() {
+      const date = this.dataset.date;
+      const index = parseInt(this.dataset.index);
+      
+      if (confirm('Eliminare questo evento?')) {
+        eventsData[date].splice(index, 1);
+        if (eventsData[date].length === 0) {
+          delete eventsData[date];
+        }
+        await saveEvents();
+        renderCalendar();
+        renderEventsForDay(date);
+      }
+    });
+  });
+}
+
+// Mostra il modale per nuovo evento
+function showNewEventModal() {
+  const overlay = document.createElement('div');
+  overlay.className = 'evento-modal-overlay open';
+  overlay.innerHTML = `
+    <div class="evento-modal">
+      <h3>📝 Nuovo evento</h3>
+      <p>Inserisci i dettagli dell'evento per il giorno selezionato</p>
+      
+      <div class="campo">
+        <label>Titolo evento *</label>
+        <input type="text" id="evento-titolo-input" placeholder="es. Riunione famiglia" autofocus>
+      </div>
+      
+      <div class="campo">
+        <label>Ora</label>
+        <input type="time" id="evento-ora-input">
+      </div>
+      
+      <div class="campo">
+        <label>Note (opzionale)</label>
+        <textarea id="evento-note-input" placeholder="Aggiungi dettagli..."></textarea>
+      </div>
+      
+      <div class="modal-actions">
+        <button class="btn-cancel" id="evento-modal-cancel">Annulla</button>
+        <button class="btn-create" id="evento-modal-create">Crea evento</button>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(overlay);
+  
+  setTimeout(() => {
+    const input = document.getElementById('evento-titolo-input');
+    if (input) input.focus();
+  }, 100);
+  
+  document.getElementById('evento-modal-cancel').addEventListener('click', function() {
+    overlay.remove();
+  });
+  
+  document.getElementById('evento-modal-create').addEventListener('click', async function() {
+    const titolo = document.getElementById('evento-titolo-input').value.trim();
+    const ora = document.getElementById('evento-ora-input').value || 'Tutto il giorno';
+    const note = document.getElementById('evento-note-input').value.trim();
+    
+    if (!titolo) {
+      document.getElementById('evento-titolo-input').style.borderColor = '#E74C3C';
+      document.getElementById('evento-titolo-input').style.boxShadow = '0 0 0 4px #FDE8E8';
+      document.getElementById('evento-titolo-input').focus();
+      return;
+    }
+    
+    const dateStr = selectedDate.toISOString().slice(0, 10);
+    
+    if (!eventsData[dateStr]) {
+      eventsData[dateStr] = [];
+    }
+    
+    eventsData[dateStr].push({
+      titolo: titolo,
+      ora: ora,
+      note: note,
+      createdAt: new Date().toISOString()
+    });
+    
+    await saveEvents();
+    overlay.remove();
+    renderCalendar();
+    renderEventsForDay(dateStr);
+  });
+  
+  document.getElementById('evento-titolo-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      document.getElementById('evento-modal-create').click();
+    }
+  });
+  
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) {
+      overlay.remove();
+    }
+  });
+}
+
+// Navigazione mesi
+document.getElementById('btn-mese-prec').addEventListener('click', function() {
+  if (currentMonth === 0) {
+    currentMonth = 11;
+    currentYear--;
+  } else {
+    currentMonth--;
+  }
+  renderCalendar();
+});
+
+document.getElementById('btn-mese-succ').addEventListener('click', function() {
+  if (currentMonth === 11) {
+    currentMonth = 0;
+    currentYear++;
+  } else {
+    currentMonth++;
+  }
+  renderCalendar();
+});
+
+// Pulsante nuovo evento
+document.getElementById('btn-nuovo-evento').addEventListener('click', showNewEventModal);  
 })();
 </script>
 </body>
