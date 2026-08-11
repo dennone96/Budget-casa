@@ -3693,10 +3693,321 @@ let shoppingLists = {};
 let currentListId = null;
 let eventsData = {};  
   
-// === VARIABILI PER IL CALENDARIO EVENTI ===
+// === GESTIONE EVENTI CALENDARIO ===
 let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
-let selectedDate = new Date();  
+let selectedDate = new Date();
+
+// Carica gli eventi
+async function loadEvents() {
+  if (!currentUser) {
+    console.warn('Nessun utente loggato');
+    return;
+  }
+  
+  try {
+    const userDoc = await userDocRef().get();
+    const data = userDoc.data();
+    
+    if (data && data.events) {
+      eventsData = data.events;
+    } else {
+      eventsData = {};
+      await userDocRef().update({ events: eventsData });
+    }
+    
+    renderCalendar();
+  } catch (err) {
+    console.error('Errore caricamento eventi:', err);
+  }
+}
+
+// Salva gli eventi
+async function saveEvents() {
+  if (!currentUser) return;
+  
+  try {
+    await userDocRef().update({ events: eventsData });
+  } catch (err) {
+    console.error('Errore salvataggio eventi:', err);
+  }
+}
+
+// Renderizza il calendario
+function renderCalendar() {
+  console.log('📅 Renderizzazione calendario...');
+  
+  const container = document.getElementById('calendario-giorni');
+  if (!container) {
+    console.error('❌ Container calendario-giorni non trovato!');
+    return;
+  }
+  
+  const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+  const meseTitolo = document.getElementById('mese-titolo');
+  if (meseTitolo) {
+    meseTitolo.textContent = monthNames[currentMonth] + ' ' + currentYear;
+  }
+  
+  const firstDay = new Date(currentYear, currentMonth, 1);
+  const lastDay = new Date(currentYear, currentMonth + 1, 0);
+  const daysInMonth = lastDay.getDate();
+  const startDay = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+  
+  const today = new Date();
+  const todayStr = today.toISOString().slice(0, 10);
+  
+  let html = '';
+  
+  // Giorni del mese precedente
+  const prevMonthLastDay = new Date(currentYear, currentMonth, 0).getDate();
+  for (let i = startDay - 1; i >= 0; i--) {
+    const day = prevMonthLastDay - i;
+    html += `<div class="giorno-cell altro-mese" data-date="${currentYear}-${String(currentMonth).padStart(2,'0')}-${String(day).padStart(2,'0')}">${day}</div>`;
+  }
+  
+  // Giorni del mese corrente
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const isToday = dateStr === todayStr;
+    const isSelected = dateStr === selectedDate.toISOString().slice(0, 10);
+    const hasEvent = eventsData[dateStr] && eventsData[dateStr].length > 0;
+    
+    let classes = 'giorno-cell';
+    if (isToday) classes += ' oggi';
+    if (isSelected) classes += ' selezionato';
+    if (hasEvent) classes += ' has-event';
+    
+    html += `<div class="${classes}" data-date="${dateStr}">${day}</div>`;
+  }
+  
+  // Giorni del mese successivo
+  const totalCells = startDay + daysInMonth;
+  const remainingCells = (7 - (totalCells % 7)) % 7;
+  for (let day = 1; day <= remainingCells; day++) {
+    html += `<div class="giorno-cell altro-mese" data-date="${currentYear}-${String(currentMonth + 2).padStart(2,'0')}-${String(day).padStart(2,'0')}">${day}</div>`;
+  }
+  
+  container.innerHTML = html;
+  
+  // Seleziona il giorno corrente
+  const todayDateStr = today.toISOString().slice(0, 10);
+  renderEventsForDay(todayDateStr);
+}
+
+// Renderizza gli eventi del giorno selezionato
+function renderEventsForDay(dateStr) {
+  const container = document.getElementById('eventi-del-giorno');
+  if (!container) return;
+  
+  const date = new Date(dateStr);
+  const dayNames = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica'];
+  const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+  
+  const isToday = dateStr === new Date().toISOString().slice(0, 10);
+  const dayName = dayNames[date.getDay() === 0 ? 6 : date.getDay() - 1];
+  const giornoTitolo = document.getElementById('giorno-selezionato-titolo');
+  if (giornoTitolo) {
+    giornoTitolo.textContent = (isToday ? 'Oggi - ' : '') + dayName + ' ' + date.getDate() + ' ' + monthNames[date.getMonth()];
+  }
+  
+  const events = eventsData[dateStr] || [];
+  
+  if (events.length === 0) {
+    container.innerHTML = `
+      <div style="text-align:center; padding:20px; color:var(--text-muted);">
+        <p style="font-size:14px;">Niente programmato</p>
+        <p style="font-size:12px;">Clicca su "+ Nuovo evento" per aggiungere un evento</p>
+      </div>
+    `;
+    return;
+  }
+  
+  let html = '';
+  events.forEach((event, index) => {
+    html += `
+      <div class="evento-card">
+        <div class="evento-ora">${event.ora || 'Tutto il giorno'}</div>
+        <div class="evento-titolo">${escapeHtml(event.titolo)}</div>
+        <button class="evento-delete" data-index="${index}" data-date="${dateStr}">✕</button>
+      </div>
+    `;
+  });
+  
+  container.innerHTML = html;
+}
+
+// Mostra il modale per nuovo evento
+function showNewEventModal() {
+  console.log('📝 Apertura modale nuovo evento');
+  
+  const overlay = document.createElement('div');
+  overlay.className = 'evento-modal-overlay open';
+  overlay.id = 'evento-modal-overlay';
+  overlay.innerHTML = `
+    <div class="evento-modal">
+      <h3>📝 Nuovo evento</h3>
+      <p>Inserisci i dettagli dell'evento per il giorno selezionato</p>
+      
+      <div class="campo">
+        <label>Titolo evento *</label>
+        <input type="text" id="evento-titolo-input" placeholder="es. Riunione famiglia" autofocus>
+      </div>
+      
+      <div class="campo">
+        <label>Ora</label>
+        <input type="time" id="evento-ora-input">
+      </div>
+      
+      <div class="campo">
+        <label>Note (opzionale)</label>
+        <textarea id="evento-note-input" placeholder="Aggiungi dettagli..."></textarea>
+      </div>
+      
+      <div class="modal-actions">
+        <button class="btn-cancel" id="evento-modal-cancel">Annulla</button>
+        <button class="btn-create" id="evento-modal-create">Crea evento</button>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(overlay);
+  
+  setTimeout(() => {
+    const input = document.getElementById('evento-titolo-input');
+    if (input) input.focus();
+  }, 100);
+  
+  document.getElementById('evento-modal-cancel').addEventListener('click', function() {
+    overlay.remove();
+  });
+  
+  document.getElementById('evento-modal-create').addEventListener('click', async function() {
+    const titolo = document.getElementById('evento-titolo-input').value.trim();
+    const ora = document.getElementById('evento-ora-input').value || 'Tutto il giorno';
+    const note = document.getElementById('evento-note-input').value.trim();
+    
+    if (!titolo) {
+      document.getElementById('evento-titolo-input').style.borderColor = '#E74C3C';
+      document.getElementById('evento-titolo-input').style.boxShadow = '0 0 0 4px #FDE8E8';
+      document.getElementById('evento-titolo-input').focus();
+      return;
+    }
+    
+    const dateStr = selectedDate.toISOString().slice(0, 10);
+    
+    if (!eventsData[dateStr]) {
+      eventsData[dateStr] = [];
+    }
+    
+    eventsData[dateStr].push({
+      titolo: titolo,
+      ora: ora,
+      note: note,
+      createdAt: new Date().toISOString()
+    });
+    
+    await saveEvents();
+    overlay.remove();
+    renderCalendar();
+  });
+  
+  document.getElementById('evento-titolo-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      document.getElementById('evento-modal-create').click();
+    }
+  });
+  
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) {
+      overlay.remove();
+    }
+  });
+}
+
+// === DELEGAMENTO EVENTI PER GLI EVENTI ===
+document.addEventListener('click', function(e) {
+  // Click su giorno del calendario
+  const giornoCell = e.target.closest('.giorno-cell');
+  if (giornoCell) {
+    const dateStr = giornoCell.dataset.date;
+    if (dateStr) {
+      console.log('📅 Giorno selezionato:', dateStr);
+      selectedDate = new Date(dateStr);
+      renderCalendar();
+      renderEventsForDay(dateStr);
+    }
+    return;
+  }
+  
+  // Pulsante mese precedente
+  const btnPrec = e.target.closest('#btn-mese-prec');
+  if (btnPrec) {
+    e.preventDefault();
+    console.log('⬅️ Mese precedente');
+    if (currentMonth === 0) {
+      currentMonth = 11;
+      currentYear--;
+    } else {
+      currentMonth--;
+    }
+    renderCalendar();
+    return;
+  }
+  
+  // Pulsante mese successivo
+  const btnSucc = e.target.closest('#btn-mese-succ');
+  if (btnSucc) {
+    e.preventDefault();
+    console.log('➡️ Mese successivo');
+    if (currentMonth === 11) {
+      currentMonth = 0;
+      currentYear++;
+    } else {
+      currentMonth++;
+    }
+    renderCalendar();
+    return;
+  }
+  
+  // Pulsante nuovo evento
+  const btnNuovo = e.target.closest('#btn-nuovo-evento');
+  if (btnNuovo) {
+    e.preventDefault();
+    console.log('📝 Nuovo evento');
+    showNewEventModal();
+    return;
+  }
+  
+  // Elimina evento
+  const btnDelete = e.target.closest('.evento-delete');
+  if (btnDelete) {
+    const date = btnDelete.dataset.date;
+    const index = parseInt(btnDelete.dataset.index);
+    
+    if (confirm('Eliminare questo evento?')) {
+      eventsData[date].splice(index, 1);
+      if (eventsData[date].length === 0) {
+        delete eventsData[date];
+      }
+      saveEvents().then(() => {
+        renderCalendar();
+        renderEventsForDay(date);
+      });
+    }
+    return;
+  }
+});
+
+// Inizializza il calendario quando la pagina è pronta
+function initEventPage() {
+  console.log('📅 Inizializzazione pagina eventi...');
+  const now = new Date();
+  currentMonth = now.getMonth();
+  currentYear = now.getFullYear();
+  selectedDate = new Date();
+  loadEvents();
+}
 
 const FILTER_MONTHS = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
 const todayISO = () => fmtDate(new Date());
@@ -3758,11 +4069,11 @@ if (pageId === 'page-liste') {
 }
 if (pageId === 'page-eventi') {
   try {
-    loadEvents();
+    initEventPage();
   } catch(e) { 
     console.error('Errore eventi:', e); 
   }
-}  
+}
 if (pageId === 'page-profilo') {
 try { updateProfilePage(); } catch(e) { console.error('Errore profilo:', e); }
 }
