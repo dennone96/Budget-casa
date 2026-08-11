@@ -2387,7 +2387,315 @@ border-radius: var(--radius-sm);
 .btn-remove-member:hover {
   background: #c0392b;
 }
-/* === FINE STILE MEMBRI === */
+/* === STILE PER LA PAGINA LISTE SPESA === */
+.lista-card-principale {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px 18px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-sm);
+}
+.lista-card-principale:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow);
+  transform: translateX(4px);
+}
+.lista-card-principale.completata {
+  opacity: 0.6;
+}
+.lista-card-principale .lista-info-principale {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+  min-width: 0;
+}
+.lista-card-principale .lista-checkbox-principale {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--accent);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.lista-card-principale .lista-dettagli-principale {
+  flex: 1;
+  min-width: 0;
+}
+.lista-card-principale .lista-nome-principale {
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text-primary);
+}
+.lista-card-principale .lista-nome-principale.completato {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+.lista-card-principale .lista-meta-principale {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-top: 2px;
+}
+.lista-card-principale .lista-actions-principale {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.lista-card-principale .lista-arrow-principale {
+  font-size: 20px;
+  color: var(--text-muted);
+}
+.lista-card-principale .lista-delete-principale {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 18px;
+  padding: 4px 8px;
+  transition: all 0.2s;
+  border-radius: var(--radius-sm);
+}
+.lista-card-principale .lista-delete-principale:hover {
+  color: var(--danger);
+  background: var(--danger-light);
+}
+
+/* Dettaglio lista */
+.lista-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.lista-detail-header .lista-titolo {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+}
+.lista-detail-header .lista-titolo.completato {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+.lista-detail-header .lista-conteggio {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.lista-detail-header .lista-actions {
+  display: flex;
+  gap: 8px;
+}
+.btn-back-liste-principale {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0 0 12px 0;
+  transition: all 0.2s;
+}
+.btn-back-liste-principale:hover {
+  color: var(--accent);
+}
+.btn-delete-lista-principale {
+  background: var(--danger);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 8px 16px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-delete-lista-principale:hover {
+  background: #c0392b;
+  transform: scale(1.05);
+}
+
+/* Elementi della lista */
+.item-row-principale {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  transition: all 0.2s;
+}
+.item-row-principale:hover {
+  border-color: var(--accent);
+}
+.item-row-principale .item-checkbox-principale {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--accent);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.item-row-principale .item-nome-principale {
+  flex: 1;
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--text-primary);
+}
+.item-row-principale .item-nome-principale.completato {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+.item-row-principale .item-delete-principale {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px 8px;
+  transition: all 0.2s;
+  border-radius: var(--radius-sm);
+}
+.item-row-principale .item-delete-principale:hover {
+  color: var(--danger);
+  background: var(--danger-light);
+}
+
+/* Barra aggiungi elemento */
+.lista-add-bar {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+.lista-add-bar input {
+  flex: 1;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  padding: 0 14px;
+  font-size: 14px;
+  font-weight: 600;
+  background: var(--surface-2);
+  color: var(--text-primary);
+  outline: none;
+  transition: all 0.2s;
+}
+.lista-add-bar input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-light);
+}
+.lista-add-bar .btn-add-item-principale {
+  height: 44px;
+  padding: 0 24px;
+  background: var(--accent-gradient);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.lista-add-bar .btn-add-item-principale:hover {
+  transform: scale(1.02);
+  box-shadow: var(--shadow);
+}
+
+/* Modale per creare lista */
+.lista-modal-principale {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,25,35,0.6);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.lista-modal-principale.open {
+  display: flex;
+}
+.lista-modal-box {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: var(--shadow-xl);
+  animation: modalIn 0.3s ease;
+}
+.lista-modal-box h3 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 800;
+}
+.lista-modal-box p {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.lista-modal-box input {
+  width: 100%;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  padding: 0 16px;
+  font-size: 16px;
+  font-weight: 600;
+  background: var(--surface-2);
+  color: var(--text-primary);
+  outline: none;
+  transition: all 0.2s;
+}
+.lista-modal-box input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-light);
+}
+.lista-modal-box .modal-actions-principale {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+.lista-modal-box .modal-actions-principale button {
+  flex: 1;
+  height: 46px;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.lista-modal-box .btn-cancel-principale {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+.lista-modal-box .btn-cancel-principale:hover {
+  background: var(--border);
+}
+.lista-modal-box .btn-create-principale {
+  background: var(--accent-gradient);
+  color: #fff;
+  border: none;
+  flex: 2;
+}
+.lista-modal-box .btn-create-principale:hover {
+  transform: scale(1.02);
+  box-shadow: var(--shadow);
+}
 </style>
 </head>
 <body>
@@ -2439,6 +2747,9 @@ Budget
   </button>
   <button class="nav-item" data-page="page-bollette">
     <i class="ti ti-file-invoice"></i> Libreria Bollette
+  </button>
+  <button class="nav-item" data-page="page-liste">  <!-- ← AGGIUNGI QUESTA RIGA -->
+    <i class="ti ti-shopping-cart"></i> Liste spesa
   </button>
   <button class="nav-item" data-page="page-profilo">
     <i class="ti ti-user-circle"></i> Profilo
@@ -2846,6 +3157,43 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 </div>
 <div id="reminders-list"></div>
 </div>
+<div id="page-liste" class="page">
+  <h1>📋 Liste della spesa</h1>
+  
+  <!-- Pulsante per nuova lista -->
+  <div style="margin-bottom:20px;">
+    <button id="btn-nuova-lista-principale" style="
+      width: 100%;
+      height: 50px;
+      background: var(--accent-gradient);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='var(--shadow-lg)'" 
+    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow)'">
+      <i class="ti ti-plus" style="font-size:20px;"></i> Nuova lista
+    </button>
+  </div>
+  
+  <!-- Contenitore liste -->
+  <div id="liste-container-principale">
+    <!-- Le liste verranno renderizzate qui -->
+    <div style="text-align:center; padding:60px 20px; color:var(--text-muted);">
+      <div style="font-size:64px; margin-bottom:16px;">🛒</div>
+      <p style="font-size:18px; font-weight:700; color:var(--text-primary);">Nessuna lista</p>
+      <p style="font-size:14px;">Clicca su "Nuova lista" per creare la tua prima lista della spesa</p>
+    </div>
+  </div>
+</div>  
 <div id="page-profilo" class="page">
   <h1>Profilo</h1>
   
@@ -3164,6 +3512,11 @@ try {
 populateBollettaMeseSelect();
 renderBolletteList();
 } catch(e) { console.error('Errore bollette:', e); }
+}
+if (pageId === 'page-liste') {  // ← AGGIUNGI QUESTA SEZIONE
+try {
+loadShoppingLists();
+} catch(e) { console.error('Errore liste:', e); }
 }
 if (pageId === 'page-profilo') {
 try { updateProfilePage(); } catch(e) { console.error('Errore profilo:', e); }
@@ -5953,7 +6306,343 @@ document.getElementById('btn-fix-family').addEventListener('click', async functi
     statusEl.textContent = '❌ Errore: ' + err.message;
     statusEl.style.color = 'var(--danger)';
   }
-});  
+});
+// === GESTIONE LISTE DELLA SPESA (PAGINA PRINCIPALE) ===
+let shoppingLists = {};
+let currentListId = null;
+
+// Carica le liste dal documento utente
+async function loadShoppingLists() {
+  if (!currentUser) {
+    console.warn('Nessun utente loggato');
+    return;
+  }
+  
+  try {
+    const userDoc = await userDocRef().get();
+    const data = userDoc.data();
+    
+    if (data && data.shoppingLists) {
+      shoppingLists = data.shoppingLists;
+    } else {
+      shoppingLists = {};
+      await userDocRef().update({ shoppingLists: shoppingLists });
+    }
+    
+    renderShoppingLists();
+  } catch (err) {
+    console.error('Errore caricamento liste:', err);
+  }
+}
+
+// Salva le liste
+async function saveShoppingLists() {
+  if (!currentUser) return;
+  
+  try {
+    await userDocRef().update({ shoppingLists: shoppingLists });
+  } catch (err) {
+    console.error('Errore salvataggio liste:', err);
+  }
+}
+
+// === RENDERIZZA LE LISTE ===
+function renderShoppingLists() {
+  const container = document.getElementById('liste-container-principale');
+  if (!container) return;
+  
+  const listKeys = Object.keys(shoppingLists);
+  
+  if (listKeys.length === 0) {
+    container.innerHTML = `
+      <div style="text-align:center; padding:60px 20px; color:var(--text-muted);">
+        <div style="font-size:64px; margin-bottom:16px;">🛒</div>
+        <p style="font-size:18px; font-weight:700; color:var(--text-primary);">Nessuna lista</p>
+        <p style="font-size:14px;">Clicca su "Nuova lista" per creare la tua prima lista della spesa</p>
+      </div>
+    `;
+    return;
+  }
+  
+  // Ordina: prima le non completate
+  const sortedKeys = Object.keys(shoppingLists).sort((a, b) => {
+    if (shoppingLists[a].completata === shoppingLists[b].completata) return 0;
+    return shoppingLists[a].completata ? 1 : -1;
+  });
+  
+  let html = '';
+  sortedKeys.forEach(key => {
+    const lista = shoppingLists[key];
+    const itemsCount = lista.items ? lista.items.length : 0;
+    const completati = lista.items ? lista.items.filter(item => item.completato).length : 0;
+    const isCompletata = lista.completata || false;
+    
+    html += `
+      <div class="lista-card-principale ${isCompletata ? 'completata' : ''}" data-id="${key}">
+        <div class="lista-info-principale">
+          <input type="checkbox" class="lista-checkbox-principale" data-id="${key}" ${isCompletata ? 'checked' : ''}>
+          <div class="lista-dettagli-principale">
+            <div class="lista-nome-principale ${isCompletata ? 'completato' : ''}">${escapeHtml(lista.nome)}</div>
+            <div class="lista-meta-principale">${completati}/${itemsCount} elementi</div>
+          </div>
+        </div>
+        <div class="lista-actions-principale">
+          <span class="lista-arrow-principale">›</span>
+          <button class="lista-delete-principale" data-id="${key}" title="Elimina lista">✕</button>
+        </div>
+      </div>
+    `;
+  });
+  
+  container.innerHTML = html;
+  
+  // Event listener: Click sulla card per aprire la lista
+  container.querySelectorAll('.lista-card-principale').forEach(card => {
+    card.addEventListener('click', function(e) {
+      if (e.target.classList.contains('lista-checkbox-principale') || e.target.classList.contains('lista-delete-principale')) return;
+      const id = this.getAttribute('data-id');
+      if (id && shoppingLists[id]) {
+        openListDetail(id);
+      }
+    });
+  });
+  
+  // Event listener: Checkbox completamento lista
+  container.querySelectorAll('.lista-checkbox-principale').forEach(checkbox => {
+    checkbox.addEventListener('change', async function(e) {
+      e.stopPropagation();
+      const id = this.getAttribute('data-id');
+      if (id && shoppingLists[id]) {
+        shoppingLists[id].completata = this.checked;
+        await saveShoppingLists();
+        renderShoppingLists();
+      }
+    });
+  });
+  
+  // Event listener: Elimina lista
+  container.querySelectorAll('.lista-delete-principale').forEach(btn => {
+    btn.addEventListener('click', async function(e) {
+      e.stopPropagation();
+      const id = this.getAttribute('data-id');
+      const lista = shoppingLists[id];
+      if (lista && confirm(`Eliminare la lista "${lista.nome}"?`)) {
+        delete shoppingLists[id];
+        await saveShoppingLists();
+        renderShoppingLists();
+      }
+    });
+  });
+}
+
+// === APRE IL DETTAGLIO DI UNA LISTA ===
+function openListDetail(listId) {
+  const lista = shoppingLists[listId];
+  if (!lista) return;
+  
+  currentListId = listId;
+  const container = document.getElementById('liste-container-principale');
+  
+  const items = lista.items || [];
+  const completati = items.filter(item => item.completato).length;
+  
+  let html = `
+    <button class="btn-back-liste-principale" id="btn-back-liste">← Torna alle liste</button>
+    
+    <div class="lista-detail-header">
+      <div>
+        <div class="lista-titolo ${lista.completata ? 'completato' : ''}">${escapeHtml(lista.nome)}</div>
+        <div class="lista-conteggio">${completati}/${items.length} elementi</div>
+      </div>
+      <div class="lista-actions">
+        <button class="btn-delete-lista-principale" id="btn-delete-lista">🗑️ Elimina lista</button>
+      </div>
+    </div>
+    
+    <div id="items-container-principale">
+  `;
+  
+  if (items.length === 0) {
+    html += `
+      <div style="text-align:center; padding:30px 20px; color:var(--text-muted);">
+        <div style="font-size:36px; margin-bottom:8px;">📝</div>
+        <p style="font-size:14px; font-weight:600;">Lista vuota</p>
+        <p style="font-size:13px;">Aggiungi i primi elementi</p>
+      </div>
+    `;
+  } else {
+    items.forEach((item, index) => {
+      html += `
+        <div class="item-row-principale">
+          <input type="checkbox" class="item-checkbox-principale" data-index="${index}" ${item.completato ? 'checked' : ''}>
+          <span class="item-nome-principale ${item.completato ? 'completato' : ''}">${escapeHtml(item.nome)}</span>
+          <button class="item-delete-principale" data-index="${index}">✕</button>
+        </div>
+      `;
+    });
+  }
+  
+  html += `
+    </div>
+    
+    <div class="lista-add-bar">
+      <input type="text" id="nuovo-item-input" placeholder="Aggiungi un elemento...">
+      <button class="btn-add-item-principale" id="btn-add-item">Aggiungi</button>
+    </div>
+  `;
+  
+  container.innerHTML = html;
+  
+  // Event listener: Torna alle liste
+  document.getElementById('btn-back-liste').addEventListener('click', renderShoppingLists);
+  
+  // Event listener: Elimina lista
+  document.getElementById('btn-delete-lista').addEventListener('click', async function() {
+    if (confirm(`Eliminare la lista "${lista.nome}"?`)) {
+      delete shoppingLists[listId];
+      await saveShoppingLists();
+      renderShoppingLists();
+    }
+  });
+  
+  // Event listener: Aggiungi elemento
+  document.getElementById('btn-add-item').addEventListener('click', async function() {
+    const input = document.getElementById('nuovo-item-input');
+    const nome = input.value.trim();
+    
+    if (!nome) {
+      input.style.borderColor = '#E74C3C';
+      input.style.boxShadow = '0 0 0 4px #FDE8E8';
+      setTimeout(() => {
+        input.style.borderColor = '';
+        input.style.boxShadow = '';
+      }, 1500);
+      return;
+    }
+    
+    if (!shoppingLists[listId].items) {
+      shoppingLists[listId].items = [];
+    }
+    
+    shoppingLists[listId].items.push({
+      nome: nome,
+      completato: false
+    });
+    
+    await saveShoppingLists();
+    openListDetail(listId);
+  });
+  
+  // Event listener: Enter nel campo input
+  document.getElementById('nuovo-item-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      document.getElementById('btn-add-item').click();
+    }
+  });
+  
+  // Event listener: Checkbox elemento
+  document.querySelectorAll('.item-checkbox-principale').forEach(checkbox => {
+    checkbox.addEventListener('change', async function() {
+      const index = parseInt(this.getAttribute('data-index'));
+      if (shoppingLists[listId] && shoppingLists[listId].items[index]) {
+        shoppingLists[listId].items[index].completato = this.checked;
+        await saveShoppingLists();
+        openListDetail(listId);
+      }
+    });
+  });
+  
+  // Event listener: Elimina elemento
+  document.querySelectorAll('.item-delete-principale').forEach(btn => {
+    btn.addEventListener('click', async function() {
+      const index = parseInt(this.getAttribute('data-index'));
+      if (shoppingLists[listId] && shoppingLists[listId].items[index]) {
+        const itemNome = shoppingLists[listId].items[index].nome;
+        if (confirm(`Eliminare "${itemNome}"?`)) {
+          shoppingLists[listId].items.splice(index, 1);
+          await saveShoppingLists();
+          openListDetail(listId);
+        }
+      }
+    });
+  });
+}
+
+// === MODALE PER CREARE UNA NUOVA LISTA ===
+function showCreateListModal() {
+  const overlay = document.createElement('div');
+  overlay.className = 'lista-modal-principale open';
+  overlay.innerHTML = `
+    <div class="lista-modal-box">
+      <h3>📋 Nuova lista</h3>
+      <p>Inserisci il nome della lista della spesa</p>
+      <input type="text" id="new-lista-input" placeholder="es. Spesa settimanale" autofocus>
+      <div class="modal-actions-principale">
+        <button class="btn-cancel-principale" id="modal-cancel-lista">Annulla</button>
+        <button class="btn-create-principale" id="modal-create-lista">Crea lista</button>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(overlay);
+  
+  setTimeout(() => {
+    const input = document.getElementById('new-lista-input');
+    if (input) input.focus();
+  }, 100);
+  
+  document.getElementById('modal-cancel-lista').addEventListener('click', function() {
+    overlay.remove();
+  });
+  
+  document.getElementById('modal-create-lista').addEventListener('click', async function() {
+    const input = document.getElementById('new-lista-input');
+    const nome = input.value.trim();
+    
+    if (!nome) {
+      input.style.borderColor = '#E74C3C';
+      input.style.boxShadow = '0 0 0 4px #FDE8E8';
+      return;
+    }
+    
+    const key = Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+    shoppingLists[key] = {
+      nome: nome,
+      items: [],
+      completata: false,
+      createdAt: new Date().toISOString()
+    };
+    
+    await saveShoppingLists();
+    overlay.remove();
+    renderShoppingLists();
+  });
+  
+  document.getElementById('new-lista-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      document.getElementById('modal-create-lista').click();
+    }
+  });
+  
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) {
+      overlay.remove();
+    }
+  });
+}
+
+// === EVENT LISTENER PER IL PULSANTE "NUOVA LISTA" ===
+document.addEventListener('DOMContentLoaded', function() {
+  const btnNuovaLista = document.getElementById('btn-nuova-lista-principale');
+  if (btnNuovaLista) {
+    btnNuovaLista.addEventListener('click', showCreateListModal);
+  }
+});
+
+// Carica le liste quando si apre la pagina
+function loadPageLists() {
+  loadShoppingLists();
+}  
 })();
 </script>
 </body>
