@@ -3692,6 +3692,11 @@ let familyMembers = {};
 let shoppingLists = {};
 let currentListId = null;
 let eventsData = {};  
+  
+// === VARIABILI PER IL CALENDARIO EVENTI ===
+let currentMonth = new Date().getMonth();
+let currentYear = new Date().getFullYear();
+let selectedDate = new Date();  
 
 const FILTER_MONTHS = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
 const todayISO = () => fmtDate(new Date());
@@ -6905,11 +6910,6 @@ function initListPage() {
   }
 }  
 // === GESTIONE EVENTI CALENDARIO ===
-// (TUTTO IL CODICE JAVASCRIPT PER GLI EVENTI)
-
-let currentMonth = new Date().getMonth();
-let currentYear = new Date().getFullYear();
-let selectedDate = new Date();
 
 // Carica gli eventi
 async function loadEvents() {
