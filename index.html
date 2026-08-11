@@ -2909,7 +2909,116 @@ border-radius: var(--radius-sm);
     padding: 10px !important;
   }
 }
+/* === FORZA IL RISPETTO DEI BORDI (SOLO SU MOBILE) === */
+@media only screen and (max-width: 768px) {
+  /* Impedisce che qualsiasi testo esca dai bordi su mobile */
+ 
+  #main, .page, .panel, .stat-card, .tx-row, .tx-header {
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
 
+  p, span, h1, h2, h3, h4, h5, h6, div, .tx-desc-text, .tx-col-desc, .tx-col-amount, .tx-col-date {
+    max-width: 100% !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    white-space: normal !important;
+  }
+
+  .tx-row, .tx-header {
+    max-width: 100% !important;
+    overflow: hidden !important;
+    font-size: 10px !important;
+    gap: 4px !important;
+    padding: 8px 4px !important;
+    grid-template-columns: 18px 40px 1fr 35px 40px !important;
+  }
+
+  .tx-col-desc {
+    max-width: 100% !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .tx-desc-text {
+    font-size: 10px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .tx-col-amount {
+    font-size: 10px !important;
+  }
+
+  .tx-col-date {
+    font-size: 8px !important;
+    min-width: 30px !important;
+  }
+
+  .badge-source {
+    font-size: 7px !important;
+    padding: 2px 4px !important;
+    max-width: 100% !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  input, select, textarea, button {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .panel {
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .stat-card {
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .stat-card p:last-child {
+    font-size: 18px !important;
+    word-wrap: break-word !important;
+  }
+
+  /* Calendario su mobile */
+  .giorno-cell {
+    font-size: 10px !important;
+    padding: 2px !important;
+  }
+}
+
+@media only screen and (max-width: 400px) {
+  .tx-row, .tx-header {
+    font-size: 9px !important;
+    gap: 3px !important;
+    padding: 6px 3px !important;
+    grid-template-columns: 14px 32px 1fr 28px 32px !important;
+  }
+
+  .tx-desc-text {
+    font-size: 8px !important;
+  }
+
+  .tx-col-amount {
+    font-size: 8px !important;
+  }
+
+  .tx-col-date {
+    font-size: 7px !important;
+    min-width: 25px !important;
+  }
+
+  .badge-source {
+    font-size: 6px !important;
+    padding: 1px 3px !important;
+  }
+}
 </style>
 </head>
 <body>
