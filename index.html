@@ -6320,12 +6320,17 @@ async function loadShoppingLists() {
 
 // 2. saveShoppingLists - Salva le liste nel database
 async function saveShoppingLists() {
-  if (!currentUser) return;
+  if (!currentUser) {
+    console.warn('⚠️ Nessun utente loggato, impossibile salvare');
+    return;
+  }
   
   try {
+    console.log('💾 Salvataggio liste in corso...', shoppingLists);
     await userDocRef().update({ shoppingLists: shoppingLists });
+    console.log('✅ Liste salvate con successo!');
   } catch (err) {
-    console.error('Errore salvataggio liste:', err);
+    console.error('❌ Errore salvataggio liste:', err);
   }
 }
 
@@ -6554,10 +6559,16 @@ function openListDetail(listId) {
   });
 }
 
-// 5. showCreateListModal - Mostra il modale per creare una nuova lista
 function showCreateListModal() {
+  // Rimuovi eventuali modali aperti
+  const existingModal = document.querySelector('.lista-modal-principale');
+  if (existingModal) {
+    existingModal.remove();
+  }
+  
   const overlay = document.createElement('div');
   overlay.className = 'lista-modal-principale open';
+  overlay.id = 'lista-modal-overlay';
   overlay.innerHTML = `
     <div class="lista-modal-box">
       <h3>📋 Nuova lista</h3>
@@ -6572,44 +6583,65 @@ function showCreateListModal() {
   
   document.body.appendChild(overlay);
   
+  // Focus sul campo input
   setTimeout(() => {
     const input = document.getElementById('new-lista-input');
     if (input) input.focus();
   }, 100);
   
-  document.getElementById('modal-cancel-lista').addEventListener('click', function() {
-    overlay.remove();
-  });
+  // Event listener: Annulla
+  const cancelBtn = document.getElementById('modal-cancel-lista');
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', function() {
+      overlay.remove();
+    });
+  }
   
-  document.getElementById('modal-create-lista').addEventListener('click', async function() {
-    const input = document.getElementById('new-lista-input');
-    const nome = input.value.trim();
-    
-    if (!nome) {
-      input.style.borderColor = '#E74C3C';
-      input.style.boxShadow = '0 0 0 4px #FDE8E8';
-      return;
-    }
-    
-    const key = Date.now().toString(36) + Math.random().toString(36).slice(2,7);
-    shoppingLists[key] = {
-      nome: nome,
-      items: [],
-      completata: false,
-      createdAt: new Date().toISOString()
-    };
-    
-    await saveShoppingLists();
-    overlay.remove();
-    renderShoppingLists();
-  });
+  // Event listener: Crea lista
+  const createBtn = document.getElementById('modal-create-lista');
+  if (createBtn) {
+    createBtn.addEventListener('click', async function() {
+      const input = document.getElementById('new-lista-input');
+      if (!input) return;
+      
+      const nome = input.value.trim();
+      
+      if (!nome) {
+        input.style.borderColor = '#E74C3C';
+        input.style.boxShadow = '0 0 0 4px #FDE8E8';
+        input.focus();
+        return;
+      }
+      
+      // Crea la nuova lista
+      const key = Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+      shoppingLists[key] = {
+        nome: nome,
+        items: [],
+        completata: false,
+        createdAt: new Date().toISOString()
+      };
+      
+      await saveShoppingLists();
+      overlay.remove();
+      renderShoppingLists();
+    });
+  }
   
-  document.getElementById('new-lista-input').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-      document.getElementById('modal-create-lista').click();
-    }
-  });
+  // Event listener: Enter nel campo input
+  const inputField = document.getElementById('new-lista-input');
+  if (inputField) {
+    inputField.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        const createBtn = document.getElementById('modal-create-lista');
+        if (createBtn) {
+          createBtn.click();
+        }
+      }
+    });
+  }
   
+  // Event listener: Click fuori dal modale
   overlay.addEventListener('click', function(e) {
     if (e.target === overlay) {
       overlay.remove();
