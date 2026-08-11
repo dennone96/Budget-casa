@@ -6295,6 +6295,349 @@ function initListPage() {
     setTimeout(initListPage, 500);
   }
 }
+// === FUNZIONI PER LE LISTE DELLA SPESA ===
+
+// 1. loadShoppingLists - Carica le liste dal database
+async function loadShoppingLists() {
+  if (!currentUser) {
+    console.warn('Nessun utente loggato');
+    return;
+  }
+  
+  try {
+    const userDoc = await userDocRef().get();
+    const data = userDoc.data();
+    
+    if (data && data.shoppingLists) {
+      shoppingLists = data.shoppingLists;
+    } else {
+      shoppingLists = {};
+      await userDocRef().update({ shoppingLists: shoppingLists });
+    }
+    
+    renderShoppingLists();
+  } catch (err) {
+    console.error('Errore caricamento liste:', err);
+  }
+}
+
+// 2. saveShoppingLists - Salva le liste nel database
+async function saveShoppingLists() {
+  if (!currentUser) return;
+  
+  try {
+    await userDocRef().update({ shoppingLists: shoppingLists });
+  } catch (err) {
+    console.error('Errore salvataggio liste:', err);
+  }
+}
+
+// 3. renderShoppingLists - Mostra le liste nella pagina
+function renderShoppingLists() {
+  const container = document.getElementById('liste-container-principale');
+  if (!container) {
+    console.error('❌ Container liste-container-principale non trovato!');
+    return;
+  }
+  
+  const listKeys = Object.keys(shoppingLists);
+  
+  if (listKeys.length === 0) {
+    container.innerHTML = `
+      <div style="text-align:center; padding:60px 20px; color:var(--text-muted);">
+        <div style="font-size:64px; margin-bottom:16px;">🛒</div>
+        <p style="font-size:18px; font-weight:700; color:var(--text-primary);">Nessuna lista</p>
+        <p style="font-size:14px;">Clicca su "Nuova lista" per creare la tua prima lista della spesa</p>
+      </div>
+    `;
+    return;
+  }
+  
+  // Ordina: prima le non completate
+  const sortedKeys = Object.keys(shoppingLists).sort((a, b) => {
+    if (shoppingLists[a].completata === shoppingLists[b].completata) return 0;
+    return shoppingLists[a].completata ? 1 : -1;
+  });
+  
+  let html = '';
+  sortedKeys.forEach(key => {
+    const lista = shoppingLists[key];
+    const itemsCount = lista.items ? lista.items.length : 0;
+    const completati = lista.items ? lista.items.filter(item => item.completato).length : 0;
+    const isCompletata = lista.completata || false;
+    
+    html += `
+      <div class="lista-card-principale ${isCompletata ? 'completata' : ''}" data-id="${key}">
+        <div class="lista-info-principale">
+          <input type="checkbox" class="lista-checkbox-principale" data-id="${key}" ${isCompletata ? 'checked' : ''}>
+          <div class="lista-dettagli-principale">
+            <div class="lista-nome-principale ${isCompletata ? 'completato' : ''}">${escapeHtml(lista.nome)}</div>
+            <div class="lista-meta-principale">${completati}/${itemsCount} elementi</div>
+          </div>
+        </div>
+        <div class="lista-actions-principale">
+          <span class="lista-arrow-principale">›</span>
+          <button class="lista-delete-principale" data-id="${key}" title="Elimina lista">✕</button>
+        </div>
+      </div>
+    `;
+  });
+  
+  container.innerHTML = html;
+  
+  // Event listener: Click sulla card per aprire la lista
+  container.querySelectorAll('.lista-card-principale').forEach(card => {
+    card.addEventListener('click', function(e) {
+      if (e.target.classList.contains('lista-checkbox-principale') || e.target.classList.contains('lista-delete-principale')) return;
+      const id = this.getAttribute('data-id');
+      if (id && shoppingLists[id]) {
+        openListDetail(id);
+      }
+    });
+  });
+  
+  // Event listener: Checkbox completamento lista
+  container.querySelectorAll('.lista-checkbox-principale').forEach(checkbox => {
+    checkbox.addEventListener('change', async function(e) {
+      e.stopPropagation();
+      const id = this.getAttribute('data-id');
+      if (id && shoppingLists[id]) {
+        shoppingLists[id].completata = this.checked;
+        await saveShoppingLists();
+        renderShoppingLists();
+      }
+    });
+  });
+  
+  // Event listener: Elimina lista
+  container.querySelectorAll('.lista-delete-principale').forEach(btn => {
+    btn.addEventListener('click', async function(e) {
+      e.stopPropagation();
+      const id = this.getAttribute('data-id');
+      const lista = shoppingLists[id];
+      if (lista && confirm(`Eliminare la lista "${lista.nome}"?`)) {
+        delete shoppingLists[id];
+        await saveShoppingLists();
+        renderShoppingLists();
+      }
+    });
+  });
+}
+
+// 4. openListDetail - Apre il dettaglio di una lista
+function openListDetail(listId) {
+  const lista = shoppingLists[listId];
+  if (!lista) return;
+  
+  currentListId = listId;
+  const container = document.getElementById('liste-container-principale');
+  
+  const items = lista.items || [];
+  const completati = items.filter(item => item.completato).length;
+  
+  let html = `
+    <button class="btn-back-liste-principale" id="btn-back-liste">← Torna alle liste</button>
+    
+    <div class="lista-detail-header">
+      <div>
+        <div class="lista-titolo ${lista.completata ? 'completato' : ''}">${escapeHtml(lista.nome)}</div>
+        <div class="lista-conteggio">${completati}/${items.length} elementi</div>
+      </div>
+      <div class="lista-actions">
+        <button class="btn-delete-lista-principale" id="btn-delete-lista">🗑️ Elimina lista</button>
+      </div>
+    </div>
+    
+    <div id="items-container-principale">
+  `;
+  
+  if (items.length === 0) {
+    html += `
+      <div style="text-align:center; padding:30px 20px; color:var(--text-muted);">
+        <div style="font-size:36px; margin-bottom:8px;">📝</div>
+        <p style="font-size:14px; font-weight:600;">Lista vuota</p>
+        <p style="font-size:13px;">Aggiungi i primi elementi</p>
+      </div>
+    `;
+  } else {
+    items.forEach((item, index) => {
+      html += `
+        <div class="item-row-principale">
+          <input type="checkbox" class="item-checkbox-principale" data-index="${index}" ${item.completato ? 'checked' : ''}>
+          <span class="item-nome-principale ${item.completato ? 'completato' : ''}">${escapeHtml(item.nome)}</span>
+          <button class="item-delete-principale" data-index="${index}">✕</button>
+        </div>
+      `;
+    });
+  }
+  
+  html += `
+    </div>
+    
+    <div class="lista-add-bar">
+      <input type="text" id="nuovo-item-input" placeholder="Aggiungi un elemento...">
+      <button class="btn-add-item-principale" id="btn-add-item">Aggiungi</button>
+    </div>
+  `;
+  
+  container.innerHTML = html;
+  
+  // Event listener: Torna alle liste
+  document.getElementById('btn-back-liste').addEventListener('click', renderShoppingLists);
+  
+  // Event listener: Elimina lista
+  document.getElementById('btn-delete-lista').addEventListener('click', async function() {
+    if (confirm(`Eliminare la lista "${lista.nome}"?`)) {
+      delete shoppingLists[listId];
+      await saveShoppingLists();
+      renderShoppingLists();
+    }
+  });
+  
+  // Event listener: Aggiungi elemento
+  document.getElementById('btn-add-item').addEventListener('click', async function() {
+    const input = document.getElementById('nuovo-item-input');
+    const nome = input.value.trim();
+    
+    if (!nome) {
+      input.style.borderColor = '#E74C3C';
+      input.style.boxShadow = '0 0 0 4px #FDE8E8';
+      setTimeout(() => {
+        input.style.borderColor = '';
+        input.style.boxShadow = '';
+      }, 1500);
+      return;
+    }
+    
+    if (!shoppingLists[listId].items) {
+      shoppingLists[listId].items = [];
+    }
+    
+    shoppingLists[listId].items.push({
+      nome: nome,
+      completato: false
+    });
+    
+    await saveShoppingLists();
+    openListDetail(listId);
+  });
+  
+  // Event listener: Enter nel campo input
+  document.getElementById('nuovo-item-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      document.getElementById('btn-add-item').click();
+    }
+  });
+  
+  // Event listener: Checkbox elemento
+  document.querySelectorAll('.item-checkbox-principale').forEach(checkbox => {
+    checkbox.addEventListener('change', async function() {
+      const index = parseInt(this.getAttribute('data-index'));
+      if (shoppingLists[listId] && shoppingLists[listId].items[index]) {
+        shoppingLists[listId].items[index].completato = this.checked;
+        await saveShoppingLists();
+        openListDetail(listId);
+      }
+    });
+  });
+  
+  // Event listener: Elimina elemento
+  document.querySelectorAll('.item-delete-principale').forEach(btn => {
+    btn.addEventListener('click', async function() {
+      const index = parseInt(this.getAttribute('data-index'));
+      if (shoppingLists[listId] && shoppingLists[listId].items[index]) {
+        const itemNome = shoppingLists[listId].items[index].nome;
+        if (confirm(`Eliminare "${itemNome}"?`)) {
+          shoppingLists[listId].items.splice(index, 1);
+          await saveShoppingLists();
+          openListDetail(listId);
+        }
+      }
+    });
+  });
+}
+
+// 5. showCreateListModal - Mostra il modale per creare una nuova lista
+function showCreateListModal() {
+  const overlay = document.createElement('div');
+  overlay.className = 'lista-modal-principale open';
+  overlay.innerHTML = `
+    <div class="lista-modal-box">
+      <h3>📋 Nuova lista</h3>
+      <p>Inserisci il nome della lista della spesa</p>
+      <input type="text" id="new-lista-input" placeholder="es. Spesa settimanale" autofocus>
+      <div class="modal-actions-principale">
+        <button class="btn-cancel-principale" id="modal-cancel-lista">Annulla</button>
+        <button class="btn-create-principale" id="modal-create-lista">Crea lista</button>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(overlay);
+  
+  setTimeout(() => {
+    const input = document.getElementById('new-lista-input');
+    if (input) input.focus();
+  }, 100);
+  
+  document.getElementById('modal-cancel-lista').addEventListener('click', function() {
+    overlay.remove();
+  });
+  
+  document.getElementById('modal-create-lista').addEventListener('click', async function() {
+    const input = document.getElementById('new-lista-input');
+    const nome = input.value.trim();
+    
+    if (!nome) {
+      input.style.borderColor = '#E74C3C';
+      input.style.boxShadow = '0 0 0 4px #FDE8E8';
+      return;
+    }
+    
+    const key = Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+    shoppingLists[key] = {
+      nome: nome,
+      items: [],
+      completata: false,
+      createdAt: new Date().toISOString()
+    };
+    
+    await saveShoppingLists();
+    overlay.remove();
+    renderShoppingLists();
+  });
+  
+  document.getElementById('new-lista-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      document.getElementById('modal-create-lista').click();
+    }
+  });
+  
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) {
+      overlay.remove();
+    }
+  });
+}
+
+// 6. initListPage - Inizializza la pagina liste
+function initListPage() {
+  console.log('🔄 Inizializzazione pagina liste...');
+  loadShoppingLists();
+  
+  const btnNuovaLista = document.getElementById('btn-nuova-lista-principale');
+  if (btnNuovaLista) {
+    btnNuovaLista.addEventListener('click', function(e) {
+      e.preventDefault();
+      console.log('📋 Click su Nuova lista!');
+      showCreateListModal();
+    });
+    console.log('✅ Pulsante "Nuova lista" inizializzato');
+  } else {
+    console.warn('⚠️ Pulsante "Nuova lista" non trovato!');
+    setTimeout(initListPage, 500);
+  }
+}  
 })();
 </script>
 </body>
