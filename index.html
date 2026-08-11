@@ -3387,9 +3387,9 @@ Movimenti in contanti. Stesse colonne del conto corrente.
   
   <!-- Mese corrente -->
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-    <button id="btn-mese-prec" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--text-secondary);">‹</button>
+    <button id="btn-mese-prec" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--text-secondary); padding:8px 16px; border-radius:var(--radius-sm); transition:all 0.2s;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">‹</button>
     <h2 id="mese-titolo" style="margin:0; font-size:20px; font-weight:800;">Agosto 2026</h2>
-    <button id="btn-mese-succ" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--text-secondary);">›</button>
+    <button id="btn-mese-succ" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--text-secondary); padding:8px 16px; border-radius:var(--radius-sm); transition:all 0.2s;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">›</button>
   </div>
   
   <!-- Calendario -->
@@ -3406,7 +3406,7 @@ Movimenti in contanti. Stesse colonne del conto corrente.
   <div style="background:var(--surface); border-radius:var(--radius); padding:16px; border:1px solid var(--border);">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
       <h3 id="giorno-selezionato-titolo" style="margin:0; font-size:16px; font-weight:700;">Oggi - Lunedì 10 Agosto</h3>
-      <button id="btn-nuovo-evento" style="background:var(--accent-gradient); color:#fff; border:none; border-radius:999px; padding:6px 16px; font-weight:700; font-size:13px; cursor:pointer;">
+      <button id="btn-nuovo-evento" style="background:var(--accent-gradient); color:#fff; border:none; border-radius:999px; padding:8px 18px; font-weight:700; font-size:13px; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
         + Nuovo evento
       </button>
     </div>
@@ -3417,7 +3417,7 @@ Movimenti in contanti. Stesse colonne del conto corrente.
       </div>
     </div>
   </div>
-</div>  
+</div>
 <div id="page-profilo" class="page">
   <h1>Profilo</h1>
   
