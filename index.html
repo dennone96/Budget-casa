@@ -3178,22 +3178,19 @@ Movimenti in contanti. Stesse colonne del conto corrente.
       align-items: center;
       justify-content: center;
       gap: 10px;
-    " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='var(--shadow-lg)'" 
-    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow)'">
+    ">
       <i class="ti ti-plus" style="font-size:20px;"></i> Nuova lista
     </button>
   </div>
   
   <!-- Contenitore liste -->
-  <div id="liste-container-principale">
-    <!-- Le liste verranno renderizzate qui -->
-    <div style="text-align:center; padding:60px 20px; color:var(--text-muted);">
-      <div style="font-size:64px; margin-bottom:16px;">🛒</div>
-      <p style="font-size:18px; font-weight:700; color:var(--text-primary);">Nessuna lista</p>
-      <p style="font-size:14px;">Clicca su "Nuova lista" per creare la tua prima lista della spesa</p>
+  <div id="liste-container-principale" style="min-height:200px;">
+    <div style="text-align:center; padding:40px 20px; color:var(--text-muted);">
+      <div style="font-size:48px; margin-bottom:12px;">⏳</div>
+      <p style="font-size:16px; font-weight:600;">Caricamento liste...</p>
     </div>
   </div>
-</div>  
+</div>
 <div id="page-profilo" class="page">
   <h1>Profilo</h1>
   
@@ -3517,10 +3514,16 @@ populateBollettaMeseSelect();
 renderBolletteList();
 } catch(e) { console.error('Errore bollette:', e); }
 }
-if (pageId === 'page-liste') {  // ← AGGIUNGI QUESTA SEZIONE
-try {
-loadShoppingLists();
-} catch(e) { console.error('Errore liste:', e); }
+if (pageId === 'page-liste') {
+  try {
+    // Ricarica le liste e inizializza i pulsanti
+    setTimeout(() => {
+      loadShoppingLists();
+      initListButtons();
+    }, 100);
+  } catch(e) { 
+    console.error('Errore liste:', e); 
+  }
 }
 if (pageId === 'page-profilo') {
 try { updateProfilePage(); } catch(e) { console.error('Errore profilo:', e); }
@@ -6633,17 +6636,60 @@ function showCreateListModal() {
 }
 
 // === EVENT LISTENER PER IL PULSANTE "NUOVA LISTA" ===
-document.addEventListener('DOMContentLoaded', function() {
+function initListButtons() {
   const btnNuovaLista = document.getElementById('btn-nuova-lista-principale');
   if (btnNuovaLista) {
     btnNuovaLista.addEventListener('click', showCreateListModal);
+    console.log('✅ Pulsante "Nuova lista" trovato e collegato');
+  } else {
+    console.warn('⚠️ Pulsante "btn-nuova-lista-principale" non trovato, riprovo tra 500ms');
+    setTimeout(initListButtons, 500);
   }
-});
+}
+
+// Esegui quando il DOM è caricato
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initListButtons);
+} else {
+  initListButtons();
+}
 
 // Carica le liste quando si apre la pagina
 function loadPageLists() {
   loadShoppingLists();
 }  
+// === INIZIALIZZAZIONE COMPLETA DELLA PAGINA LISTE ===
+function initListPage() {
+  console.log('🔄 Inizializzazione pagina liste...');
+  
+  // Carica le liste
+  loadShoppingLists();
+  
+  // Inizializza i pulsanti
+  const btnNuovaLista = document.getElementById('btn-nuova-lista-principale');
+  if (btnNuovaLista) {
+    // Rimuovi eventuali listener duplicati
+    const newBtn = btnNuovaLista.cloneNode(true);
+    btnNuovaLista.parentNode.replaceChild(newBtn, btnNuovaLista);
+    
+    newBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      console.log('📋 Click su Nuova lista!');
+      showCreateListModal();
+    });
+    console.log('✅ Pulsante "Nuova lista" inizializzato');
+  } else {
+    console.warn('⚠️ Pulsante "Nuova lista" non trovato!');
+  }
+}
+
+// Esegui inizializzazione quando la pagina è pronta
+document.addEventListener('DOMContentLoaded', function() {
+  // Se la pagina liste è attiva, inizializza
+  if (document.getElementById('page-liste').classList.contains('active')) {
+    initListPage();
+  }
+});  
 })();
 </script>
 </body>
