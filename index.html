@@ -839,18 +839,18 @@ max-width: 100% !important;
 height: auto !important;
 }
 .tx-row {
-display: grid;
-grid-template-columns: 30px 100px 1fr 120px 100px 90px;
-align-items: center;
-gap: 12px;
-padding: 16px 20px;
-background: var(--surface);
-border-radius: var(--radius);
-margin-bottom: 10px;
-cursor: default;
-border: 1px solid var(--border);
-transition: all 0.2s;
-box-shadow: var(--shadow-sm);
+  display: grid;
+  grid-template-columns: 30px 100px 1fr 120px 100px 90px;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+  cursor: default;
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+  box-shadow: var(--shadow-sm);
 }
 .tx-row.selected {
 background: var(--accent-light) !important;
@@ -2110,93 +2110,6 @@ border-radius: var(--radius-sm);
     font-size: 14px !important;
   }
 }
-/* === OTTIMIZZAZIONI MOVIMENTI PER ANDROID === */
-/* === OTTIMIZZAZIONI MOVIMENTI PER ANDROID === */
-@media only screen and (max-width: 600px) {
-  /* Layout tabella movimenti - ancora più compatto */
-  .tx-row, .tx-header {
-    font-size: 10px !important;
-    gap: 4px !important;
-    padding: 8px 6px !important;
-    grid-template-columns: 20px 45px 1fr 40px 45px !important;
-  }
-  
-  .tx-col-date {
-    font-size: 8px !important;
-    min-width: 30px !important;
-  }
-  
-  .tx-desc-text {
-    font-size: 10px !important;
-  }
-  
-  .tx-col-amount {
-    font-size: 10px !important;
-    text-align: right !important;
-  }
-  
-  .tx-checkbox {
-    width: 12px !important;
-    height: 12px !important;
-  }
-  
-  .badge-source {
-    font-size: 7px !important;
-    padding: 2px 4px !important;
-    letter-spacing: 0px !important;
-  }
-  
-  .tx-col-type {
-    display: flex !important;
-    justify-content: center !important;
-  }
-  
-  /* Barra di ricerca */
-  .search-bar input {
-    height: 32px !important;
-    font-size: 11px !important;
-    padding: 0 8px 0 30px !important;
-    background-size: 14px !important;
-    background-position: 8px center !important;
-  }
-  
-  /* Filtri sorgente */
-  .source-filter button {
-    height: 26px !important;
-    font-size: 10px !important;
-    padding: 0 8px !important;
-  }
-  
-  /* Bulk actions */
-  .bulk-actions-bar {
-    padding: 6px 8px !important;
-    gap: 4px !important;
-  }
-  .bulk-actions-bar button {
-    height: 24px !important;
-    font-size: 10px !important;
-    padding: 0 8px !important;
-  }
-  .bulk-actions-bar .bulk-count {
-    font-size: 11px !important;
-  }
-  
-  /* Margini pagina */
-  #main {
-    padding-left: 4px !important;
-    padding-right: 4px !important;
-  }
-  .panel {
-    padding: 10px 6px !important;
-    border-radius: 10px !important;
-  }
-  
-  /* Header movimenti più compatto */
-  .tx-header {
-    padding: 6px 6px !important;
-    font-size: 8px !important;
-  }
-}
 
 @media only screen and (max-width: 400px) {
   /* Schermi molto piccoli */
@@ -2937,36 +2850,6 @@ border-radius: var(--radius-sm);
   
   .stat-card {
     padding: 10px !important;
-  }
-}
-/* === CORREZIONE BORDI SOLO PER MOBILE === */
-@media only screen and (max-width: 768px) {
-  /* Tabella movimenti - riduci tutto */
-  .tx-row, .tx-header {
-    font-size: 10px !important;
-    gap: 4px !important;
-    padding: 6px 4px !important;
-    grid-template-columns: 18px 35px 1fr 30px 35px !important;
-  }
-  
-  .tx-desc-text {
-    font-size: 10px !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-  }
-  
-  .tx-col-date {
-    font-size: 8px !important;
-  }
-  
-  .tx-col-amount {
-    font-size: 10px !important;
-  }
-  
-  .badge-source {
-    font-size: 7px !important;
-    padding: 2px 4px !important;
   }
 }
 </style>
