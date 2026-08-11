@@ -3458,7 +3458,8 @@ let searchQuery = '';
 let colorPickerContext = { category: null, type: null, selectedColor: null };
 // === NUOVE VARIABILI PER LA GESTIONE DELLA FAMIGLIA ===
 let currentFamilyId = null;
-let familyData = null;   
+let familyData = null;
+let familyMembers = {};  
 
 // === VARIABILI PER LE LISTE DELLA SPESA ===
 let shoppingLists = {};
@@ -5837,10 +5838,8 @@ updateTransactionsList = function() {
   // Riavviamo i click dopo che la lista è stata aggiornata
   setTimeout(fixTransactionClicks, 100);
 };
-// === GESTIONE PROFILI FAMILIARI (VERSIONE SEMPLIFICATA) ===
-let familyMembers = {};
 
-// Funzione per caricare i membri della famiglia
+  // Funzione per caricare i membri della famiglia
 async function loadFamilyMembers() {
   if (!currentUser) {
     console.error('Nessun utente loggato');
