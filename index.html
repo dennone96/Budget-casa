@@ -7152,30 +7152,52 @@ function showNewEventModal() {
     }
   });
 }
-
-// Navigazione mesi
-document.getElementById('btn-mese-prec').addEventListener('click', function() {
-  if (currentMonth === 0) {
-    currentMonth = 11;
-    currentYear--;
+document.addEventListener('DOMContentLoaded', function() {
+  // Navigazione mesi
+  const btnPrec = document.getElementById('btn-mese-prec');
+  const btnSucc = document.getElementById('btn-mese-succ');
+  const btnNuovo = document.getElementById('btn-nuovo-evento');
+  
+  if (btnPrec) {
+    btnPrec.addEventListener('click', function() {
+      console.log('⬅️ Mese precedente');
+      if (currentMonth === 0) {
+        currentMonth = 11;
+        currentYear--;
+      } else {
+        currentMonth--;
+      }
+      renderCalendar();
+    });
   } else {
-    currentMonth--;
+    console.warn('⚠️ btn-mese-prec non trovato');
   }
-  renderCalendar();
+  
+  if (btnSucc) {
+    btnSucc.addEventListener('click', function() {
+      console.log('➡️ Mese successivo');
+      if (currentMonth === 11) {
+        currentMonth = 0;
+        currentYear++;
+      } else {
+        currentMonth++;
+      }
+      renderCalendar();
+    });
+  } else {
+    console.warn('⚠️ btn-mese-succ non trovato');
+  }
+  
+  if (btnNuovo) {
+    btnNuovo.addEventListener('click', function() {
+      console.log('📝 Nuovo evento');
+      showNewEventModal();
+    });
+  } else {
+    console.warn('⚠️ btn-nuovo-evento non trovato');
+  }
 });
 
-document.getElementById('btn-mese-succ').addEventListener('click', function() {
-  if (currentMonth === 11) {
-    currentMonth = 0;
-    currentYear++;
-  } else {
-    currentMonth++;
-  }
-  renderCalendar();
-});
-
-// Pulsante nuovo evento
-document.getElementById('btn-nuovo-evento').addEventListener('click', showNewEventModal);  
 })();
 </script>
 </body>
