@@ -6043,31 +6043,23 @@ progressDiv.classList.add('hidden');
 alert('Errore nel caricamento: ' + err.message);
 }
 }
-// === DETTAGLIO ENTRATE/USCITE (VERSIONE PULITA) ===
+// Altri event listener...
+document.getElementById('btn-upload-bolletta').addEventListener('click', uploadBolletta);
+document.getElementById('bolletta-year-filter').addEventListener('change', renderBolletteList);
+document.getElementById('bolletta-detail-close').addEventListener('click', closeBollettaDetail);
+document.getElementById('bolletta-detail-overlay').addEventListener('click', (e) => {
+  if (e.target.id === 'bolletta-detail-overlay') closeBollettaDetail();
+});
+document.getElementById('bolletta-detail-download').addEventListener('click', downloadBollettaFromDetail);
+document.getElementById('bolletta-detail-delete').addEventListener('click', deleteBollettaFromDetail);
+// === DETTAGLIO ENTRATE/USCITE ===
 function openIncomeExpenseDetail(type) {
   console.log('🔍 openIncomeExpenseDetail chiamato con tipo:', type);
   
-  // Controlla se gli elementi esistono
-  const overlay = document.getElementById('income-expense-overlay');
-  const contentDiv = document.getElementById('income-expense-content');
-  const titleEl = document.getElementById('income-expense-title');
-  
-  if (!overlay) {
-    console.error('❌ income-expense-overlay non trovato!');
-    return;
-  }
-  if (!contentDiv) {
-    console.error('❌ income-expense-content non trovato!');
-    return;
-  }
-  if (!titleEl) {
-    console.error('❌ income-expense-title non trovato!');
-    return;
-  }
-  
-  // Calcola i dati
   const from = filterFrom || todayISO().slice(0,7) + '-01';
   const to = filterTo || todayISO();
+  
+  console.log('📅 Periodo:', from, '->', to);
   
   const mt = state.transactions.filter(t =>
     t.type === type &&
@@ -6086,14 +6078,23 @@ function openIncomeExpenseDetail(type) {
     .reduce((s, t) => s + amountValue(t.amount), 0);
   const total = cashTotal + bankTotal;
   
+  console.log('💰 Cash:', cashTotal, 'Bank:', bankTotal, 'Totale:', total);
+  
   const isIncome = type === 'income';
+  const title = isIncome ? '💰 Dettaglio Entrate' : '💸 Dettaglio Uscite';
   const valueClass = isIncome ? 'income' : 'expense';
   
   const periodLabel = filterMode === 'month'
     ? `${document.getElementById('filter-month')?.selectedOptions[0]?.textContent || ''} ${document.getElementById('filter-year')?.value || ''}`
     : `Dal ${fmtDateLabel(new Date(filterFrom + 'T00:00:00'))} al ${fmtDateLabel(new Date(filterTo + 'T00:00:00'))}`;
   
-  // Popola il contenuto
+  const contentDiv = document.getElementById('income-expense-content');
+  
+  if (!contentDiv) {
+    console.error('❌ income-expense-content non trovato!');
+    return;
+  }
+  
   if (mt.length === 0) {
     contentDiv.innerHTML = `
       <div class="ie-period">${periodLabel}</div>
@@ -6129,13 +6130,18 @@ function openIncomeExpenseDetail(type) {
     `;
   }
   
-  titleEl.textContent = isIncome ? '💰 Dettaglio Entrate' : '💸 Dettaglio Uscite';
+  const overlay = document.getElementById('income-expense-overlay');
+  if (!overlay) {
+    console.error('❌ income-expense-overlay non trovato!');
+    return;
+  }
+  
+  document.getElementById('income-expense-title').textContent = title;
   overlay.style.display = 'flex';
   overlay.classList.add('open');
   console.log('✅ Popup aperto');
 }
 
-// === CHIUSURA POPUP ===
 function closeIncomeExpenseDetail() {
   const overlay = document.getElementById('income-expense-overlay');
   if (overlay) {
@@ -6145,49 +6151,57 @@ function closeIncomeExpenseDetail() {
   console.log('❌ Popup chiuso');
 }
 
-// === DELEGAMENTO EVENTI PER I RIQUADRI ENTRATE/USCITE ===
-// Questo funziona SEMPRE, anche se gli elementi vengono creati dopo
-document.addEventListener('click', function(e) {
-  // Click su Entrate
-  const incomeCard = e.target.closest('#card-income');
-  if (incomeCard) {
-    console.log('🖱️ Click su Entrate (delegamento)');
-    openIncomeExpenseDetail('income');
-    e.preventDefault();
-    return;
+// === DELEGAMENTO EVENTI PER I RIQUADRI ===
+// Questo codice va eseguito UNA VOLTA sola, dopo che le funzioni sono definite
+(function initIncomeExpenseClicks() {
+  console.log('🔄 Inizializzazione click per Entrate/Uscite...');
+  
+  // Usa il delegamento degli eventi sul document
+  document.addEventListener('click', function(e) {
+    // Click su Entrate
+    const incomeCard = e.target.closest('#card-income');
+    if (incomeCard) {
+      console.log('🖱️ Click su Entrate (rilevato)');
+      e.preventDefault();
+      openIncomeExpenseDetail('income');
+      return;
+    }
+    
+    // Click su Uscite
+    const expenseCard = e.target.closest('#card-expense');
+    if (expenseCard) {
+      console.log('🖱️ Click su Uscite (rilevato)');
+      e.preventDefault();
+      openIncomeExpenseDetail('expense');
+      return;
+    }
+  });
+  
+  // Event listener per chiudere il popup
+  const closeBtn = document.getElementById('income-expense-close');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeIncomeExpenseDetail);
+    console.log('✅ btn close collegato');
+  } else {
+    console.warn('⚠️ income-expense-close non trovato');
   }
   
-  // Click su Uscite
-  const expenseCard = e.target.closest('#card-expense');
-  if (expenseCard) {
-    console.log('🖱️ Click su Uscite (delegamento)');
-    openIncomeExpenseDetail('expense');
-    e.preventDefault();
-    return;
+  const overlay = document.getElementById('income-expense-overlay');
+  if (overlay) {
+    overlay.addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeIncomeExpenseDetail();
+      }
+    });
+    console.log('✅ overlay collegato');
+  } else {
+    console.warn('⚠️ income-expense-overlay non trovato');
   }
-});
-
-// Event listener per chiudere il popup
-document.getElementById('income-expense-close').addEventListener('click', closeIncomeExpenseDetail);
-
-document.getElementById('income-expense-overlay').addEventListener('click', function(e) {
-  if (e.target === this) {
-    closeIncomeExpenseDetail();
-  }
-});
-
-console.log('✅ Event listener per Entrate/Uscite inizializzati con delegamento');
-
-// Altri event listener...
-document.getElementById('btn-upload-bolletta').addEventListener('click', uploadBolletta);
-document.getElementById('bolletta-year-filter').addEventListener('change', renderBolletteList);
-document.getElementById('bolletta-detail-close').addEventListener('click', closeBollettaDetail);
-document.getElementById('bolletta-detail-overlay').addEventListener('click', (e) => {
-  if (e.target.id === 'bolletta-detail-overlay') closeBollettaDetail();
-});
-document.getElementById('bolletta-detail-download').addEventListener('click', downloadBollettaFromDetail);
-document.getElementById('bolletta-detail-delete').addEventListener('click', deleteBollettaFromDetail);
-async function generateScreenshotPDF(elementId, filename) {
+  
+  console.log('✅ Inizializzazione completata');
+})();
+  
+  async function generateScreenshotPDF(elementId, filename) {
   showLoading(true);
   try {
     await new Promise(resolve => setTimeout(resolve, 500));
