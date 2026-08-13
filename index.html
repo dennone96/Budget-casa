@@ -6110,7 +6110,32 @@ function openIncomeExpenseDetail(type) {
   document.getElementById('income-expense-title').textContent = title;
   document.getElementById('income-expense-overlay').classList.add('open');
 }
+ function closeIncomeExpenseDetail() {
+    document.getElementById('income-expense-overlay').classList.remove('open');
+  }
+  
+  // === EVENT LISTENER ===
+  document.getElementById('card-income').addEventListener('click', function(e) {
+    e.preventDefault();
+    openIncomeExpenseDetail('income');
+  });
 
+  document.getElementById('card-expense').addEventListener('click', function(e) {
+    e.preventDefault();
+    openIncomeExpenseDetail('expense');
+  });
+
+  document.getElementById('income-expense-close').addEventListener('click', function(e) {
+    e.preventDefault();
+    closeIncomeExpenseDetail();
+  });
+
+  document.getElementById('income-expense-overlay').addEventListener('click', function(e) {
+    if (e.target === this) {
+      closeIncomeExpenseDetail();
+    }
+  });
+  
 // Altri event listener...
 document.getElementById('btn-upload-bolletta').addEventListener('click', uploadBolletta);
 document.getElementById('bolletta-year-filter').addEventListener('change', renderBolletteList);
@@ -7449,19 +7474,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
-function closeIncomeExpenseDetail() {
-  document.getElementById('income-expense-overlay').classList.remove('open');
-}
 
-// Event listener per i click sui riquadri
-document.getElementById('card-income').addEventListener('click', () => openIncomeExpenseDetail('income'));
-document.getElementById('card-expense').addEventListener('click', () => openIncomeExpenseDetail('expense'));
-
-// Event listener per chiudere il popup
-document.getElementById('income-expense-close').addEventListener('click', closeIncomeExpenseDetail);
-document.getElementById('income-expense-overlay').addEventListener('click', (e) => {
-  if (e.target.id === 'income-expense-overlay') closeIncomeExpenseDetail();
-});
 })();
 </script>
 </body>
