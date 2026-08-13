@@ -3574,11 +3574,36 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 const storage = firebase.storage();
+
 const DEFAULT_CATEGORIES = {
 expense: ['Spesa', 'Bollette', 'Affitto/Mutuo', 'Trasporti', 'Salute', 'Svago', 'Istruzione', 'Altro'],
 income: ['Stipendio', 'Bonus', 'Regalo', 'Altro']
 };
 
+// === FIX CLICK ENTRATE/USCITE ===
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('🔄 Inizializzo click Entrate/Uscite...');
+  
+  document.addEventListener('click', function(e) {
+    const incomeCard = e.target.closest('#card-income');
+    if (incomeCard) {
+      console.log('🖱️ Click su Entrate!');
+      if (typeof openIncomeExpenseDetail === 'function') {
+        openIncomeExpenseDetail('income');
+      }
+      return;
+    }
+    
+    const expenseCard = e.target.closest('#card-expense');
+    if (expenseCard) {
+      console.log('🖱️ Click su Uscite!');
+      if (typeof openIncomeExpenseDetail === 'function') {
+        openIncomeExpenseDetail('expense');
+      }
+      return;
+    }
+  });
+});
 const COLOR_PALETTE = [
   { name: 'Rosso', hex: '#E74C3C' },
   { name: 'Arancione', hex: '#F39C12' },
@@ -3637,16 +3662,10 @@ let currentListId = null;
 let eventsData = {};  
   
 // === GESTIONE EVENTI CALENDARIO ===
-let currentMonth = new Date().getMonth();
-let currentYear = new Date().getFullYear();
-let selectedDate = new Date();
 
 // Carica gli eventi
 async function loadEvents() {
-  if (!currentUser) {
-    console.warn('Nessun utente loggato');
-    return;
-  }
+  if (!currentUser) return;
   
   try {
     const userDoc = await userDocRef().get();
@@ -3678,13 +3697,8 @@ async function saveEvents() {
 
 // Renderizza il calendario
 function renderCalendar() {
-  console.log('📅 Renderizzazione calendario...');
-  
   const container = document.getElementById('calendario-giorni');
-  if (!container) {
-    console.error('❌ Container calendario-giorni non trovato!');
-    return;
-  }
+  if (!container) return;
   
   const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
   const meseTitolo = document.getElementById('mese-titolo');
@@ -3702,14 +3716,12 @@ function renderCalendar() {
   
   let html = '';
   
-  // Giorni del mese precedente
   const prevMonthLastDay = new Date(currentYear, currentMonth, 0).getDate();
   for (let i = startDay - 1; i >= 0; i--) {
     const day = prevMonthLastDay - i;
     html += `<div class="giorno-cell altro-mese" data-date="${currentYear}-${String(currentMonth).padStart(2,'0')}-${String(day).padStart(2,'0')}">${day}</div>`;
   }
   
-  // Giorni del mese corrente
   for (let day = 1; day <= daysInMonth; day++) {
     const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
     const isToday = dateStr === todayStr;
@@ -3724,7 +3736,6 @@ function renderCalendar() {
     html += `<div class="${classes}" data-date="${dateStr}">${day}</div>`;
   }
   
-  // Giorni del mese successivo
   const totalCells = startDay + daysInMonth;
   const remainingCells = (7 - (totalCells % 7)) % 7;
   for (let day = 1; day <= remainingCells; day++) {
@@ -3868,14 +3879,14 @@ function showNewEventModal() {
   });
 }
 
-// === DELEGAMENTO EVENTI PER GLI EVENTI ===
+// === DELEGAMENTO EVENTI PER IL CALENDARIO ===
+// UNICO LISTENER PER TUTTI GLI EVENTI DEL CALENDARIO
 document.addEventListener('click', function(e) {
   // Click su giorno del calendario
   const giornoCell = e.target.closest('.giorno-cell');
   if (giornoCell) {
     const dateStr = giornoCell.dataset.date;
     if (dateStr) {
-      console.log('📅 Giorno selezionato:', dateStr);
       selectedDate = new Date(dateStr);
       renderCalendar();
       renderEventsForDay(dateStr);
@@ -3887,7 +3898,6 @@ document.addEventListener('click', function(e) {
   const btnPrec = e.target.closest('#btn-mese-prec');
   if (btnPrec) {
     e.preventDefault();
-    console.log('⬅️ Mese precedente');
     if (currentMonth === 0) {
       currentMonth = 11;
       currentYear--;
@@ -3902,7 +3912,6 @@ document.addEventListener('click', function(e) {
   const btnSucc = e.target.closest('#btn-mese-succ');
   if (btnSucc) {
     e.preventDefault();
-    console.log('➡️ Mese successivo');
     if (currentMonth === 11) {
       currentMonth = 0;
       currentYear++;
@@ -3917,7 +3926,6 @@ document.addEventListener('click', function(e) {
   const btnNuovo = e.target.closest('#btn-nuovo-evento');
   if (btnNuovo) {
     e.preventDefault();
-    console.log('📝 Nuovo evento');
     showNewEventModal();
     return;
   }
