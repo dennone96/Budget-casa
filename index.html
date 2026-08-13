@@ -5966,23 +5966,38 @@ renderBolletteList();
 alert('Errore nell\'eliminazione: ' + err.message);
 }
 }
+// === FUNZIONE PER SCARICARE LA BOLLETTA ===
 async function downloadBollettaFromDetail() {
-if (!bollettaDetailData) return;
-const { tipo, meseKey, index } = bollettaDetailData;
-const bolletta = bolletteData[tipo]?.[meseKey]?.[index];
-if (!bolletta) return;
-try {
-const link = document.createElement('a');
-link.href = bolletta.url;
-link.download = bolletta.nome;
-link.target = '_blank';
-document.body.appendChild(link);
-link.click();
-document.body.removeChild(link);
-} catch (err) {
-alert('Errore nel download: ' + err.message);
+  if (!bollettaDetailData) {
+    alert('Nessuna bolletta selezionata');
+    return;
+  }
+  
+  const { tipo, meseKey, index } = bollettaDetailData;
+  const bolletta = bolletteData[tipo]?.[meseKey]?.[index];
+  
+  if (!bolletta) {
+    alert('Bolletta non trovata');
+    return;
+  }
+  
+  try {
+    const link = document.createElement('a');
+    link.href = bolletta.url;
+    link.download = bolletta.nome;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    console.log('✅ Download avviato:', bolletta.nome);
+  } catch (err) {
+    alert('Errore nel download: ' + err.message);
+    console.error('Errore download:', err);
+  }
 }
-}
+
+// === AGGIUNGI QUESTA RIGA PER ESPORRE LA FUNZIONE GLOBALMENTE ===
+window.downloadBollettaFromDetail = downloadBollettaFromDetail;
 async function uploadBolletta() {
 const tipo = document.getElementById('bolletta-tipo').value;
 const fornitore = document.getElementById('bolletta-fornitore').value.trim();
