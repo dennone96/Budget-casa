@@ -3524,18 +3524,11 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 <div class="detail-field"><label>Importo</label><p id="bolletta-detail-importo"></p></div>
 <div class="detail-field"><label>Data caricamento</label><p id="bolletta-detail-date"></p></div>
 <div style="display:flex; gap:10px; margin-top:1.5rem;">
-<button id="bolletta-detail-close" 
-        onclick="document.getElementById('bolletta-detail-overlay').style.display = 'none'; bollettaDetailData = null;"
-        style="flex:1; height:46px; background:var(--surface-2); border:1px solid var(--border); color:var(--text-primary); border-radius:var(--radius-sm); font-weight:700; cursor:pointer; font-family:inherit;">
-  Chiudi
+<button id="bolletta-detail-close" style="flex:1; height:46px; background:var(--surface-2); border:1px solid var(--border); color:var(--text-primary); border-radius:var(--radius-sm); font-weight:700; cursor:pointer; font-family:inherit;">Chiudi</button>
+<button id="bolletta-detail-download" style="flex:1; height:46px; background:var(--accent); color:#fff; border:none; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; font-family:inherit;">
+<i class="ti ti-download" style="font-size:18px;"></i> Scarica
 </button>
-<button id="bolletta-detail-download" 
-        style="flex:1; height:46px; background:var(--accent); color:#fff; border:none; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; font-family:inherit;">
-  <i class="ti ti-download" style="font-size:18px;"></i> Scarica
-</button>
-  <button id="bolletta-detail-delete" 
-          onclick="if(confirm('Eliminare questa bolletta?')) deleteBollettaFromDetail()"
-          style="width:46px; height:46px; background:var(--danger); color:#fff; border:none; border-radius:var(--radius-sm); cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+<button id="bolletta-detail-delete" style="width:46px; height:46px; background:var(--danger); color:#fff; border:none; border-radius:var(--radius-sm); cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 512 512"><defs><linearGradient id="trashGrad" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#F04438"/><stop offset="1" stop-color="#B42318"/></linearGradient></defs><rect x="72" y="72" width="368" height="368" rx="92" fill="url(#trashGrad)"/><path d="M202 154c0-17.7 14.3-32 32-32h44c17.7 0 32 14.3 32 32v14h52c11 0 20 9 20 20s-9 20-20 20H150c-11 0-20-9-20-20s9-20 20-20h52v-14Zm40 14h28v-6c0-3.3-2.7-6-6-6h-16c-3.3 0-6 2.7-6 6v6Z" fill="#FFFFFF"/><path d="M170 238c-1.1-13.8 9.8-25.6 23.6-25.6h124.8c13.8 0 24.7 11.8 23.6 25.6l-12.2 144.9c-1.5 17.5-16.1 31.1-33.7 31.1h-80.2c-17.6 0-32.2-13.6-33.7-31.1L170 238Z" fill="#FFFFFF"/></svg>
 </button>
 </div>
@@ -5965,40 +5958,24 @@ renderBolletteList();
 alert('Errore nell\'eliminazione: ' + err.message);
 }
 }
-  // === FUNZIONE PER SCARICARE LA BOLLETTA ===
-  async function downloadBollettaFromDetail() {
-    if (!bollettaDetailData) {
-      alert('Nessuna bolletta selezionata');
-      return;
-    }
-    
-    const { tipo, meseKey, index } = bollettaDetailData;
-    const bolletta = bolletteData[tipo]?.[meseKey]?.[index];
-    
-    if (!bolletta) {
-      alert('Bolletta non trovata');
-      return;
-    }
-    
-    try {
-      const link = document.createElement('a');
-      link.href = bolletta.url;
-      link.download = bolletta.nome;
-      link.target = '_blank';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      console.log('✅ Download avviato:', bolletta.nome);
-    } catch (err) {
-      alert('Errore nel download: ' + err.message);
-      console.error('Errore download:', err);
-    }
-  }
-  
-  // === AGGIUNGI QUESTA RIGA PER ESPORRE LA FUNZIONE GLOBALMENTE ===
-  window.downloadBollettaFromDetail = downloadBollettaFromDetail;
-
-  async function uploadBolletta() {
+async function downloadBollettaFromDetail() {
+if (!bollettaDetailData) return;
+const { tipo, meseKey, index } = bollettaDetailData;
+const bolletta = bolletteData[tipo]?.[meseKey]?.[index];
+if (!bolletta) return;
+try {
+const link = document.createElement('a');
+link.href = bolletta.url;
+link.download = bolletta.nome;
+link.target = '_blank';
+document.body.appendChild(link);
+link.click();
+document.body.removeChild(link);
+} catch (err) {
+alert('Errore nel download: ' + err.message);
+}
+}
+async function uploadBolletta() {
 const tipo = document.getElementById('bolletta-tipo').value;
 const fornitore = document.getElementById('bolletta-fornitore').value.trim();
 const importoStr = document.getElementById('bolletta-importo').value;
@@ -7615,48 +7592,8 @@ document.addEventListener('DOMContentLoaded', function() {
     console.warn('⚠️ btn-nuovo-evento non trovato');
   }
 });
-// === LISTENER PER IL PULSANTE SCARICA BOLLETTA ===
-(function initDownloadButton() {
-  const downloadBtn = document.getElementById('bolletta-detail-download');
-  if (downloadBtn) {
-    const newBtn = downloadBtn.cloneNode(true);
-    downloadBtn.parentNode.replaceChild(newBtn, downloadBtn);
-    
-    newBtn.addEventListener('click', function(e) {
-      e.preventDefault();
-      console.log('🖱️ Click su Scarica');
-      
-      if (!bollettaDetailData) {
-        alert('Nessuna bolletta selezionata');
-        return;
-      }
-      
-      const { tipo, meseKey, index } = bollettaDetailData;
-      const bolletta = bolletteData[tipo]?.[meseKey]?.[index];
-      
-      if (!bolletta) {
-        alert('Bolletta non trovata');
-        return;
-      }
-      
-      try {
-        const link = document.createElement('a');
-        link.href = bolletta.url;
-        link.download = bolletta.nome;
-        link.target = '_blank';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        console.log('✅ Download avviato:', bolletta.nome);
-      } catch (err) {
-        alert('Errore nel download: ' + err.message);
-        console.error('Errore download:', err);
-      }
-    });
-    console.log('✅ Listener Scarica Bolletta aggiunto');
-  } else {
-    console.warn('⚠️ Pulsante bolletta-detail-download non trovato');
-  }
+
+
 })();
 </script>
 </body>
