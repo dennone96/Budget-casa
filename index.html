@@ -3550,12 +3550,13 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 </div>
 </div>
 </div>
-<div id="income-expense-overlay">
-  <div id="income-expense-box">
-    <h3 id="income-expense-title">Dettaglio</h3>
+<!-- Dettaglio Entrate/Uscite -->
+<div id="income-expense-overlay" style="display:none; position:fixed; inset:0; background:rgba(15,25,35,0.6); backdrop-filter:blur(8px); z-index:600; align-items:center; justify-content:center; padding:1rem;">
+  <div id="income-expense-box" style="background:var(--surface); border-radius:var(--radius-lg); padding:2rem; width:100%; max-width:500px; box-shadow:var(--shadow-xl); animation:modalIn 0.3s ease;">
+    <h3 id="income-expense-title" style="margin:0 0 1.5rem; font-size:22px; font-weight:800; letter-spacing:-0.5px;">Dettaglio</h3>
     <div id="income-expense-content"></div>
-    <div style="margin-top: 1.5rem;">
-      <button id="income-expense-close" style="width: 100%; height: 46px; background: var(--surface-2); border: 1px solid var(--border); color: var(--text-primary); border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; font-family: inherit;">Chiudi</button>
+    <div style="margin-top:1.5rem;">
+      <button id="income-expense-close" style="width:100%; height:46px; background:var(--surface-2); border:1px solid var(--border); color:var(--text-primary); border-radius:var(--radius-sm); font-weight:700; cursor:pointer; font-family:inherit;">Chiudi</button>
     </div>
   </div>
 </div>  
@@ -6042,15 +6043,41 @@ progressDiv.classList.add('hidden');
 alert('Errore nel caricamento: ' + err.message);
 }
 }
+// === DETTAGLIO ENTRATE/USCITE (VERSIONE PULITA) ===
 function openIncomeExpenseDetail(type) {
+  console.log('🔍 openIncomeExpenseDetail chiamato con tipo:', type);
+  
+  // Controlla se gli elementi esistono
+  const overlay = document.getElementById('income-expense-overlay');
+  const contentDiv = document.getElementById('income-expense-content');
+  const titleEl = document.getElementById('income-expense-title');
+  
+  if (!overlay) {
+    console.error('❌ income-expense-overlay non trovato!');
+    return;
+  }
+  if (!contentDiv) {
+    console.error('❌ income-expense-content non trovato!');
+    return;
+  }
+  if (!titleEl) {
+    console.error('❌ income-expense-title non trovato!');
+    return;
+  }
+  
+  // Calcola i dati
   const from = filterFrom || todayISO().slice(0,7) + '-01';
   const to = filterTo || todayISO();
+  
   const mt = state.transactions.filter(t =>
     t.type === type &&
     t.date >= from &&
     t.date <= to &&
     matchesSourceFilter(t)
   );
+  
+  console.log('📊 Transazioni trovate:', mt.length);
+  
   const cashTotal = mt
     .filter(t => (t.source || 'cash') === 'cash')
     .reduce((s, t) => s + amountValue(t.amount), 0);
@@ -6058,13 +6085,15 @@ function openIncomeExpenseDetail(type) {
     .filter(t => (t.source || 'cash') === 'bank')
     .reduce((s, t) => s + amountValue(t.amount), 0);
   const total = cashTotal + bankTotal;
+  
   const isIncome = type === 'income';
-  const title = isIncome ? '💰 Dettaglio Entrate' : '💸 Dettaglio Uscite';
   const valueClass = isIncome ? 'income' : 'expense';
+  
   const periodLabel = filterMode === 'month'
     ? `${document.getElementById('filter-month')?.selectedOptions[0]?.textContent || ''} ${document.getElementById('filter-year')?.value || ''}`
     : `Dal ${fmtDateLabel(new Date(filterFrom + 'T00:00:00'))} al ${fmtDateLabel(new Date(filterTo + 'T00:00:00'))}`;
-  const contentDiv = document.getElementById('income-expense-content');
+  
+  // Popola il contenuto
   if (mt.length === 0) {
     contentDiv.innerHTML = `
       <div class="ie-period">${periodLabel}</div>
@@ -6085,7 +6114,7 @@ function openIncomeExpenseDetail(type) {
       </div>
       <div class="ie-row">
         <div class="ie-label">
-          <div class="ie-icon bank"></div>
+          <div class="ie-icon bank">🏦</div>
           <div>
             <div>Conto corrente</div>
             <div style="font-size:11px; color:var(--text-muted); font-weight:600;">${mt.filter(t => (t.source || 'cash') === 'bank').length} movimenti</div>
@@ -6099,20 +6128,55 @@ function openIncomeExpenseDetail(type) {
       </div>
     `;
   }
-  document.getElementById('income-expense-title').textContent = title;
-  document.getElementById('income-expense-overlay').classList.add('open');
+  
+  titleEl.textContent = isIncome ? '💰 Dettaglio Entrate' : '💸 Dettaglio Uscite';
+  overlay.style.display = 'flex';
+  overlay.classList.add('open');
+  console.log('✅ Popup aperto');
 }
 
+// === CHIUSURA POPUP ===
 function closeIncomeExpenseDetail() {
-  document.getElementById('income-expense-overlay').classList.remove('open');
+  const overlay = document.getElementById('income-expense-overlay');
+  if (overlay) {
+    overlay.style.display = 'none';
+    overlay.classList.remove('open');
+  }
+  console.log('❌ Popup chiuso');
 }
 
-document.getElementById('income-expense-close').addEventListener('click', closeIncomeExpenseDetail);
-document.getElementById('income-expense-overlay').addEventListener('click', (e) => {
-  if (e.target.id === 'income-expense-overlay') closeIncomeExpenseDetail();
+// === DELEGAMENTO EVENTI PER I RIQUADRI ENTRATE/USCITE ===
+// Questo funziona SEMPRE, anche se gli elementi vengono creati dopo
+document.addEventListener('click', function(e) {
+  // Click su Entrate
+  const incomeCard = e.target.closest('#card-income');
+  if (incomeCard) {
+    console.log('🖱️ Click su Entrate (delegamento)');
+    openIncomeExpenseDetail('income');
+    e.preventDefault();
+    return;
+  }
+  
+  // Click su Uscite
+  const expenseCard = e.target.closest('#card-expense');
+  if (expenseCard) {
+    console.log('🖱️ Click su Uscite (delegamento)');
+    openIncomeExpenseDetail('expense');
+    e.preventDefault();
+    return;
+  }
 });
-document.getElementById('card-income').addEventListener('click', () => openIncomeExpenseDetail('income'));
-document.getElementById('card-expense').addEventListener('click', () => openIncomeExpenseDetail('expense'));
+
+// Event listener per chiudere il popup
+document.getElementById('income-expense-close').addEventListener('click', closeIncomeExpenseDetail);
+
+document.getElementById('income-expense-overlay').addEventListener('click', function(e) {
+  if (e.target === this) {
+    closeIncomeExpenseDetail();
+  }
+});
+
+console.log('✅ Event listener per Entrate/Uscite inizializzati con delegamento');
 
 // Altri event listener...
 document.getElementById('btn-upload-bolletta').addEventListener('click', uploadBolletta);
@@ -7452,19 +7516,6 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
-function closeIncomeExpenseDetail() {
-  document.getElementById('income-expense-overlay').classList.remove('open');
-}
-
-// Event listener per i click sui riquadri
-document.getElementById('card-income').addEventListener('click', () => openIncomeExpenseDetail('income'));
-document.getElementById('card-expense').addEventListener('click', () => openIncomeExpenseDetail('expense'));
-
-// Event listener per chiudere il popup
-document.getElementById('income-expense-close').addEventListener('click', closeIncomeExpenseDetail);
-document.getElementById('income-expense-overlay').addEventListener('click', (e) => {
-  if (e.target.id === 'income-expense-overlay') closeIncomeExpenseDetail();
-});
 })();
 </script>
 </body>
