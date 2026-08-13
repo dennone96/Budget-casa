@@ -3529,7 +3529,11 @@ Movimenti in contanti. Stesse colonne del conto corrente.
         style="flex:1; height:46px; background:var(--surface-2); border:1px solid var(--border); color:var(--text-primary); border-radius:var(--radius-sm); font-weight:700; cursor:pointer; font-family:inherit;">
   Chiudi
 </button>
-<button id="bolletta-detail-download" style="flex:1; height:46px; background:var(--accent); color:#fff; border:none; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; font-family:inherit;">
+<button id="bolletta-detail-download" 
+        onclick="downloadBollettaFromDetail()"
+        style="flex:1; height:46px; background:var(--accent); color:#fff; border:none; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; font-family:inherit;">
+  <i class="ti ti-download" style="font-size:18px;"></i> Scarica
+</button>
 <i class="ti ti-download" style="font-size:18px;"></i> Scarica
 </button>
 <button id="bolletta-detail-delete" style="width:46px; height:46px; background:var(--danger); color:#fff; border:none; border-radius:var(--radius-sm); cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
