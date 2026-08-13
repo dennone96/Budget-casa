@@ -3674,23 +3674,22 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 <div id="pdf-loading"><div class="spinner"></div><span>Generazione PDF...</span></div>
 <script>
 (function(){
-(function(){
 // === DEBUG: VERIFICA ELEMENTI ===
 console.log('🔍 DEBUG: Verifica elementi pagina...');
 
 // Controlla se i riquadri esistono
-const cardIncome = document.getElementById('card-income');
-const cardExpense = document.getElementById('card-expense');
-console.log('📊 card-income:', cardIncome ? '✅ TROVATO' : '❌ NON TROVATO');
-console.log('📊 card-expense:', cardExpense ? '✅ TROVATO' : '❌ NON TROVATO');
+const debugCardIncome = document.getElementById('card-income');
+const debugCardExpense = document.getElementById('card-expense');
+console.log('📊 card-income:', debugCardIncome ? '✅ TROVATO' : '❌ NON TROVATO');
+console.log('📊 card-expense:', debugCardExpense ? '✅ TROVATO' : '❌ NON TROVATO');
 
 // Controlla se il popup esiste
-const overlay = document.getElementById('income-expense-overlay');
-const content = document.getElementById('income-expense-content');
-const closeBtn = document.getElementById('income-expense-close');
-console.log('📊 overlay:', overlay ? '✅ TROVATO' : '❌ NON TROVATO');
-console.log('📊 content:', content ? '✅ TROVATO' : '❌ NON TROVATO');
-console.log('📊 closeBtn:', closeBtn ? '✅ TROVATO' : '❌ NON TROVATO');
+const debugOverlay = document.getElementById('income-expense-overlay');
+const debugContent = document.getElementById('income-expense-content');
+const debugCloseBtn = document.getElementById('income-expense-close');
+console.log('📊 overlay:', debugOverlay ? '✅ TROVATO' : '❌ NON TROVATO');
+console.log('📊 content:', debugContent ? '✅ TROVATO' : '❌ NON TROVATO');
+console.log('📊 closeBtn:', debugCloseBtn ? '✅ TROVATO' : '❌ NON TROVATO');
  
 const firebaseConfig = {
 apiKey: "AIzaSyBPEg2d86zKWs6mf2L15TN7QPiMkEGbixs",
@@ -6284,29 +6283,26 @@ function closeIncomeExpenseDetail() {
     overlay.classList.remove('open');
   }
 }
-// === FUNZIONE DI INIZIALIZZAZIONE ROBUSTA ===
 function initIncomeExpenseClicks() {
   console.log('🔄 Inizializzazione click riquadri...');
   
-  // Ricarica gli elementi dal DOM
-  const cardIncome = document.getElementById('card-income');
-  const cardExpense = document.getElementById('card-expense');
-  const closeBtn = document.getElementById('income-expense-close');
-  const overlay = document.getElementById('income-expense-overlay');
+  // Usa nomi univoci per evitare conflitti
+  const incCard = document.getElementById('card-income');
+  const expCard = document.getElementById('card-expense');
+  const closeBtnEl = document.getElementById('income-expense-close');
+  const overlayEl = document.getElementById('income-expense-overlay');
   
   console.log('📊 Elementi trovati:');
-  console.log('  - card-income:', cardIncome ? '✅' : '❌');
-  console.log('  - card-expense:', cardExpense ? '✅' : '❌');
-  console.log('  - overlay:', overlay ? '✅' : '❌');
-  console.log('  - closeBtn:', closeBtn ? '✅' : '❌');
+  console.log('  - card-income:', incCard ? '✅' : '❌');
+  console.log('  - card-expense:', expCard ? '✅' : '❌');
+  console.log('  - overlay:', overlayEl ? '✅' : '❌');
+  console.log('  - closeBtn:', closeBtnEl ? '✅' : '❌');
   
   // === INCOME (ENTRATE) ===
-  if (cardIncome) {
-    // Rimuovi tutti i listener vecchi clonando
-    const newCard = cardIncome.cloneNode(true);
-    cardIncome.parentNode.replaceChild(newCard, cardIncome);
+  if (incCard) {
+    const newCard = incCard.cloneNode(true);
+    incCard.parentNode.replaceChild(newCard, incCard);
     
-    // Aggiungi il listener
     newCard.addEventListener('click', function(e) {
       e.preventDefault();
       e.stopPropagation();
@@ -6314,7 +6310,6 @@ function initIncomeExpenseClicks() {
       openIncomeExpenseDetail('income');
     });
     
-    // Aggiungi classe clickable
     newCard.classList.add('clickable');
     console.log('✅ Click ENTRATE inizializzato');
   } else {
@@ -6322,12 +6317,10 @@ function initIncomeExpenseClicks() {
   }
   
   // === EXPENSE (USCITE) ===
-  if (cardExpense) {
-    // Rimuovi tutti i listener vecchi clonando
-    const newCard = cardExpense.cloneNode(true);
-    cardExpense.parentNode.replaceChild(newCard, cardExpense);
+  if (expCard) {
+    const newCard = expCard.cloneNode(true);
+    expCard.parentNode.replaceChild(newCard, expCard);
     
-    // Aggiungi il listener
     newCard.addEventListener('click', function(e) {
       e.preventDefault();
       e.stopPropagation();
@@ -6335,7 +6328,6 @@ function initIncomeExpenseClicks() {
       openIncomeExpenseDetail('expense');
     });
     
-    // Aggiungi classe clickable
     newCard.classList.add('clickable');
     console.log('✅ Click USCITE inizializzato');
   } else {
@@ -6343,8 +6335,8 @@ function initIncomeExpenseClicks() {
   }
   
   // === CLOSE BUTTON ===
-  if (closeBtn) {
-    closeBtn.addEventListener('click', function(e) {
+  if (closeBtnEl) {
+    closeBtnEl.addEventListener('click', function(e) {
       e.preventDefault();
       console.log('🖱️ CLICK su Chiudi');
       closeIncomeExpenseDetail();
@@ -6355,9 +6347,9 @@ function initIncomeExpenseClicks() {
   }
   
   // === OVERLAY ===
-  if (overlay) {
-    overlay.addEventListener('click', function(e) {
-      if (e.target === overlay) {
+  if (overlayEl) {
+    overlayEl.addEventListener('click', function(e) {
+      if (e.target === overlayEl) {
         console.log('🖱️ CLICK su overlay (fuori)');
         closeIncomeExpenseDetail();
       }
@@ -6367,7 +6359,6 @@ function initIncomeExpenseClicks() {
     console.error('❌ overlay NON TROVATO nel DOM!');
   }
 }
-
 // === ESPONI LE FUNZIONI GLOBALMENTE ===
 window.openIncomeExpenseDetail = openIncomeExpenseDetail;
 window.closeIncomeExpenseDetail = closeIncomeExpenseDetail;
