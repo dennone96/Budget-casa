@@ -6027,89 +6027,91 @@ document.body.removeChild(link);
 alert('Errore nel download: ' + err.message);
 }
 }
-async function uploadBolletta() {
-  const tipo = document.getElementById('bolletta-tipo').value;
-  const fornitore = document.getElementById('bolletta-fornitore').value.trim();
-  const importoStr = document.getElementById('bolletta-importo').value;
-  const importo = parseFloat(importoStr);
-  const mese = document.getElementById('bolletta-mese').value;
-  const fileInput = document.getElementById('bolletta-file');
-  const file = fileInput.files[0];
-  
-  if (!fornitore) {
-    alert('Inserisci il nome del fornitore');
-    return;
-  }
-  if (isNaN(importo) || importo <= 0) {
-    alert('Inserisci un importo valido');
-    return;
-  }
-  if (!file) {
-    alert('Seleziona un file PDF');
-    return;
-  }
-  if (file.type !== 'application/pdf') {
-    alert('Il file deve essere in formato PDF');
-    return;
-  }
-  if (file.size > 10 * 1024 * 1024) {
-    alert('Il file è troppo grande. Dimensione massima: 10MB');
-    return;
-  }
-  
-  const progressDiv = document.getElementById('bolletta-upload-progress');
-  const progressFill = document.getElementById('bolletta-progress-fill');
-  const progressText = document.getElementById('bolletta-progress-text');
-  
-  try {
-    progressDiv.classList.remove('hidden');
-    const timestamp = Date.now();
-    const storagePath = `bollette/${currentUser.uid}/${tipo}/${mese}/${timestamp}_${file.name}`;
-    const fileRef = storage.ref().child(storagePath);
-    const uploadTask = fileRef.put(file);
+  // === DEFINIZIONE DELLA FUNZIONE UPLOAD ===
+  async function uploadBolletta() {
+    const tipo = document.getElementById('bolletta-tipo').value;
+    const fornitore = document.getElementById('bolletta-fornitore').value.trim();
+    const importoStr = document.getElementById('bolletta-importo').value;
+    const importo = parseFloat(importoStr);
+    const mese = document.getElementById('bolletta-mese').value;
+    const fileInput = document.getElementById('bolletta-file');
+    const file = fileInput.files[0];
     
-    await new Promise((resolve, reject) => {
-      uploadTask.on('state_changed',
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          progressFill.style.width = progress + '%';
-          progressText.textContent = `Caricamento... ${Math.round(progress)}%`;
-        },
-        (error) => reject(error),
-        async () => {
-          const downloadUrl = await uploadTask.snapshot.ref.getDownloadURL();
-          if (!bolletteData[tipo]) bolletteData[tipo] = {};
-          if (!bolletteData[tipo][mese]) bolletteData[tipo][mese] = [];
-          bolletteData[tipo][mese].push({
-            nome: file.name,
-            fornitore: fornitore,
-            importo: importo,
-            url: downloadUrl,
-            storagePath: storagePath,
-            size: file.size,
-            dataCaricamento: new Date().toISOString()
-          });
-          await saveBolletteData();
-          renderBolletteList();
-          resolve();
-        }
-      );
-    });
+    if (!fornitore) {
+      alert('Inserisci il nome del fornitore');
+      return;
+    }
+    if (isNaN(importo) || importo <= 0) {
+      alert('Inserisci un importo valido');
+      return;
+    }
+    if (!file) {
+      alert('Seleziona un file PDF');
+      return;
+    }
+    if (file.type !== 'application/pdf') {
+      alert('Il file deve essere in formato PDF');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      alert('Il file è troppo grande. Dimensione massima: 10MB');
+      return;
+    }
     
-    fileInput.value = '';
-    document.getElementById('bolletta-fornitore').value = '';
-    document.getElementById('bolletta-importo').value = '';
-    progressDiv.classList.add('hidden');
-    progressFill.style.width = '0%';
-    alert('Bolletta caricata con successo!');
-  } catch (err) {
-    progressDiv.classList.add('hidden');
-    alert('Errore nel caricamento: ' + err.message);
-    console.error('❌ Errore upload:', err);
+    const progressDiv = document.getElementById('bolletta-upload-progress');
+    const progressFill = document.getElementById('bolletta-progress-fill');
+    const progressText = document.getElementById('bolletta-progress-text');
+    
+    try {
+      progressDiv.classList.remove('hidden');
+      const timestamp = Date.now();
+      const storagePath = `bollette/${currentUser.uid}/${tipo}/${mese}/${timestamp}_${file.name}`;
+      const fileRef = storage.ref().child(storagePath);
+      const uploadTask = fileRef.put(file);
+      
+      await new Promise((resolve, reject) => {
+        uploadTask.on('state_changed',
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            progressFill.style.width = progress + '%';
+            progressText.textContent = `Caricamento... ${Math.round(progress)}%`;
+          },
+          (error) => reject(error),
+          async () => {
+            const downloadUrl = await uploadTask.snapshot.ref.getDownloadURL();
+            if (!bolletteData[tipo]) bolletteData[tipo] = {};
+            if (!bolletteData[tipo][mese]) bolletteData[tipo][mese] = [];
+            bolletteData[tipo][mese].push({
+              nome: file.name,
+              fornitore: fornitore,
+              importo: importo,
+              url: downloadUrl,
+              storagePath: storagePath,
+              size: file.size,
+              dataCaricamento: new Date().toISOString()
+            });
+            await saveBolletteData();
+            renderBolletteList();
+            resolve();
+          }
+        );
+      });
+      
+      fileInput.value = '';
+      document.getElementById('bolletta-fornitore').value = '';
+      document.getElementById('bolletta-importo').value = '';
+      progressDiv.classList.add('hidden');
+      progressFill.style.width = '0%';
+      alert('Bolletta caricata con successo!');
+    } catch (err) {
+      progressDiv.classList.add('hidden');
+      alert('Errore nel caricamento: ' + err.message);
+      console.error('❌ Errore upload:', err);
+    }
   }
-}
-window.uploadBolletta = uploadBolletta;  
-// === FUNZIONE PER APRIRE IL DETTAGLIO ===
+
+  // === ESPONI LA FUNZIONE GLOBALMENTE ===
+  window.uploadBolletta = uploadBolletta;
 function openIncomeExpenseDetail(type) {
   console.log('🔍 Apertura dettaglio:', type);
   
