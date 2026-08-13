@@ -3555,7 +3555,9 @@ Movimenti in contanti. Stesse colonne del conto corrente.
     <h3 id="income-expense-title">Dettaglio</h3>
     <div id="income-expense-content"></div>
     <div style="margin-top: 1.5rem;">
-<button id="income-expense-close" style="width: 100%; height: 46px; background: var(--surface-2); border: 1px solid var(--border); color: var(--text-primary); border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; font-family: inherit;">
+<button id="income-expense-close" 
+        onclick="document.getElementById('income-expense-overlay').classList.remove('open')"
+        style="width: 100%; height: 46px; background: var(--surface-2); border: 1px solid var(--border); color: var(--text-primary); border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; font-family: inherit;">
   Chiudi
 </button>
     </div>
