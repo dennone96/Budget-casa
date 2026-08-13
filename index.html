@@ -712,15 +712,7 @@ box-shadow: var(--shadow-lg);
 .stat-card.expense { border-left: 4px solid var(--danger); }
 .stat-card.balance { border-left: 4px solid var(--accent); }
 .stat-card.residuo { border-left: 4px solid var(--purple); }
-/* PUNTO 6 - Riquadri cliccabili */
-.stat-card.clickable {
-  cursor: pointer;
-}
-.stat-card.clickable:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-} 
-  .stat-card p:first-child {
+.stat-card p:first-child {
 font-size: 13px;
 color: var(--text-secondary);
 margin: 0 0 10px;
@@ -2836,108 +2828,6 @@ border-radius: var(--radius-sm);
 .evento-modal .btn-create:hover {
   transform: scale(1.02);
   box-shadow: var(--shadow);
-} 
-/* DETTAGLIO ENTRATE/USCITE POPUP */
-#income-expense-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(15,25,35,0.6);
-  backdrop-filter: blur(8px);
-  z-index: 600;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-}
-#income-expense-overlay.open { display: flex; }
-#income-expense-box {
-  background: var(--surface);
-  border-radius: var(--radius-lg);
-  padding: 2rem;
-  width: 100%;
-  max-width: 500px;
-  box-shadow: var(--shadow-xl);
-  animation: modalIn 0.3s ease;
-}
-#income-expense-box h3 {
-  margin: 0 0 1.5rem;
-  font-size: 22px;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-}
-.ie-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px;
-  background: var(--surface-2);
-  border-radius: var(--radius-sm);
-  margin-bottom: 10px;
-  border: 1px solid var(--border);
-}
-.ie-row:last-of-type { margin-bottom: 0; }
-.ie-label {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 700;
-  color: var(--text-primary);
-  font-size: 14px;
-}
-.ie-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  flex-shrink: 0;
-}
-.ie-icon.cash { background: var(--success-light); }
-.ie-icon.bank { background: var(--info-light); }
-.ie-value {
-  font-size: 18px;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-}
-.ie-value.income { color: var(--success); }
-.ie-value.expense { color: var(--danger); }
-.ie-total {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 16px;
-  background: var(--accent-light);
-  border-radius: var(--radius-sm);
-  margin-top: 12px;
-  border: 1px solid var(--accent);
-}
-.ie-total-label {
-  font-weight: 800;
-  color: var(--accent);
-  font-size: 14px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.ie-total-value {
-  font-size: 20px;
-  font-weight: 800;
-  color: var(--accent);
-  letter-spacing: -0.5px;
-}
-.ie-empty {
-  text-align: center;
-  padding: 20px;
-  color: var(--text-muted);
-  font-size: 13px;
-  font-style: italic;
-}
-.ie-period {
-  font-size: 12px;
-  color: var(--text-muted);
-  font-weight: 600;
-  margin-bottom: 12px;
 }  
 </style>
 </head>
@@ -3052,14 +2942,14 @@ Budget
 </div>
 </div>
 <div class="stats-row stats-row-top">
-<div class="stat-card income clickable" id="card-income" title="Clicca per dettagli">
-  <p>Entrate</p>
-  <p style="color: var(--success);" id="stat-income">0,00 €</p>
-</div>
-<div class="stat-card expense clickable" id="card-expense" title="Clicca per dettagli">
-  <p>Uscite</p>
-  <p style="color: var(--danger);" id="stat-expense">0,00 €</p>
-</div>
+  <div class="stat-card income clickable" id="card-income" title="Clicca per dettagli">
+    <p>Entrate</p>
+    <p style="color: var(--success);" id="stat-income">0,00 €</p>
+  </div>
+  <div class="stat-card expense clickable" id="card-expense" title="Clicca per dettagli">
+    <p>Uscite</p>
+    <p style="color: var(--danger);" id="stat-expense">0,00 €</p>
+  </div>
 </div>
 
 <!-- Seconda riga: Saldo periodo (larghezza doppia) -->
@@ -3660,7 +3550,6 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 </div>
 </div>
 </div>
-<!-- DETTAGLIO ENTRATE/USCITE POPUP -->
 <div id="income-expense-overlay">
   <div id="income-expense-box">
     <h3 id="income-expense-title">Dettaglio</h3>
@@ -3669,7 +3558,6 @@ Movimenti in contanti. Stesse colonne del conto corrente.
       <button id="income-expense-close" style="width: 100%; height: 46px; background: var(--surface-2); border: 1px solid var(--border); color: var(--text-primary); border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; font-family: inherit;">Chiudi</button>
     </div>
   </div>
-</div>
 </div>  
 <div id="pdf-loading"><div class="spinner"></div><span>Generazione PDF...</span></div>
 <script>
@@ -6154,29 +6042,15 @@ progressDiv.classList.add('hidden');
 alert('Errore nel caricamento: ' + err.message);
 }
 }
-// === FUNZIONE PER APRIRE IL DETTAGLIO (CON DEBUG) ===
 function openIncomeExpenseDetail(type) {
-  console.log('🔍 APERTURA DETTAGLIO:', type);
-  
-  // Verifica che le variabili globali esistano
-  console.log('📊 filterFrom:', filterFrom);
-  console.log('📊 filterTo:', filterTo);
-  console.log('📊 state.transactions:', state.transactions ? state.transactions.length : 'N/A');
-  
   const from = filterFrom || todayISO().slice(0,7) + '-01';
   const to = filterTo || todayISO();
-  
-  // Filtra le transazioni
   const mt = state.transactions.filter(t =>
     t.type === type &&
     t.date >= from &&
     t.date <= to &&
     matchesSourceFilter(t)
   );
-  
-  console.log('📊 Transazioni trovate:', mt.length);
-  
-  // Calcola totali
   const cashTotal = mt
     .filter(t => (t.source || 'cash') === 'cash')
     .reduce((s, t) => s + amountValue(t.amount), 0);
@@ -6184,37 +6058,19 @@ function openIncomeExpenseDetail(type) {
     .filter(t => (t.source || 'cash') === 'bank')
     .reduce((s, t) => s + amountValue(t.amount), 0);
   const total = cashTotal + bankTotal;
-  
-  console.log('💰 Cash:', cashTotal, 'Bank:', bankTotal, 'Total:', total);
-  
   const isIncome = type === 'income';
   const title = isIncome ? '💰 Dettaglio Entrate' : '💸 Dettaglio Uscite';
   const valueClass = isIncome ? 'income' : 'expense';
-  
-  // Periodo
-  const monthSelect = document.getElementById('filter-month');
-  const yearSelect = document.getElementById('filter-year');
-  const periodLabel = filterMode === 'month' && monthSelect && yearSelect
-    ? `${monthSelect.selectedOptions[0]?.textContent || ''} ${yearSelect.value || ''}`
+  const periodLabel = filterMode === 'month'
+    ? `${document.getElementById('filter-month')?.selectedOptions[0]?.textContent || ''} ${document.getElementById('filter-year')?.value || ''}`
     : `Dal ${fmtDateLabel(new Date(filterFrom + 'T00:00:00'))} al ${fmtDateLabel(new Date(filterTo + 'T00:00:00'))}`;
-  
   const contentDiv = document.getElementById('income-expense-content');
-  if (!contentDiv) {
-    console.error('❌ Elemento income-expense-content NON TROVATO!');
-    alert('Errore: elemento content non trovato!');
-    return;
-  }
-  
-  // Genera il contenuto
   if (mt.length === 0) {
     contentDiv.innerHTML = `
       <div class="ie-period">${periodLabel}</div>
       <div class="ie-empty">Nessun movimento in questo periodo</div>
     `;
   } else {
-    const cashCount = mt.filter(t => (t.source || 'cash') === 'cash').length;
-    const bankCount = mt.filter(t => (t.source || 'cash') === 'bank').length;
-    
     contentDiv.innerHTML = `
       <div class="ie-period">${periodLabel}</div>
       <div class="ie-row">
@@ -6222,17 +6078,17 @@ function openIncomeExpenseDetail(type) {
           <div class="ie-icon cash">💵</div>
           <div>
             <div>Contanti</div>
-            <div style="font-size:11px; color:var(--text-muted); font-weight:600;">${cashCount} movimenti</div>
+            <div style="font-size:11px; color:var(--text-muted); font-weight:600;">${mt.filter(t => (t.source || 'cash') === 'cash').length} movimenti</div>
           </div>
         </div>
         <div class="ie-value ${valueClass}">${fmtEUR(cashTotal)}</div>
       </div>
       <div class="ie-row">
         <div class="ie-label">
-          <div class="ie-icon bank">🏦</div>
+          <div class="ie-icon bank"></div>
           <div>
             <div>Conto corrente</div>
-            <div style="font-size:11px; color:var(--text-muted); font-weight:600;">${bankCount} movimenti</div>
+            <div style="font-size:11px; color:var(--text-muted); font-weight:600;">${mt.filter(t => (t.source || 'cash') === 'bank').length} movimenti</div>
           </div>
         </div>
         <div class="ie-value ${valueClass}">${fmtEUR(bankTotal)}</div>
@@ -6243,116 +6099,21 @@ function openIncomeExpenseDetail(type) {
       </div>
     `;
   }
-  
-  // Aggiorna il titolo
-  const titleEl = document.getElementById('income-expense-title');
-  if (titleEl) titleEl.textContent = title;
-  
-  // Mostra il popup
-  const overlay = document.getElementById('income-expense-overlay');
-  if (overlay) {
-    overlay.classList.add('open');
-    console.log('✅ Popup aperto!');
-  } else {
-    console.error('❌ Elemento income-expense-overlay NON TROVATO!');
-    alert('Errore: overlay non trovato!');
-  }
+  document.getElementById('income-expense-title').textContent = title;
+  document.getElementById('income-expense-overlay').classList.add('open');
 }
 
 function closeIncomeExpenseDetail() {
-  console.log('🔒 Chiusura dettaglio');
-  const overlay = document.getElementById('income-expense-overlay');
-  if (overlay) {
-    overlay.classList.remove('open');
-  }
+  document.getElementById('income-expense-overlay').classList.remove('open');
 }
-function initIncomeExpenseClicks() {
-  console.log('🔄 Inizializzazione click riquadri...');
-  
-  // Usa nomi univoci per evitare conflitti
-  const incCard = document.getElementById('card-income');
-  const expCard = document.getElementById('card-expense');
-  const closeBtnEl = document.getElementById('income-expense-close');
-  const overlayEl = document.getElementById('income-expense-overlay');
-  
-  console.log('📊 Elementi trovati:');
-  console.log('  - card-income:', incCard ? '✅' : '❌');
-  console.log('  - card-expense:', expCard ? '✅' : '❌');
-  console.log('  - overlay:', overlayEl ? '✅' : '❌');
-  console.log('  - closeBtn:', closeBtnEl ? '✅' : '❌');
-  
-  // === INCOME (ENTRATE) ===
-  if (incCard) {
-    const newCard = incCard.cloneNode(true);
-    incCard.parentNode.replaceChild(newCard, incCard);
-    
-    newCard.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      console.log('🖱️ CLICK su ENTRATE!');
-      openIncomeExpenseDetail('income');
-    });
-    
-    newCard.classList.add('clickable');
-    console.log('✅ Click ENTRATE inizializzato');
-  } else {
-    console.error('❌ card-income NON TROVATO nel DOM!');
-  }
-  
-  // === EXPENSE (USCITE) ===
-  if (expCard) {
-    const newCard = expCard.cloneNode(true);
-    expCard.parentNode.replaceChild(newCard, expCard);
-    
-    newCard.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      console.log('🖱️ CLICK su USCITE!');
-      openIncomeExpenseDetail('expense');
-    });
-    
-    newCard.classList.add('clickable');
-    console.log('✅ Click USCITE inizializzato');
-  } else {
-    console.error('❌ card-expense NON TROVATO nel DOM!');
-  }
-  
-  // === CLOSE BUTTON ===
-  if (closeBtnEl) {
-    closeBtnEl.addEventListener('click', function(e) {
-      e.preventDefault();
-      console.log('🖱️ CLICK su Chiudi');
-      closeIncomeExpenseDetail();
-    });
-    console.log('✅ Close button inizializzato');
-  } else {
-    console.error('❌ closeBtn NON TROVATO nel DOM!');
-  }
-  
-  // === OVERLAY ===
-  if (overlayEl) {
-    overlayEl.addEventListener('click', function(e) {
-      if (e.target === overlayEl) {
-        console.log('🖱️ CLICK su overlay (fuori)');
-        closeIncomeExpenseDetail();
-      }
-    });
-    console.log('✅ Overlay click inizializzato');
-  } else {
-    console.error('❌ overlay NON TROVATO nel DOM!');
-  }
-}
-// === ESPONI LE FUNZIONI GLOBALMENTE ===
-window.openIncomeExpenseDetail = openIncomeExpenseDetail;
-window.closeIncomeExpenseDetail = closeIncomeExpenseDetail;
-// Inizializza i click quando il DOM è pronto
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(initIncomeExpenseClicks, 500);
-  });
-} else {
-  setTimeout(initIncomeExpenseClicks, 500);
-}  
+
+document.getElementById('income-expense-close').addEventListener('click', closeIncomeExpenseDetail);
+document.getElementById('income-expense-overlay').addEventListener('click', (e) => {
+  if (e.target.id === 'income-expense-overlay') closeIncomeExpenseDetail();
+});
+document.getElementById('card-income').addEventListener('click', () => openIncomeExpenseDetail('income'));
+document.getElementById('card-expense').addEventListener('click', () => openIncomeExpenseDetail('expense'));
+
 // Altri event listener...
 document.getElementById('btn-upload-bolletta').addEventListener('click', uploadBolletta);
 document.getElementById('bolletta-year-filter').addEventListener('change', renderBolletteList);
@@ -7704,167 +7465,6 @@ document.getElementById('income-expense-close').addEventListener('click', closeI
 document.getElementById('income-expense-overlay').addEventListener('click', (e) => {
   if (e.target.id === 'income-expense-overlay') closeIncomeExpenseDetail();
 });
-// === EVENT LISTENER PER I RIQUADRI ENTRATE/USCITE ===
-document.getElementById('card-income').addEventListener('click', function(e) {
-  e.preventDefault();
-  openIncomeExpenseDetail('income');
-});
-
-document.getElementById('card-expense').addEventListener('click', function(e) {
-  e.preventDefault();
-  openIncomeExpenseDetail('expense');
-});
-
-// === EVENT LISTENER PER CHIUDERE IL POPUP ===
-document.getElementById('income-expense-close').addEventListener('click', closeIncomeExpenseDetail);
-
-document.getElementById('income-expense-overlay').addEventListener('click', function(e) {
-  if (e.target.id === 'income-expense-overlay') {
-    closeIncomeExpenseDetail();
-  }
-});  
-// === DETTAGLIO ENTRATE/USCITE ===
-function openIncomeExpenseDetail(type) {
-  console.log('🔍 Apertura dettaglio:', type);
-  
-  var from = filterFrom || todayISO().slice(0,7) + '-01';
-  var to = filterTo || todayISO();
-  
-  var mt = state.transactions.filter(function(t) {
-    return t.type === type && t.date >= from && t.date <= to && matchesSourceFilter(t);
-  });
-  
-  var cashTotal = 0;
-  var bankTotal = 0;
-  
-  mt.forEach(function(t) {
-    var amount = amountValue(t.amount);
-    if ((t.source || 'cash') === 'cash') {
-      cashTotal += amount;
-    } else {
-      bankTotal += amount;
-    }
-  });
-  
-  var total = cashTotal + bankTotal;
-  var isIncome = type === 'income';
-  var title = isIncome ? '💰 Dettaglio Entrate' : '💸 Dettaglio Uscite';
-  var valueClass = isIncome ? 'income' : 'expense';
-  
-  var monthSelect = document.getElementById('filter-month');
-  var yearSelect = document.getElementById('filter-year');
-  var periodLabel = 'Periodo selezionato';
-  if (monthSelect && yearSelect) {
-    periodLabel = monthSelect.selectedOptions[0]?.textContent || '' + ' ' + (yearSelect.value || '');
-  }
-  
-  var contentDiv = document.getElementById('income-expense-content');
-  if (!contentDiv) {
-    console.error('❌ Elemento income-expense-content non trovato!');
-    return;
-  }
-  
-  if (mt.length === 0) {
-    contentDiv.innerHTML = '<div class="ie-period">' + periodLabel + '</div><div class="ie-empty">Nessun movimento in questo periodo</div>';
-  } else {
-    var cashCount = 0;
-    var bankCount = 0;
-    mt.forEach(function(t) {
-      if ((t.source || 'cash') === 'cash') cashCount++;
-      else bankCount++;
-    });
-    
-    contentDiv.innerHTML = 
-      '<div class="ie-period">' + periodLabel + '</div>' +
-      '<div class="ie-row">' +
-        '<div class="ie-label">' +
-          '<div class="ie-icon cash">💵</div>' +
-          '<div>' +
-            '<div>Contanti</div>' +
-            '<div style="font-size:11px; color:var(--text-muted); font-weight:600;">' + cashCount + ' movimenti</div>' +
-          '</div>' +
-        '</div>' +
-        '<div class="ie-value ' + valueClass + '">' + fmtEUR(cashTotal) + '</div>' +
-      '</div>' +
-      '<div class="ie-row">' +
-        '<div class="ie-label">' +
-          '<div class="ie-icon bank">🏦</div>' +
-          '<div>' +
-            '<div>Conto corrente</div>' +
-            '<div style="font-size:11px; color:var(--text-muted); font-weight:600;">' + bankCount + ' movimenti</div>' +
-          '</div>' +
-        '</div>' +
-        '<div class="ie-value ' + valueClass + '">' + fmtEUR(bankTotal) + '</div>' +
-      '</div>' +
-      '<div class="ie-total">' +
-        '<div class="ie-total-label">Totale ' + (isIncome ? 'Entrate' : 'Uscite') + '</div>' +
-        '<div class="ie-total-value">' + fmtEUR(total) + '</div>' +
-      '</div>';
-  }
-  
-  var titleEl = document.getElementById('income-expense-title');
-  if (titleEl) titleEl.textContent = title;
-  
-  var overlayEl = document.getElementById('income-expense-overlay');
-  if (overlayEl) {
-    overlayEl.classList.add('open');
-  }
-}
-
-function closeIncomeExpenseDetail() {
-  var overlayEl = document.getElementById('income-expense-overlay');
-  if (overlayEl) {
-    overlayEl.classList.remove('open');
-  }
-}
-
-// === INIZIALIZZA I CLICK ===
-function initClicks() {
-  console.log('🔄 Inizializzazione click...');
-  
-  var cardIncome = document.getElementById('card-income');
-  var cardExpense = document.getElementById('card-expense');
-  
-  if (cardIncome) {
-    cardIncome.style.cursor = 'pointer';
-    cardIncome.onclick = function(e) {
-      e.preventDefault();
-      console.log('🖱️ Click ENTRATE');
-      openIncomeExpenseDetail('income');
-    };
-    console.log('✅ Click ENTRATE OK');
-  }
-  
-  if (cardExpense) {
-    cardExpense.style.cursor = 'pointer';
-    cardExpense.onclick = function(e) {
-      e.preventDefault();
-      console.log('🖱️ Click USCITE');
-      openIncomeExpenseDetail('expense');
-    };
-    console.log('✅ Click USCITE OK');
-  }
-  
-  var closeBtn = document.getElementById('income-expense-close');
-  if (closeBtn) {
-    closeBtn.onclick = function(e) {
-      e.preventDefault();
-      closeIncomeExpenseDetail();
-    };
-  }
-  
-  var overlayEl = document.getElementById('income-expense-overlay');
-  if (overlayEl) {
-    overlayEl.onclick = function(e) {
-      if (e.target === overlayEl) {
-        closeIncomeExpenseDetail();
-      }
-    };
-  }
-}
-
-// === AVVIA L'INIZIALIZZAZIONE ===
-setTimeout(initClicks, 1000);  
 })();
 </script>
 </body>
