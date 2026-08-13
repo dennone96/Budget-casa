@@ -5894,34 +5894,32 @@ const bolletta = attachments[attachments.length - 1];
 return bolletta.importo || 0;
 }
 function renderBollettaCell(td, tipo, meseKey, monthName) {
-const attachments = (bolletteData[tipo] && bolletteData[tipo][meseKey]) || [];
-if (attachments.length === 0) {
-td.className = 'bolletta-cell-empty';
-td.textContent = '—';
-return;
-}
-td.className = 'bolletta-cell-attachment';
-const bolletta = attachments[attachments.length - 1];
-const importoFormattato = bolletta.importo.toLocaleString('it-IT', {
-minimumFractionDigits: 2,
-maximumFractionDigits: 2
-}) + ' €';
-const multiBadge = attachments.length > 1 ? `<span class="bolletta-multi-badge">+${attachments.length - 1}</span>` : '';
-td.innerHTML = `
-<div class="bolletta-attachment-card">
-<div class="bolletta-attachment-icon">
-<i class="ti ti-file-type-pdf"></i>
-</div>
-<div class="bolletta-attachment-info">
-<div class="bolletta-attachment-name">${escapeHtml(bolletta.fornitore)}${multiBadge}</div>
-<div class="bolletta-attachment-meta">
-${new Date(bolletta.dataCaricamento).toLocaleDateString('it-IT')}
-<span class="bolletta-attachment-amount">${importoFormattato}</span>
-</div>
-</div>
-</div>
-`;
-td.addEventListener('click', () => openBollettaDetail(tipo, meseKey, attachments.length - 1));
+  const attachments = (bolletteData[tipo] && bolletteData[tipo][meseKey]) || [];
+  if (attachments.length === 0) {
+    td.className = 'bolletta-cell-empty';
+    td.textContent = '—';
+    return;
+  }
+  td.className = 'bolletta-cell-attachment';
+  const bolletta = attachments[attachments.length - 1];
+  const importoFormattato = bolletta.importo.toLocaleString('it-IT', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }) + ' €';
+  
+  // Mostra solo l'importo (senza fornitore e data)
+  td.innerHTML = `<span style="font-weight:700; font-size:15px;">${importoFormattato}</span>`;
+  
+  // Aggiungi indicatore se ci sono più bollette
+  if (attachments.length > 1) {
+    td.innerHTML += ` <span class="bolletta-multi-badge">+${attachments.length - 1}</span>`;
+  }
+  
+  // Mantieni il click per i dettagli
+  td.addEventListener('click', function(e) {
+    e.stopPropagation();
+    openBollettaDetail(tipo, meseKey, attachments.length - 1);
+  });
 }
 function openBollettaDetail(tipo, meseKey, index) {
 const attachments = bolletteData[tipo]?.[meseKey];
