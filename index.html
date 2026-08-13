@@ -7598,7 +7598,43 @@ document.addEventListener('DOMContentLoaded', function() {
     console.warn('⚠️ btn-nuovo-evento non trovato');
   }
 });
-
+// === LISTENER DELEGATO PER IL PULSANTE SCARICA BOLLETTA ===
+document.addEventListener('click', function(e) {
+  const downloadBtn = e.target.closest('#bolletta-detail-download');
+  if (downloadBtn) {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('🖱️ Click su Scarica Bolletta (delegato)');
+    
+    if (!bollettaDetailData) {
+      alert('Nessuna bolletta selezionata');
+      return;
+    }
+    
+    const { tipo, meseKey, index } = bollettaDetailData;
+    const bolletta = bolletteData[tipo]?.[meseKey]?.[index];
+    
+    if (!bolletta) {
+      alert('Bolletta non trovata');
+      console.error('❌ Bolletta non trovata:', { tipo, meseKey, index });
+      return;
+    }
+    
+    try {
+      const link = document.createElement('a');
+      link.href = bolletta.url;
+      link.download = bolletta.nome;
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      console.log('✅ Download avviato:', bolletta.nome);
+    } catch (err) {
+      alert('Errore nel download: ' + err.message);
+      console.error('❌ Errore download:', err);
+    }
+  }
+});
 
 })();
 </script>
