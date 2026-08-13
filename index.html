@@ -3529,11 +3529,10 @@ Movimenti in contanti. Stesse colonne del conto corrente.
         style="flex:1; height:46px; background:var(--surface-2); border:1px solid var(--border); color:var(--text-primary); border-radius:var(--radius-sm); font-weight:700; cursor:pointer; font-family:inherit;">
   Chiudi
 </button>
-  <button id="bolletta-detail-download" 
-          onclick="downloadBollettaFromDetail()"
-          style="flex:1; height:46px; background:var(--accent); color:#fff; border:none; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; font-family:inherit;">
-    <i class="ti ti-download" style="font-size:18px;"></i> Scarica
-  </button>
+<button id="bolletta-detail-download" 
+        style="flex:1; height:46px; background:var(--accent); color:#fff; border:none; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; font-family:inherit;">
+  <i class="ti ti-download" style="font-size:18px;"></i> Scarica
+</button>
   <button id="bolletta-detail-delete" 
           onclick="if(confirm('Eliminare questa bolletta?')) deleteBollettaFromDetail()"
           style="width:46px; height:46px; background:var(--danger); color:#fff; border:none; border-radius:var(--radius-sm); cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
@@ -7616,47 +7615,48 @@ document.addEventListener('DOMContentLoaded', function() {
     console.warn('⚠️ btn-nuovo-evento non trovato');
   }
 });
-// === FUNZIONE PER SCARICARE LA BOLLETTA (GLOBALE) ===
-window.downloadBollettaFromDetail = function() {
-  console.log('🔍 downloadBollettaFromDetail chiamata');
-  
-  if (!window.bollettaDetailData) {
-    alert('Nessuna bolletta selezionata');
-    return;
+// === LISTENER PER IL PULSANTE SCARICA BOLLETTA ===
+(function initDownloadButton() {
+  const downloadBtn = document.getElementById('bolletta-detail-download');
+  if (downloadBtn) {
+    const newBtn = downloadBtn.cloneNode(true);
+    downloadBtn.parentNode.replaceChild(newBtn, downloadBtn);
+    
+    newBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      console.log('🖱️ Click su Scarica');
+      
+      if (!bollettaDetailData) {
+        alert('Nessuna bolletta selezionata');
+        return;
+      }
+      
+      const { tipo, meseKey, index } = bollettaDetailData;
+      const bolletta = bolletteData[tipo]?.[meseKey]?.[index];
+      
+      if (!bolletta) {
+        alert('Bolletta non trovata');
+        return;
+      }
+      
+      try {
+        const link = document.createElement('a');
+        link.href = bolletta.url;
+        link.download = bolletta.nome;
+        link.target = '_blank';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        console.log('✅ Download avviato:', bolletta.nome);
+      } catch (err) {
+        alert('Errore nel download: ' + err.message);
+        console.error('Errore download:', err);
+      }
+    });
+    console.log('✅ Listener Scarica Bolletta aggiunto');
+  } else {
+    console.warn('⚠️ Pulsante bolletta-detail-download non trovato');
   }
-  
-  const { tipo, meseKey, index } = window.bollettaDetailData;
-  console.log('📊 Dati bolletta:', { tipo, meseKey, index });
-  
-  // Accedi a bolletteData (che è globale perché definita con var o window)
-  const bolletteData = window.bolletteData || {};
-  const bolletta = bolletteData[tipo]?.[meseKey]?.[index];
-  
-  if (!bolletta) {
-    alert('Bolletta non trovata');
-    console.error('❌ Bolletta non trovata');
-    return;
-  }
-  
-  console.log('📄 Bolletta trovata:', bolletta.nome, bolletta.url);
-  
-  try {
-    const link = document.createElement('a');
-    link.href = bolletta.url;
-    link.download = bolletta.nome;
-    link.target = '_blank';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    console.log('✅ Download avviato!');
-  } catch (err) {
-    alert('Errore nel download: ' + err.message);
-    console.error('❌ Errore download:', err);
-  }
-};
-  // ESPONI ANCHE LE ALTRE FUNZIONI
-  window.openIncomeExpenseDetail = openIncomeExpenseDetail;
-  window.closeIncomeExpenseDetail = closeIncomeExpenseDetail;
 })();
 </script>
 </body>
