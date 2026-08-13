@@ -3674,23 +3674,6 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 <div id="pdf-loading"><div class="spinner"></div><span>Generazione PDF...</span></div>
 <script>
 (function(){
-// === DEBUG: VERIFICA ELEMENTI ===
-console.log('🔍 DEBUG: Verifica elementi pagina...');
-
-// Controlla se i riquadri esistono
-const debugCardIncome = document.getElementById('card-income');
-const debugCardExpense = document.getElementById('card-expense');
-console.log('📊 card-income:', debugCardIncome ? '✅ TROVATO' : '❌ NON TROVATO');
-console.log('📊 card-expense:', debugCardExpense ? '✅ TROVATO' : '❌ NON TROVATO');
-
-// Controlla se il popup esiste
-const debugOverlay = document.getElementById('income-expense-overlay');
-const debugContent = document.getElementById('income-expense-content');
-const debugCloseBtn = document.getElementById('income-expense-close');
-console.log('📊 overlay:', debugOverlay ? '✅ TROVATO' : '❌ NON TROVATO');
-console.log('📊 content:', debugContent ? '✅ TROVATO' : '❌ NON TROVATO');
-console.log('📊 closeBtn:', debugCloseBtn ? '✅ TROVATO' : '❌ NON TROVATO');
- 
 const firebaseConfig = {
 apiKey: "AIzaSyBPEg2d86zKWs6mf2L15TN7QPiMkEGbixs",
 authDomain: "app-spese-773e6.firebaseapp.com",
@@ -7740,6 +7723,148 @@ document.getElementById('income-expense-overlay').addEventListener('click', func
     closeIncomeExpenseDetail();
   }
 });  
+// === DETTAGLIO ENTRATE/USCITE ===
+function openIncomeExpenseDetail(type) {
+  console.log('🔍 Apertura dettaglio:', type);
+  
+  var from = filterFrom || todayISO().slice(0,7) + '-01';
+  var to = filterTo || todayISO();
+  
+  var mt = state.transactions.filter(function(t) {
+    return t.type === type && t.date >= from && t.date <= to && matchesSourceFilter(t);
+  });
+  
+  var cashTotal = 0;
+  var bankTotal = 0;
+  
+  mt.forEach(function(t) {
+    var amount = amountValue(t.amount);
+    if ((t.source || 'cash') === 'cash') {
+      cashTotal += amount;
+    } else {
+      bankTotal += amount;
+    }
+  });
+  
+  var total = cashTotal + bankTotal;
+  var isIncome = type === 'income';
+  var title = isIncome ? '💰 Dettaglio Entrate' : '💸 Dettaglio Uscite';
+  var valueClass = isIncome ? 'income' : 'expense';
+  
+  var monthSelect = document.getElementById('filter-month');
+  var yearSelect = document.getElementById('filter-year');
+  var periodLabel = 'Periodo selezionato';
+  if (monthSelect && yearSelect) {
+    periodLabel = monthSelect.selectedOptions[0]?.textContent || '' + ' ' + (yearSelect.value || '');
+  }
+  
+  var contentDiv = document.getElementById('income-expense-content');
+  if (!contentDiv) {
+    console.error('❌ Elemento income-expense-content non trovato!');
+    return;
+  }
+  
+  if (mt.length === 0) {
+    contentDiv.innerHTML = '<div class="ie-period">' + periodLabel + '</div><div class="ie-empty">Nessun movimento in questo periodo</div>';
+  } else {
+    var cashCount = 0;
+    var bankCount = 0;
+    mt.forEach(function(t) {
+      if ((t.source || 'cash') === 'cash') cashCount++;
+      else bankCount++;
+    });
+    
+    contentDiv.innerHTML = 
+      '<div class="ie-period">' + periodLabel + '</div>' +
+      '<div class="ie-row">' +
+        '<div class="ie-label">' +
+          '<div class="ie-icon cash">💵</div>' +
+          '<div>' +
+            '<div>Contanti</div>' +
+            '<div style="font-size:11px; color:var(--text-muted); font-weight:600;">' + cashCount + ' movimenti</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="ie-value ' + valueClass + '">' + fmtEUR(cashTotal) + '</div>' +
+      '</div>' +
+      '<div class="ie-row">' +
+        '<div class="ie-label">' +
+          '<div class="ie-icon bank">🏦</div>' +
+          '<div>' +
+            '<div>Conto corrente</div>' +
+            '<div style="font-size:11px; color:var(--text-muted); font-weight:600;">' + bankCount + ' movimenti</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="ie-value ' + valueClass + '">' + fmtEUR(bankTotal) + '</div>' +
+      '</div>' +
+      '<div class="ie-total">' +
+        '<div class="ie-total-label">Totale ' + (isIncome ? 'Entrate' : 'Uscite') + '</div>' +
+        '<div class="ie-total-value">' + fmtEUR(total) + '</div>' +
+      '</div>';
+  }
+  
+  var titleEl = document.getElementById('income-expense-title');
+  if (titleEl) titleEl.textContent = title;
+  
+  var overlayEl = document.getElementById('income-expense-overlay');
+  if (overlayEl) {
+    overlayEl.classList.add('open');
+  }
+}
+
+function closeIncomeExpenseDetail() {
+  var overlayEl = document.getElementById('income-expense-overlay');
+  if (overlayEl) {
+    overlayEl.classList.remove('open');
+  }
+}
+
+// === INIZIALIZZA I CLICK ===
+function initClicks() {
+  console.log('🔄 Inizializzazione click...');
+  
+  var cardIncome = document.getElementById('card-income');
+  var cardExpense = document.getElementById('card-expense');
+  
+  if (cardIncome) {
+    cardIncome.style.cursor = 'pointer';
+    cardIncome.onclick = function(e) {
+      e.preventDefault();
+      console.log('🖱️ Click ENTRATE');
+      openIncomeExpenseDetail('income');
+    };
+    console.log('✅ Click ENTRATE OK');
+  }
+  
+  if (cardExpense) {
+    cardExpense.style.cursor = 'pointer';
+    cardExpense.onclick = function(e) {
+      e.preventDefault();
+      console.log('🖱️ Click USCITE');
+      openIncomeExpenseDetail('expense');
+    };
+    console.log('✅ Click USCITE OK');
+  }
+  
+  var closeBtn = document.getElementById('income-expense-close');
+  if (closeBtn) {
+    closeBtn.onclick = function(e) {
+      e.preventDefault();
+      closeIncomeExpenseDetail();
+    };
+  }
+  
+  var overlayEl = document.getElementById('income-expense-overlay');
+  if (overlayEl) {
+    overlayEl.onclick = function(e) {
+      if (e.target === overlayEl) {
+        closeIncomeExpenseDetail();
+      }
+    };
+  }
+}
+
+// === AVVIA L'INIZIALIZZAZIONE ===
+setTimeout(initClicks, 1000);  
 })();
 </script>
 </body>
