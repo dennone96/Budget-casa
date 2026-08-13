@@ -5966,39 +5966,40 @@ renderBolletteList();
 alert('Errore nell\'eliminazione: ' + err.message);
 }
 }
-// === FUNZIONE PER SCARICARE LA BOLLETTA ===
-async function downloadBollettaFromDetail() {
-  if (!bollettaDetailData) {
-    alert('Nessuna bolletta selezionata');
-    return;
+  // === FUNZIONE PER SCARICARE LA BOLLETTA ===
+  async function downloadBollettaFromDetail() {
+    if (!bollettaDetailData) {
+      alert('Nessuna bolletta selezionata');
+      return;
+    }
+    
+    const { tipo, meseKey, index } = bollettaDetailData;
+    const bolletta = bolletteData[tipo]?.[meseKey]?.[index];
+    
+    if (!bolletta) {
+      alert('Bolletta non trovata');
+      return;
+    }
+    
+    try {
+      const link = document.createElement('a');
+      link.href = bolletta.url;
+      link.download = bolletta.nome;
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      console.log('✅ Download avviato:', bolletta.nome);
+    } catch (err) {
+      alert('Errore nel download: ' + err.message);
+      console.error('Errore download:', err);
+    }
   }
   
-  const { tipo, meseKey, index } = bollettaDetailData;
-  const bolletta = bolletteData[tipo]?.[meseKey]?.[index];
-  
-  if (!bolletta) {
-    alert('Bolletta non trovata');
-    return;
-  }
-  
-  try {
-    const link = document.createElement('a');
-    link.href = bolletta.url;
-    link.download = bolletta.nome;
-    link.target = '_blank';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    console.log('✅ Download avviato:', bolletta.nome);
-  } catch (err) {
-    alert('Errore nel download: ' + err.message);
-    console.error('Errore download:', err);
-  }
-}
+  // === AGGIUNGI QUESTA RIGA PER ESPORRE LA FUNZIONE GLOBALMENTE ===
+  window.downloadBollettaFromDetail = downloadBollettaFromDetail;
 
-// === AGGIUNGI QUESTA RIGA PER ESPORRE LA FUNZIONE GLOBALMENTE ===
-window.downloadBollettaFromDetail = downloadBollettaFromDetail;
-async function uploadBolletta() {
+  async function uploadBolletta() {
 const tipo = document.getElementById('bolletta-tipo').value;
 const fornitore = document.getElementById('bolletta-fornitore').value.trim();
 const importoStr = document.getElementById('bolletta-importo').value;
@@ -7615,8 +7616,47 @@ document.addEventListener('DOMContentLoaded', function() {
     console.warn('⚠️ btn-nuovo-evento non trovato');
   }
 });
-
-
+// === FUNZIONE PER SCARICARE LA BOLLETTA (GLOBALE) ===
+window.downloadBollettaFromDetail = function() {
+  console.log('🔍 downloadBollettaFromDetail chiamata');
+  
+  if (!window.bollettaDetailData) {
+    alert('Nessuna bolletta selezionata');
+    return;
+  }
+  
+  const { tipo, meseKey, index } = window.bollettaDetailData;
+  console.log('📊 Dati bolletta:', { tipo, meseKey, index });
+  
+  // Accedi a bolletteData (che è globale perché definita con var o window)
+  const bolletteData = window.bolletteData || {};
+  const bolletta = bolletteData[tipo]?.[meseKey]?.[index];
+  
+  if (!bolletta) {
+    alert('Bolletta non trovata');
+    console.error('❌ Bolletta non trovata');
+    return;
+  }
+  
+  console.log('📄 Bolletta trovata:', bolletta.nome, bolletta.url);
+  
+  try {
+    const link = document.createElement('a');
+    link.href = bolletta.url;
+    link.download = bolletta.nome;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    console.log('✅ Download avviato!');
+  } catch (err) {
+    alert('Errore nel download: ' + err.message);
+    console.error('❌ Errore download:', err);
+  }
+};
+  // ESPONI ANCHE LE ALTRE FUNZIONI
+  window.openIncomeExpenseDetail = openIncomeExpenseDetail;
+  window.closeIncomeExpenseDetail = closeIncomeExpenseDetail;
 })();
 </script>
 </body>
