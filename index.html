@@ -7492,8 +7492,12 @@ function showNewEventModal() {
     }
   });
 }
+  });
+}  // ← CHIUSURA DI showNewEventModal
+
+// === UN SOLO DOMContentLoaded PER TUTTO ===
 document.addEventListener('DOMContentLoaded', function() {
-  // Navigazione mesi
+  // 1. NAVIGAZIONE MESI CALENDARIO
   const btnPrec = document.getElementById('btn-mese-prec');
   const btnSucc = document.getElementById('btn-mese-succ');
   const btnNuovo = document.getElementById('btn-nuovo-evento');
@@ -7509,8 +7513,6 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       renderCalendar();
     });
-  } else {
-    console.warn('⚠️ btn-mese-prec non trovato');
   }
   
   if (btnSucc) {
@@ -7524,8 +7526,6 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       renderCalendar();
     });
-  } else {
-    console.warn('⚠️ btn-mese-succ non trovato');
   }
   
   if (btnNuovo) {
@@ -7533,13 +7533,9 @@ document.addEventListener('DOMContentLoaded', function() {
       console.log('📝 Nuovo evento');
       showNewEventModal();
     });
-  } else {
-    console.warn('⚠️ btn-nuovo-evento non trovato');
   }
-});
-// === FIX CHIUSURA POPUP ENTRATE/USCITE ===
-document.addEventListener('DOMContentLoaded', function() {
-  // Chiudi cliccando sul pulsante
+  
+  // 2. CHIUSURA POPUP ENTRATE/USCITE
   const closeBtn = document.getElementById('income-expense-close');
   if (closeBtn) {
     closeBtn.addEventListener('click', function() {
@@ -7550,12 +7546,8 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       console.log('❌ Popup chiuso');
     });
-    console.log('✅ Pulsante chiudi collegato');
-  } else {
-    console.warn('⚠️ income-expense-close non trovato');
   }
   
-  // Chiudi cliccando fuori dal popup
   const overlay = document.getElementById('income-expense-overlay');
   if (overlay) {
     overlay.addEventListener('click', function(e) {
@@ -7565,9 +7557,13 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('❌ Popup chiuso (click fuori)');
       }
     });
-    console.log('✅ Overlay collegato');
   }
-});
+});  // ← CHIUSURA DEL DOMContentLoaded
+
+})();  // ← CHIUSURA DELL'IIFE
+</script>
+</body>
+</html>
 })();
 </script>
 </body>
