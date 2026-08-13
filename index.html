@@ -5928,15 +5928,59 @@ function renderBollettaCell(td, tipo, meseKey, monthName) {
   });
 }
 function openBollettaDetail(tipo, meseKey, index) {
-const attachments = bolletteData[tipo]?.[meseKey];
-if (!attachments || !attachments[index]) return;
-bollettaDetailData = { tipo, meseKey, index };
-const bolletta = attachments[index];
-document.getElementById('bolletta-detail-name').textContent = bolletta.nome;
-document.getElementById('bolletta-detail-fornitore').textContent = bolletta.fornitore || '—';
-document.getElementById('bolletta-detail-importo').innerHTML = `<span style="font-size:20px; font-weight:800; color:var(--accent);">${bolletta.importo.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>`;
-document.getElementById('bolletta-detail-date').textContent = new Date(bolletta.dataCaricamento).toLocaleDateString('it-IT', { day:'2-digit', month:'long', year:'numeric' });
-document.getElementById('bolletta-detail-overlay').style.display = 'flex';
+  const attachments = bolletteData[tipo]?.[meseKey];
+  if (!attachments || !attachments[index]) return;
+  
+  bollettaDetailData = { tipo, meseKey, index };
+  const bolletta = attachments[index];
+  
+  document.getElementById('bolletta-detail-name').textContent = bolletta.nome;
+  document.getElementById('bolletta-detail-fornitore').textContent = bolletta.fornitore || '—';
+  document.getElementById('bolletta-detail-importo').innerHTML = `<span style="font-size:20px; font-weight:800; color:var(--accent);">${bolletta.importo.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>`;
+  document.getElementById('bolletta-detail-date').textContent = new Date(bolletta.dataCaricamento).toLocaleDateString('it-IT', { day:'2-digit', month:'long', year:'numeric' });
+  document.getElementById('bolletta-detail-overlay').style.display = 'flex';
+  
+  // === ATTACCA IL LISTENER PER IL DOWNLOAD ===
+  const downloadBtn = document.getElementById('bolletta-detail-download');
+  if (downloadBtn) {
+    // Rimuovi listener vecchi clonando
+    const newBtn = downloadBtn.cloneNode(true);
+    downloadBtn.parentNode.replaceChild(newBtn, downloadBtn);
+    
+    newBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('🖱️ Click su Scarica Bolletta');
+      
+      if (!bollettaDetailData) {
+        alert('Nessuna bolletta selezionata');
+        return;
+      }
+      
+      const { tipo, meseKey, index } = bollettaDetailData;
+      const bolletta = bolletteData[tipo]?.[meseKey]?.[index];
+      
+      if (!bolletta) {
+        alert('Bolletta non trovata');
+        return;
+      }
+      
+      try {
+        const link = document.createElement('a');
+        link.href = bolletta.url;
+        link.download = bolletta.nome;
+        link.target = '_blank';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        console.log('✅ Download avviato:', bolletta.nome);
+      } catch (err) {
+        alert('Errore nel download: ' + err.message);
+        console.error('❌ Errore download:', err);
+      }
+    });
+    console.log('✅ Listener Scarica attaccato al dettaglio');
+  }
 }
 function closeBollettaDetail() {
 document.getElementById('bolletta-detail-overlay').style.display = 'none';
@@ -7596,43 +7640,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   } else {
     console.warn('⚠️ btn-nuovo-evento non trovato');
-  }
-});
-// === LISTENER DELEGATO PER IL PULSANTE SCARICA BOLLETTA ===
-document.addEventListener('click', function(e) {
-  const downloadBtn = e.target.closest('#bolletta-detail-download');
-  if (downloadBtn) {
-    e.preventDefault();
-    e.stopPropagation();
-    console.log('🖱️ Click su Scarica Bolletta (delegato)');
-    
-    if (!bollettaDetailData) {
-      alert('Nessuna bolletta selezionata');
-      return;
-    }
-    
-    const { tipo, meseKey, index } = bollettaDetailData;
-    const bolletta = bolletteData[tipo]?.[meseKey]?.[index];
-    
-    if (!bolletta) {
-      alert('Bolletta non trovata');
-      console.error('❌ Bolletta non trovata:', { tipo, meseKey, index });
-      return;
-    }
-    
-    try {
-      const link = document.createElement('a');
-      link.href = bolletta.url;
-      link.download = bolletta.nome;
-      link.target = '_blank';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      console.log('✅ Download avviato:', bolletta.nome);
-    } catch (err) {
-      alert('Errore nel download: ' + err.message);
-      console.error('❌ Errore download:', err);
-    }
   }
 });
 
