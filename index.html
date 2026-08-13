@@ -6108,6 +6108,7 @@ async function uploadBolletta() {
     console.error('❌ Errore upload:', err);
   }
 }
+window.uploadBolletta = uploadBolletta;  
 // === FUNZIONE PER APRIRE IL DETTAGLIO ===
 function openIncomeExpenseDetail(type) {
   console.log('🔍 Apertura dettaglio:', type);
@@ -7647,19 +7648,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.warn('⚠️ btn-nuovo-evento non trovato');
   }
 });
-// === ESPONI LA FUNZIONE UPLOAD GLOBALMENTE ===
-window.uploadBolletta = uploadBolletta;
 
-// === LISTENER DELEGATO PER UPLOAD ===
-document.addEventListener('click', function(e) {
-  const target = e.target.closest('#btn-upload-bolletta');
-  if (target) {
-    e.preventDefault();
-    e.stopPropagation();
-    console.log('🖱️ Click su Upload Bolletta');
-    uploadBolletta();
-  }
-});
 })();
 </script>
 </body>
