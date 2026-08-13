@@ -7388,23 +7388,23 @@ function renderEventsForDay(dateStr) {
   
   container.innerHTML = html;
   
-  // Event listener per eliminare evento
-  container.querySelectorAll('.evento-delete').forEach(btn => {
+// Event listener per eliminare evento
+container.querySelectorAll('.evento-delete').forEach(btn => {
     btn.addEventListener('click', async function() {
-      const date = this.dataset.date;
-      const index = parseInt(this.dataset.index);
-      
-      if (confirm('Eliminare questo evento?')) {
-        eventsData[date].splice(index, 1);
-        if (eventsData[date].length === 0) {
-          delete eventsData[date];
+        const date = this.dataset.date;
+        const index = parseInt(this.dataset.index);
+
+        if (confirm('Eliminare questo evento?')) {
+            eventsData[date].splice(index, 1);
+            if (eventsData[date].length === 0) {
+                delete eventsData[date];
+            }
+            await saveEvents();
+            renderCalendar();
+            renderEventsForDay(date);
         }
-        await saveEvents();
-        renderCalendar();
-        renderEventsForDay(date);
     });
-  });
-}
+});
 
 // === UN SOLO DOMContentLoaded PER TUTTO ===
 document.addEventListener('DOMContentLoaded', function() {
