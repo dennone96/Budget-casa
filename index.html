@@ -6093,7 +6093,7 @@ function openIncomeExpenseDetail(type) {
       </div>
       <div class="ie-row">
         <div class="ie-label">
-          <div class="ie-icon bank"></div>
+           <div class="ie-icon bank">🏦</div>
           <div>
             <div>Conto corrente</div>
             <div style="font-size:11px; color:var(--text-muted); font-weight:600;">${mt.filter(t => (t.source || 'cash') === 'bank').length} movimenti</div>
@@ -6110,17 +6110,6 @@ function openIncomeExpenseDetail(type) {
   document.getElementById('income-expense-title').textContent = title;
   document.getElementById('income-expense-overlay').classList.add('open');
 }
-
-function closeIncomeExpenseDetail() {
-  document.getElementById('income-expense-overlay').classList.remove('open');
-}
-
-document.getElementById('income-expense-close').addEventListener('click', closeIncomeExpenseDetail);
-document.getElementById('income-expense-overlay').addEventListener('click', (e) => {
-  if (e.target.id === 'income-expense-overlay') closeIncomeExpenseDetail();
-});
-document.getElementById('card-income').addEventListener('click', () => openIncomeExpenseDetail('income'));
-document.getElementById('card-expense').addEventListener('click', () => openIncomeExpenseDetail('expense'));
 
 // Altri event listener...
 document.getElementById('btn-upload-bolletta').addEventListener('click', uploadBolletta);
