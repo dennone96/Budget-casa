@@ -3524,7 +3524,11 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 <div class="detail-field"><label>Importo</label><p id="bolletta-detail-importo"></p></div>
 <div class="detail-field"><label>Data caricamento</label><p id="bolletta-detail-date"></p></div>
 <div style="display:flex; gap:10px; margin-top:1.5rem;">
-<button id="bolletta-detail-close" style="flex:1; height:46px; background:var(--surface-2); border:1px solid var(--border); color:var(--text-primary); border-radius:var(--radius-sm); font-weight:700; cursor:pointer; font-family:inherit;">Chiudi</button>
+<button id="bolletta-detail-close" 
+        onclick="document.getElementById('bolletta-detail-overlay').style.display = 'none'; bollettaDetailData = null;"
+        style="flex:1; height:46px; background:var(--surface-2); border:1px solid var(--border); color:var(--text-primary); border-radius:var(--radius-sm); font-weight:700; cursor:pointer; font-family:inherit;">
+  Chiudi
+</button>
 <button id="bolletta-detail-download" style="flex:1; height:46px; background:var(--accent); color:#fff; border:none; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; font-family:inherit;">
 <i class="ti ti-download" style="font-size:18px;"></i> Scarica
 </button>
