@@ -4201,7 +4201,7 @@ async function saveReminders() {
   }
 }
 async function loadBolletteData() {
-  if (!currentFamilyId) return;
+  if (!currentUser) return;
 
   if (unsubscribeBollette) {
     unsubscribeBollette();
@@ -4209,13 +4209,8 @@ async function loadBolletteData() {
   }
 
   try {
-    unsubscribeBollette = db.collection('famiglie').doc(currentFamilyId).onSnapshot((doc) => {
-      if (doc.exists) {
-        const data = doc.data();
-        bolletteData = data.bolletteData || {};
-      } else {
-        bolletteData = {};
-      }
+    unsubscribeBollette = db.collection('bollette').doc(currentUser.uid).onSnapshot((doc) => {
+      bolletteData = doc.exists ? (doc.data() || {}) : {};
 
       if (document.getElementById('page-bollette')?.classList.contains('active')) {
         populateBollettaYearFilter();
@@ -5988,18 +5983,15 @@ function openBollettaDetail(tipo, meseKey, index) {
   }
 }
 async function saveBolletteData() {
-  if (!currentFamilyId) {
-    alert('Famiglia non caricata. Esci e rientra nell’app.');
+  if (!currentUser) {
+    alert('Utente non connesso');
     return;
   }
 
-  await db.collection('famiglie')
-    .doc(currentFamilyId)
-    .update({
-      bolletteData: bolletteData,
-      updatedAt: new Date().toISOString()
-    });
-}  
+  await db.collection('bollette')
+    .doc(currentUser.uid)
+    .set(bolletteData, { merge: true });
+}
 function closeBollettaDetail() {
 document.getElementById('bolletta-detail-overlay').style.display = 'none';
 bollettaDetailData = null;
