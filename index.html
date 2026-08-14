@@ -4984,7 +4984,7 @@ const uploadArea = document.getElementById('attachment-upload-area');
 try {
 progressDiv.classList.remove('hidden');
 uploadArea.classList.add('hidden');
-const timestamp = Date.now();
+
 const storagePath = `attachments/${currentUser.uid}/${detailId}/${timestamp}_${file.name}`;
 const fileRef = storage.ref().child(storagePath);
 const uploadTask = fileRef.put(file);
@@ -6039,11 +6039,14 @@ async function uploadBolletta() {
   const tipo = document.getElementById('bolletta-tipo').value;
   const fornitore = document.getElementById('bolletta-fornitore').value.trim();
   const importoStr = document.getElementById('bolletta-importo').value;
-  const importo = parseFloat(importoStr);
+  const importo = parseFloat(importoStr.replace(',', '.'));
   const mese = document.getElementById('bolletta-mese').value;
   const fileInput = document.getElementById('bolletta-file');
   const file = fileInput.files[0];
-
+if (!tipo || !mese) {
+  alert('Tipo bolletta o mese non validi');
+  return;
+}
   if (!currentUser) {
     alert('Utente non connesso');
     return;
