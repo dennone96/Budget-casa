@@ -6052,9 +6052,10 @@ if (!file) {
 alert('Seleziona un file PDF');
 return;
 }
-if (file.type !== 'application/pdf') {
-alert('Il file deve essere in formato PDF');
-return;
+const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+if (!isPdf) {
+  alert('Il file deve essere in formato PDF');
+  return;
 }
 if (file.size > 10 * 1024 * 1024) {
 alert('Il file è troppo grande. Dimensione massima: 10MB');
