@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
 <meta charset="UTF-8">
@@ -118,7 +118,7 @@
   user-select: none;
 }
 
-/* Quando il toggle Ã¨ attivo, il testo diventa verde */
+/* Quando il toggle è attivo, il testo diventa verde */
 .toggle-container.active + .toggle-label-text {
   color: #5CB85C;
 }
@@ -1803,7 +1803,7 @@ border-color: var(--text-primary);
 transform: scale(1.05);
 }
 .color-picker-option.selected::after {
-content: 'âœ“';
+content: '✓';
 position: absolute;
 inset: 0;
 display: flex;
@@ -1979,7 +1979,7 @@ border-radius: var(--radius-sm);
   h3 { font-size: 15px !important; }
   body { font-size: 14px !important; }
   
-  /* Riquadri statistiche piÃ¹ compatti */
+  /* Riquadri statistiche più compatti */
   .stat-card { padding: 12px !important; }
   .stat-card p:first-child { font-size: 11px !important; }
   .stat-card p:last-child { font-size: 20px !important; }
@@ -2245,7 +2245,7 @@ border-radius: var(--radius-sm);
   overflow: visible !important;
 }
 
-/* Rimuovi qualsiasi proprietÃ  che potrebbe bloccare i click */
+/* Rimuovi qualsiasi proprietà che potrebbe bloccare i click */
 .tx-row * {
   pointer-events: auto !important;
   touch-action: manipulation !important;
@@ -2848,13 +2848,13 @@ border-radius: var(--radius-sm);
 <!-- === CODICE 3: MESSAGGIO PER UTENTI INVITATI === -->
 <div style="margin-top:16px; padding:16px; background:var(--surface-2); border-radius:var(--radius-sm); border:1px solid var(--border); text-align:center;">
   <p style="margin:0; font-size:13px; color:var(--text-secondary);">
-    ðŸ’Œ <strong>Sei stato invitato?</strong><br>
+    💌 <strong>Sei stato invitato?</strong><br>
     <span style="font-size:12px; color:var(--text-muted);">
       Registrati con l'email che hai ricevuto per accedere al budget familiare.
     </span>
   </p>
   <p style="margin:8px 0 0; font-size:12px; color:var(--text-muted);">
-    ðŸ‘‰ <span style="font-weight:700; color:var(--accent);">Non hai ricevuto un invito?</span> Clicca su "Registrati" e crea il tuo budget personale.
+    👉 <span style="font-weight:700; color:var(--accent);">Non hai ricevuto un invito?</span> Clicca su "Registrati" e crea il tuo budget personale.
   </p>
 </div>
 </div>
@@ -2884,7 +2884,7 @@ Budget
   <button class="nav-item" data-page="page-liste">
     <i class="ti ti-shopping-cart"></i> Liste spesa
   </button>
-  <button class="nav-item" data-page="page-eventi">  <!-- â† AGGIUNGI -->
+  <button class="nav-item" data-page="page-eventi">  <!-- ← AGGIUNGI -->
     <i class="ti ti-calendar-event"></i> Promemoria eventi
   </button>
   <button class="nav-item" data-page="page-profilo">
@@ -2944,11 +2944,11 @@ Budget
 <div class="stats-row stats-row-top">
   <div class="stat-card income clickable" id="card-income" title="Clicca per dettagli">
     <p>Entrate</p>
-    <p style="color: var(--success);" id="stat-income">0,00 â‚¬</p>
+    <p style="color: var(--success);" id="stat-income">0,00 €</p>
   </div>
   <div class="stat-card expense clickable" id="card-expense" title="Clicca per dettagli">
     <p>Uscite</p>
-    <p style="color: var(--danger);" id="stat-expense">0,00 â‚¬</p>
+    <p style="color: var(--danger);" id="stat-expense">0,00 €</p>
   </div>
 </div>
 
@@ -2956,7 +2956,7 @@ Budget
 <div class="stats-row stats-row-bottom">
   <div class="stat-card balance stat-card-full">
     <p>Saldo periodo</p>
-    <p id="stat-balance">0,00 â‚¬</p>
+    <p id="stat-balance">0,00 €</p>
   </div>
 </div>
 
@@ -2964,7 +2964,7 @@ Budget
 <div class="stats-row stats-row-bottom">
   <div class="stat-card residuo stat-card-full">
     <p>Residuo totale</p>
-    <p id="stat-residuo">0,00 â‚¬</p>
+    <p id="stat-residuo">0,00 €</p>
   </div>
 </div>
 <div class="panel">
@@ -2981,7 +2981,7 @@ Budget
 <input type="text" id="inp-desc" placeholder="es. Spesa Esselunga" class="ios-input ios-input-field">
 </div>
 <div class="ios-row">
-<span class="ios-label">Importo â‚¬</span>
+<span class="ios-label">Importo €</span>
 <input type="number" id="inp-amount" placeholder="0,00" min="0" step="0.01" class="ios-input ios-input-field" style="text-align:right;">
 </div>
 <div class="ios-row">
@@ -3006,8 +3006,8 @@ Aggiungi movimento
 </div>
 <div class="source-filter">
 <button class="active" data-source="all">Tutti</button>
-<button data-source="cash">ðŸ’µ Contanti</button>
-<button data-source="bank">ðŸ¦ Conto corrente</button>
+<button data-source="cash">💵 Contanti</button>
+<button data-source="bank">🏦 Conto corrente</button>
 </div>
 <div id="bulk-actions-container"></div>
 <div class="tx-header">
@@ -3171,7 +3171,7 @@ Aggiungi movimento
 <div class="panel">
 <div class="import-section-title">
 <div class="icon-circle" style="background:var(--info-light); color:var(--info);"><i class="ti ti-building-bank"></i></div>
-ðŸ¦ Conto corrente
+🏦 Conto corrente
 </div>
 <p style="font-size:14px; color:var(--text-secondary); margin-top:0; line-height:1.6; font-weight:600;">
 Movimenti bancari. Colonne: Mese, Anno, Data Contabile, Descrizione, Importo, Categoria.
@@ -3201,7 +3201,7 @@ Movimenti bancari. Colonne: Mese, Anno, Data Contabile, Descrizione, Importo, Ca
 <div class="panel">
 <div class="import-section-title">
 <div class="icon-circle" style="background:var(--success-light); color:var(--success);"><i class="ti ti-wallet"></i></div>
-ðŸ’µ Contanti
+💵 Contanti
 </div>
 <p style="font-size:14px; color:var(--text-secondary); margin-top:0; line-height:1.6; font-weight:600;">
 Movimenti in contanti. Stesse colonne del conto corrente.
@@ -3231,14 +3231,14 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 <div id="page-bollette" class="page">
 <h1>Libreria Bollette</h1>
 <div class="panel">
-<h3>ðŸ“¤ Carica nuova bolletta</h3>
+<h3>📤 Carica nuova bolletta</h3>
 <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
 <div>
 <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">Tipo bolletta</label>
 <select id="bolletta-tipo" style="width:100%; height:44px;">
-<option value="gas">ðŸ”¥ Gas</option>
-<option value="luce">âš¡ Luce</option>
-<option value="acqua">ðŸ’§ Acqua</option>
+<option value="gas">🔥 Gas</option>
+<option value="luce">⚡ Luce</option>
+<option value="acqua">💧 Acqua</option>
 </select>
 </div>
 <div>
@@ -3246,7 +3246,7 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 <input type="text" id="bolletta-fornitore" placeholder="es. Enel, Eni, Hera..." style="width:100%; height:44px; padding:0 14px;">
 </div>
 <div>
-<label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">Importo bolletta (â‚¬)</label>
+<label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">Importo bolletta (€)</label>
 <input type="number" id="bolletta-importo" placeholder="0,00" min="0" step="0.01" style="width:100%; height:44px; padding:0 14px; text-align:right;">
 </div>
 <div>
@@ -3268,7 +3268,7 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 </div>
 <div class="panel">
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:12px;">
-<h3 style="margin:0;">ðŸ“Š Riepilogo bollette</h3>
+<h3 style="margin:0;">📊 Riepilogo bollette</h3>
 <div style="display:flex; align-items:center; gap:10px;">
 <label style="font-size:13px; font-weight:700; color:var(--text-secondary);">Anno:</label>
 <select id="bolletta-year-filter" style="width:120px; height:40px; font-weight:700;"></select>
@@ -3279,10 +3279,10 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 <thead>
 <tr>
 <th>Mese</th>
-<th>ðŸ”¥ Gas</th>
-<th>âš¡ Luce</th>
-<th>ðŸ’§ Acqua</th>
-<th>ðŸ’° Totale</th>
+<th>🔥 Gas</th>
+<th>⚡ Luce</th>
+<th>💧 Acqua</th>
+<th>💰 Totale</th>
 </tr>
 </thead>
 <tbody id="bolletta-table-body"></tbody>
@@ -3292,7 +3292,7 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 </div>
 </div>
 <div id="page-liste" class="page">
-  <h1>ðŸ“‹ Liste della spesa</h1>
+  <h1>📋 Liste della spesa</h1>
   
   <!-- Pulsante per nuova lista -->
   <div style="margin-bottom:20px;">
@@ -3320,19 +3320,19 @@ Movimenti in contanti. Stesse colonne del conto corrente.
   <!-- Contenitore liste -->
   <div id="liste-container-principale" style="min-height:200px;">
     <div style="text-align:center; padding:40px 20px; color:var(--text-muted);">
-      <div style="font-size:48px; margin-bottom:12px;">â³</div>
+      <div style="font-size:48px; margin-bottom:12px;">⏳</div>
       <p style="font-size:16px; font-weight:600;">Caricamento liste...</p>
     </div>
   </div>
 </div>
 <div id="page-eventi" class="page">
-  <h1>ðŸ“… Promemoria eventi</h1>
+  <h1>📅 Promemoria eventi</h1>
   
   <!-- Mese corrente -->
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-    <button id="btn-mese-prec" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--text-secondary); padding:8px 16px; border-radius:var(--radius-sm); transition:all 0.2s;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">â€¹</button>
+    <button id="btn-mese-prec" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--text-secondary); padding:8px 16px; border-radius:var(--radius-sm); transition:all 0.2s;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">‹</button>
     <h2 id="mese-titolo" style="margin:0; font-size:20px; font-weight:800;">Agosto 2026</h2>
-    <button id="btn-mese-succ" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--text-secondary); padding:8px 16px; border-radius:var(--radius-sm); transition:all 0.2s;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">â€º</button>
+    <button id="btn-mese-succ" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--text-secondary); padding:8px 16px; border-radius:var(--radius-sm); transition:all 0.2s;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">›</button>
   </div>
   
   <!-- Calendario -->
@@ -3348,7 +3348,7 @@ Movimenti in contanti. Stesse colonne del conto corrente.
   <!-- Eventi del giorno selezionato -->
   <div style="background:var(--surface); border-radius:var(--radius); padding:16px; border:1px solid var(--border);">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-      <h3 id="giorno-selezionato-titolo" style="margin:0; font-size:16px; font-weight:700;">Oggi - LunedÃ¬ 10 Agosto</h3>
+      <h3 id="giorno-selezionato-titolo" style="margin:0; font-size:16px; font-weight:700;">Oggi - Lunedì 10 Agosto</h3>
       <button id="btn-nuovo-evento" style="background:var(--accent-gradient); color:#fff; border:none; border-radius:999px; padding:8px 18px; font-weight:700; font-size:13px; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
         + Nuovo evento
       </button>
@@ -3379,7 +3379,7 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 
   <!-- NUOVA SEZIONE: GESTIONE PROFILI -->
   <div class="panel">
-    <h3>ðŸ‘¥ Gestione profili familiari</h3>
+    <h3>👥 Gestione profili familiari</h3>
     <p style="font-size:13px; color:var(--text-secondary); margin-bottom:1rem; font-weight:600;">
       Aggiungi membri della famiglia per condividere il budget.
     </p>
@@ -3402,12 +3402,12 @@ Movimenti in contanti. Stesse colonne del conto corrente.
     <p id="invite-status" style="font-size:13px; margin-top:10px; min-height:20px;"></p>
   </div>
     <div class="panel">
-    <h3>ðŸ”§ Manutenzione</h3>
+    <h3>🔧 Manutenzione</h3>
     <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">
       Se i dati non vengono visualizzati correttamente, clicca su "Correggi collegamento famiglia".
     </p>
     <button id="btn-fix-family" style="width:100%; height:40px; background:var(--warning); color:#fff; border:none; border-radius:var(--radius-sm); font-weight:700; cursor:pointer;">
-      ðŸ”„ Correggi collegamento famiglia
+      🔄 Correggi collegamento famiglia
     </button>
     <p id="fix-status" style="font-size:12px; color:var(--text-muted); margin-top:8px; min-height:20px;"></p>
   </div>
@@ -3434,7 +3434,7 @@ Movimenti in contanti. Stesse colonne del conto corrente.
       </div>
       <div class="stat-card">
         <p>Primo movimento</p>
-        <p id="profile-first-tx" style="font-size:14px;">â€”</p>
+        <p id="profile-first-tx" style="font-size:14px;">—</p>
       </div>
       <div class="stat-card">
         <p>Promemoria</p>
@@ -3446,8 +3446,8 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 <div id="page-categorie" class="page">
 <h1>Categorie</h1>
 <div class="panel">
-<h3>ðŸ“¤ Uscite</h3>
-<p style="font-size:12px; color:var(--text-muted); margin:-8px 0 12px; font-weight:600;">ðŸ’¡ Clicca sul pallino colorato per cambiare il colore della categoria</p>
+<h3>📤 Uscite</h3>
+<p style="font-size:12px; color:var(--text-muted); margin:-8px 0 12px; font-weight:600;">💡 Clicca sul pallino colorato per cambiare il colore della categoria</p>
 <ul id="cat-list-expense" class="cat-list"></ul>
 <div class="cat-input-row">
 <input type="text" id="new-cat-expense" placeholder="Nuova categoria">
@@ -3455,7 +3455,7 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 </div>
 </div>
 <div class="panel">
-<h3>ðŸ“¥ Entrate</h3>
+<h3>📥 Entrate</h3>
 <p style="font-size:12px; color:var(--text-muted); margin:-8px 0 12px; font-weight:600;"> Clicca sul pallino colorato per cambiare il colore della categoria</p>
 <ul id="cat-list-income" class="cat-list"></ul>
 <div class="cat-input-row">
@@ -3497,7 +3497,7 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 <h3>Modifica movimento</h3>
 <div class="modal-field"><label>Tipo</label><select id="modal-type"><option value="expense">Uscita</option><option value="income">Entrata</option></select></div>
 <div class="modal-field"><label>Descrizione</label><input type="text" id="modal-desc" placeholder="Descrizione"></div>
-<div class="modal-field"><label>Importo â‚¬</label><input type="number" id="modal-amount" min="0" step="0.01"></div>
+<div class="modal-field"><label>Importo €</label><input type="number" id="modal-amount" min="0" step="0.01"></div>
 <div class="modal-field"><label>Categoria</label><select id="modal-category"></select></div>
 <div class="modal-field"><label>Data</label><input type="date" id="modal-date"></div>
 <div class="modal-actions">
@@ -3518,7 +3518,7 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 </div>
 <div id="bolletta-detail-overlay" style="display:none; position:fixed; inset:0; background:rgba(15,25,35,0.6); backdrop-filter:blur(8px); z-index:600; align-items:center; justify-content:center; padding:1rem;">
 <div style="background:var(--surface); border-radius:var(--radius-lg); padding:2rem; width:100%; max-width:500px; box-shadow:var(--shadow-xl); animation:modalIn 0.3s ease;">
-<h3 style="margin:0 0 1.5rem; font-size:22px; font-weight:800; letter-spacing:-0.5px;">ðŸ“„ Dettaglio bolletta</h3>
+<h3 style="margin:0 0 1.5rem; font-size:22px; font-weight:800; letter-spacing:-0.5px;">📄 Dettaglio bolletta</h3>
 <div class="detail-field"><label>Nome file</label><p id="bolletta-detail-name"></p></div>
 <div class="detail-field"><label>Fornitore</label><p id="bolletta-detail-fornitore"></p></div>
 <div class="detail-field"><label>Importo</label><p id="bolletta-detail-importo"></p></div>
@@ -3542,7 +3542,7 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 </div>
 <div id="color-picker-overlay">
 <div id="color-picker-box">
-<h3>ðŸŽ¨ Cambia colore</h3>
+<h3>🎨 Cambia colore</h3>
 <p class="color-picker-subtitle">Scegli un colore per questa categoria</p>
 <div class="color-picker-preview">
 <div class="color-picker-preview-dot" id="color-picker-preview-dot"></div>
@@ -3592,12 +3592,12 @@ income: ['Stipendio', 'Bonus', 'Regalo', 'Altro']
 
 // === FIX CLICK ENTRATE/USCITE ===
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('ðŸ”„ Inizializzo click Entrate/Uscite...');
+  console.log('🔄 Inizializzo click Entrate/Uscite...');
   
   document.addEventListener('click', function(e) {
     const incomeCard = e.target.closest('#card-income');
     if (incomeCard) {
-      console.log('ðŸ–±ï¸ Click su Entrate!');
+      console.log('🖱️ Click su Entrate!');
       if (typeof openIncomeExpenseDetail === 'function') {
         openIncomeExpenseDetail('income');
       }
@@ -3606,7 +3606,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const expenseCard = e.target.closest('#card-expense');
     if (expenseCard) {
-      console.log('ðŸ–±ï¸ Click su Uscite!');
+      console.log('🖱️ Click su Uscite!');
       if (typeof openIncomeExpenseDetail === 'function') {
         openIncomeExpenseDetail('expense');
       }
@@ -3765,7 +3765,7 @@ function renderEventsForDay(dateStr) {
   if (!container) return;
   
   const date = new Date(dateStr);
-  const dayNames = ['LunedÃ¬', 'MartedÃ¬', 'MercoledÃ¬', 'GiovedÃ¬', 'VenerdÃ¬', 'Sabato', 'Domenica'];
+  const dayNames = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica'];
   const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
   
   const isToday = dateStr === new Date().toISOString().slice(0, 10);
@@ -3793,7 +3793,7 @@ function renderEventsForDay(dateStr) {
       <div class="evento-card">
         <div class="evento-ora">${event.ora || 'Tutto il giorno'}</div>
         <div class="evento-titolo">${escapeHtml(event.titolo)}</div>
-        <button class="evento-delete" data-index="${index}" data-date="${dateStr}">âœ•</button>
+        <button class="evento-delete" data-index="${index}" data-date="${dateStr}">✕</button>
       </div>
     `;
   });
@@ -3803,14 +3803,14 @@ function renderEventsForDay(dateStr) {
 
 // Mostra il modale per nuovo evento
 function showNewEventModal() {
-  console.log('ðŸ“ Apertura modale nuovo evento');
+  console.log('📝 Apertura modale nuovo evento');
   
   const overlay = document.createElement('div');
   overlay.className = 'evento-modal-overlay open';
   overlay.id = 'evento-modal-overlay';
   overlay.innerHTML = `
     <div class="evento-modal">
-      <h3>ðŸ“ Nuovo evento</h3>
+      <h3>📝 Nuovo evento</h3>
       <p>Inserisci i dettagli dell'evento per il giorno selezionato</p>
       
       <div class="campo">
@@ -3960,9 +3960,9 @@ document.addEventListener('click', function(e) {
   }
 });
 
-// Inizializza il calendario quando la pagina Ã¨ pronta
+// Inizializza il calendario quando la pagina è pronta
 function initEventPage() {
-  console.log('ðŸ“… Inizializzazione pagina eventi...');
+  console.log('📅 Inizializzazione pagina eventi...');
   const now = new Date();
   currentMonth = now.getMonth();
   currentYear = now.getFullYear();
@@ -3994,7 +3994,7 @@ else if (s.includes(',')) s = s.replace(',', '.');
 const n = parseFloat(s);
 return Number.isFinite(n) ? n : 0;
 }
-const fmtEUR = (n) => amountValue(n).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: true }) + ' â‚¬';
+const fmtEUR = (n) => amountValue(n).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: true }) + ' €';
 function fmtDate(d) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 function fmtDateLabel(d) { return d.toLocaleDateString('it-IT', { day:'2-digit', month:'long', year:'numeric' }); }
 function getMonthEnd(year, month) { return new Date(year, month, 0); }
@@ -4070,7 +4070,7 @@ let isRegisterMode = false;
 document.getElementById('login-toggle').addEventListener('click', () => {
 isRegisterMode = !isRegisterMode;
 document.getElementById('login-submit').textContent = isRegisterMode ? 'Crea account' : 'Accedi';
-document.getElementById('login-toggle-label').textContent = isRegisterMode ? 'Hai giÃ  un account?' : 'Non hai un account?';
+document.getElementById('login-toggle-label').textContent = isRegisterMode ? 'Hai già un account?' : 'Non hai un account?';
 document.getElementById('login-toggle').textContent = isRegisterMode ? 'Accedi' : 'Registrati';
 document.getElementById('login-error').textContent = '';
 });
@@ -4091,8 +4091,8 @@ if (unsubscribeBollette) { unsubscribeBollette(); unsubscribeBollette = null; }
 await auth.signOut();
 });
 function traduciErroreFirebase(code) {
-const map = { 'auth/email-already-in-use': 'Email giÃ  registrata.', 'auth/invalid-email': 'Email non valida.', 'auth/weak-password': 'Password di almeno 6 caratteri.', 'auth/wrong-password': 'Password errata.', 'auth/user-not-found': 'Nessun account con questa email.', 'auth/invalid-credential': 'Email o password errati.', 'auth/too-many-requests': 'Troppi tentativi.' };
-return map[code] || 'Si Ã¨ verificato un errore.';
+const map = { 'auth/email-already-in-use': 'Email già registrata.', 'auth/invalid-email': 'Email non valida.', 'auth/weak-password': 'Password di almeno 6 caratteri.', 'auth/wrong-password': 'Password errata.', 'auth/user-not-found': 'Nessun account con questa email.', 'auth/invalid-credential': 'Email o password errati.', 'auth/too-many-requests': 'Troppi tentativi.' };
+return map[code] || 'Si è verificato un errore.';
 }
 auth.onAuthStateChanged((user) => {
   if (user) {
@@ -4155,7 +4155,7 @@ async function saveTransactions() {
       transactions: state.transactions,
       updatedAt: new Date().toISOString()
     });
-    document.getElementById('save-status').textContent = 'âœ… Dati salvati!';
+    document.getElementById('save-status').textContent = '✅ Dati salvati!';
   } catch(e) {
     console.error('Errore salvataggio transazioni:', e);
     document.getElementById('save-status').textContent = 'Errore: ' + e.message;
@@ -4224,16 +4224,6 @@ bolletteData = {};
 console.error('Errore setup bollette:', err);
 bolletteData = {};
 }
-}
-async function saveBolletteData() {
-  if (!currentUser) {
-    alert('Utente non connesso');
-    return;
-  }
-
-  await db.collection('bollette')
-    .doc(currentUser.uid)
-    .set(bolletteData, { merge: true });
 }
 function setTab(type) {
 state.currentType = type;
@@ -4461,7 +4451,7 @@ function updateChartCategory() {
     const totalRow = document.createElement('tr');
     totalRow.className = 'total-row';
     totalRow.innerHTML = `
-      <td style="font-weight: 800; font-size: 14px;">ðŸ“Š TOTALE SPESE</td>
+      <td style="font-weight: 800; font-size: 14px;">📊 TOTALE SPESE</td>
       <td class="text-right" style="font-weight: 800; font-size: 14px; color: var(--danger);">${fmtEUR(total)}</td>
       <td class="text-right" style="font-weight: 800; font-size: 14px; color: var(--text-secondary);">100%</td>
     `;
@@ -4683,7 +4673,7 @@ let tr = document.createElement('tr');
 tr.className = 'total-row';
 let diff = totalInc2 - totalInc1;
 tr.innerHTML = `
-<td style="font-weight: 800;">ðŸ’° Totale Entrate</td>
+<td style="font-weight: 800;">💰 Totale Entrate</td>
 <td class="text-right" style="font-weight: 700; color: var(--success)">${fmtEUR(totalInc1)}</td>
 <td class="text-right" style="font-weight: 700; color: var(--success)">${fmtEUR(totalInc2)}</td>
 <td class="text-right" style="font-weight: 800; color: ${diff >= 0 ? 'var(--success)' : 'var(--danger)'}">
@@ -4719,7 +4709,7 @@ tr = document.createElement('tr');
 tr.className = 'total-row';
 diff = totalExp2 - totalExp1;
 tr.innerHTML = `
-<td style="font-weight: 800;">ðŸ’¸ Totale Uscite</td>
+<td style="font-weight: 800;">💸 Totale Uscite</td>
 <td class="text-right" style="font-weight: 700; color: var(--danger)">${fmtEUR(totalExp1)}</td>
 <td class="text-right" style="font-weight: 700; color: var(--danger)">${fmtEUR(totalExp2)}</td>
 <td class="text-right" style="font-weight: 800; color: ${diff >= 0 ? 'var(--danger)' : 'var(--success)'}">
@@ -4815,7 +4805,7 @@ countSpan.textContent = `${selectedTransactions.size} selezionati`;
 bulkBar.appendChild(countSpan);
 const deleteBtn = document.createElement('button');
 deleteBtn.className = 'btn-bulk-delete';
-deleteBtn.textContent = 'ðŸ—‘ï¸ Elimina selezionati';
+deleteBtn.textContent = '🗑️ Elimina selezionati';
 deleteBtn.addEventListener('click', async () => {
 if (!confirm(`Eliminare ${selectedTransactions.size} movimenti selezionati?`)) return;
 state.transactions = state.transactions.filter(t => !selectedTransactions.has(t.id));
@@ -4826,7 +4816,7 @@ renderAll();
 bulkBar.appendChild(deleteBtn);
 const clearBtn = document.createElement('button');
 clearBtn.className = 'btn-bulk-clear';
-clearBtn.textContent = 'âœ– Deseleziona';
+clearBtn.textContent = '✖ Deseleziona';
 clearBtn.addEventListener('click', () => {
 selectedTransactions.clear();
 updateTransactionsList();
@@ -4848,12 +4838,12 @@ mt.forEach(t => {
   
   const isIncome = t.type === 'income';
   const src = t.source || 'cash';
-  const badgeLabel = src === 'bank' ? 'ðŸ¦ C/C' : 'ðŸ’µ Cash';
+  const badgeLabel = src === 'bank' ? '🏦 C/C' : '💵 Cash';
   const badgeCls = src === 'bank' ? 'badge-bank' : 'badge-cash';
   const dateLabel = new Date(t.date).toLocaleDateString('it-IT', { day:'2-digit', month:'2-digit', year:'2-digit' });
   const amountColor = isIncome ? 'var(--success)' : 'var(--danger)';
   const amountSign = isIncome ? '+' : '-';
-  const hasAttachment = t.attachment ? ' ðŸ“Ž' : '';
+  const hasAttachment = t.attachment ? ' 📎' : '';
   
   const checkbox = document.createElement('input');
   checkbox.type = 'checkbox';
@@ -4906,11 +4896,11 @@ const t = state.transactions.find(t => t.id === id); if (!t) return;
 detailId = id;
 const isIncome = t.type === 'income';
 document.getElementById('detail-title').textContent = isIncome ? 'Entrata' : 'Uscita';
-document.getElementById('detail-desc').textContent = t.description || t.category || 'â€”';
+document.getElementById('detail-desc').textContent = t.description || t.category || '—';
 document.getElementById('detail-amount').innerHTML = `<span style="font-size:22px; font-weight:800; color:${isIncome?'var(--success)':'var(--danger)'}; letter-spacing:-0.5px;">${isIncome?'+':'-'}${fmtEUR(t.amount)}</span>`;
-document.getElementById('detail-category').textContent = t.category || 'â€”';
-const srcLabel = (t.source === 'bank') ? ' Conto corrente' : 'ðŸ’µ Contanti';
-document.getElementById('detail-date').textContent = new Date(t.date).toLocaleDateString('it-IT', {weekday:'long', year:'numeric', month:'long', day:'numeric'}) + ' Â· ' + srcLabel;
+document.getElementById('detail-category').textContent = t.category || '—';
+const srcLabel = (t.source === 'bank') ? ' Conto corrente' : '💵 Contanti';
+document.getElementById('detail-date').textContent = new Date(t.date).toLocaleDateString('it-IT', {weekday:'long', year:'numeric', month:'long', day:'numeric'}) + ' · ' + srcLabel;
 renderAttachment(t);
 document.getElementById('detail-overlay').classList.add('open');
 }
@@ -4984,7 +4974,7 @@ document.getElementById('btn-add-attachment').addEventListener('click', () => { 
 document.getElementById('attachment-input').addEventListener('change', async (e) => {
 const file = e.target.files[0];
 if (!file || !detailId) return;
-if (file.size > 10 * 1024 * 1024) { alert('Il file Ã¨ troppo grande. Dimensione massima: 10MB'); return; }
+if (file.size > 10 * 1024 * 1024) { alert('Il file è troppo grande. Dimensione massima: 10MB'); return; }
 const t = state.transactions.find(t => t.id === detailId);
 if (!t) return;
 const progressDiv = document.getElementById('attachment-progress');
@@ -5085,7 +5075,7 @@ function parseImportedDate(value) {
 }
 function parseImportedAmount(value) {
 if (typeof value === 'number') return value;
-let s = String(value||'').trim().replace(/[â‚¬\s]/g,'');
+let s = String(value||'').trim().replace(/[€\s]/g,'');
 if (s.includes(',') && s.includes('.')) s = s.replace(/\./g,'').replace(',','.');
 else if (s.includes(',')) s = s.replace(',','.');
 const n = parseFloat(s); return isNaN(n) ? null : n;
@@ -5117,7 +5107,7 @@ const fk = (names) => keys.find(k => names.includes(normalizeHeader(k)));
 const kMese = fk(['mese', 'month']); const kAnno = fk(['anno', 'year']);
 const kData = fk(['data contabile', 'data', 'date', 'data_contabile']);
 const kDesc = fk(['descrizione', 'description', 'desc']);
-const kAmount = fk(['importo', 'amount', 'importo â‚¬']);
+const kAmount = fk(['importo', 'amount', 'importo €']);
 const kCategory = fk(['categoria', 'category', 'cat']);
 if (!kAmount) { errorEl.textContent = 'Colonna "Importo" mancante.'; return; }
 if (!kData && (!kMese || !kAnno)) { errorEl.textContent = 'Servono almeno "Data Contabile" oppure "Mese" + "Anno".'; return; }
@@ -5149,7 +5139,7 @@ pendingRows.forEach(r => {
 const tr = document.createElement('tr'); tr.className = r.valid ? 'import-row-ok' : 'import-row-error';
 const tipoLabel = r.type === 'income' ? 'Entrata' : r.type === 'expense' ? 'Uscita' : '-';
 const importoLabel = r.amount !== null ? `<span style="color:${r.type==='income'?'#5CB85C':'#E74C3C'}; font-weight:700;">${r.type==='income'?'+':'-'}${fmtEUR(r.amount)}</span>` : '-';
-tr.innerHTML = `<td>${r.valid ? 'âœ“' : 'âœ— ' + r.errors.join(', ')}</td><td>${r.date || '-'}</td><td>${escapeHtml(r.description) || '-'}</td><td>${importoLabel}</td><td>${escapeHtml(r.category) || '-'}</td><td>${tipoLabel}</td>`;
+tr.innerHTML = `<td>${r.valid ? '✓' : '✗ ' + r.errors.join(', ')}</td><td>${r.date || '-'}</td><td>${escapeHtml(r.description) || '-'}</td><td>${importoLabel}</td><td>${escapeHtml(r.category) || '-'}</td><td>${tipoLabel}</td>`;
 body.appendChild(tr);
 });
 document.getElementById(confirmBtnId).disabled = vc === 0;
@@ -5177,15 +5167,15 @@ function updateProfilePage() {
   
   document.getElementById('profile-email-display').value = currentUser.email;
   const created = currentUser.metadata.creationTime ? 
-    new Date(currentUser.metadata.creationTime).toLocaleDateString('it-IT', { day:'2-digit', month:'long', year:'numeric' }) : 'â€”';
+    new Date(currentUser.metadata.creationTime).toLocaleDateString('it-IT', { day:'2-digit', month:'long', year:'numeric' }) : '—';
   document.getElementById('profile-created').value = created;
   
   document.getElementById('profile-tx-count').textContent = state.transactions.length;
   document.getElementById('profile-rem-count').textContent = state.reminders.length;
   const dates = state.transactions.map(t => t.date).sort();
-  document.getElementById('profile-first-tx').textContent = dates.length ? new Date(dates[0]).toLocaleDateString('it-IT') : 'â€”';
+  document.getElementById('profile-first-tx').textContent = dates.length ? new Date(dates[0]).toLocaleDateString('it-IT') : '—';
   
-  // Carica i membri della famiglia SOLO se non sono giÃ  stati caricati
+  // Carica i membri della famiglia SOLO se non sono già stati caricati
   if (!currentFamilyId) {
     loadFamilyMembers();
   } else {
@@ -5314,7 +5304,7 @@ document.getElementById('cat-edit-save').addEventListener('click', async () => {
 const newName = document.getElementById('cat-edit-input').value.trim();
 if (!newName) { alert('Inserisci un nome valido.'); return; }
 const oldName = state.categories[editingCat.type][editingCat.index];
-if (editingCat.type && state.categories[editingCat.type].includes(newName) && newName !== oldName) { alert('Categoria giÃ  esistente.'); return; }
+if (editingCat.type && state.categories[editingCat.type].includes(newName) && newName !== oldName) { alert('Categoria già esistente.'); return; }
 state.categories[editingCat.type][editingCat.index] = newName;
 if (newName !== oldName && categoryColors[oldName]) {
 categoryColors[newName] = categoryColors[oldName];
@@ -5325,8 +5315,8 @@ await saveCategories(); renderCategories(); populateCategorySelect();
 document.getElementById('cat-edit-modal').style.display = 'none';
 });
 document.getElementById('cat-edit-modal').addEventListener('click', (e) => { if (e.target.id === 'cat-edit-modal') { document.getElementById('cat-edit-modal').style.display = 'none'; editingCat = { type: null, index: null }; } });
-document.getElementById('btn-add-cat-expense').addEventListener('click', async () => { const val = document.getElementById('new-cat-expense').value.trim(); if (!val) return; if (state.categories.expense.includes(val)) { alert('Categoria giÃ  esistente.'); return; } state.categories.expense.push(val); document.getElementById('new-cat-expense').value = ''; await saveCategories(); renderCategories(); populateCategorySelect(); });
-document.getElementById('btn-add-cat-income').addEventListener('click', async () => { const val = document.getElementById('new-cat-income').value.trim(); if (!val) return; if (state.categories.income.includes(val)) { alert('Categoria giÃ  esistente.'); return; } state.categories.income.push(val); document.getElementById('new-cat-income').value = ''; await saveCategories(); renderCategories(); populateCategorySelect(); });
+document.getElementById('btn-add-cat-expense').addEventListener('click', async () => { const val = document.getElementById('new-cat-expense').value.trim(); if (!val) return; if (state.categories.expense.includes(val)) { alert('Categoria già esistente.'); return; } state.categories.expense.push(val); document.getElementById('new-cat-expense').value = ''; await saveCategories(); renderCategories(); populateCategorySelect(); });
+document.getElementById('btn-add-cat-income').addEventListener('click', async () => { const val = document.getElementById('new-cat-income').value.trim(); if (!val) return; if (state.categories.income.includes(val)) { alert('Categoria già esistente.'); return; } state.categories.income.push(val); document.getElementById('new-cat-income').value = ''; await saveCategories(); renderCategories(); populateCategorySelect(); });
 function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
 function populateMonthSelects() {
 const months = Array.from(new Set(state.transactions.map(t => monthKey(t.date)))); months.push(monthKey(todayISO()));
@@ -5510,7 +5500,7 @@ async function generateHomePDF() {
       // Rimuovi le emoji dalla descrizione
       let desc = (t.description || t.category || '').substring(0, 25);
       desc = desc.replace(/[\u{1F600}-\u{1F6FF}]/gu, '').trim(); // Rimuovi emoji
-      doc.text(`${dateLabel} Â· ${desc}`, colX + 2, y + 4);
+      doc.text(`${dateLabel} · ${desc}`, colX + 2, y + 4);
       colX += colWidths[0];
       
       // Metodo (fonte) - con badge senza emoji
@@ -5519,9 +5509,9 @@ async function generateHomePDF() {
       
       // Giustificativo (categoria) - rimuovi emoji
       doc.setTextColor(108, 117, 125);
-      let category = t.category || 'â€”';
+      let category = t.category || '—';
       category = category.replace(/[\u{1F600}-\u{1F6FF}]/gu, '').trim(); // Rimuovi emoji
-      doc.text(category || 'â€”', colX + 2, y + 4);
+      doc.text(category || '—', colX + 2, y + 4);
       colX += colWidths[2];
       
       // Importo
@@ -5544,7 +5534,7 @@ async function generateHomePDF() {
     doc.setFontSize(8);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(173, 181, 189);
-    doc.text(`${mt.length} transazioni Â· Generato il ${new Date().toLocaleDateString('it-IT')}`, margin, y);
+    doc.text(`${mt.length} transazioni · Generato il ${new Date().toLocaleDateString('it-IT')}`, margin, y);
     
     // Numero pagina
     const pageCount = doc.internal.getNumberOfPages();
@@ -5788,7 +5778,7 @@ for (let i = 1; i <= pageCount; i++) {
 doc.setPage(i);
 doc.setFontSize(8);
 doc.setTextColor(138, 155, 172);
-doc.text(`Budget di Famiglia Â· Pagina ${i}/${pageCount}`, pageWidth/2, 290, { align: 'center' });
+doc.text(`Budget di Famiglia · Pagina ${i}/${pageCount}`, pageWidth/2, 290, { align: 'center' });
 }
 doc.save(`statistiche-${year}.pdf`);
 } catch(err) {
@@ -5882,10 +5872,10 @@ tdTotal.className = 'bolletta-cell-total';
 tdTotal.textContent = meseTotal.toLocaleString('it-IT', {
 minimumFractionDigits: 2,
 maximumFractionDigits: 2
-}) + ' â‚¬';
+}) + ' €';
 } else {
 tdTotal.className = 'bolletta-cell-empty';
-tdTotal.textContent = 'â€”';
+tdTotal.textContent = '—';
 }
 tr.appendChild(tdTotal);
 tbody.appendChild(tr);
@@ -5895,10 +5885,10 @@ const grandTotal = totalGas + totalLuce + totalAcqua;
 tfoot.innerHTML = `
 <tr>
 <td>TOTALE ANNUO ${year}</td>
-<td>${totalGas.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} â‚¬</td>
-<td>${totalLuce.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} â‚¬</td>
-<td>${totalAcqua.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} â‚¬</td>
-<td>${grandTotal.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} â‚¬</td>
+<td>${totalGas.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</td>
+<td>${totalLuce.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</td>
+<td>${totalAcqua.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</td>
+<td>${grandTotal.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</td>
 </tr>
 `;
 }
@@ -5913,7 +5903,7 @@ function renderBollettaCell(td, tipo, meseKey, monthName) {
   const attachments = (bolletteData[tipo] && bolletteData[tipo][meseKey]) || [];
   if (attachments.length === 0) {
     td.className = 'bolletta-cell-empty';
-    td.textContent = 'â€”';
+    td.textContent = '—';
     return;
   }
   td.className = 'bolletta-cell-attachment';
@@ -5921,12 +5911,12 @@ function renderBollettaCell(td, tipo, meseKey, monthName) {
   const importoFormattato = bolletta.importo.toLocaleString('it-IT', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
-  }) + ' â‚¬';
+  }) + ' €';
   
   // Mostra solo l'importo (senza fornitore e data)
   td.innerHTML = `<span style="font-weight:700; font-size:15px;">${importoFormattato}</span>`;
   
-  // Aggiungi indicatore se ci sono piÃ¹ bollette
+  // Aggiungi indicatore se ci sono più bollette
   if (attachments.length > 1) {
     td.innerHTML += ` <span class="bolletta-multi-badge">+${attachments.length - 1}</span>`;
   }
@@ -5945,8 +5935,8 @@ function openBollettaDetail(tipo, meseKey, index) {
   const bolletta = attachments[index];
   
   document.getElementById('bolletta-detail-name').textContent = bolletta.nome;
-  document.getElementById('bolletta-detail-fornitore').textContent = bolletta.fornitore || 'â€”';
-  document.getElementById('bolletta-detail-importo').innerHTML = `<span style="font-size:20px; font-weight:800; color:var(--accent);">${bolletta.importo.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} â‚¬</span>`;
+  document.getElementById('bolletta-detail-fornitore').textContent = bolletta.fornitore || '—';
+  document.getElementById('bolletta-detail-importo').innerHTML = `<span style="font-size:20px; font-weight:800; color:var(--accent);">${bolletta.importo.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>`;
   document.getElementById('bolletta-detail-date').textContent = new Date(bolletta.dataCaricamento).toLocaleDateString('it-IT', { day:'2-digit', month:'long', year:'numeric' });
   document.getElementById('bolletta-detail-overlay').style.display = 'flex';
   
@@ -5960,7 +5950,7 @@ function openBollettaDetail(tipo, meseKey, index) {
     newBtn.addEventListener('click', function(e) {
       e.preventDefault();
       e.stopPropagation();
-      console.log('ðŸ–±ï¸ Click su Scarica Bolletta');
+      console.log('🖱️ Click su Scarica Bolletta');
       
       if (!bollettaDetailData) {
         alert('Nessuna bolletta selezionata');
@@ -5983,13 +5973,13 @@ function openBollettaDetail(tipo, meseKey, index) {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        console.log('âœ… Download avviato:', bolletta.nome);
+        console.log('✅ Download avviato:', bolletta.nome);
       } catch (err) {
         alert('Errore nel download: ' + err.message);
-        console.error('âŒ Errore download:', err);
+        console.error('❌ Errore download:', err);
       }
     });
-    console.log('âœ… Listener Scarica attaccato al dettaglio');
+    console.log('✅ Listener Scarica attaccato al dettaglio');
   }
 }
 function closeBollettaDetail() {
@@ -6036,118 +6026,85 @@ alert('Errore nel download: ' + err.message);
 }
 }
 async function uploadBolletta() {
-  const tipo = document.getElementById('bolletta-tipo').value;
-  const fornitore = document.getElementById('bolletta-fornitore').value.trim();
-  const importoStr = document.getElementById('bolletta-importo').value.trim();
-  const importo = parseFloat(importoStr.replace(',', '.'));
-  const mese = document.getElementById('bolletta-mese').value;
-  const fileInput = document.getElementById('bolletta-file');
-  const file = fileInput.files[0];
-
-  if (!currentUser) {
-    alert('Utente non connesso');
-    return;
-  }
-
-  if (!tipo || !mese) {
-    alert('Tipo bolletta o mese non validi');
-    return;
-  }
-
-  if (!fornitore) {
-    alert('Inserisci il nome del fornitore');
-    return;
-  }
-
-  if (isNaN(importo) || importo <= 0) {
-    alert('Inserisci un importo valido');
-    return;
-  }
-
-  if (!file) {
-    alert('Seleziona un file PDF');
-    return;
-  }
-
-  const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
-  if (!isPdf) {
-    alert('Il file deve essere in formato PDF');
-    return;
-  }
-
-  if (file.size > 10 * 1024 * 1024) {
-    alert('Il file e troppo grande. Dimensione massima: 10MB');
-    return;
-  }
-
-  const progressDiv = document.getElementById('bolletta-upload-progress');
-  const progressFill = document.getElementById('bolletta-progress-fill');
-  const progressText = document.getElementById('bolletta-progress-text');
-
-  try {
-    progressDiv.classList.remove('hidden');
-
-    const timestamp = Date.now();
-    const safeFileName = file.name.replace(/[^\w.\-]+/g, '_');
-    const storagePath = `attachments/${currentUser.uid}/bollette/${timestamp}_${safeFileName}`;
-    const fileRef = storage.ref().child(storagePath);
-    const uploadTask = fileRef.put(file);
-
-    uploadTask.on(
-      'state_changed',
-      (snapshot) => {
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        progressFill.style.width = progress + '%';
-        progressText.textContent = `Caricamento... ${Math.round(progress)}%`;
-      },
-      (error) => {
-        progressDiv.classList.add('hidden');
-        alert('Errore upload Storage: ' + error.code + ' - ' + error.message);
-      },
-      async () => {
-        try {
-          const downloadUrl = await uploadTask.snapshot.ref.getDownloadURL();
-
-          if (!bolletteData[tipo]) bolletteData[tipo] = {};
-          if (!bolletteData[tipo][mese]) bolletteData[tipo][mese] = [];
-
-          bolletteData[tipo][mese].push({
-            nome: file.name,
-            fornitore: fornitore,
-            importo: importo,
-            url: downloadUrl,
-            storagePath: storagePath,
-            size: file.size,
-            dataCaricamento: new Date().toISOString()
-          });
-
-          await saveBolletteData();
-
-          populateBollettaYearFilter();
-          renderBolletteList();
-
-          fileInput.value = '';
-          document.getElementById('bolletta-fornitore').value = '';
-          document.getElementById('bolletta-importo').value = '';
-
-          progressDiv.classList.add('hidden');
-          progressFill.style.width = '0%';
-
-          alert('Bolletta caricata con successo!');
-        } catch (err) {
-          progressDiv.classList.add('hidden');
-          alert('Errore salvataggio bolletta: ' + err.message);
-        }
-      }
-    );
-  } catch (err) {
-    progressDiv.classList.add('hidden');
-    alert('Errore nel caricamento: ' + err.message);
-  }
+const tipo = document.getElementById('bolletta-tipo').value;
+const fornitore = document.getElementById('bolletta-fornitore').value.trim();
+const importoStr = document.getElementById('bolletta-importo').value;
+const importo = parseFloat(importoStr);
+const mese = document.getElementById('bolletta-mese').value;
+const fileInput = document.getElementById('bolletta-file');
+const file = fileInput.files[0];
+if (!fornitore) {
+alert('Inserisci il nome del fornitore');
+return;
+}
+if (isNaN(importo) || importo <= 0) {
+alert('Inserisci un importo valido');
+return;
+}
+if (!file) {
+alert('Seleziona un file PDF');
+return;
+}
+if (file.type !== 'application/pdf') {
+alert('Il file deve essere in formato PDF');
+return;
+}
+if (file.size > 10 * 1024 * 1024) {
+alert('Il file è troppo grande. Dimensione massima: 10MB');
+return;
+}
+const progressDiv = document.getElementById('bolletta-upload-progress');
+const progressFill = document.getElementById('bolletta-progress-fill');
+const progressText = document.getElementById('bolletta-progress-text');
+try {
+progressDiv.classList.remove('hidden');
+const timestamp = Date.now();
+const storagePath = `bollette/${currentUser.uid}/${tipo}/${mese}/${timestamp}_${file.name}`;
+const fileRef = storage.ref().child(storagePath);
+const uploadTask = fileRef.put(file);
+await new Promise((resolve, reject) => {
+uploadTask.on('state_changed',
+(snapshot) => {
+const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+progressFill.style.width = progress + '%';
+progressText.textContent = `Caricamento... ${Math.round(progress)}%`;
+},
+(error) => {
+reject(error);
+},
+async () => {
+const downloadUrl = await uploadTask.snapshot.ref.getDownloadURL();
+if (!bolletteData[tipo]) bolletteData[tipo] = {};
+if (!bolletteData[tipo][mese]) bolletteData[tipo][mese] = [];
+bolletteData[tipo][mese].push({
+nome: file.name,
+fornitore: fornitore,
+importo: importo,
+url: downloadUrl,
+storagePath: storagePath,
+size: file.size,
+dataCaricamento: new Date().toISOString()
+});
+await saveBolletteData();
+renderBolletteList();
+resolve();
+}
+);
+});
+fileInput.value = '';
+document.getElementById('bolletta-fornitore').value = '';
+document.getElementById('bolletta-importo').value = '';
+progressDiv.classList.add('hidden');
+progressFill.style.width = '0%';
+alert('Bolletta caricata con successo!');
+} catch (err) {
+progressDiv.classList.add('hidden');
+alert('Errore nel caricamento: ' + err.message);
+}
 }
 // === FUNZIONE PER APRIRE IL DETTAGLIO ===
 function openIncomeExpenseDetail(type) {
-  console.log('ðŸ” Apertura dettaglio:', type);
+  console.log('🔍 Apertura dettaglio:', type);
   
   const from = filterFrom || todayISO().slice(0,7) + '-01';
   const to = filterTo || todayISO();
@@ -6167,7 +6124,7 @@ function openIncomeExpenseDetail(type) {
   const total = cashTotal + bankTotal;
   
   const isIncome = type === 'income';
-  const title = isIncome ? 'ðŸ’° Dettaglio Entrate' : 'ðŸ’¸ Dettaglio Uscite';
+  const title = isIncome ? '💰 Dettaglio Entrate' : '💸 Dettaglio Uscite';
   const valueClass = isIncome ? 'income' : 'expense';
   
   const periodLabel = filterMode === 'month'
@@ -6176,7 +6133,7 @@ function openIncomeExpenseDetail(type) {
   
   const contentDiv = document.getElementById('income-expense-content');
   if (!contentDiv) {
-    console.error('âŒ Elemento income-expense-content non trovato!');
+    console.error('❌ Elemento income-expense-content non trovato!');
     return;
   }
   
@@ -6193,7 +6150,7 @@ function openIncomeExpenseDetail(type) {
       <div class="ie-period">${periodLabel}</div>
       <div class="ie-row">
         <div class="ie-label">
-          <div class="ie-icon cash">ðŸ’µ</div>
+          <div class="ie-icon cash">💵</div>
           <div>
             <div>Contanti</div>
             <div style="font-size:11px; color:var(--text-muted); font-weight:600;">${cashCount} movimenti</div>
@@ -6203,7 +6160,7 @@ function openIncomeExpenseDetail(type) {
       </div>
       <div class="ie-row">
         <div class="ie-label">
-          <div class="ie-icon bank">ðŸ¦</div>
+          <div class="ie-icon bank">🏦</div>
           <div>
             <div>Conto corrente</div>
             <div style="font-size:11px; color:var(--text-muted); font-weight:600;">${bankCount} movimenti</div>
@@ -6224,23 +6181,23 @@ function openIncomeExpenseDetail(type) {
   const overlay = document.getElementById('income-expense-overlay');
   if (overlay) {
     overlay.classList.add('open');
-    console.log('âœ… Popup aperto!');
+    console.log('✅ Popup aperto!');
   }
 }
 
 // === FUNZIONE PER CHIUDERE IL DETTAGLIO ===
 function closeIncomeExpenseDetail() {
-  console.log('ðŸ”’ Chiusura dettaglio');
+  console.log('🔒 Chiusura dettaglio');
   const overlay = document.getElementById('income-expense-overlay');
   if (overlay) {
     overlay.classList.remove('open');
-    console.log('âœ… Popup chiuso!');
+    console.log('✅ Popup chiuso!');
   }
 }
 
 // === INIZIALIZZA I LISTENER ===
 function initIncomeExpenseListeners() {
-  console.log('ðŸ”„ Inizializzazione listener Entrate/Uscite...');
+  console.log('🔄 Inizializzazione listener Entrate/Uscite...');
   
   const cardIncome = document.getElementById('card-income');
   const cardExpense = document.getElementById('card-expense');
@@ -6248,10 +6205,10 @@ function initIncomeExpenseListeners() {
   const overlay = document.getElementById('income-expense-overlay');
   
   // Verifica che gli elementi esistano
-  console.log('ðŸ“Š card-income:', cardIncome ? 'âœ…' : 'âŒ');
-  console.log('ðŸ“Š card-expense:', cardExpense ? 'âœ…' : 'âŒ');
-  console.log('ðŸ“Š closeBtn:', closeBtn ? 'âœ…' : 'âŒ');
-  console.log('ðŸ“Š overlay:', overlay ? 'âœ…' : 'âŒ');
+  console.log('📊 card-income:', cardIncome ? '✅' : '❌');
+  console.log('📊 card-expense:', cardExpense ? '✅' : '❌');
+  console.log('📊 closeBtn:', closeBtn ? '✅' : '❌');
+  console.log('📊 overlay:', overlay ? '✅' : '❌');
   
   // === ENTRATE ===
   if (cardIncome) {
@@ -6262,12 +6219,12 @@ function initIncomeExpenseListeners() {
     newCard.addEventListener('click', function(e) {
       e.preventDefault();
       e.stopPropagation();
-      console.log('ðŸ–±ï¸ CLICK su ENTRATE!');
+      console.log('🖱️ CLICK su ENTRATE!');
       openIncomeExpenseDetail('income');
     });
-    console.log('âœ… Listener ENTRATE aggiunto');
+    console.log('✅ Listener ENTRATE aggiunto');
   } else {
-    console.error('âŒ card-income non trovato!');
+    console.error('❌ card-income non trovato!');
   }
   
   // === USCITE ===
@@ -6278,12 +6235,12 @@ function initIncomeExpenseListeners() {
     newCard.addEventListener('click', function(e) {
       e.preventDefault();
       e.stopPropagation();
-      console.log('ðŸ–±ï¸ CLICK su USCITE!');
+      console.log('🖱️ CLICK su USCITE!');
       openIncomeExpenseDetail('expense');
     });
-    console.log('âœ… Listener USCITE aggiunto');
+    console.log('✅ Listener USCITE aggiunto');
   } else {
-    console.error('âŒ card-expense non trovato!');
+    console.error('❌ card-expense non trovato!');
   }
   
   // === PULSANTE CHIUDI ===
@@ -6292,16 +6249,16 @@ function initIncomeExpenseListeners() {
     const newBtn = closeBtn.cloneNode(true);
     closeBtn.parentNode.replaceChild(newBtn, closeBtn);
     
-    // USA ONCLICK INVECE DI ADD EVENT LISTENER (PIÃ™ AFFIDABILE)
+    // USA ONCLICK INVECE DI ADD EVENT LISTENER (PIÙ AFFIDABILE)
     newBtn.onclick = function(e) {
       e.preventDefault();
       e.stopPropagation();
-      console.log('ðŸ–±ï¸ CLICK su Chiudi (onclick)');
+      console.log('🖱️ CLICK su Chiudi (onclick)');
       closeIncomeExpenseDetail();
     };
-    console.log('âœ… Listener CHIUDI aggiunto (onclick)');
+    console.log('✅ Listener CHIUDI aggiunto (onclick)');
   } else {
-    console.error('âŒ closeBtn non trovato!');
+    console.error('❌ closeBtn non trovato!');
   }
   
   // === OVERLAY (clicca fuori) ===
@@ -6312,13 +6269,13 @@ function initIncomeExpenseListeners() {
     
     newOverlay.addEventListener('click', function(e) {
       if (e.target === this) {
-        console.log('ðŸ–±ï¸ CLICK fuori dal popup');
+        console.log('🖱️ CLICK fuori dal popup');
         closeIncomeExpenseDetail();
       }
     });
-    console.log('âœ… Listener OVERLAY aggiunto');
+    console.log('✅ Listener OVERLAY aggiunto');
   } else {
-    console.error('âŒ overlay non trovato!');
+    console.error('❌ overlay non trovato!');
   }
 }
 
@@ -6331,12 +6288,12 @@ function startIncomeExpense() {
   if (document.getElementById('card-income') && document.getElementById('card-expense')) {
     initIncomeExpenseListeners();
   } else {
-    console.log('â³ Elementi non trovati, riprovo tra 500ms...');
+    console.log('⏳ Elementi non trovati, riprovo tra 500ms...');
     setTimeout(startIncomeExpense, 500);
   }
 }
 
-// Avvia quando il DOM Ã¨ pronto
+// Avvia quando il DOM è pronto
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', function() {
     setTimeout(startIncomeExpense, 300);
@@ -6349,38 +6306,14 @@ if (document.readyState === 'loading') {
 setTimeout(startIncomeExpense, 2000);
   
 // Altri event listener...
-const btnUploadBolletta = document.getElementById('btn-upload-bolletta');
-if (btnUploadBolletta) {
-  btnUploadBolletta.addEventListener('click', uploadBolletta);
-}
-
-const bollettaYearFilter = document.getElementById('bolletta-year-filter');
-if (bollettaYearFilter) {
-  bollettaYearFilter.addEventListener('change', renderBolletteList);
-}
-
-const bollettaDetailClose = document.getElementById('bolletta-detail-close');
-if (bollettaDetailClose) {
-  bollettaDetailClose.addEventListener('click', closeBollettaDetail);
-}
-
-const bollettaDetailOverlay = document.getElementById('bolletta-detail-overlay');
-if (bollettaDetailOverlay) {
-  bollettaDetailOverlay.addEventListener('click', (e) => {
-    if (e.target.id === 'bolletta-detail-overlay') closeBollettaDetail();
-  });
-}
-
-const bollettaDetailDownload = document.getElementById('bolletta-detail-download');
-if (bollettaDetailDownload) {
-  bollettaDetailDownload.addEventListener('click', downloadBollettaFromDetail);
-}
-
-const bollettaDetailDelete = document.getElementById('bolletta-detail-delete');
-if (bollettaDetailDelete) {
-  bollettaDetailDelete.addEventListener('click', deleteBollettaFromDetail);
-}
-  
+document.getElementById('btn-upload-bolletta').addEventListener('click', uploadBolletta);
+document.getElementById('bolletta-year-filter').addEventListener('change', renderBolletteList);
+document.getElementById('bolletta-detail-close').addEventListener('click', closeBollettaDetail);
+document.getElementById('bolletta-detail-overlay').addEventListener('click', (e) => {
+  if (e.target.id === 'bolletta-detail-overlay') closeBollettaDetail();
+});
+document.getElementById('bolletta-detail-download').addEventListener('click', downloadBollettaFromDetail);
+document.getElementById('bolletta-detail-delete').addEventListener('click', deleteBollettaFromDetail);
 async function generateScreenshotPDF(elementId, filename) {
   showLoading(true);
   try {
@@ -6476,7 +6409,7 @@ function initPdfButtons() {
   }
 }
 
-// Esegui quando il DOM Ã¨ caricato
+// Esegui quando il DOM è caricato
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initPdfButtons);
 } else {
@@ -6536,7 +6469,7 @@ function handleTransactionClick(e) {
   // Cerca l'elemento cliccato
   const target = e.target;
   
-  // Cerca se il click Ã¨ su .tx-col-desc o su un suo discendente
+  // Cerca se il click è su .tx-col-desc o su un suo discendente
   const descElement = target.closest('.tx-col-desc');
   if (descElement) {
     const id = descElement.getAttribute('data-id');
@@ -6548,7 +6481,7 @@ function handleTransactionClick(e) {
     }
   }
   
-  // Cerca se il click Ã¨ su .tx-desc-text
+  // Cerca se il click è su .tx-desc-text
   const textElement = target.closest('.tx-desc-text');
   if (textElement) {
     const parentDesc = textElement.closest('.tx-col-desc');
@@ -6563,7 +6496,7 @@ function handleTransactionClick(e) {
     }
   }
   
-  // Cerca se il click Ã¨ su qualsiasi elemento con data-id
+  // Cerca se il click è su qualsiasi elemento con data-id
   const dataElement = target.closest('[data-id]');
   if (dataElement) {
     const id = dataElement.getAttribute('data-id');
@@ -6576,7 +6509,7 @@ function handleTransactionClick(e) {
   }
 }
 
-// Esegui il fix quando la pagina Ã¨ caricata
+// Esegui il fix quando la pagina è caricata
 document.addEventListener('DOMContentLoaded', function() {
   // Aspetta che i movimenti siano renderizzati
   setTimeout(fixTransactionClicks, 500);
@@ -6587,7 +6520,7 @@ document.addEventListener('DOMContentLoaded', function() {
 const originalUpdateTransactionsList = updateTransactionsList;
 updateTransactionsList = function() {
   originalUpdateTransactionsList.apply(this, arguments);
-  // Riavviamo i click dopo che la lista Ã¨ stata aggiornata
+  // Riavviamo i click dopo che la lista è stata aggiornata
   setTimeout(fixTransactionClicks, 100);
 };
 
@@ -6606,12 +6539,12 @@ async function loadFamilyMembers() {
     const userDoc = await userDocRef().get();
     const userData = userDoc.data();
     
-    // 2. Se l'utente ha giÃ  un familyId, usalo
+    // 2. Se l'utente ha già un familyId, usalo
     if (userData && userData.familyId) {
       currentFamilyId = userData.familyId;
       familyMembers = userData.familyMembers || {};
       
-      // Se l'utente non Ã¨ nella lista dei membri, lo aggiungiamo
+      // Se l'utente non è nella lista dei membri, lo aggiungiamo
       if (!familyMembers[currentUser.uid]) {
         // Cerca un invito pendente per questa email
         const pendingInvite = Object.keys(familyMembers).find(key => 
@@ -6633,7 +6566,7 @@ async function loadFamilyMembers() {
         }
       }
     } else {
-      // 3. L'utente non ha un familyId: cerca se Ã¨ stato invitato
+      // 3. L'utente non ha un familyId: cerca se è stato invitato
       const allFamilies = await db.collection('famiglie').get();
       let foundFamily = false;
       
@@ -6641,9 +6574,9 @@ async function loadFamilyMembers() {
         const data = doc.data();
         const docId = doc.id;
         
-        // Cerca se l'utente Ã¨ giÃ  membro o ha un invito pendente
+        // Cerca se l'utente è già membro o ha un invito pendente
         if (data.members) {
-          // Controlla se l'utente Ã¨ giÃ  membro con il suo UID
+          // Controlla se l'utente è già membro con il suo UID
           if (data.members[currentUser.uid]) {
             currentFamilyId = docId;
             familyMembers = data.members;
@@ -6688,7 +6621,7 @@ async function loadFamilyMembers() {
         }
       }
       
-      // 4. Se non Ã¨ stato trovato, crea una nuova famiglia per l'utente
+      // 4. Se non è stato trovato, crea una nuova famiglia per l'utente
       if (!foundFamily) {
         currentFamilyId = currentUser.uid;
         familyMembers = {
@@ -6747,7 +6680,7 @@ async function loadSharedFamilyData() {
       // Aggiorna la UI
       setTab(state.currentType);
       renderAll();
-      document.getElementById('save-status').textContent = 'âœ… Dati della famiglia caricati.';
+      document.getElementById('save-status').textContent = '✅ Dati della famiglia caricati.';
     } else {
       console.log('Documento famiglia non trovato per ID:', currentFamilyId);
       await createSharedFamilyDocument();
@@ -6785,7 +6718,7 @@ async function createSharedFamilyDocument() {
     familyData = familyDataToSave;
     
     console.log('Documento famiglia creato con ID:', currentFamilyId);
-    document.getElementById('save-status').textContent = 'âœ… Famiglia creata!';
+    document.getElementById('save-status').textContent = '✅ Famiglia creata!';
   } catch (err) {
     console.error('Errore creazione documento famiglia:', err);
   }
@@ -6826,7 +6759,7 @@ function renderFamilyMembers() {
       <div class="member-info">
         <div class="member-avatar">${initials}</div>
         <div class="member-details">
-          <div class="member-name">${escapeHtml(member.name || 'Utente')} ${isCurrentUser ? 'ðŸ‘¤' : ''}</div>
+          <div class="member-name">${escapeHtml(member.name || 'Utente')} ${isCurrentUser ? '👤' : ''}</div>
           <div class="member-email">${escapeHtml(member.email || '')}</div>
         </div>
         <span class="member-role ${member.role === 'admin' ? 'admin' : ''}">${member.role === 'admin' ? 'Admin' : 'Membro'}</span>
@@ -6863,7 +6796,7 @@ async function removeFamilyMember(userId) {
       
       const statusEl = document.getElementById('invite-status');
       if (statusEl) {
-        statusEl.textContent = 'âœ… Membro rimosso con successo!';
+        statusEl.textContent = '✅ Membro rimosso con successo!';
         statusEl.style.color = 'var(--success)';
       }
     }
@@ -6899,13 +6832,13 @@ async function inviteMember() {
   statusEl.style.color = 'var(--text-secondary)';
   
   try {
-    // Verifica se l'email Ã¨ giÃ  nella lista
+    // Verifica se l'email è già nella lista
     const existingMember = Object.keys(familyMembers).find(key => 
       familyMembers[key].email === email
     );
     
     if (existingMember) {
-      statusEl.textContent = 'âš ï¸ Questa email Ã¨ giÃ  stata invitata';
+      statusEl.textContent = '⚠️ Questa email è già stata invitata';
       statusEl.style.color = 'var(--warning)';
       return;
     }
@@ -6928,9 +6861,9 @@ async function inviteMember() {
     document.getElementById('invite-name').value = '';
     
     statusEl.innerHTML = `
-      âœ… Invito inviato a <strong>${email}</strong>!<br>
+      ✅ Invito inviato a <strong>${email}</strong>!<br>
       <small style="color:var(--text-muted);">
-        L'utente dovrÃ  registrarsi con questa email per accedere al budget.
+        L'utente dovrà registrarsi con questa email per accedere al budget.
       </small>
     `;
     statusEl.style.color = 'var(--success)';
@@ -6959,7 +6892,7 @@ if (resetBtn) {
     auth.sendPasswordResetEmail(currentUser.email)
       .then(() => {
         msgEl.style.color = 'var(--success)';
-        msgEl.textContent = 'âœ… Email inviata!';
+        msgEl.textContent = '✅ Email inviata!';
       })
       .catch((e) => {
         msgEl.style.color = 'var(--danger)';
@@ -6992,7 +6925,7 @@ async function fixMemberFamilyId() {
     const data = familyDoc.data();
     
     if (data && data.transactions && data.transactions.length > 0) {
-      console.log('âœ… Il familyId ha transazioni:', data.transactions.length);
+      console.log('✅ Il familyId ha transazioni:', data.transactions.length);
       return; // Tutto ok
     }
     
@@ -7003,7 +6936,7 @@ async function fixMemberFamilyId() {
       if (docData.transactions && docData.transactions.length > 0) {
         // Trovato! Correggi il familyId
         const correctFamilyId = doc.id;
-        console.log('ðŸ”„ Correggendo familyId da', userData.familyId, 'a', correctFamilyId);
+        console.log('🔄 Correggendo familyId da', userData.familyId, 'a', correctFamilyId);
         
         // Aggiorna il documento utente
         await userDocRef().update({ 
@@ -7014,7 +6947,7 @@ async function fixMemberFamilyId() {
         currentFamilyId = correctFamilyId;
         familyMembers = docData.members || {};
         
-        console.log('âœ… familyId corretto!');
+        console.log('✅ familyId corretto!');
         return;
       }
     }
@@ -7026,7 +6959,7 @@ async function fixMemberFamilyId() {
 }  
 // === INIZIALIZZAZIONE PAGINA LISTE ===
 function initListPage() {
-  console.log('ðŸ”„ Inizializzazione pagina liste...');
+  console.log('🔄 Inizializzazione pagina liste...');
   
   // Carica le liste
   loadShoppingLists();
@@ -7036,12 +6969,12 @@ function initListPage() {
   if (btnNuovaLista) {
     btnNuovaLista.addEventListener('click', function(e) {
       e.preventDefault();
-      console.log('ðŸ“‹ Click su Nuova lista!');
+      console.log('📋 Click su Nuova lista!');
       showCreateListModal();
     });
-    console.log('âœ… Pulsante "Nuova lista" inizializzato');
+    console.log('✅ Pulsante "Nuova lista" inizializzato');
   } else {
-    console.warn('âš ï¸ Pulsante "Nuova lista" non trovato!');
+    console.warn('⚠️ Pulsante "Nuova lista" non trovato!');
     // Riprova dopo 500ms
     setTimeout(initListPage, 500);
   }
@@ -7075,16 +7008,16 @@ async function loadShoppingLists() {
 // 2. saveShoppingLists - Salva le liste nel database
 async function saveShoppingLists() {
   if (!currentUser) {
-    console.warn('âš ï¸ Nessun utente loggato, impossibile salvare');
+    console.warn('⚠️ Nessun utente loggato, impossibile salvare');
     return;
   }
   
   try {
-    console.log('ðŸ’¾ Salvataggio liste in corso...', shoppingLists);
+    console.log('💾 Salvataggio liste in corso...', shoppingLists);
     await userDocRef().update({ shoppingLists: shoppingLists });
-    console.log('âœ… Liste salvate con successo!');
+    console.log('✅ Liste salvate con successo!');
   } catch (err) {
-    console.error('âŒ Errore salvataggio liste:', err);
+    console.error('❌ Errore salvataggio liste:', err);
   }
 }
 
@@ -7092,7 +7025,7 @@ async function saveShoppingLists() {
 function renderShoppingLists() {
   const container = document.getElementById('liste-container-principale');
   if (!container) {
-    console.error('âŒ Container liste-container-principale non trovato!');
+    console.error('❌ Container liste-container-principale non trovato!');
     return;
   }
   
@@ -7101,7 +7034,7 @@ function renderShoppingLists() {
   if (listKeys.length === 0) {
     container.innerHTML = `
       <div style="text-align:center; padding:60px 20px; color:var(--text-muted);">
-        <div style="font-size:64px; margin-bottom:16px;">ðŸ›’</div>
+        <div style="font-size:64px; margin-bottom:16px;">🛒</div>
         <p style="font-size:18px; font-weight:700; color:var(--text-primary);">Nessuna lista</p>
         <p style="font-size:14px;">Clicca su "Nuova lista" per creare la tua prima lista della spesa</p>
       </div>
@@ -7132,8 +7065,8 @@ function renderShoppingLists() {
           </div>
         </div>
         <div class="lista-actions-principale">
-          <span class="lista-arrow-principale">â€º</span>
-          <button class="lista-delete-principale" data-id="${key}" title="Elimina lista">âœ•</button>
+          <span class="lista-arrow-principale">›</span>
+          <button class="lista-delete-principale" data-id="${key}" title="Elimina lista">✕</button>
         </div>
       </div>
     `;
@@ -7192,7 +7125,7 @@ function openListDetail(listId) {
   const completati = items.filter(item => item.completato).length;
   
   let html = `
-    <button class="btn-back-liste-principale" id="btn-back-liste">â† Torna alle liste</button>
+    <button class="btn-back-liste-principale" id="btn-back-liste">← Torna alle liste</button>
     
     <div class="lista-detail-header">
       <div>
@@ -7200,7 +7133,7 @@ function openListDetail(listId) {
         <div class="lista-conteggio">${completati}/${items.length} elementi</div>
       </div>
       <div class="lista-actions">
-        <button class="btn-delete-lista-principale" id="btn-delete-lista">ðŸ—‘ï¸ Elimina lista</button>
+        <button class="btn-delete-lista-principale" id="btn-delete-lista">🗑️ Elimina lista</button>
       </div>
     </div>
     
@@ -7210,7 +7143,7 @@ function openListDetail(listId) {
   if (items.length === 0) {
     html += `
       <div style="text-align:center; padding:30px 20px; color:var(--text-muted);">
-        <div style="font-size:36px; margin-bottom:8px;">ðŸ“</div>
+        <div style="font-size:36px; margin-bottom:8px;">📝</div>
         <p style="font-size:14px; font-weight:600;">Lista vuota</p>
         <p style="font-size:13px;">Aggiungi i primi elementi</p>
       </div>
@@ -7221,7 +7154,7 @@ function openListDetail(listId) {
         <div class="item-row-principale">
           <input type="checkbox" class="item-checkbox-principale" data-index="${index}" ${item.completato ? 'checked' : ''}>
           <span class="item-nome-principale ${item.completato ? 'completato' : ''}">${escapeHtml(item.nome)}</span>
-          <button class="item-delete-principale" data-index="${index}">âœ•</button>
+          <button class="item-delete-principale" data-index="${index}">✕</button>
         </div>
       `;
     });
@@ -7325,7 +7258,7 @@ function showCreateListModal() {
   overlay.id = 'lista-modal-overlay';
   overlay.innerHTML = `
     <div class="lista-modal-box">
-      <h3>ðŸ“‹ Nuova lista</h3>
+      <h3>📋 Nuova lista</h3>
       <p>Inserisci il nome della lista della spesa</p>
       <input type="text" id="new-lista-input" placeholder="es. Spesa settimanale" autofocus>
       <div class="modal-actions-principale">
@@ -7405,19 +7338,19 @@ function showCreateListModal() {
 
 // 6. initListPage - Inizializza la pagina liste
 function initListPage() {
-  console.log('ðŸ”„ Inizializzazione pagina liste...');
+  console.log('🔄 Inizializzazione pagina liste...');
   loadShoppingLists();
   
   const btnNuovaLista = document.getElementById('btn-nuova-lista-principale');
   if (btnNuovaLista) {
     btnNuovaLista.addEventListener('click', function(e) {
       e.preventDefault();
-      console.log('ðŸ“‹ Click su Nuova lista!');
+      console.log('📋 Click su Nuova lista!');
       showCreateListModal();
     });
-    console.log('âœ… Pulsante "Nuova lista" inizializzato');
+    console.log('✅ Pulsante "Nuova lista" inizializzato');
   } else {
-    console.warn('âš ï¸ Pulsante "Nuova lista" non trovato!');
+    console.warn('⚠️ Pulsante "Nuova lista" non trovato!');
     setTimeout(initListPage, 500);
   }
 }  
@@ -7527,7 +7460,7 @@ function renderEventsForDay(dateStr) {
   if (!container) return;
   
   const date = new Date(dateStr);
-  const dayNames = ['LunedÃ¬', 'MartedÃ¬', 'MercoledÃ¬', 'GiovedÃ¬', 'VenerdÃ¬', 'Sabato', 'Domenica'];
+  const dayNames = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica'];
   const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
   
   const isToday = dateStr === new Date().toISOString().slice(0, 10);
@@ -7553,7 +7486,7 @@ function renderEventsForDay(dateStr) {
       <div class="evento-card">
         <div class="evento-ora">${event.ora || 'Tutto il giorno'}</div>
         <div class="evento-titolo">${escapeHtml(event.titolo)}</div>
-        <button class="evento-delete" data-index="${index}" data-date="${dateStr}">âœ•</button>
+        <button class="evento-delete" data-index="${index}" data-date="${dateStr}">✕</button>
       </div>
     `;
   });
@@ -7585,7 +7518,7 @@ function showNewEventModal() {
   overlay.className = 'evento-modal-overlay open';
   overlay.innerHTML = `
     <div class="evento-modal">
-      <h3>ðŸ“ Nuovo evento</h3>
+      <h3>📝 Nuovo evento</h3>
       <p>Inserisci i dettagli dell'evento per il giorno selezionato</p>
       
       <div class="campo">
@@ -7672,7 +7605,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   if (btnPrec) {
     btnPrec.addEventListener('click', function() {
-      console.log('â¬…ï¸ Mese precedente');
+      console.log('⬅️ Mese precedente');
       if (currentMonth === 0) {
         currentMonth = 11;
         currentYear--;
@@ -7682,12 +7615,12 @@ document.addEventListener('DOMContentLoaded', function() {
       renderCalendar();
     });
   } else {
-    console.warn('âš ï¸ btn-mese-prec non trovato');
+    console.warn('⚠️ btn-mese-prec non trovato');
   }
   
   if (btnSucc) {
     btnSucc.addEventListener('click', function() {
-      console.log('âž¡ï¸ Mese successivo');
+      console.log('➡️ Mese successivo');
       if (currentMonth === 11) {
         currentMonth = 0;
         currentYear++;
@@ -7697,16 +7630,16 @@ document.addEventListener('DOMContentLoaded', function() {
       renderCalendar();
     });
   } else {
-    console.warn('âš ï¸ btn-mese-succ non trovato');
+    console.warn('⚠️ btn-mese-succ non trovato');
   }
   
   if (btnNuovo) {
     btnNuovo.addEventListener('click', function() {
-      console.log('ðŸ“ Nuovo evento');
+      console.log('📝 Nuovo evento');
       showNewEventModal();
     });
   } else {
-    console.warn('âš ï¸ btn-nuovo-evento non trovato');
+    console.warn('⚠️ btn-nuovo-evento non trovato');
   }
 });
 
@@ -7714,4 +7647,3 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </body>
 </html>
-
