@@ -4225,6 +4225,13 @@ console.error('Errore setup bollette:', err);
 bolletteData = {};
 }
 }
+async function saveBolletteData() {
+  if (!currentUser) return;
+
+  await db.collection('bollette')
+    .doc(currentUser.uid)
+    .set(bolletteData);
+}  
 function setTab(type) {
 state.currentType = type;
 document.getElementById('tab-expense').classList.toggle('active', type === 'expense');
@@ -6306,14 +6313,38 @@ if (document.readyState === 'loading') {
 setTimeout(startIncomeExpense, 2000);
   
 // Altri event listener...
-document.getElementById('btn-upload-bolletta').addEventListener('click', uploadBolletta);
-document.getElementById('bolletta-year-filter').addEventListener('change', renderBolletteList);
-document.getElementById('bolletta-detail-close').addEventListener('click', closeBollettaDetail);
-document.getElementById('bolletta-detail-overlay').addEventListener('click', (e) => {
-  if (e.target.id === 'bolletta-detail-overlay') closeBollettaDetail();
-});
-document.getElementById('bolletta-detail-download').addEventListener('click', downloadBollettaFromDetail);
-document.getElementById('bolletta-detail-delete').addEventListener('click', deleteBollettaFromDetail);
+const btnUploadBolletta = document.getElementById('btn-upload-bolletta');
+if (btnUploadBolletta) {
+  btnUploadBolletta.addEventListener('click', uploadBolletta);
+}
+
+const bollettaYearFilter = document.getElementById('bolletta-year-filter');
+if (bollettaYearFilter) {
+  bollettaYearFilter.addEventListener('change', renderBolletteList);
+}
+
+const bollettaDetailClose = document.getElementById('bolletta-detail-close');
+if (bollettaDetailClose) {
+  bollettaDetailClose.addEventListener('click', closeBollettaDetail);
+}
+
+const bollettaDetailOverlay = document.getElementById('bolletta-detail-overlay');
+if (bollettaDetailOverlay) {
+  bollettaDetailOverlay.addEventListener('click', (e) => {
+    if (e.target.id === 'bolletta-detail-overlay') closeBollettaDetail();
+  });
+}
+
+const bollettaDetailDownload = document.getElementById('bolletta-detail-download');
+if (bollettaDetailDownload) {
+  bollettaDetailDownload.addEventListener('click', downloadBollettaFromDetail);
+}
+
+const bollettaDetailDelete = document.getElementById('bolletta-detail-delete');
+if (bollettaDetailDelete) {
+  bollettaDetailDelete.addEventListener('click', deleteBollettaFromDetail);
+}
+  
 async function generateScreenshotPDF(elementId, filename) {
   showLoading(true);
   try {
