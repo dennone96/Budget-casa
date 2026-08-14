@@ -3231,7 +3231,7 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 <div id="page-bollette" class="page">
   <h1>Libreria Bollette</h1>
   
-<button id="btn-nuova-bolletta" style="
+  <button id="btn-nuova-bolletta" style="
   width: 100%;
   height: 50px;
   background: var(--accent-gradient);
@@ -7675,9 +7675,10 @@ document.addEventListener('DOMContentLoaded', function() {
     console.warn('⚠️ btn-nuovo-evento non trovato');
   }
 });
+
 // === GESTIONE MODALE NUOVA BOLLETTA ===
 
-// Popola il select dei mesi nel modale (mostra "Gennaio 2026", "Febbraio 2026", ecc.)
+// Popola il select dei mesi
 function populateBollettaModalMese() {
   const select = document.getElementById('bolletta-modal-mese');
   if (!select) return;
@@ -7686,7 +7687,7 @@ function populateBollettaModalMese() {
   const currentMonth = new Date().getMonth() + 1;
   select.innerHTML = '';
   
-  // Mostra gli ultimi 24 mesi (2 anni)
+  // Mostra gli ultimi 24 mesi
   for (let i = 0; i < 24; i++) {
     let year = currentYear;
     let month = currentMonth - i;
@@ -7702,12 +7703,11 @@ function populateBollettaModalMese() {
     select.appendChild(option);
   }
   
-  // Seleziona il mese corrente
   const currentMonthKey = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
   select.value = currentMonthKey;
 }
 
-// Apri il modale nuova bolletta
+// Apri il modale
 function openBollettaModal() {
   console.log('📄 Apertura modale nuova bolletta');
   const overlay = document.getElementById('bolletta-modal-overlay');
@@ -7722,12 +7722,10 @@ function openBollettaModal() {
     setTimeout(() => {
       document.getElementById('bolletta-modal-fornitore').focus();
     }, 100);
-  } else {
-    console.error('❌ Overlay bolletta-modal-overlay non trovato!');
   }
 }
 
-// Chiudi il modale nuova bolletta
+// Chiudi il modale
 function closeBollettaModal() {
   const overlay = document.getElementById('bolletta-modal-overlay');
   if (overlay) {
@@ -7735,7 +7733,7 @@ function closeBollettaModal() {
   }
 }
 
-// Salva la bolletta dal modale
+// Salva la bolletta
 async function saveBollettaFromModal() {
   console.log('💾 Salvataggio bolletta dal modale');
   
@@ -7747,7 +7745,6 @@ async function saveBollettaFromModal() {
   const fileInput = document.getElementById('bolletta-modal-file');
   const file = fileInput.files[0];
   
-  // Validazioni
   if (!fornitore) {
     alert('Inserisci il nome del fornitore');
     document.getElementById('bolletta-modal-fornitore').focus();
@@ -7776,7 +7773,6 @@ async function saveBollettaFromModal() {
     return;
   }
   
-  // Disabilita il pulsante durante il caricamento
   const saveBtn = document.getElementById('bolletta-modal-save');
   saveBtn.disabled = true;
   saveBtn.textContent = 'Caricamento...';
@@ -7820,7 +7816,7 @@ async function saveBollettaFromModal() {
       );
     });
     
-    closeBollettaModal();
+    closeBolletteModal();
     alert('✅ Bolletta caricata con successo!');
     
   } catch (err) {
@@ -7833,17 +7829,12 @@ async function saveBollettaFromModal() {
     saveBtn.textContent = 'Salva bolletta';
   }
 }
-  
-// === ESPONI LE FUNZIONI GLOBALMENTE ===
-window.openBollettaModal = openBollettaModal;
-window.closeBollettaModal = closeBollettaModal;
-window.saveBollettaFromModal = saveBollettaFromModal;
-  
-// === INIZIALIZZA I LISTENER PER IL MODALE ===
+
+// === INIZIALIZZA I LISTENER ===
 function initBollettaModal() {
   console.log('🔄 Inizializzazione modale bolletta...');
   
-  // Pulsante "Nuova bolletta" - usa un listener diretto
+  // Pulsante "Nuova bolletta"
   const newBtn = document.getElementById('btn-nuova-bolletta');
   if (newBtn) {
     // Rimuovi listener vecchi
@@ -7858,9 +7849,10 @@ function initBollettaModal() {
     });
     console.log('✅ Pulsante "Nuova bolletta" inizializzato');
   } else {
-    console.warn('⚠️ Pulsante btn-nuova-bolletta non trovato!');
+    console.error('❌ Pulsante btn-nuova-bolletta non trovato!');
     // Riprova dopo 500ms
     setTimeout(initBollettaModal, 500);
+    return;
   }
   
   // Pulsante Annulla
@@ -7869,6 +7861,7 @@ function initBollettaModal() {
     const newCancel = cancelBtn.cloneNode(true);
     cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
     newCancel.addEventListener('click', closeBollettaModal);
+    console.log('✅ Pulsante Annulla inizializzato');
   }
   
   // Pulsante Salva
@@ -7877,6 +7870,7 @@ function initBollettaModal() {
     const newSave = saveBtn.cloneNode(true);
     saveBtn.parentNode.replaceChild(newSave, saveBtn);
     newSave.addEventListener('click', saveBollettaFromModal);
+    console.log('✅ Pulsante Salva inizializzato');
   }
   
   // Click fuori dal modale
@@ -7887,20 +7881,20 @@ function initBollettaModal() {
         closeBollettaModal();
       }
     });
+    console.log('✅ Overlay modale inizializzato');
   }
+  
+  console.log('✅ Inizializzazione modale bolletta completata!');
 }
 
-// Avvia l'inizializzazione quando il DOM è pronto
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(initBollettaModal, 500);
-  });
-} else {
+// Avvia l'inizializzazione
+document.addEventListener('DOMContentLoaded', function() {
   setTimeout(initBollettaModal, 500);
-}
+});
 
-// Tentativo extra dopo 2 secondi
+// Tentativo extra dopo 2 secondi (se il DOM non è ancora pronto)
 setTimeout(initBollettaModal, 2000);
+  
 })();
 </script>
 </body>
