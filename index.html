@@ -6306,6 +6306,7 @@ if (document.readyState === 'loading') {
 setTimeout(startIncomeExpense, 2000);
   
 // Altri event listener...
+document.getElementById('btn-upload-bolletta').addEventListener('click', uploadBolletta);
 document.getElementById('bolletta-year-filter').addEventListener('change', renderBolletteList);
 document.getElementById('bolletta-detail-close').addEventListener('click', closeBollettaDetail);
 document.getElementById('bolletta-detail-overlay').addEventListener('click', (e) => {
@@ -7641,25 +7642,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.warn('⚠️ btn-nuovo-evento non trovato');
   }
 });
-// === LISTENER DELEGATO PER IL PULSANTE UPLOAD BOLLETTA ===
-(function initUploadDelegate() {
-  console.log('🔄 Inizializzazione listener delegato upload...');
-  
-  document.addEventListener('click', function(e) {
-    const target = e.target.closest('#btn-upload-bolletta');
-    if (target) {
-      e.preventDefault();
-      e.stopPropagation();
-      console.log('🖱️ Click su Upload Bolletta (delegato)');
-      uploadBolletta();
-    }
-  });
-  
-  console.log('✅ Listener delegato upload aggiunto');
-  
-// === ESPONI GLOBALMENTE ===
-window.uploadBolletta = uploadBolletta;
-  
+
 })();
 </script>
 </body>
