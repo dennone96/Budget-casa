@@ -3620,7 +3620,153 @@ const DEFAULT_CATEGORIES = {
 expense: ['Spesa', 'Bollette', 'Affitto/Mutuo', 'Trasporti', 'Salute', 'Svago', 'Istruzione', 'Altro'],
 income: ['Stipendio', 'Bonus', 'Regalo', 'Altro']
 };
+  
+// === FUNZIONI GLOBALI PER IL MODALE BOLLETTA ===
+window.openBollettaModal = function() {
+  console.log('📄 Apertura modale nuova bolletta');
+  const overlay = document.getElementById('bolletta-modal-overlay');
+  if (overlay) {
+    overlay.style.display = 'flex';
+    document.getElementById('bolletta-modal-fornitore').value = '';
+    document.getElementById('bolletta-modal-importo').value = '';
+    document.getElementById('bolletta-modal-file').value = '';
+    document.getElementById('bolletta-modal-progress').style.display = 'none';
+    document.getElementById('bolletta-modal-progress-fill').style.width = '0%';
+    
+    const select = document.getElementById('bolletta-modal-mese');
+    if (select) {
+      const currentYear = new Date().getFullYear();
+      const currentMonth = new Date().getMonth() + 1;
+      select.innerHTML = '';
+      for (let i = 0; i < 24; i++) {
+        let year = currentYear;
+        let month = currentMonth - i;
+        if (month <= 0) {
+          month += 12;
+          year--;
+        }
+        const value = `${year}-${String(month).padStart(2, '0')}`;
+        const label = `${FILTER_MONTHS[month - 1]} ${year}`;
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = label;
+        select.appendChild(option);
+      }
+      select.value = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
+    }
+    
+    setTimeout(() => {
+      document.getElementById('bolletta-modal-fornitore').focus();
+    }, 100);
+  } else {
+    alert('Errore: modale non trovato! Ricarica la pagina.');
+  }
+};
 
+window.closeBollettaModal = function() {
+  console.log('🔒 Chiusura modale bolletta');
+  const overlay = document.getElementById('bolletta-modal-overlay');
+  if (overlay) {
+    overlay.style.display = 'none';
+  }
+};
+
+window.saveBollettaFromModal = async function() {
+  console.log('💾 Salvataggio bolletta dal modale');
+  
+  const tipo = document.getElementById('bolletta-modal-tipo').value;
+  const fornitore = document.getElementById('bolletta-modal-fornitore').value.trim();
+  const importoStr = document.getElementById('bolletta-modal-importo').value;
+  const importo = parseFloat(importoStr);
+  const mese = document.getElementById('bolletta-modal-mese').value;
+  const fileInput = document.getElementById('bolletta-modal-file');
+  const file = fileInput.files[0];
+  
+  if (!fornitore) {
+    alert('Inserisci il nome del fornitore');
+    document.getElementById('bolletta-modal-fornitore').focus();
+    return;
+  }
+  
+  if (isNaN(importo) || importo <= 0) {
+    alert('Inserisci un importo valido');
+    document.getElementById('bolletta-modal-importo').focus();
+    return;
+  }
+  
+  if (!file) {
+    alert('Seleziona un file PDF');
+    return;
+  }
+  
+  if (file.type !== 'application/pdf') {
+    alert('Il file deve essere in formato PDF');
+    return;
+  }
+  
+  if (file.size > 10 * 1024 * 1024) {
+    alert('Il file è troppo grande. Dimensione massima: 10MB');
+    return;
+  }
+  
+  const saveBtn = document.getElementById('bolletta-modal-save');
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Caricamento...';
+  
+  const progressDiv = document.getElementById('bolletta-modal-progress');
+  const progressFill = document.getElementById('bolletta-modal-progress-fill');
+  const progressText = document.getElementById('bolletta-modal-progress-text');
+  
+  try {
+    progressDiv.style.display = 'block';
+    const timestamp = Date.now();
+    const storagePath = `bollette/${currentUser.uid}/${tipo}/${mese}/${timestamp}_${file.name}`;
+    const fileRef = storage.ref().child(storagePath);
+    const uploadTask = fileRef.put(file);
+    
+    await new Promise((resolve, reject) => {
+      uploadTask.on('state_changed',
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          progressFill.style.width = progress + '%';
+          progressText.textContent = `Caricamento... ${Math.round(progress)}%`;
+        },
+        (error) => reject(error),
+        async () => {
+          const downloadUrl = await uploadTask.snapshot.ref.getDownloadURL();
+          if (!bolletteData[tipo]) bolletteData[tipo] = {};
+          if (!bolletteData[tipo][mese]) bolletteData[tipo][mese] = [];
+          bolletteData[tipo][mese].push({
+            nome: file.name,
+            fornitore: fornitore,
+            importo: importo,
+            url: downloadUrl,
+            storagePath: storagePath,
+            size: file.size,
+            dataCaricamento: new Date().toISOString()
+          });
+          await saveBolletteData();
+          renderBolletteList();
+          resolve();
+        }
+      );
+    });
+    
+    window.closeBolletteModal();
+    alert('✅ Bolletta caricata con successo!');
+    
+  } catch (err) {
+    alert('❌ Errore nel caricamento: ' + err.message);
+    console.error('Errore upload:', err);
+  } finally {
+    progressDiv.style.display = 'none';
+    progressFill.style.width = '0%';
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Salva bolletta';
+  }
+};
+
+console.log('✅ Funzioni globali bolletta definite!');
 // === FIX CLICK ENTRATE/USCITE ===
 document.addEventListener('DOMContentLoaded', function() {
   console.log('🔄 Inizializzo click Entrate/Uscite...');
