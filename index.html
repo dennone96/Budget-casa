@@ -3505,7 +3505,6 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 <i class="ti ti-download" style="font-size:18px;"></i> Scarica
 </button>
 <button id="bolletta-detail-delete" 
-        onclick="(function(){ if(!confirm('Eliminare questa bolletta?')) return; if(!window.bollettaDetailData) return; var tipo=window.bollettaDetailData.tipo; var meseKey=window.bollettaDetailData.meseKey; var index=window.bollettaDetailData.index; var bolletta=window.bolletteData[tipo]?.[meseKey]?.[index]; if(!bolletta) return; if(bolletta.storagePath){window.storage.ref().child(bolletta.storagePath).delete();} window.bolletteData[tipo][meseKey].splice(index,1); if(window.bolletteData[tipo][meseKey].length===0){delete window.bolletteData[tipo][meseKey];} window.saveBolletteData(); document.getElementById('bolletta-detail-overlay').style.display='none'; window.bollettaDetailData=null; window.renderBolletteList(); alert('✅ Bolletta eliminata!'); })()"
         style="width:46px; height:46px; background:var(--danger); color:#fff; border:none; border-radius:var(--radius-sm); cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 512 512">
     <defs><linearGradient id="trashGrad" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#F04438"/><stop offset="1" stop-color="#B42318"/></linearGradient></defs>
@@ -8253,6 +8252,67 @@ setTimeout(initBollettaModal, 2000);
 window.saveBolletteData = saveBolletteData;
 window.renderBolletteList = renderBolletteList;
 window.storage = storage;
+
+// === LISTENER PER IL PULSANTE ELIMINA BOLLETTA ===
+document.addEventListener('click', function(e) {
+  const target = e.target.closest('#bolletta-detail-delete');
+  if (!target) return;
+  
+  e.preventDefault();
+  e.stopPropagation();
+  console.log('🖱️ Click su Elimina Bolletta');
+  
+  // Usa le variabili direttamente (non globali)
+  if (!bollettaDetailData) {
+    alert('Nessuna bolletta selezionata');
+    return;
+  }
+  
+  if (!confirm('Eliminare questa bolletta?')) {
+    return;
+  }
+  
+  const { tipo, meseKey, index } = bollettaDetailData;
+  const bolletta = bolletteData[tipo]?.[meseKey]?.[index];
+  
+  if (!bolletta) {
+    alert('Bolletta non trovata');
+    return;
+  }
+  
+  try {
+    // Elimina il file da Firebase Storage
+    if (bolletta.storagePath) {
+      storage.ref().child(bolletta.storagePath).delete()
+        .then(() => console.log('✅ File eliminato da Storage'))
+        .catch(err => console.warn('⚠️ Errore eliminazione file:', err));
+    }
+    
+    // Rimuovi la bolletta dai dati
+    bolletteData[tipo][meseKey].splice(index, 1);
+    if (bolletteData[tipo][meseKey].length === 0) {
+      delete bolletteData[tipo][meseKey];
+    }
+    
+    // Salva i dati
+    saveBolletteData().then(() => {
+      // Chiudi il dettaglio
+      const overlay = document.getElementById('bolletta-detail-overlay');
+      if (overlay) overlay.style.display = 'none';
+      bollettaDetailData = null;
+      
+      // Aggiorna la lista
+      renderBolletteList();
+      alert('✅ Bolletta eliminata con successo!');
+    });
+    
+  } catch (err) {
+    alert('❌ Errore nell\'eliminazione: ' + err.message);
+    console.error('Errore eliminazione:', err);
+  }
+});
+
+console.log('✅ Listener elimina bolletta registrato');  
   
 })();
 </script>
