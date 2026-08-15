@@ -3505,7 +3505,7 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 <i class="ti ti-download" style="font-size:18px;"></i> Scarica
 </button>
 <button id="bolletta-detail-delete" 
-        onclick="(function(){ if(!confirm('Eliminare questa bolletta?')) return; if(!bollettaDetailData) return; var tipo=bollettaDetailData.tipo; var meseKey=bollettaDetailData.meseKey; var index=bollettaDetailData.index; var bolletta=bolletteData[tipo]?.[meseKey]?.[index]; if(!bolletta) return; if(bolletta.storagePath){storage.ref().child(bolletta.storagePath).delete();} bolletteData[tipo][meseKey].splice(index,1); if(bolletteData[tipo][meseKey].length===0){delete bolletteData[tipo][meseKey];} saveBolletteData(); document.getElementById('bolletta-detail-overlay').style.display='none'; bollettaDetailData=null; renderBolletteList(); alert('✅ Bolletta eliminata!'); })()"
+        onclick="(function(){ if(!confirm('Eliminare questa bolletta?')) return; if(!window.bollettaDetailData) return; var tipo=window.bollettaDetailData.tipo; var meseKey=window.bollettaDetailData.meseKey; var index=window.bollettaDetailData.index; var bolletta=window.bolletteData[tipo]?.[meseKey]?.[index]; if(!bolletta) return; if(bolletta.storagePath){window.storage.ref().child(bolletta.storagePath).delete();} window.bolletteData[tipo][meseKey].splice(index,1); if(window.bolletteData[tipo][meseKey].length===0){delete window.bolletteData[tipo][meseKey];} window.saveBolletteData(); document.getElementById('bolletta-detail-overlay').style.display='none'; window.bollettaDetailData=null; window.renderBolletteList(); alert('✅ Bolletta eliminata!'); })()"
         style="width:46px; height:46px; background:var(--danger); color:#fff; border:none; border-radius:var(--radius-sm); cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 512 512">
     <defs><linearGradient id="trashGrad" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#F04438"/><stop offset="1" stop-color="#B42318"/></linearGradient></defs>
@@ -3833,6 +3833,10 @@ let state = { transactions: [], categories: DEFAULT_CATEGORIES, budgets: {}, rem
 let categoryColors = {};
 let bolletteData = {};
 let bollettaDetailData = null;
+// === RENDI GLOBALI ===
+window.bolletteData = bolletteData;
+window.bollettaDetailData = bollettaDetailData; 
+  
 let unsubscribeBollette = null;
 let currentUser = null;
 let unsubscribeSnapshot = null;
@@ -3852,6 +3856,7 @@ let familyMembers = {};
 let shoppingLists = {};
 let currentListId = null;
 let eventsData = {};  
+
   
 // === GESTIONE EVENTI CALENDARIO ===
 
@@ -8244,6 +8249,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Tentativo extra dopo 2 secondi (se il DOM non è ancora pronto)
 setTimeout(initBollettaModal, 2000);
+
+window.saveBolletteData = saveBolletteData;
+window.renderBolletteList = renderBolletteList;
+window.storage = storage;
   
 })();
 </script>
