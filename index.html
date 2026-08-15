@@ -3620,6 +3620,80 @@ const db = firebase.firestore();
 const storage = firebase.storage();
 
   
+// === RENDI LE VARIABILI GLOBALI ===
+window.bolletteData = bolletteData;
+window.bollettaDetailData = bollettaDetailData;
+window.storage = storage;
+window.saveBolletteData = saveBolletteData;
+window.renderBolletteList = renderBolletteList;
+
+
+  
+// === FUNZIONE GLOBALE PER ELIMINARE BOLLETTA ===
+window.eliminaBolletta = async function() {
+  console.log('🗑️ eliminaBolletta chiamata');
+  
+  if (!window.bollettaDetailData) {
+    console.error('❌ Nessuna bolletta selezionata');
+    alert('Nessuna bolletta selezionata');
+    return;
+  }
+  
+  if (!confirm('Eliminare questa bolletta?')) {
+    console.log('❌ Eliminazione cancellata');
+    return;
+  }
+  
+  const { tipo, meseKey, index } = window.bollettaDetailData;
+  console.log('📊 Dati bolletta:', { tipo, meseKey, index });
+  
+  const bolletta = window.bolletteData[tipo]?.[meseKey]?.[index];
+  
+  if (!bolletta) {
+    console.error('❌ Bolletta non trovata');
+    alert('Bolletta non trovata');
+    return;
+  }
+  
+  console.log('📄 Bolletta da eliminare:', bolletta.nome);
+  
+  try {
+    // Elimina il file da Firebase Storage
+    if (bolletta.storagePath) {
+      console.log('🗑️ Eliminazione file da Storage...');
+      const fileRef = window.storage.ref().child(bolletta.storagePath);
+      await fileRef.delete();
+      console.log('✅ File eliminato da Storage');
+    }
+    
+    // Rimuovi la bolletta dai dati
+    window.bolletteData[tipo][meseKey].splice(index, 1);
+    if (window.bolletteData[tipo][meseKey].length === 0) {
+      delete window.bolletteData[tipo][meseKey];
+    }
+    
+    // Salva i dati
+    console.log('💾 Salvataggio dati...');
+    await window.saveBolletteData();
+    
+    // Chiudi il dettaglio
+    const overlay = document.getElementById('bolletta-detail-overlay');
+    if (overlay) overlay.style.display = 'none';
+    window.bollettaDetailData = null;
+    
+    // Aggiorna la lista
+    console.log('🔄 Aggiornamento lista...');
+    window.renderBolletteList();
+    
+    alert('✅ Bolletta eliminata con successo!');
+    console.log('✅ Eliminazione completata!');
+    
+  } catch (err) {
+    console.error('❌ Errore eliminazione:', err);
+    alert('❌ Errore nell\'eliminazione: ' + err.message);
+  }
+};
+  
 const DEFAULT_CATEGORIES = {
 expense: ['Spesa', 'Bollette', 'Affitto/Mutuo', 'Trasporti', 'Salute', 'Svago', 'Istruzione', 'Altro'],
 income: ['Stipendio', 'Bonus', 'Regalo', 'Altro']
@@ -8248,13 +8322,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Tentativo extra dopo 2 secondi (se il DOM non è ancora pronto)
 setTimeout(initBollettaModal, 2000);
-
-// === ESPONI LE FUNZIONI GLOBALMENTE ===
-window.saveBolletteData = saveBolletteData;
-window.renderBolletteList = renderBolletteList;
-window.storage = storage;
-window.bolletteData = bolletteData;
-window.bollettaDetailData = bollettaDetailData;
 
 // === LISTENER PER IL PULSANTE ELIMINA BOLLETTA ===
 document.addEventListener('click', function(e) {
