@@ -3454,7 +3454,10 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 </div>
 </div>
 </div>
-<div id="bolletta-detail-overlay" style="display:none; position:fixed; inset:0; background:rgba(15,25,35,0.6); backdrop-filter:blur(8px); z-index:600; align-items:center; justify-content:center; padding:1rem;">
+
+  
+  
+  <div id="bolletta-detail-overlay" style="display:none; position:fixed; inset:0; background:rgba(15,25,35,0.6); backdrop-filter:blur(8px); z-index:600; align-items:center; justify-content:center; padding:1rem;">
 <div style="background:var(--surface); border-radius:var(--radius-lg); padding:2rem; width:100%; max-width:500px; box-shadow:var(--shadow-xl); animation:modalIn 0.3s ease;">
 <h3 style="margin:0 0 1.5rem; font-size:22px; font-weight:800; letter-spacing:-0.5px;">📄 Dettaglio bolletta</h3>
 <div class="detail-field"><label>Nome file</label><p id="bolletta-detail-name"></p></div>
@@ -3509,6 +3512,177 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 </div>  
 <div id="pdf-loading"><div class="spinner"></div><span>Generazione PDF...</span></div>
 
+
+async function loadBolletteData() {
+  if (!currentUser) return;
+  if (unsubscribeBollette) {
+    unsubscribeBollette();
+    unsubscribeBollette = null;
+  }
+  try {
+    unsubscribeBollette = db.collection('bollette').doc(currentUser.uid).onSnapshot((doc) => {
+      if (doc.exists) {
+        bolletteData = doc.data() || {};
+      } else {
+        bolletteData = {};
+      }
+      // Popola il filtro anno e renderizza la lista
+      populateBollettaYearFilter();
+      if (document.getElementById('page-bollette').classList.contains('active')) {
+        renderBolletteList();
+      }
+    }, (err) => {
+      console.error('Errore caricamento bollette:', err);
+      bolletteData = {};
+    });
+  } catch (err) {
+    console.error('Errore setup bollette:', err);
+    bolletteData = {};
+  }
+}
+
+async function saveBolletteData() {
+  if (!currentUser) {
+    console.error('❌ Nessun utente loggato');
+    return;
+  }
+  try {
+    await db.collection('bollette').doc(currentUser.uid).set(bolletteData);
+    console.log('✅ Dati bollette salvati!');
+  } catch (err) {
+    console.error('❌ Errore salvataggio bollette:', err);
+    throw err;
+  }
+}
+
+// === FUNZIONI DI RENDERING BOLLETTE ===
+function populateBollettaYearFilter() {
+  const select = document.getElementById('bolletta-year-filter');
+  if (!select) return;
+  const currentYear = new Date().getFullYear();
+  const years = new Set();
+  years.add(currentYear);
+  years.add(currentYear - 1);
+  years.add(currentYear - 2);
+  
+  Object.keys(bolletteData).forEach(tipo => {
+    Object.keys(bolletteData[tipo] || {}).forEach(mese => {
+      const y = mese.split('-')[0];
+      years.add(parseInt(y));
+    });
+  });
+  
+  select.innerHTML = '';
+  Array.from(years).sort((a,b) => b - a).forEach(year => {
+    const option = document.createElement('option');
+    option.value = year;
+    option.textContent = year;
+    select.appendChild(option);
+  });
+  select.value = currentYear;
+}
+
+function renderBolletteList() {
+  console.log('🔄 renderBolletteList chiamata');
+  const year = document.getElementById('bolletta-year-filter')?.value || new Date().getFullYear().toString();
+  const tbody = document.getElementById('bolletta-table-body');
+  const tfoot = document.getElementById('bolletta-table-foot');
+  if (!tbody) return;
+  
+  tbody.innerHTML = '';
+  if (tfoot) tfoot.innerHTML = '';
+  
+  let totalGas = 0, totalLuce = 0, totalAcqua = 0;
+  
+  FILTER_MONTHS.forEach((monthName, monthIndex) => {
+    const monthNum = monthIndex + 1;
+    const meseKey = `${year}-${String(monthNum).padStart(2, '0')}`;
+    const tr = document.createElement('tr');
+    
+    const tdMonth = document.createElement('td');
+    tdMonth.className = 'bolletta-cell-month';
+    tdMonth.textContent = monthName;
+    tr.appendChild(tdMonth);
+    
+    const tdGas = document.createElement('td');
+    renderBollettaCell(tdGas, 'gas', meseKey);
+    tr.appendChild(tdGas);
+    
+    const tdLuce = document.createElement('td');
+    renderBollettaCell(tdLuce, 'luce', meseKey);
+    tr.appendChild(tdLuce);
+    
+    const tdAcqua = document.createElement('td');
+    renderBollettaCell(tdAcqua, 'acqua', meseKey);
+    tr.appendChild(tdAcqua);
+    
+    const tdTotal = document.createElement('td');
+    const gasImporto = getBollettaImporto('gas', meseKey);
+    const luceImporto = getBollettaImporto('luce', meseKey);
+    const acquaImporto = getBollettaImporto('acqua', meseKey);
+    const meseTotal = gasImporto + luceImporto + acquaImporto;
+    
+    totalGas += gasImporto;
+    totalLuce += luceImporto;
+    totalAcqua += acquaImporto;
+    
+    if (meseTotal > 0) {
+      tdTotal.className = 'bolletta-cell-total';
+      tdTotal.textContent = meseTotal.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+    } else {
+      tdTotal.className = 'bolletta-cell-empty';
+      tdTotal.textContent = '—';
+    }
+    tr.appendChild(tdTotal);
+    tbody.appendChild(tr);
+  });
+  
+  if (tfoot && (totalGas > 0 || totalLuce > 0 || totalAcqua > 0)) {
+    const grandTotal = totalGas + totalLuce + totalAcqua;
+    tfoot.innerHTML = `
+      <tr>
+        <td>TOTALE ANNUO ${year}</td>
+        <td>${totalGas.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</td>
+        <td>${totalLuce.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</td>
+        <td>${totalAcqua.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</td>
+        <td>${grandTotal.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</td>
+      </tr>
+    `;
+  }
+}
+
+function getBollettaImporto(tipo, meseKey) {
+  const attachments = (bolletteData[tipo] && bolletteData[tipo][meseKey]) || [];
+  if (attachments.length === 0) return 0;
+  return attachments[attachments.length - 1].importo || 0;
+}
+
+function renderBollettaCell(td, tipo, meseKey) {
+  const attachments = (bolletteData[tipo] && bolletteData[tipo][meseKey]) || [];
+  if (attachments.length === 0) {
+    td.className = 'bolletta-cell-empty';
+    td.textContent = '—';
+    return;
+  }
+  td.className = 'bolletta-cell-attachment';
+  const bolletta = attachments[attachments.length - 1];
+  const importoFormattato = bolletta.importo.toLocaleString('it-IT', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }) + ' €';
+  
+  td.innerHTML = `<span style="font-weight:700; font-size:15px;">${importoFormattato}</span>`;
+  if (attachments.length > 1) {
+    td.innerHTML += ` <span class="bolletta-multi-badge">+${attachments.length - 1}</span>`;
+  }
+  
+  td.addEventListener('click', function(e) {
+    e.stopPropagation();
+    openBollettaDetail(tipo, meseKey, attachments.length - 1);
+  });
+}
+
+  
 <!-- MODALE NUOVA BOLLETTA -->
 <div id="bolletta-modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(15,25,35,0.6); backdrop-filter:blur(8px); z-index:1000; align-items:center; justify-content:center; padding:20px;">
   <div style="background:var(--surface); border-radius:var(--radius-lg); padding:28px; width:100%; max-width:500px; box-shadow:var(--shadow-xl); animation:modalIn 0.3s ease;">
@@ -4232,51 +4406,7 @@ async function saveReminders() {
     console.error('Errore salvataggio promemoria:', e);
   }
 }
-async function loadBolletteData() {
-if (!currentUser) return;
-if (unsubscribeBollette) {
-unsubscribeBollette();
-unsubscribeBollette = null;
-}
-try {
-unsubscribeBollette = db.collection('bollette').doc(currentUser.uid).onSnapshot((doc) => {
-if (doc.exists) {
-bolletteData = doc.data() || {};
-} else {
-bolletteData = {};
-}
-if (document.getElementById('page-bollette').classList.contains('active')) {
-renderBolletteList();
-}
-}, (err) => {
-console.error('Errore caricamento bollette:', err);
-bolletteData = {};
-});
-} catch (err) {
-console.error('Errore setup bollette:', err);
-bolletteData = {};
-}
-}
-async function saveBolletteData() {
-  if (!currentUser) {
-    console.error('❌ Nessun utente loggato');
-    return;
-  }
-  
-  try {
-    await db.collection('bollette').doc(currentUser.uid).set(bolletteData);
-    console.log('✅ Dati bollette salvati!');
-  } catch (err) {
-    console.error('❌ Errore salvataggio bollette:', err);
-    throw err;
-  }
-}  
-function setTab(type) {
-state.currentType = type;
-document.getElementById('tab-expense').classList.toggle('active', type === 'expense');
-document.getElementById('tab-income').classList.toggle('active', type === 'income');
-populateCategorySelect();
-}
+
 function populateCategorySelect() {
 const sel = document.getElementById('inp-category');
 sel.innerHTML = '';
