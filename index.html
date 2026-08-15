@@ -8249,9 +8249,12 @@ document.addEventListener('DOMContentLoaded', function() {
 // Tentativo extra dopo 2 secondi (se il DOM non è ancora pronto)
 setTimeout(initBollettaModal, 2000);
 
+// === ESPONI LE FUNZIONI GLOBALMENTE ===
 window.saveBolletteData = saveBolletteData;
 window.renderBolletteList = renderBolletteList;
 window.storage = storage;
+window.bolletteData = bolletteData;
+window.bollettaDetailData = bollettaDetailData;
 
 // === LISTENER PER IL PULSANTE ELIMINA BOLLETTA ===
 document.addEventListener('click', function(e) {
@@ -8262,7 +8265,7 @@ document.addEventListener('click', function(e) {
   e.stopPropagation();
   console.log('🖱️ Click su Elimina Bolletta');
   
-  // Usa le variabili direttamente (non globali)
+  // Usa le variabili direttamente
   if (!bollettaDetailData) {
     alert('Nessuna bolletta selezionata');
     return;
@@ -8281,6 +8284,9 @@ document.addEventListener('click', function(e) {
   }
   
   try {
+    // Mostra il progresso
+    console.log('🗑️ Eliminazione in corso...');
+    
     // Elimina il file da Firebase Storage
     if (bolletta.storagePath) {
       storage.ref().child(bolletta.storagePath).delete()
@@ -8312,7 +8318,7 @@ document.addEventListener('click', function(e) {
   }
 });
 
-console.log('✅ Listener elimina bolletta registrato');  
+console.log('✅ Listener elimina bolletta registrato');
   
 })();
 </script>
