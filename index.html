@@ -6177,28 +6177,55 @@ function closeBollettaDetail() {
 document.getElementById('bolletta-detail-overlay').style.display = 'none';
 bollettaDetailData = null;
 }
-async function deleteBollettaFromDetail() {
-if (!bollettaDetailData) return;
-if (!confirm('Eliminare questa bolletta?')) return;
-const { tipo, meseKey, index } = bollettaDetailData;
-const bolletta = bolletteData[tipo]?.[meseKey]?.[index];
-if (!bolletta) return;
-try {
-if (bolletta.storagePath) {
-const fileRef = storage.ref().child(bolletta.storagePath);
-await fileRef.delete();
-}
-bolletteData[tipo][meseKey].splice(index, 1);
-if (bolletteData[tipo][meseKey].length === 0) {
-delete bolletteData[tipo][meseKey];
-}
-await saveBolletteData();
-closeBollettaDetail();
-renderBolletteList();
-} catch (err) {
-alert('Errore nell\'eliminazione: ' + err.message);
-}
-}
+// === ELIMINA BOLLETTA DAL DETTAGLIO ===
+window.deleteBollettaFromDetail = async function() {
+  console.log('🗑️ Eliminazione bolletta dal dettaglio');
+  
+  if (!bollettaDetailData) {
+    alert('Nessuna bolletta selezionata');
+    return;
+  }
+  
+  if (!confirm('Eliminare questa bolletta?')) {
+    return;
+  }
+  
+  const { tipo, meseKey, index } = bollettaDetailData;
+  const bolletta = bolletteData[tipo]?.[meseKey]?.[index];
+  
+  if (!bolletta) {
+    alert('Bolletta non trovata');
+    return;
+  }
+  
+  try {
+    // Elimina il file da Firebase Storage
+    if (bolletta.storagePath) {
+      const fileRef = storage.ref().child(bolletta.storagePath);
+      await fileRef.delete();
+      console.log('✅ File eliminato da Storage');
+    }
+    
+    // Rimuovi la bolletta dai dati
+    bolletteData[tipo][meseKey].splice(index, 1);
+    if (bolletteData[tipo][meseKey].length === 0) {
+      delete bolletteData[tipo][meseKey];
+    }
+    
+    // Salva i dati
+    await saveBolletteData();
+    
+    // Chiudi il dettaglio e aggiorna la lista
+    closeBollettaDetail();
+    renderBolletteList();
+    
+    alert('✅ Bolletta eliminata con successo!');
+    
+  } catch (err) {
+    alert('❌ Errore nell\'eliminazione: ' + err.message);
+    console.error('Errore eliminazione:', err);
+  }
+};
 async function downloadBollettaFromDetail() {
 if (!bollettaDetailData) return;
 const { tipo, meseKey, index } = bollettaDetailData;
