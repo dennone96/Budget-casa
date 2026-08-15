@@ -4402,6 +4402,20 @@ console.error('Errore setup bollette:', err);
 bolletteData = {};
 }
 }
+async function saveBolletteData() {
+  if (!currentUser) {
+    console.error('❌ Nessun utente loggato');
+    return;
+  }
+  
+  try {
+    await db.collection('bollette').doc(currentUser.uid).set(bolletteData);
+    console.log('✅ Dati bollette salvati!');
+  } catch (err) {
+    console.error('❌ Errore salvataggio bollette:', err);
+    throw err;
+  }
+}  
 function setTab(type) {
 state.currentType = type;
 document.getElementById('tab-expense').classList.toggle('active', type === 'expense');
