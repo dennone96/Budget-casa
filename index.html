@@ -6199,6 +6199,7 @@ async function deleteBollettaFromDetail() {
     alert('Errore nell\'eliminazione: ' + err.message);
   }
 }
+window.deleteBollettaFromDetail = deleteBollettaFromDetail;  
 async function downloadBollettaFromDetail() {
 if (!bollettaDetailData) return;
 const { tipo, meseKey, index } = bollettaDetailData;
