@@ -6199,6 +6199,9 @@ renderBolletteList();
 alert('Errore nell\'eliminazione: ' + err.message);
 }
 }
+
+window.deleteBollettaFromDetail = deleteBollettaFromDetail;
+  
 async function downloadBollettaFromDetail() {
 if (!bollettaDetailData) return;
 const { tipo, meseKey, index } = bollettaDetailData;
@@ -6658,7 +6661,6 @@ document.getElementById('bolletta-detail-overlay').addEventListener('click', (e)
   if (e.target.id === 'bolletta-detail-overlay') closeBollettaDetail();
 });
 document.getElementById('bolletta-detail-download').addEventListener('click', downloadBollettaFromDetail);
-document.getElementById('bolletta-detail-delete').addEventListener('click', deleteBollettaFromDetail);
 async function generateScreenshotPDF(elementId, filename) {
   showLoading(true);
   try {
