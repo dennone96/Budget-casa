@@ -3505,6 +3505,7 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 <i class="ti ti-download" style="font-size:18px;"></i> Scarica
 </button>
 <button id="bolletta-detail-delete" 
+        onclick="eliminaBolletta()"
         style="width:46px; height:46px; background:var(--danger); color:#fff; border:none; border-radius:var(--radius-sm); cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 512 512">
     <defs><linearGradient id="trashGrad" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#F04438"/><stop offset="1" stop-color="#B42318"/></linearGradient></defs>
@@ -6192,19 +6193,17 @@ bollettaDetailData = null;
   window.saveBolletteData = saveBolletteData;
   window.renderBolletteList = renderBolletteList;
 
-  
-
+ // === FUNZIONE GLOBALE PER ELIMINARE BOLLETTA ===
 window.eliminaBolletta = async function() {
   console.log('🗑️ eliminaBolletta chiamata');
   
+  // Usa window. per accedere alle variabili globali
   if (!window.bollettaDetailData) {
-    console.error('❌ Nessuna bolletta selezionata');
     alert('Nessuna bolletta selezionata');
     return;
   }
   
   if (!confirm('Eliminare questa bolletta?')) {
-    console.log('❌ Eliminazione cancellata');
     return;
   }
   
@@ -6214,7 +6213,6 @@ window.eliminaBolletta = async function() {
   const bolletta = window.bolletteData[tipo]?.[meseKey]?.[index];
   
   if (!bolletta) {
-    console.error('❌ Bolletta non trovata');
     alert('Bolletta non trovata');
     return;
   }
@@ -6256,7 +6254,8 @@ window.eliminaBolletta = async function() {
     console.error('❌ Errore eliminazione:', err);
     alert('❌ Errore nell\'eliminazione: ' + err.message);
   }
-};  
+}; 
+
 
  async function downloadBollettaFromDetail() {
 if (!bollettaDetailData) return;
