@@ -3505,14 +3505,8 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 <i class="ti ti-download" style="font-size:18px;"></i> Scarica
 </button>
 <button id="bolletta-detail-delete" 
-        onclick="eliminaBolletta()"
         style="width:46px; height:46px; background:var(--danger); color:#fff; border:none; border-radius:var(--radius-sm); cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 512 512">
-    <defs><linearGradient id="trashGrad" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#F04438"/><stop offset="1" stop-color="#B42318"/></linearGradient></defs>
-    <rect x="72" y="72" width="368" height="368" rx="92" fill="url(#trashGrad)"/>
-    <path d="M202 154c0-17.7 14.3-32 32-32h44c17.7 0 32 14.3 32 32v14h52c11 0 20 9 20 20s-9 20-20 20H150c-11 0-20-9-20-20s9-20 20-20h52v-14Zm40 14h28v-6c0-3.3-2.7-6-6-6h-16c-3.3 0-6 2.7-6 6v6Z" fill="#FFFFFF"/>
-    <path d="M170 238c-1.1-13.8 9.8-25.6 23.6-25.6h124.8c13.8 0 24.7 11.8 23.6 25.6l-12.2 144.9c-1.5 17.5-16.1 31.1-33.7 31.1h-80.2c-17.6 0-32.2-13.6-33.7-31.1L170 238Z" fill="#FFFFFF"/>
-  </svg>
+  <svg ... ></svg>
 </button>
 </div>
 </div>
@@ -6185,78 +6179,6 @@ document.getElementById('bolletta-detail-overlay').style.display = 'none';
 bollettaDetailData = null;
 }
 
-  // 5. ALLA FINE, ESPONI LE VARIABILI E FUNZIONI GLOBALMENTE
-  // (QUI bolletteData e bollettaDetailData sono già state dichiarate)
-  window.bolletteData = bolletteData;
-  window.bollettaDetailData = bollettaDetailData;
-  window.storage = storage;
-  window.saveBolletteData = saveBolletteData;
-  window.renderBolletteList = renderBolletteList;
-
- // === FUNZIONE GLOBALE PER ELIMINARE BOLLETTA ===
-window.eliminaBolletta = async function() {
-  console.log('🗑️ eliminaBolletta chiamata');
-  
-  // Usa window. per accedere alle variabili globali
-  if (!window.bollettaDetailData) {
-    alert('Nessuna bolletta selezionata');
-    return;
-  }
-  
-  if (!confirm('Eliminare questa bolletta?')) {
-    return;
-  }
-  
-  const { tipo, meseKey, index } = window.bollettaDetailData;
-  console.log('📊 Dati bolletta:', { tipo, meseKey, index });
-  
-  const bolletta = window.bolletteData[tipo]?.[meseKey]?.[index];
-  
-  if (!bolletta) {
-    alert('Bolletta non trovata');
-    return;
-  }
-  
-  console.log('📄 Bolletta da eliminare:', bolletta.nome);
-  
-  try {
-    // Elimina il file da Firebase Storage
-    if (bolletta.storagePath) {
-      console.log('🗑️ Eliminazione file da Storage...');
-      const fileRef = window.storage.ref().child(bolletta.storagePath);
-      await fileRef.delete();
-      console.log('✅ File eliminato da Storage');
-    }
-    
-    // Rimuovi la bolletta dai dati
-    window.bolletteData[tipo][meseKey].splice(index, 1);
-    if (window.bolletteData[tipo][meseKey].length === 0) {
-      delete window.bolletteData[tipo][meseKey];
-    }
-    
-    // Salva i dati
-    console.log('💾 Salvataggio dati...');
-    await window.saveBolletteData();
-    
-    // Chiudi il dettaglio
-    const overlay = document.getElementById('bolletta-detail-overlay');
-    if (overlay) overlay.style.display = 'none';
-    window.bollettaDetailData = null;
-    
-    // Aggiorna la lista
-    console.log('🔄 Aggiornamento lista...');
-    window.renderBolletteList();
-    
-    alert('✅ Bolletta eliminata con successo!');
-    console.log('✅ Eliminazione completata!');
-    
-  } catch (err) {
-    console.error('❌ Errore eliminazione:', err);
-    alert('❌ Errore nell\'eliminazione: ' + err.message);
-  }
-}; 
-
-
  async function downloadBollettaFromDetail() {
 if (!bollettaDetailData) return;
 const { tipo, meseKey, index } = bollettaDetailData;
@@ -8264,7 +8186,12 @@ document.addEventListener('DOMContentLoaded', function() {
 // Tentativo extra dopo 2 secondi (se il DOM non è ancora pronto)
 setTimeout(initBollettaModal, 2000);
 
-// === LISTENER PER IL PULSANTE ELIMINA BOLLETTA ===
+  
+console.log('🔍 Test: cerco pulsante bolletta-detail-delete...');
+const testBtn = document.getElementById('bolletta-detail-delete');
+console.log('Pulsante trovato:', testBtn ? '✅ SI' : '❌ NO');  
+
+  // === LISTENER PER IL PULSANTE ELIMINA BOLLETTA ===
 document.addEventListener('click', function(e) {
   const target = e.target.closest('#bolletta-detail-delete');
   if (!target) return;
@@ -8273,7 +8200,7 @@ document.addEventListener('click', function(e) {
   e.stopPropagation();
   console.log('🖱️ Click su Elimina Bolletta');
   
-  // Usa le variabili direttamente
+  // Usa le variabili direttamente (sono nello stesso scope)
   if (!bollettaDetailData) {
     alert('Nessuna bolletta selezionata');
     return;
@@ -8292,7 +8219,6 @@ document.addEventListener('click', function(e) {
   }
   
   try {
-    // Mostra il progresso
     console.log('🗑️ Eliminazione in corso...');
     
     // Elimina il file da Firebase Storage
