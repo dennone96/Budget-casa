@@ -7901,19 +7901,15 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
   
-// === LISTENER PER IL FILTRO ANNO BOLLETTA ===
-document.addEventListener('DOMContentLoaded', function() {
-  const yearFilter = document.getElementById('bolletta-year-filter');
-  if (yearFilter) {
-    yearFilter.addEventListener('change', function() {
-      console.log('📅 Anno selezionato:', this.value);
-      renderBolletteList();
-    });
-    console.log('✅ Listener filtro anno aggiunto');
-  } else {
-    console.warn('⚠️ Filtro anno non trovato');
-  }
-});
+// === LISTENER PER IL FILTRO ANNO BOLLETTE ===
+const yearFilter = document.getElementById('bolletta-year-filter');
+if (yearFilter) {
+  yearFilter.addEventListener('change', function() {
+    console.log('📅 Anno selezionato:', this.value);
+    renderBolletteList();
+  });
+  console.log('✅ Listener filtro anno aggiunto');
+}
  
 })();
 </script>
