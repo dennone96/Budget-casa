@@ -3668,6 +3668,14 @@ window.openBollettaModal = function() {
   }
 };
 
+window.closeBollettaModal = function() {
+  console.log('🔒 Chiusura modale bolletta');
+  const overlay = document.getElementById('bolletta-modal-overlay');
+  if (overlay) {
+    overlay.style.display = 'none';
+  }
+};
+
 window.saveBollettaFromModal = async function() {
   console.log('💾 Salvataggio bolletta dal modale');
   
@@ -4228,7 +4236,6 @@ updateChartCompare();
 if (pageId === 'page-bollette') {
 try {
 populateBollettaMeseSelect();
-populateBollettaYearFilter();
 renderBolletteList();
 } catch(e) { console.error('Errore bollette:', e); }
 }
@@ -4413,33 +4420,29 @@ async function saveReminders() {
   }
 }
 async function loadBolletteData() {
-  if (!currentUser) return;
-  if (unsubscribeBollette) {
-    unsubscribeBollette();
-    unsubscribeBollette = null;
-  }
-  try {
-    unsubscribeBollette = db.collection('bollette').doc(currentUser.uid).onSnapshot((doc) => {
-      if (doc.exists) {
-        bolletteData = doc.data() || {};
-      } else {
-        bolletteData = {};
-      }
-      
-      // === AGGIUNGI QUESTA RIGA ===
-      populateBollettaYearFilter();
-      
-      if (document.getElementById('page-bollette').classList.contains('active')) {
-        renderBolletteList();
-      }
-    }, (err) => {
-      console.error('Errore caricamento bollette:', err);
-      bolletteData = {};
-    });
-  } catch (err) {
-    console.error('Errore setup bollette:', err);
-    bolletteData = {};
-  }
+if (!currentUser) return;
+if (unsubscribeBollette) {
+unsubscribeBollette();
+unsubscribeBollette = null;
+}
+try {
+unsubscribeBollette = db.collection('bollette').doc(currentUser.uid).onSnapshot((doc) => {
+if (doc.exists) {
+bolletteData = doc.data() || {};
+} else {
+bolletteData = {};
+}
+if (document.getElementById('page-bollette').classList.contains('active')) {
+renderBolletteList();
+}
+}, (err) => {
+console.error('Errore caricamento bollette:', err);
+bolletteData = {};
+});
+} catch (err) {
+console.error('Errore setup bollette:', err);
+bolletteData = {};
+}
 }
 async function saveBolletteData() {
   if (!currentUser) {
@@ -6040,44 +6043,27 @@ select.value = currentMonthKey;
 populateBollettaYearFilter();
 }
 function populateBollettaYearFilter() {
-  console.log('🔄 populateBollettaYearFilter chiamata');
-  const select = document.getElementById('bolletta-year-filter');
-  if (!select) {
-    console.warn('⚠️ select bolletta-year-filter non trovato');
-    return;
-  }
-  
-  const currentYear = new Date().getFullYear();
-  const years = new Set();
-  years.add(currentYear);
-  years.add(currentYear - 1);
-  years.add(currentYear - 2);
-  
-  Object.keys(bolletteData).forEach(tipo => {
-    Object.keys(bolletteData[tipo] || {}).forEach(mese => {
-      const y = mese.split('-')[0];
-      years.add(parseInt(y));
-    });
-  });
-  
-  const currentValue = select.value;
-  select.innerHTML = '';
-  
-  Array.from(years).sort((a,b) => b - a).forEach(year => {
-    const option = document.createElement('option');
-    option.value = year;
-    option.textContent = year;
-    select.appendChild(option);
-  });
-  
-  // Ripristina il valore precedente se esiste, altrimenti imposta l'anno corrente
-  if (currentValue && [...select.options].some(o => o.value === currentValue)) {
-    select.value = currentValue;
-  } else {
-    select.value = currentYear;
-  }
-  
-  console.log('✅ Anni popolati:', Array.from(years));
+const select = document.getElementById('bolletta-year-filter');
+if (!select) return;
+const currentYear = new Date().getFullYear();
+const years = new Set();
+years.add(currentYear);
+years.add(currentYear - 1);
+years.add(currentYear - 2);
+Object.keys(bolletteData).forEach(tipo => {
+Object.keys(bolletteData[tipo]).forEach(mese => {
+const y = mese.split('-')[0];
+years.add(parseInt(y));
+});
+});
+select.innerHTML = '';
+Array.from(years).sort((a,b) => b - a).forEach(year => {
+const option = document.createElement('option');
+option.value = year;
+option.textContent = year;
+select.appendChild(option);
+});
+select.value = currentYear;
 }
 function renderBolletteList() {
 const year = document.getElementById('bolletta-year-filter')?.value || new Date().getFullYear().toString();
@@ -6140,14 +6126,6 @@ tfoot.innerHTML = `
 `;
 }
 }
-// === LISTENER PER IL FILTRO ANNO BOLLETTE ===
-document.addEventListener('change', function(e) {
-  const target = e.target.closest('#bolletta-year-filter');
-  if (target) {
-    console.log('📅 Anno selezionato:', target.value);
-    renderBolletteList();
-  }
-});  
 function getBollettaImporto(tipo, meseKey) {
 const attachments = (bolletteData[tipo] && bolletteData[tipo][meseKey]) || [];
 if (attachments.length === 0) return 0;
@@ -6581,6 +6559,7 @@ if (document.readyState === 'loading') {
 setTimeout(startIncomeExpense, 2000);
   
 // Altri event listener...
+document.getElementById('bolletta-year-filter').addEventListener('change', renderBolletteList);
 document.getElementById('bolletta-detail-close').addEventListener('click', closeBollettaDetail);
 document.getElementById('bolletta-detail-overlay').addEventListener('click', (e) => {
   if (e.target.id === 'bolletta-detail-overlay') closeBollettaDetail();
@@ -7971,8 +7950,6 @@ function closeBollettaModal() {
     overlay.style.display = 'none';
   }
 }
-// === AGGIUNGI QUESTA RIGA ===
-window.closeBollettaModal = closeBollettaModal;  
 
 // Salva la bolletta
 async function saveBollettaFromModal() {
