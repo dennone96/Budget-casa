@@ -3243,10 +3243,7 @@ Movimenti in contanti. Stesse colonne del conto corrente.
       <h3 style="margin:0;">📊 Riepilogo bollette</h3>
       <div style="display:flex; align-items:center; gap:10px;">
         <label style="font-size:13px; font-weight:700; color:var(--text-secondary);">Anno:</label>
-       <select id="bolletta-year-filter" 
-        onchange="renderBolletteList()"
-        style="width:120px; height:40px; font-weight:700;">
-</select>
+      <select id="bolletta-year-filter" style="width:120px; height:40px; font-weight:700;"></select>
       </div>
     </div>
     <div class="bolletta-table-wrap">
@@ -6134,6 +6131,8 @@ tfoot.innerHTML = `
 `;
 }
 }
+window.renderBolletteList = renderBolletteList;
+  
 function getBollettaImporto(tipo, meseKey) {
 const attachments = (bolletteData[tipo] && bolletteData[tipo][meseKey]) || [];
 if (attachments.length === 0) return 0;
@@ -6566,18 +6565,7 @@ if (document.readyState === 'loading') {
 // Tentativo extra
 setTimeout(startIncomeExpense, 2000);
 
-// === LISTENER DIRETTO PER IL FILTRO ANNO BOLLETTE ===
-const yearFilter = document.getElementById('bolletta-year-filter');
-if (yearFilter) {
-  yearFilter.addEventListener('change', function(e) {
-    console.log('📅 Anno selezionato (direttamente):', this.value);
-    renderBolletteList();
-  });
-  console.log('✅ Listener diretto anno aggiunto');
-} else {
-  console.warn('⚠️ Elemento bolletta-year-filter non trovato');
-}
-  
+ 
 // Altri event listener...
 document.getElementById('bolletta-detail-close').addEventListener('click', closeBollettaDetail);
 document.getElementById('bolletta-detail-overlay').addEventListener('click', (e) => {
@@ -7912,7 +7900,20 @@ document.addEventListener('DOMContentLoaded', function() {
     console.warn('⚠️ btn-nuovo-evento non trovato');
   }
 });
-
+  
+// === LISTENER PER IL FILTRO ANNO BOLLETTA ===
+document.addEventListener('DOMContentLoaded', function() {
+  const yearFilter = document.getElementById('bolletta-year-filter');
+  if (yearFilter) {
+    yearFilter.addEventListener('change', function() {
+      console.log('📅 Anno selezionato:', this.value);
+      renderBolletteList();
+    });
+    console.log('✅ Listener filtro anno aggiunto');
+  } else {
+    console.warn('⚠️ Filtro anno non trovato');
+  }
+});
  
 })();
 </script>
