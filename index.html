@@ -6048,27 +6048,44 @@ select.value = currentMonthKey;
 populateBollettaYearFilter();
 }
 function populateBollettaYearFilter() {
-const select = document.getElementById('bolletta-year-filter');
-if (!select) return;
-const currentYear = new Date().getFullYear();
-const years = new Set();
-years.add(currentYear);
-years.add(currentYear - 1);
-years.add(currentYear - 2);
-Object.keys(bolletteData).forEach(tipo => {
-Object.keys(bolletteData[tipo]).forEach(mese => {
-const y = mese.split('-')[0];
-years.add(parseInt(y));
-});
-});
-select.innerHTML = '';
-Array.from(years).sort((a,b) => b - a).forEach(year => {
-const option = document.createElement('option');
-option.value = year;
-option.textContent = year;
-select.appendChild(option);
-});
-select.value = currentYear;
+  console.log('🔄 populateBollettaYearFilter chiamata');
+  const select = document.getElementById('bolletta-year-filter');
+  if (!select) {
+    console.warn('⚠️ select bolletta-year-filter non trovato');
+    return;
+  }
+  
+  const currentYear = new Date().getFullYear();
+  const years = new Set();
+  years.add(currentYear);
+  years.add(currentYear - 1);
+  years.add(currentYear - 2);
+  
+  Object.keys(bolletteData).forEach(tipo => {
+    Object.keys(bolletteData[tipo] || {}).forEach(mese => {
+      const y = mese.split('-')[0];
+      years.add(parseInt(y));
+    });
+  });
+  
+  const currentValue = select.value;
+  select.innerHTML = '';
+  
+  Array.from(years).sort((a,b) => b - a).forEach(year => {
+    const option = document.createElement('option');
+    option.value = year;
+    option.textContent = year;
+    select.appendChild(option);
+  });
+  
+  // Ripristina il valore precedente se esiste, altrimenti imposta l'anno corrente
+  if (currentValue && [...select.options].some(o => o.value === currentValue)) {
+    select.value = currentValue;
+  } else {
+    select.value = currentYear;
+  }
+  
+  console.log('✅ Anni popolati:', Array.from(years));
 }
 function renderBolletteList() {
 const year = document.getElementById('bolletta-year-filter')?.value || new Date().getFullYear().toString();
@@ -6131,6 +6148,14 @@ tfoot.innerHTML = `
 `;
 }
 }
+// === LISTENER PER IL FILTRO ANNO BOLLETTE ===
+document.addEventListener('change', function(e) {
+  const target = e.target.closest('#bolletta-year-filter');
+  if (target) {
+    console.log('📅 Anno selezionato:', target.value);
+    renderBolletteList();
+  }
+});  
 function getBollettaImporto(tipo, meseKey) {
 const attachments = (bolletteData[tipo] && bolletteData[tipo][meseKey]) || [];
 if (attachments.length === 0) return 0;
@@ -6564,14 +6589,6 @@ if (document.readyState === 'loading') {
 setTimeout(startIncomeExpense, 2000);
   
 // Altri event listener...
-// === LISTENER PER IL FILTRO ANNO BOLLETTE (DELEGATO) ===
-document.addEventListener('change', function(e) {
-  const target = e.target.closest('#bolletta-year-filter');
-  if (target) {
-    console.log('📅 Filtro anno cambiato:', target.value);
-    renderBolletteList();
-  }
-});
 document.getElementById('bolletta-detail-close').addEventListener('click', closeBollettaDetail);
 document.getElementById('bolletta-detail-overlay').addEventListener('click', (e) => {
   if (e.target.id === 'bolletta-detail-overlay') closeBollettaDetail();
