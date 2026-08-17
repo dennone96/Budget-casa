@@ -3243,7 +3243,10 @@ Movimenti in contanti. Stesse colonne del conto corrente.
       <h3 style="margin:0;">📊 Riepilogo bollette</h3>
       <div style="display:flex; align-items:center; gap:10px;">
         <label style="font-size:13px; font-weight:700; color:var(--text-secondary);">Anno:</label>
-        <select id="bolletta-year-filter" style="width:120px; height:40px; font-weight:700;"></select>
+       <select id="bolletta-year-filter" 
+        onchange="renderBolletteList()"
+        style="width:120px; height:40px; font-weight:700;">
+</select>
       </div>
     </div>
     <div class="bolletta-table-wrap">
