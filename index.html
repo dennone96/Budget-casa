@@ -3625,56 +3625,6 @@ const DEFAULT_CATEGORIES = {
 expense: ['Spesa', 'Bollette', 'Affitto/Mutuo', 'Trasporti', 'Salute', 'Svago', 'Istruzione', 'Altro'],
 income: ['Stipendio', 'Bonus', 'Regalo', 'Altro']
 };
-  
-// === FUNZIONI GLOBALI PER IL MODALE BOLLETTA ===
-window.openBollettaModal = function() {
-  console.log('📄 Apertura modale nuova bolletta');
-  const overlay = document.getElementById('bolletta-modal-overlay');
-  if (overlay) {
-    overlay.style.display = 'flex';
-    document.getElementById('bolletta-modal-fornitore').value = '';
-    document.getElementById('bolletta-modal-importo').value = '';
-    document.getElementById('bolletta-modal-file').value = '';
-    document.getElementById('bolletta-modal-progress').style.display = 'none';
-    document.getElementById('bolletta-modal-progress-fill').style.width = '0%';
-    
-    const select = document.getElementById('bolletta-modal-mese');
-    if (select) {
-      const currentYear = new Date().getFullYear();
-      const currentMonth = new Date().getMonth() + 1;
-      select.innerHTML = '';
-      for (let i = 0; i < 24; i++) {
-        let year = currentYear;
-        let month = currentMonth - i;
-        if (month <= 0) {
-          month += 12;
-          year--;
-        }
-        const value = `${year}-${String(month).padStart(2, '0')}`;
-        const label = `${FILTER_MONTHS[month - 1]} ${year}`;
-        const option = document.createElement('option');
-        option.value = value;
-        option.textContent = label;
-        select.appendChild(option);
-      }
-      select.value = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
-    }
-    
-    setTimeout(() => {
-      document.getElementById('bolletta-modal-fornitore').focus();
-    }, 100);
-  } else {
-    alert('Errore: modale non trovato! Ricarica la pagina.');
-  }
-};
-
-window.closeBollettaModal = function() {
-  console.log('🔒 Chiusura modale bolletta');
-  const overlay = document.getElementById('bolletta-modal-overlay');
-  if (overlay) {
-    overlay.style.display = 'none';
-  }
-};
 
 window.saveBollettaFromModal = async function() {
   console.log('💾 Salvataggio bolletta dal modale');
@@ -3757,6 +3707,75 @@ window.saveBollettaFromModal = async function() {
       );
     });
     
+    // === CHIUDI IL MODALE DIRETTAMENTE ===
+    const overlay = document.getElementById('bolletta-modal-overlay');
+    if (overlay) {
+      overlay.style.display = 'none';
+    }
+    alert('✅ Bolletta caricata con successo!');
+    
+  } catch (err) {
+    alert('❌ Errore nel caricamento: ' + err.message);
+    console.error('Errore upload:', err);
+  } finally {
+    progressDiv.style.display = 'none';
+    progressFill.style.width = '0%';
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Salva bolletta';
+  }
+};
+
+  
+// === FUNZIONI GLOBALI PER IL MODALE BOLLETTA ===
+window.openBollettaModal = function() {
+  console.log('📄 Apertura modale nuova bolletta');
+  const overlay = document.getElementById('bolletta-modal-overlay');
+  if (overlay) {
+    overlay.style.display = 'flex';
+    document.getElementById('bolletta-modal-fornitore').value = '';
+    document.getElementById('bolletta-modal-importo').value = '';
+    document.getElementById('bolletta-modal-file').value = '';
+    document.getElementById('bolletta-modal-progress').style.display = 'none';
+    document.getElementById('bolletta-modal-progress-fill').style.width = '0%';
+    
+    const select = document.getElementById('bolletta-modal-mese');
+    if (select) {
+      const currentYear = new Date().getFullYear();
+      const currentMonth = new Date().getMonth() + 1;
+      select.innerHTML = '';
+      for (let i = 0; i < 24; i++) {
+        let year = currentYear;
+        let month = currentMonth - i;
+        if (month <= 0) {
+          month += 12;
+          year--;
+        }
+        const value = `${year}-${String(month).padStart(2, '0')}`;
+        const label = `${FILTER_MONTHS[month - 1]} ${year}`;
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = label;
+        select.appendChild(option);
+      }
+      select.value = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
+    }
+    
+    setTimeout(() => {
+      document.getElementById('bolletta-modal-fornitore').focus();
+    }, 100);
+  } else {
+    alert('Errore: modale non trovato! Ricarica la pagina.');
+  }
+};
+
+window.closeBollettaModal = function() {
+  console.log('🔒 Chiusura modale bolletta');
+  const overlay = document.getElementById('bolletta-modal-overlay');
+  if (overlay) {
+    overlay.style.display = 'none';
+  }
+};
+   
     window.closeBolletteModal();
     alert('✅ Bolletta caricata con successo!');
     
