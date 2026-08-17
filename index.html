@@ -6563,14 +6563,17 @@ if (document.readyState === 'loading') {
 // Tentativo extra
 setTimeout(startIncomeExpense, 2000);
 
-// === LISTENER PER IL FILTRO ANNO BOLLETTE ===
-document.addEventListener('change', function(e) {
-  const target = e.target.closest('#bolletta-year-filter');
-  if (target) {
-    console.log('📅 Anno selezionato:', target.value);
+// === LISTENER DIRETTO PER IL FILTRO ANNO BOLLETTE ===
+const yearFilter = document.getElementById('bolletta-year-filter');
+if (yearFilter) {
+  yearFilter.addEventListener('change', function(e) {
+    console.log('📅 Anno selezionato (direttamente):', this.value);
     renderBolletteList();
-  }
-});
+  });
+  console.log('✅ Listener diretto anno aggiunto');
+} else {
+  console.warn('⚠️ Elemento bolletta-year-filter non trovato');
+}
   
 // Altri event listener...
 document.getElementById('bolletta-detail-close').addEventListener('click', closeBollettaDetail);
