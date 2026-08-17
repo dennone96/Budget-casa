@@ -3668,14 +3668,6 @@ window.openBollettaModal = function() {
   }
 };
 
-window.closeBollettaModal = function() {
-  console.log('🔒 Chiusura modale bolletta');
-  const overlay = document.getElementById('bolletta-modal-overlay');
-  if (overlay) {
-    overlay.style.display = 'none';
-  }
-};
-
 window.saveBollettaFromModal = async function() {
   console.log('💾 Salvataggio bolletta dal modale');
   
@@ -7979,6 +7971,8 @@ function closeBollettaModal() {
     overlay.style.display = 'none';
   }
 }
+// === AGGIUNGI QUESTA RIGA ===
+window.closeBollettaModal = closeBollettaModal;  
 
 // Salva la bolletta
 async function saveBollettaFromModal() {
