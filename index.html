@@ -4420,29 +4420,33 @@ async function saveReminders() {
   }
 }
 async function loadBolletteData() {
-if (!currentUser) return;
-if (unsubscribeBollette) {
-unsubscribeBollette();
-unsubscribeBollette = null;
-}
-try {
-unsubscribeBollette = db.collection('bollette').doc(currentUser.uid).onSnapshot((doc) => {
-if (doc.exists) {
-bolletteData = doc.data() || {};
-} else {
-bolletteData = {};
-}
-if (document.getElementById('page-bollette').classList.contains('active')) {
-renderBolletteList();
-}
-}, (err) => {
-console.error('Errore caricamento bollette:', err);
-bolletteData = {};
-});
-} catch (err) {
-console.error('Errore setup bollette:', err);
-bolletteData = {};
-}
+  if (!currentUser) return;
+  if (unsubscribeBollette) {
+    unsubscribeBollette();
+    unsubscribeBollette = null;
+  }
+  try {
+    unsubscribeBollette = db.collection('bollette').doc(currentUser.uid).onSnapshot((doc) => {
+      if (doc.exists) {
+        bolletteData = doc.data() || {};
+      } else {
+        bolletteData = {};
+      }
+      // Popola il filtro anno quando i dati vengono caricati
+      populateBollettaYearFilter();
+      if (document.getElementById('page-bollette').classList.contains('active')) {
+        renderBolletteList();
+      }
+    }, (err) => {
+      console.error('Errore caricamento bollette:', err);
+      bolletteData = {};
+      populateBollettaYearFilter();
+    });
+  } catch (err) {
+    console.error('Errore setup bollette:', err);
+    bolletteData = {};
+    populateBollettaYearFilter();
+  }
 }
 async function saveBolletteData() {
   if (!currentUser) {
@@ -6055,7 +6059,7 @@ function populateBollettaYearFilter() {
   years.add(currentYear - 1);
   years.add(currentYear - 2);
   
-  // Aggiungi anni dai dati delle bollette
+  // Aggiungi anni dai dati delle bollette (se esistono)
   if (bolletteData) {
     Object.keys(bolletteData).forEach(tipo => {
       if (bolletteData[tipo]) {
