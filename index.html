@@ -6076,6 +6076,7 @@ function populateBollettaYearFilter() {
   renderBolletteList();
 }
 function renderBolletteList() {
+populateBollettaYearFilter();
 const year = document.getElementById('bolletta-year-filter')?.value || new Date().getFullYear().toString();
 const tbody = document.getElementById('bolletta-table-body');
 const tfoot = document.getElementById('bolletta-table-foot');
