@@ -6043,27 +6043,52 @@ select.value = currentMonthKey;
 populateBollettaYearFilter();
 }
 function populateBollettaYearFilter() {
-const select = document.getElementById('bolletta-year-filter');
-if (!select) return;
-const currentYear = new Date().getFullYear();
-const years = new Set();
-years.add(currentYear);
-years.add(currentYear - 1);
-years.add(currentYear - 2);
-Object.keys(bolletteData).forEach(tipo => {
-Object.keys(bolletteData[tipo]).forEach(mese => {
-const y = mese.split('-')[0];
-years.add(parseInt(y));
-});
-});
-select.innerHTML = '';
-Array.from(years).sort((a,b) => b - a).forEach(year => {
-const option = document.createElement('option');
-option.value = year;
-option.textContent = year;
-select.appendChild(option);
-});
-select.value = currentYear;
+  const select = document.getElementById('bolletta-year-filter');
+  if (!select) {
+    console.error('Elemento bolletta-year-filter non trovato!');
+    return;
+  }
+  
+  const currentYear = new Date().getFullYear();
+  const years = new Set();
+  years.add(currentYear);
+  years.add(currentYear - 1);
+  years.add(currentYear - 2);
+  
+  // Aggiungi anni dai dati delle bollette
+  if (bolletteData) {
+    Object.keys(bolletteData).forEach(tipo => {
+      if (bolletteData[tipo]) {
+        Object.keys(bolletteData[tipo]).forEach(mese => {
+          const y = mese.split('-')[0];
+          if (!isNaN(parseInt(y))) {
+            years.add(parseInt(y));
+          }
+        });
+      }
+    });
+  }
+  
+  select.innerHTML = '';
+  const sortedYears = Array.from(years).sort((a,b) => b - a);
+  
+  if (sortedYears.length === 0) {
+    // Se non ci sono anni, aggiungi almeno l'anno corrente
+    sortedYears.push(currentYear);
+  }
+  
+  sortedYears.forEach(year => {
+    const option = document.createElement('option');
+    option.value = year;
+    option.textContent = year;
+    select.appendChild(option);
+  });
+  
+  // Imposta l'anno corrente come selezionato
+  select.value = currentYear.toString();
+  
+  // Ricarica la lista dopo aver popolato il filtro
+  renderBolletteList();
 }
 function renderBolletteList() {
 const year = document.getElementById('bolletta-year-filter')?.value || new Date().getFullYear().toString();
