@@ -3243,7 +3243,7 @@ Movimenti in contanti. Stesse colonne del conto corrente.
       <h3 style="margin:0;">📊 Riepilogo bollette</h3>
       <div style="display:flex; align-items:center; gap:10px;">
         <label style="font-size:13px; font-weight:700; color:var(--text-secondary);">Anno:</label>
-      <select id="bolletta-year-filter" style="width:120px; height:40px; font-weight:700;"></select>
+        <select id="bolletta-year-filter" style="width:120px; height:40px; font-weight:700;"></select>
       </div>
     </div>
     <div class="bolletta-table-wrap">
@@ -3625,6 +3625,56 @@ const DEFAULT_CATEGORIES = {
 expense: ['Spesa', 'Bollette', 'Affitto/Mutuo', 'Trasporti', 'Salute', 'Svago', 'Istruzione', 'Altro'],
 income: ['Stipendio', 'Bonus', 'Regalo', 'Altro']
 };
+  
+// === FUNZIONI GLOBALI PER IL MODALE BOLLETTA ===
+window.openBollettaModal = function() {
+  console.log('📄 Apertura modale nuova bolletta');
+  const overlay = document.getElementById('bolletta-modal-overlay');
+  if (overlay) {
+    overlay.style.display = 'flex';
+    document.getElementById('bolletta-modal-fornitore').value = '';
+    document.getElementById('bolletta-modal-importo').value = '';
+    document.getElementById('bolletta-modal-file').value = '';
+    document.getElementById('bolletta-modal-progress').style.display = 'none';
+    document.getElementById('bolletta-modal-progress-fill').style.width = '0%';
+    
+    const select = document.getElementById('bolletta-modal-mese');
+    if (select) {
+      const currentYear = new Date().getFullYear();
+      const currentMonth = new Date().getMonth() + 1;
+      select.innerHTML = '';
+      for (let i = 0; i < 24; i++) {
+        let year = currentYear;
+        let month = currentMonth - i;
+        if (month <= 0) {
+          month += 12;
+          year--;
+        }
+        const value = `${year}-${String(month).padStart(2, '0')}`;
+        const label = `${FILTER_MONTHS[month - 1]} ${year}`;
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = label;
+        select.appendChild(option);
+      }
+      select.value = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
+    }
+    
+    setTimeout(() => {
+      document.getElementById('bolletta-modal-fornitore').focus();
+    }, 100);
+  } else {
+    alert('Errore: modale non trovato! Ricarica la pagina.');
+  }
+};
+
+window.closeBollettaModal = function() {
+  console.log('🔒 Chiusura modale bolletta');
+  const overlay = document.getElementById('bolletta-modal-overlay');
+  if (overlay) {
+    overlay.style.display = 'none';
+  }
+};
 
 window.saveBollettaFromModal = async function() {
   console.log('💾 Salvataggio bolletta dal modale');
@@ -3707,75 +3757,6 @@ window.saveBollettaFromModal = async function() {
       );
     });
     
-    // === CHIUDI IL MODALE DIRETTAMENTE ===
-    const overlay = document.getElementById('bolletta-modal-overlay');
-    if (overlay) {
-      overlay.style.display = 'none';
-    }
-    alert('✅ Bolletta caricata con successo!');
-    
-  } catch (err) {
-    alert('❌ Errore nel caricamento: ' + err.message);
-    console.error('Errore upload:', err);
-  } finally {
-    progressDiv.style.display = 'none';
-    progressFill.style.width = '0%';
-    saveBtn.disabled = false;
-    saveBtn.textContent = 'Salva bolletta';
-  }
-};
-
-  
-// === FUNZIONI GLOBALI PER IL MODALE BOLLETTA ===
-window.openBollettaModal = function() {
-  console.log('📄 Apertura modale nuova bolletta');
-  const overlay = document.getElementById('bolletta-modal-overlay');
-  if (overlay) {
-    overlay.style.display = 'flex';
-    document.getElementById('bolletta-modal-fornitore').value = '';
-    document.getElementById('bolletta-modal-importo').value = '';
-    document.getElementById('bolletta-modal-file').value = '';
-    document.getElementById('bolletta-modal-progress').style.display = 'none';
-    document.getElementById('bolletta-modal-progress-fill').style.width = '0%';
-    
-    const select = document.getElementById('bolletta-modal-mese');
-    if (select) {
-      const currentYear = new Date().getFullYear();
-      const currentMonth = new Date().getMonth() + 1;
-      select.innerHTML = '';
-      for (let i = 0; i < 24; i++) {
-        let year = currentYear;
-        let month = currentMonth - i;
-        if (month <= 0) {
-          month += 12;
-          year--;
-        }
-        const value = `${year}-${String(month).padStart(2, '0')}`;
-        const label = `${FILTER_MONTHS[month - 1]} ${year}`;
-        const option = document.createElement('option');
-        option.value = value;
-        option.textContent = label;
-        select.appendChild(option);
-      }
-      select.value = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
-    }
-    
-    setTimeout(() => {
-      document.getElementById('bolletta-modal-fornitore').focus();
-    }, 100);
-  } else {
-    alert('Errore: modale non trovato! Ricarica la pagina.');
-  }
-};
-
-window.closeBollettaModal = function() {
-  console.log('🔒 Chiusura modale bolletta');
-  const overlay = document.getElementById('bolletta-modal-overlay');
-  if (overlay) {
-    overlay.style.display = 'none';
-  }
-};
-   
     window.closeBolletteModal();
     alert('✅ Bolletta caricata con successo!');
     
@@ -4439,33 +4420,29 @@ async function saveReminders() {
   }
 }
 async function loadBolletteData() {
-  if (!currentUser) return;
-  if (unsubscribeBollette) {
-    unsubscribeBollette();
-    unsubscribeBollette = null;
-  }
-  try {
-    unsubscribeBollette = db.collection('bollette').doc(currentUser.uid).onSnapshot((doc) => {
-      if (doc.exists) {
-        bolletteData = doc.data() || {};
-      } else {
-        bolletteData = {};
-      }
-      
-      // === AGGIUNGI QUESTA RIGA ===
-      populateBollettaYearFilter();
-      
-      if (document.getElementById('page-bollette').classList.contains('active')) {
-        renderBolletteList();
-      }
-    }, (err) => {
-      console.error('Errore caricamento bollette:', err);
-      bolletteData = {};
-    });
-  } catch (err) {
-    console.error('Errore setup bollette:', err);
-    bolletteData = {};
-  }
+if (!currentUser) return;
+if (unsubscribeBollette) {
+unsubscribeBollette();
+unsubscribeBollette = null;
+}
+try {
+unsubscribeBollette = db.collection('bollette').doc(currentUser.uid).onSnapshot((doc) => {
+if (doc.exists) {
+bolletteData = doc.data() || {};
+} else {
+bolletteData = {};
+}
+if (document.getElementById('page-bollette').classList.contains('active')) {
+renderBolletteList();
+}
+}, (err) => {
+console.error('Errore caricamento bollette:', err);
+bolletteData = {};
+});
+} catch (err) {
+console.error('Errore setup bollette:', err);
+bolletteData = {};
+}
 }
 async function saveBolletteData() {
   if (!currentUser) {
@@ -6089,7 +6066,6 @@ select.appendChild(option);
 select.value = currentYear;
 }
 function renderBolletteList() {
-populateBollettaYearFilter();  
 const year = document.getElementById('bolletta-year-filter')?.value || new Date().getFullYear().toString();
 const tbody = document.getElementById('bolletta-table-body');
 const tfoot = document.getElementById('bolletta-table-foot');
@@ -6150,8 +6126,6 @@ tfoot.innerHTML = `
 `;
 }
 }
-window.renderBolletteList = renderBolletteList;
-  
 function getBollettaImporto(tipo, meseKey) {
 const attachments = (bolletteData[tipo] && bolletteData[tipo][meseKey]) || [];
 if (attachments.length === 0) return 0;
@@ -6583,9 +6557,9 @@ if (document.readyState === 'loading') {
 
 // Tentativo extra
 setTimeout(startIncomeExpense, 2000);
-
- 
+  
 // Altri event listener...
+document.getElementById('bolletta-year-filter').addEventListener('change', renderBolletteList);
 document.getElementById('bolletta-detail-close').addEventListener('click', closeBollettaDetail);
 document.getElementById('bolletta-detail-overlay').addEventListener('click', (e) => {
   if (e.target.id === 'bolletta-detail-overlay') closeBollettaDetail();
@@ -7919,16 +7893,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.warn('⚠️ btn-nuovo-evento non trovato');
   }
 });
-  
-// === LISTENER PER IL FILTRO ANNO BOLLETTE ===
-const yearFilter = document.getElementById('bolletta-year-filter');
-if (yearFilter) {
-  yearFilter.addEventListener('change', function() {
-    console.log('📅 Anno selezionato:', this.value);
-    renderBolletteList();
-  });
-  console.log('✅ Listener filtro anno aggiunto');
-}
+
  
 })();
 </script>
