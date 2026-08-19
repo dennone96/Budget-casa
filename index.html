@@ -5984,12 +5984,35 @@ showLoading(false);
 }
 }
 
-// ===== VARIABILI GLOBALI PER LE BOLLETTE =====
-// Dichiarata ALL'INIZIO del file, prima di TUTTE le funzioni
 let bollettaListenerAttached = false;
-
-// ===== FUNZIONI =====
-
+  let bolletteData = {};
+  let unsubscribeBollette = null;
+  
+  // ===== ORA TUTTE LE FUNZIONI =====
+  function attachBollettaYearListener() {
+    if (bollettaListenerAttached) {
+      console.log('ℹ️ Listener già attaccato');
+      return;
+    }
+    
+    const select = document.getElementById('bolletta-year-filter');
+    if (!select) {
+      console.warn('⚠️ Select bolletta-year-filter non trovato');
+      return;
+    }
+    
+    select.removeEventListener('change', handleYearChange);
+    select.addEventListener('change', handleYearChange);
+    
+    bollettaListenerAttached = true;
+    console.log('✅ Listener change attaccato DIRETTAMENTE al select');
+  }
+  
+  function handleYearChange(e) {
+    console.log('🔄 Cambio anno MANUALE dal select:', this.value);
+    renderBolletteList();
+  }
+  
 // 1. Popola il filtro anno
 function populateBollettaYearFilter() {
   const select = document.getElementById('bolletta-year-filter');
@@ -6034,35 +6057,6 @@ function populateBollettaYearFilter() {
   console.log('✅ Filtro anno popolato, valore:', select.value);
 }
 
-// 2. Funzione per attaccare il listener
-function attachBollettaYearListener() {
-  console.log('🔍 bollettaListenerAttached vale:', bollettaListenerAttached);
-  
-  if (typeof bollettaListenerAttached === 'undefined') {
-    console.error('❌ bollettaListenerAttached NON DEFINITA!');
-    bollettaListenerAttached = false; // Forza l'inizializzazione
-  }
-  
-  if (bollettaListenerAttached) {
-    console.log('ℹ️ Listener già attaccato');
-    return;
-  }
-  
-  const select = document.getElementById('bolletta-year-filter');
-  if (!select) {
-    console.warn('⚠️ Select bolletta-year-filter non trovato');
-    return;
-  }
-  
-  // Rimuovi eventuali listener vecchi (per sicurezza)
-  select.removeEventListener('change', handleYearChange);
-  
-  // Attacca il listener DIRETTAMENTE al select
-  select.addEventListener('change', handleYearChange);
-  
-  bollettaListenerAttached = true;
-  console.log('✅ Listener change attaccato DIRETTAMENTE al select');
-}
 
 // 3. Funzione handler per il cambio anno (separata per poterla rimuovere)
 function handleYearChange(e) {
@@ -6460,6 +6454,12 @@ progressDiv.classList.add('hidden');
 alert('Errore nel caricamento: ' + err.message);
 }
 }
+
+  // ===== ESPONI LE FUNZIONI GLOBALMENTE =====
+  window.populateBollettaYearFilter = populateBollettaYearFilter;
+  window.renderBolletteList = renderBolletteList;
+  window.loadBolletteData = loadBolletteData;
+  
 // === FUNZIONE PER APRIRE IL DETTAGLIO ===
 function openIncomeExpenseDetail(type) {
   console.log('🔍 Apertura dettaglio:', type);
@@ -6636,7 +6636,8 @@ function initIncomeExpenseListeners() {
     console.error('❌ overlay non trovato!');
   }
 }
-
+  
+  
 // === ESPONI LE FUNZIONI GLOBALMENTE ===
 window.openIncomeExpenseDetail = openIncomeExpenseDetail;
 window.closeIncomeExpenseDetail = closeIncomeExpenseDetail;
