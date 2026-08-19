@@ -2970,36 +2970,12 @@ Budget
     <p id="stat-residuo">0,00 €</p>
   </div>
 </div>
-<div class="panel">
-<h3 style="margin:0 0 1rem; font-size:18px; font-weight:800; letter-spacing:-0.3px;">Nuovo movimento</h3>
-<div class="ios-row">
-<span class="ios-label">Tipo</span>
-<div class="tabs" style="flex:1; margin:0; border:none; background:none; padding:4px 0;">
-<button id="tab-expense" class="active">Uscita</button>
-<button id="tab-income">Entrata</button>
-</div>
-</div>
-<div class="ios-row">
-<span class="ios-label">Descrizione</span>
-<input type="text" id="inp-desc" placeholder="es. Spesa Esselunga" class="ios-input ios-input-field">
-</div>
-<div class="ios-row">
-<span class="ios-label">Importo €</span>
-<input type="number" id="inp-amount" placeholder="0,00" min="0" step="0.01" class="ios-input ios-input-field" style="text-align:right;">
-</div>
-<div class="ios-row">
-<span class="ios-label">Categoria</span>
-<select id="inp-category" class="ios-select ios-input-field"></select>
-</div>
-<div class="ios-row" style="border-bottom:none;">
-<span class="ios-label">Data</span>
-<input type="date" id="inp-date" class="ios-input ios-input-field" style="text-align:right;">
-</div>
-<div style="margin-top:1rem;">
-<button id="btn-add" style="width:100%; height:50px; background:var(--accent-gradient); color:#fff; border:none; border-radius:var(--radius-sm); font-size:15px; font-weight:700; cursor:pointer; box-shadow:var(--shadow);">
-Aggiungi movimento
-</button>
-</div>
+<div class="panel" style="text-align: center; padding: 2rem;">
+  <button id="btn-nuovo-movimento" 
+          onclick="window.openMovimentoModal()"
+          style="width: 100%; height: 56px; background: var(--accent-gradient); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 18px; font-weight: 700; cursor: pointer; box-shadow: var(--shadow); transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 12px;">
+    <i class="ti ti-plus" style="font-size:24px;"></i> Nuovo Movimento
+  </button>
 </div>
 <div style="margin-bottom: 1rem; margin-top:2rem;">
 <h2>Movimenti</h2>
@@ -6002,6 +5978,172 @@ console.error(err);
 showLoading(false);
 }
 }
+
+// === VARIABILE PER IL TIPO NEL MODALE MOVIMENTO ===
+let modalMovimentoType = 'expense';
+
+// === APRI IL MODALE MOVIMENTO ===
+window.openMovimentoModal = function() {
+  console.log('📄 Apertura modale nuovo movimento');
+  const overlay = document.getElementById('movimento-modal-overlay');
+  if (overlay) {
+    overlay.style.display = 'flex';
+    
+    // Resetta i campi
+    document.getElementById('modal-movimento-desc').value = '';
+    document.getElementById('modal-movimento-importo').value = '';
+    document.getElementById('modal-movimento-data').value = todayISO();
+    
+    // Imposta il tipo predefinito (Uscita)
+    setModalMovimentoType('expense');
+    
+    // Popola le categorie
+    populateModalMovimentoCategories('expense');
+    
+    setTimeout(() => {
+      document.getElementById('modal-movimento-desc').focus();
+    }, 100);
+  }
+};
+
+// === CHIUDI IL MODALE MOVIMENTO ===
+window.closeMovimentoModal = function() {
+  console.log('🔒 Chiusura modale movimento');
+  const overlay = document.getElementById('movimento-modal-overlay');
+  if (overlay) {
+    overlay.style.display = 'none';
+  }
+};
+
+// === IMPOSTA IL TIPO NEL MODALE ===
+function setModalMovimentoType(type) {
+  modalMovimentoType = type;
+  
+  const btnExpense = document.getElementById('modal-tab-expense');
+  const btnIncome = document.getElementById('modal-tab-income');
+  
+  // Rimuovi stile attivo da entrambi
+  btnExpense.style.background = 'var(--surface)';
+  btnExpense.style.borderColor = 'var(--border)';
+  btnExpense.style.color = 'var(--text-primary)';
+  btnIncome.style.background = 'var(--surface)';
+  btnIncome.style.borderColor = 'var(--border)';
+  btnIncome.style.color = 'var(--text-primary)';
+  
+  // Applica stile attivo a quello selezionato
+  if (type === 'expense') {
+    btnExpense.style.background = 'var(--accent-gradient)';
+    btnExpense.style.borderColor = 'var(--accent)';
+    btnExpense.style.color = '#fff';
+  } else {
+    btnIncome.style.background = 'var(--accent-gradient)';
+    btnIncome.style.borderColor = 'var(--accent)';
+    btnIncome.style.color = '#fff';
+  }
+  
+  // Aggiorna le categorie
+  populateModalMovimentoCategories(type);
+}
+
+// === POPOLA LE CATEGORIE NEL MODALE ===
+function populateModalMovimentoCategories(type) {
+  const sel = document.getElementById('modal-movimento-categoria');
+  sel.innerHTML = '';
+  (state.categories[type] || []).forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c;
+    opt.textContent = c;
+    sel.appendChild(opt);
+  });
+}
+
+// === SALVA IL MOVIMENTO DAL MODALE ===
+window.saveMovimentoFromModal = async function() {
+  console.log('💾 Salvataggio movimento dal modale');
+  
+  const desc = document.getElementById('modal-movimento-desc').value.trim();
+  const importoStr = document.getElementById('modal-movimento-importo').value;
+  const importo = parseFloat(importoStr);
+  const categoria = document.getElementById('modal-movimento-categoria').value;
+  const data = document.getElementById('modal-movimento-data').value || todayISO();
+  
+  // Validazione
+  if (!desc) {
+    alert('Inserisci una descrizione');
+    document.getElementById('modal-movimento-desc').focus();
+    return;
+  }
+  
+  if (isNaN(importo) || importo <= 0) {
+    alert('Inserisci un importo valido');
+    document.getElementById('modal-movimento-importo').focus();
+    return;
+  }
+  
+  // Aggiungi il movimento
+  state.transactions.push({
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2,7),
+    type: modalMovimentoType,
+    description: desc,
+    amount: Math.round(importo * 100) / 100,
+    category: categoria,
+    date: data,
+    source: 'cash'
+  });
+  
+  await saveTransactions();
+  renderAll();
+  
+  window.closeMovimentoModal();
+  console.log('✅ Movimento aggiunto con successo!');
+};
+
+// === LISTENER PER I PULSANTI TIPO NEL MODALE ===
+document.addEventListener('DOMContentLoaded', function() {
+  const btnExpense = document.getElementById('modal-tab-expense');
+  const btnIncome = document.getElementById('modal-tab-income');
+  
+  if (btnExpense) {
+    btnExpense.addEventListener('click', function() {
+      setModalMovimentoType('expense');
+    });
+  }
+  
+  if (btnIncome) {
+    btnIncome.addEventListener('click', function() {
+      setModalMovimentoType('income');
+    });
+  }
+  
+  // Invio con Enter
+  const descInput = document.getElementById('modal-movimento-desc');
+  if (descInput) {
+    descInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        document.getElementById('modal-movimento-importo').focus();
+      }
+    });
+  }
+  
+  const importoInput = document.getElementById('modal-movimento-importo');
+  if (importoInput) {
+    importoInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        window.saveMovimentoFromModal();
+      }
+    });
+  }
+  
+  // Click fuori dal modale per chiudere
+  const overlay = document.getElementById('movimento-modal-overlay');
+  if (overlay) {
+    overlay.addEventListener('click', function(e) {
+      if (e.target === this) {
+        window.closeMovimentoModal();
+      }
+    });
+  }
+});
   
   // ===== ORA TUTTE LE FUNZIONI =====
   function attachBollettaYearListener() {
@@ -8016,7 +8158,60 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
- 
+<!-- MODALE NUOVO MOVIMENTO -->
+<div id="movimento-modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(15,25,35,0.6); backdrop-filter:blur(8px); z-index:1000; align-items:center; justify-content:center; padding:20px;">
+  <div style="background:var(--surface); border-radius:var(--radius-lg); padding:28px; width:100%; max-width:500px; box-shadow:var(--shadow-xl); animation:modalIn 0.3s ease;">
+    <h3 style="margin:0 0 8px; font-size:20px; font-weight:800;">💰 Nuovo movimento</h3>
+    <p style="margin:0 0 16px; font-size:13px; color:var(--text-muted); font-weight:600;">Inserisci i dettagli del movimento</p>
+    
+    <!-- Tipo -->
+    <div style="margin-bottom:14px;">
+      <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:4px;">Tipo *</label>
+      <div style="display:flex; gap:10px;">
+        <button id="modal-tab-expense" class="active" style="flex:1; padding:10px; border-radius:var(--radius-sm); border:2px solid var(--border); background:var(--surface); font-weight:700; cursor:pointer; transition:all 0.2s; font-family:inherit; color:var(--text-primary);">Uscita</button>
+        <button id="modal-tab-income" style="flex:1; padding:10px; border-radius:var(--radius-sm); border:2px solid var(--border); background:var(--surface); font-weight:700; cursor:pointer; transition:all 0.2s; font-family:inherit; color:var(--text-primary);">Entrata</button>
+      </div>
+    </div>
+    
+    <!-- Descrizione -->
+    <div style="margin-bottom:14px;">
+      <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:4px;">Descrizione *</label>
+      <input type="text" id="modal-movimento-desc" placeholder="es. Spesa Esselunga" style="width:100%; height:44px; border-radius:var(--radius-sm); border:1.5px solid var(--border); padding:0 14px; font-size:14px; font-weight:600; background:var(--surface-2); color:var(--text-primary);">
+    </div>
+    
+    <!-- Importo -->
+    <div style="margin-bottom:14px;">
+      <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:4px;">Importo (€) *</label>
+      <input type="number" id="modal-movimento-importo" placeholder="0,00" min="0" step="0.01" style="width:100%; height:44px; border-radius:var(--radius-sm); border:1.5px solid var(--border); padding:0 14px; font-size:14px; font-weight:600; background:var(--surface-2); color:var(--text-primary); text-align:right;">
+    </div>
+    
+    <!-- Categoria -->
+    <div style="margin-bottom:14px;">
+      <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:4px;">Categoria *</label>
+      <select id="modal-movimento-categoria" style="width:100%; height:44px; border-radius:var(--radius-sm); border:1.5px solid var(--border); padding:0 14px; font-size:14px; font-weight:600; background:var(--surface-2); color:var(--text-primary);"></select>
+    </div>
+    
+    <!-- Data -->
+    <div style="margin-bottom:14px;">
+      <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:4px;">Data</label>
+      <input type="date" id="modal-movimento-data" style="width:100%; height:44px; border-radius:var(--radius-sm); border:1.5px solid var(--border); padding:0 14px; font-size:14px; font-weight:600; background:var(--surface-2); color:var(--text-primary);">
+    </div>
+    
+    <!-- Pulsanti -->
+    <div style="display:flex; gap:10px; margin-top:16px;">
+      <button id="modal-movimento-cancel" 
+              onclick="window.closeMovimentoModal()"
+              style="flex:1; height:46px; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; background:var(--surface-2); border:1px solid var(--border); color:var(--text-secondary);">
+        Annulla
+      </button>
+      <button id="modal-movimento-save" 
+              onclick="window.saveMovimentoFromModal()"
+              style="flex:2; height:46px; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; background:var(--accent-gradient); color:#fff; border:none;">
+        Aggiungi movimento
+      </button>
+    </div>
+  </div>
+</div> 
 })();
 </script>
 </body>
