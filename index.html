@@ -6025,10 +6025,37 @@ function populateBollettaYearFilter() {
     select.value = currentYear;
   }
   
+  // ⚠️ ATTACCA IL LISTENER QUI, DOPO CHE IL SELECT È STATO POPOLATO
+  attachBollettaYearListener();
+  
   console.log('✅ Filtro anno popolato, valore:', select.value);
 }
 
-// 2. Renderizza la tabella (usa il valore corrente del select)
+// 2. Funzione per attaccare il listener (con controllo)
+function attachBollettaYearListener() {
+  // Se il listener è già attaccato, esci
+  if (bollettaListenerAttached) {
+    console.log('ℹ️ Listener già attaccato');
+    return;
+  }
+  
+  const select = document.getElementById('bolletta-year-filter');
+  if (!select) {
+    console.warn('⚠️ Select bolletta-year-filter non trovato');
+    return;
+  }
+  
+  // Attacca il listener DIRETTAMENTE al select (non al documento)
+  select.addEventListener('change', function(e) {
+    console.log('🔄 Cambio anno MANUALE dal select:', this.value);
+    renderBolletteList(); // aggiorna la tabella
+  });
+  
+  bollettaListenerAttached = true;
+  console.log('✅ Listener change attaccato DIRETTAMENTE al select');
+}
+
+// 3. Renderizza la tabella (usa il valore corrente del select)
 function renderBolletteList() {
   const year = document.getElementById('bolletta-year-filter')?.value || new Date().getFullYear().toString();
   console.log('📊 renderBolletteList con anno:', year);
@@ -6096,15 +6123,6 @@ function renderBolletteList() {
   }
 }
 
-// 3. Listener UNICO per il cambio anno (delegato al documento)
-// ⚠️ ATTENZIONE: questo è l'UNICO listener per il cambio anno!
-document.addEventListener('change', function(e) {
-  if (e.target && e.target.id === 'bolletta-year-filter') {
-    console.log('🔄 Cambio anno MANUALE:', e.target.value);
-    renderBolletteList(); // aggiorna la tabella con il nuovo anno
-  }
-});
-
 // 4. Caricamento dati bollette (chiama populate solo quando i dati cambiano)
 async function loadBolletteData() {
   if (!currentUser) return;
@@ -6157,7 +6175,7 @@ function populateBollettaMeseSelect() {
   }
   const currentMonthKey = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
   select.value = currentMonthKey;
-  populateBollettaYearFilter(); // aggiorna il filtro anno se necessario
+  populateBollettaYearFilter(); // aggiorna il filtro anno
 }
 
 // ... resto delle funzioni (getBollettaImporto, renderBollettaCell, openBollettaDetail, ecc.)
