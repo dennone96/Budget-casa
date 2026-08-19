@@ -2518,9 +2518,12 @@ border-radius: var(--radius-sm);
 
 /* Barra aggiungi elemento */
 .lista-add-bar {
-  display: flex;
-  gap: 10px;
-  margin-top: 16px;
+  background: var(--surface-2);
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  margin-top: 0 !important;
+  margin-bottom: 16px !important;
 }
 .lista-add-bar input {
   flex: 1;
@@ -7506,6 +7509,12 @@ function openListDetail(listId) {
       </div>
     </div>
     
+    <!-- BARRA AGGIUNGI ELEMENTI SPOSTATA IN CIMA -->
+    <div class="lista-add-bar" style="margin-top: 0; margin-bottom: 16px;">
+      <input type="text" id="nuovo-item-input" placeholder="Aggiungi un elemento...">
+      <button class="btn-add-item-principale" id="btn-add-item">Aggiungi</button>
+    </div>
+    
     <div id="items-container-principale">
   `;
   
@@ -7530,11 +7539,6 @@ function openListDetail(listId) {
   }
   
   html += `
-    </div>
-    
-    <div class="lista-add-bar">
-      <input type="text" id="nuovo-item-input" placeholder="Aggiungi un elemento...">
-      <button class="btn-add-item-principale" id="btn-add-item">Aggiungi</button>
     </div>
   `;
   
