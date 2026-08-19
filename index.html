@@ -6036,7 +6036,13 @@ function populateBollettaYearFilter() {
 
 // 2. Funzione per attaccare il listener
 function attachBollettaYearListener() {
-  // Se il listener è già attaccato, esci
+  console.log('🔍 bollettaListenerAttached vale:', bollettaListenerAttached);
+  
+  if (typeof bollettaListenerAttached === 'undefined') {
+    console.error('❌ bollettaListenerAttached NON DEFINITA!');
+    bollettaListenerAttached = false; // Forza l'inizializzazione
+  }
+  
   if (bollettaListenerAttached) {
     console.log('ℹ️ Listener già attaccato');
     return;
