@@ -4432,6 +4432,8 @@ async function loadBolletteData() {
       } else {
         bolletteData = {};
       }
+      
+      // === AGGIUNGI QUESTA RIGA (DOPO il caricamento) ===
       populateBollettaYearFilter();
       
       if (document.getElementById('page-bollette').classList.contains('active')) {
@@ -6092,6 +6094,7 @@ populateBollettaYearFilter();
 }
 
 function renderBolletteList() {
+populateBollettaYearFilter();
 const year = document.getElementById('bolletta-year-filter')?.value || new Date().getFullYear().toString();
 const tbody = document.getElementById('bolletta-table-body');
 const tfoot = document.getElementById('bolletta-table-foot');
@@ -6585,14 +6588,7 @@ if (document.readyState === 'loading') {
 setTimeout(startIncomeExpense, 2000);
   
 // Altri event listener...
-document.addEventListener('DOMContentLoaded', function() {
-  const yearFilter = document.getElementById('bolletta-year-filter');
-  if (yearFilter) {
-    yearFilter.addEventListener('change', function() {
-      renderBolletteList();
-    });
-  }
-});
+document.getElementById('bolletta-year-filter').addEventListener('change', renderBolletteList);
 document.getElementById('bolletta-detail-close').addEventListener('click', closeBollettaDetail);
 document.getElementById('bolletta-detail-overlay').addEventListener('click', (e) => {
   if (e.target.id === 'bolletta-detail-overlay') closeBollettaDetail();
