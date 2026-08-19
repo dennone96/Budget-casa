@@ -6096,6 +6096,13 @@ function renderBolletteList() {
     `;
   }
 }
+// Aggiungi questo codice UNA VOLTA all'inizio del tuo script (dopo la definizione di renderBolletteList)
+document.addEventListener('change', function(e) {
+  if (e.target && e.target.id === 'bolletta-year-filter') {
+    console.log('🔄 Cambio anno bolletta:', e.target.value);
+    renderBolletteList(); // aggiorna la tabella in tempo reale
+  }
+});  
 
 // 3. Caricamento dati bollette (chiama populate solo quando i dati cambiano)
 async function loadBolletteData() {
