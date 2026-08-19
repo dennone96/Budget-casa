@@ -5984,10 +5984,13 @@ showLoading(false);
 }
 }
 
-// Variabile per tenere traccia se il listener è già stato attivato
+// ===== VARIABILI GLOBALI PER LE BOLLETTE =====
+// Dichiarata ALL'INIZIO del file, prima di TUTTE le funzioni
 let bollettaListenerAttached = false;
 
-// 1. Popola il filtro anno (senza forzare il rendering)
+// ===== FUNZIONI =====
+
+// 1. Popola il filtro anno
 function populateBollettaYearFilter() {
   const select = document.getElementById('bolletta-year-filter');
   if (!select) return;
@@ -6025,13 +6028,13 @@ function populateBollettaYearFilter() {
     select.value = currentYear;
   }
   
-  // ⚠️ ATTACCA IL LISTENER QUI, DOPO CHE IL SELECT È STATO POPOLATO
+  // Attacca il listener DOPO che il select è stato popolato
   attachBollettaYearListener();
   
   console.log('✅ Filtro anno popolato, valore:', select.value);
 }
 
-// 2. Funzione per attaccare il listener (con controllo)
+// 2. Funzione per attaccare il listener
 function attachBollettaYearListener() {
   // Se il listener è già attaccato, esci
   if (bollettaListenerAttached) {
@@ -6045,17 +6048,23 @@ function attachBollettaYearListener() {
     return;
   }
   
-  // Attacca il listener DIRETTAMENTE al select (non al documento)
-  select.addEventListener('change', function(e) {
-    console.log('🔄 Cambio anno MANUALE dal select:', this.value);
-    renderBolletteList(); // aggiorna la tabella
-  });
+  // Rimuovi eventuali listener vecchi (per sicurezza)
+  select.removeEventListener('change', handleYearChange);
+  
+  // Attacca il listener DIRETTAMENTE al select
+  select.addEventListener('change', handleYearChange);
   
   bollettaListenerAttached = true;
   console.log('✅ Listener change attaccato DIRETTAMENTE al select');
 }
 
-// 3. Renderizza la tabella (usa il valore corrente del select)
+// 3. Funzione handler per il cambio anno (separata per poterla rimuovere)
+function handleYearChange(e) {
+  console.log('🔄 Cambio anno MANUALE dal select:', this.value);
+  renderBolletteList(); // aggiorna la tabella
+}
+
+// 4. Renderizza la tabella (usa il valore corrente del select)
 function renderBolletteList() {
   const year = document.getElementById('bolletta-year-filter')?.value || new Date().getFullYear().toString();
   console.log('📊 renderBolletteList con anno:', year);
@@ -6068,7 +6077,10 @@ function renderBolletteList() {
   
   let totalGas = 0, totalLuce = 0, totalAcqua = 0;
   
-  FILTER_MONTHS.forEach((monthName, monthIndex) => {
+  // Usa FILTER_MONTHS (assicurati che sia definito)
+  const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+  
+  monthNames.forEach((monthName, monthIndex) => {
     const monthNum = monthIndex + 1;
     const meseKey = `${year}-${String(monthNum).padStart(2, '0')}`;
     const tr = document.createElement('tr');
@@ -6123,7 +6135,7 @@ function renderBolletteList() {
   }
 }
 
-// 4. Caricamento dati bollette (chiama populate solo quando i dati cambiano)
+// 5. Caricamento dati bollette
 async function loadBolletteData() {
   if (!currentUser) return;
   if (unsubscribeBollette) {
@@ -6138,11 +6150,11 @@ async function loadBolletteData() {
         bolletteData = {};
       }
       
-      // Aggiorna le opzioni del filtro (nuovi anni potrebbero essere apparsi)
+      // Aggiorna le opzioni del filtro
       populateBollettaYearFilter();
       
       // Se la pagina è attiva, ridisegna la tabella
-      if (document.getElementById('page-bollette').classList.contains('active')) {
+      if (document.getElementById('page-bollette')?.classList?.contains('active')) {
         renderBolletteList();
       }
     }, (err) => {
@@ -6155,7 +6167,7 @@ async function loadBolletteData() {
   }
 }
 
-// 5. Popola il select del mese per il modale
+// 6. Popola il select del mese per il modale
 function populateBollettaMeseSelect() {
   const select = document.getElementById('bolletta-mese');
   if (!select) return;
@@ -6175,10 +6187,44 @@ function populateBollettaMeseSelect() {
   }
   const currentMonthKey = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
   select.value = currentMonthKey;
-  populateBollettaYearFilter(); // aggiorna il filtro anno
+  populateBollettaYearFilter();
 }
 
-// ... resto delle funzioni (getBollettaImporto, renderBollettaCell, openBollettaDetail, ecc.)
+// 7. Funzioni helper
+function getBollettaImporto(tipo, meseKey) {
+  const attachments = (bolletteData[tipo] && bolletteData[tipo][meseKey]) || [];
+  if (attachments.length === 0) return 0;
+  const bolletta = attachments[attachments.length - 1];
+  return bolletta.importo || 0;
+}
+
+function renderBollettaCell(td, tipo, meseKey, monthName) {
+  const attachments = (bolletteData[tipo] && bolletteData[tipo][meseKey]) || [];
+  if (attachments.length === 0) {
+    td.className = 'bolletta-cell-empty';
+    td.textContent = '—';
+    return;
+  }
+  td.className = 'bolletta-cell-attachment';
+  const bolletta = attachments[attachments.length - 1];
+  const importoFormattato = bolletta.importo.toLocaleString('it-IT', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }) + ' €';
+  
+  td.innerHTML = `<span style="font-weight:700; font-size:15px;">${importoFormattato}</span>`;
+  
+  if (attachments.length > 1) {
+    td.innerHTML += ` <span class="bolletta-multi-badge">+${attachments.length - 1}</span>`;
+  }
+  
+  td.addEventListener('click', function(e) {
+    e.stopPropagation();
+    openBollettaDetail(tipo, meseKey, attachments.length - 1);
+  });
+}
+
+// ... resto delle funzioni (openBollettaDetail, closeBollettaDetail, deleteBollettaFromDetail, ecc.)
 
 function getBollettaImporto(tipo, meseKey) {
 const attachments = (bolletteData[tipo] && bolletteData[tipo][meseKey]) || [];
