@@ -6094,8 +6094,13 @@ populateBollettaYearFilter();
 }
 
 function renderBolletteList() {
-populateBollettaYearFilter();
-const year = document.getElementById('bolletta-year-filter')?.value || new Date().getFullYear().toString();
+  const prevYear = document.getElementById('bolletta-year-filter')?.value;
+  populateBollettaYearFilter();
+  if (prevYear) {
+    const sel = document.getElementById('bolletta-year-filter');
+    if (sel && [...sel.options].some(o => o.value === prevYear)) sel.value = prevYear;
+  }
+  const year = document.getElementById('bolletta-year-filter')?.value || new Date().getFullYear().toString();
 const tbody = document.getElementById('bolletta-table-body');
 const tfoot = document.getElementById('bolletta-table-foot');
 if (!tbody) return;
