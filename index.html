@@ -3868,6 +3868,7 @@ const DEFAULT_CATEGORY_COLORS = {
 
 let state = { transactions: [], categories: DEFAULT_CATEGORIES, budgets: {}, reminders: [], currentType: 'expense' };
 let categoryColors = {};
+let bollettaListenerAttached = false;
 let bolletteData = {};
 let bollettaDetailData = null;
 let unsubscribeBollette = null;
@@ -5983,8 +5984,6 @@ console.error(err);
 showLoading(false);
 }
 }
-
-let bollettaListenerAttached = false;
   
   // ===== ORA TUTTE LE FUNZIONI =====
   function attachBollettaYearListener() {
