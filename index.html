@@ -3858,164 +3858,6 @@ window.deleteBollettaFromDetail = deleteBollettaFromDetail
   </div>
 </div>
   
-// === VARIABILE PER IL TIPO NEL MODALE MOVIMENTO ===
-let modalMovimentoType = 'expense';
-
-// === APRI IL MODALE MOVIMENTO ===
-window.openMovimentoModal = function() {
-  console.log('📄 Apertura modale nuovo movimento');
-  const overlay = document.getElementById('movimento-modal-overlay');
-  if (overlay) {
-    overlay.style.display = 'flex';
-    
-    document.getElementById('modal-movimento-desc').value = '';
-    document.getElementById('modal-movimento-importo').value = '';
-    document.getElementById('modal-movimento-data').value = todayISO();
-    
-    setModalMovimentoType('expense');
-    populateModalMovimentoCategories('expense');
-    
-    setTimeout(() => {
-      document.getElementById('modal-movimento-desc').focus();
-    }, 100);
-  }
-};
-
-// === CHIUDI IL MODALE MOVIMENTO ===
-window.closeMovimentoModal = function() {
-  console.log('🔒 Chiusura modale movimento');
-  const overlay = document.getElementById('movimento-modal-overlay');
-  if (overlay) {
-    overlay.style.display = 'none';
-  }
-};
-
-// === IMPOSTA IL TIPO NEL MODALE ===
-function setModalMovimentoType(type) {
-  modalMovimentoType = type;
-  
-  const btnExpense = document.getElementById('modal-tab-expense');
-  const btnIncome = document.getElementById('modal-tab-income');
-  
-  if (!btnExpense || !btnIncome) return;
-  
-  btnExpense.style.background = 'var(--surface)';
-  btnExpense.style.borderColor = 'var(--border)';
-  btnExpense.style.color = 'var(--text-primary)';
-  btnIncome.style.background = 'var(--surface)';
-  btnIncome.style.borderColor = 'var(--border)';
-  btnIncome.style.color = 'var(--text-primary)';
-  
-  if (type === 'expense') {
-    btnExpense.style.background = 'var(--accent-gradient)';
-    btnExpense.style.borderColor = 'var(--accent)';
-    btnExpense.style.color = '#fff';
-  } else {
-    btnIncome.style.background = 'var(--accent-gradient)';
-    btnIncome.style.borderColor = 'var(--accent)';
-    btnIncome.style.color = '#fff';
-  }
-  
-  populateModalMovimentoCategories(type);
-}
-
-// === POPOLA LE CATEGORIE NEL MODALE ===
-function populateModalMovimentoCategories(type) {
-  const sel = document.getElementById('modal-movimento-categoria');
-  if (!sel) return;
-  sel.innerHTML = '';
-  (state.categories[type] || []).forEach(c => {
-    const opt = document.createElement('option');
-    opt.value = c;
-    opt.textContent = c;
-    sel.appendChild(opt);
-  });
-}
-
-// === SALVA IL MOVIMENTO DAL MODALE ===
-window.saveMovimentoFromModal = async function() {
-  console.log('💾 Salvataggio movimento dal modale');
-  
-  const desc = document.getElementById('modal-movimento-desc').value.trim();
-  const importoStr = document.getElementById('modal-movimento-importo').value;
-  const importo = parseFloat(importoStr);
-  const categoria = document.getElementById('modal-movimento-categoria').value;
-  const data = document.getElementById('modal-movimento-data').value || todayISO();
-  
-  if (!desc) {
-    alert('Inserisci una descrizione');
-    document.getElementById('modal-movimento-desc').focus();
-    return;
-  }
-  
-  if (isNaN(importo) || importo <= 0) {
-    alert('Inserisci un importo valido');
-    document.getElementById('modal-movimento-importo').focus();
-    return;
-  }
-  
-  state.transactions.push({
-    id: Date.now().toString(36) + Math.random().toString(36).slice(2,7),
-    type: modalMovimentoType,
-    description: desc,
-    amount: Math.round(importo * 100) / 100,
-    category: categoria,
-    date: data,
-    source: 'cash'
-  });
-  
-  await saveTransactions();
-  renderAll();
-  window.closeMovimentoModal();
-  console.log('✅ Movimento aggiunto con successo!');
-};
-
-// === LISTENER PER I PULSANTI TIPO NEL MODALE ===
-document.addEventListener('DOMContentLoaded', function() {
-  const btnExpense = document.getElementById('modal-tab-expense');
-  const btnIncome = document.getElementById('modal-tab-income');
-  
-  if (btnExpense) {
-    btnExpense.addEventListener('click', function() {
-      setModalMovimentoType('expense');
-    });
-  }
-  
-  if (btnIncome) {
-    btnIncome.addEventListener('click', function() {
-      setModalMovimentoType('income');
-    });
-  }
-  
-  // Click fuori dal modale per chiudere
-  const overlay = document.getElementById('movimento-modal-overlay');
-  if (overlay) {
-    overlay.addEventListener('click', function(e) {
-      if (e.target === this) {
-        window.closeMovimentoModal();
-      }
-    });
-  }
-  
-  // Invio con Enter
-  const descInput = document.getElementById('modal-movimento-desc');
-  if (descInput) {
-    descInput.addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        document.getElementById('modal-movimento-importo').focus();
-      }
-    });
-  }
-  
-  const importoInput = document.getElementById('modal-movimento-importo');
-  if (importoInput) {
-    importoInput.addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        window.saveMovimentoFromModal();
-      }
-    });
-  }
-});  
   
 // === FIX CLICK ENTRATE/USCITE ===
 document.addEventListener('DOMContentLoaded', function() {
@@ -4628,7 +4470,166 @@ async function saveReminders() {
     console.error('Errore salvataggio promemoria:', e);
   }
 }
+  
+// === VARIABILE PER IL TIPO NEL MODALE MOVIMENTO ===
+let modalMovimentoType = 'expense';
 
+// === APRI IL MODALE MOVIMENTO ===
+window.openMovimentoModal = function() {
+  console.log('📄 Apertura modale nuovo movimento');
+  const overlay = document.getElementById('movimento-modal-overlay');
+  if (overlay) {
+    overlay.style.display = 'flex';
+    
+    document.getElementById('modal-movimento-desc').value = '';
+    document.getElementById('modal-movimento-importo').value = '';
+    document.getElementById('modal-movimento-data').value = todayISO();
+    
+    setModalMovimentoType('expense');
+    populateModalMovimentoCategories('expense');
+    
+    setTimeout(() => {
+      document.getElementById('modal-movimento-desc').focus();
+    }, 100);
+  }
+};
+
+// === CHIUDI IL MODALE MOVIMENTO ===
+window.closeMovimentoModal = function() {
+  console.log('🔒 Chiusura modale movimento');
+  const overlay = document.getElementById('movimento-modal-overlay');
+  if (overlay) {
+    overlay.style.display = 'none';
+  }
+};
+
+// === IMPOSTA IL TIPO NEL MODALE ===
+function setModalMovimentoType(type) {
+  modalMovimentoType = type;
+  
+  const btnExpense = document.getElementById('modal-tab-expense');
+  const btnIncome = document.getElementById('modal-tab-income');
+  
+  if (!btnExpense || !btnIncome) return;
+  
+  btnExpense.style.background = 'var(--surface)';
+  btnExpense.style.borderColor = 'var(--border)';
+  btnExpense.style.color = 'var(--text-primary)';
+  btnIncome.style.background = 'var(--surface)';
+  btnIncome.style.borderColor = 'var(--border)';
+  btnIncome.style.color = 'var(--text-primary)';
+  
+  if (type === 'expense') {
+    btnExpense.style.background = 'var(--accent-gradient)';
+    btnExpense.style.borderColor = 'var(--accent)';
+    btnExpense.style.color = '#fff';
+  } else {
+    btnIncome.style.background = 'var(--accent-gradient)';
+    btnIncome.style.borderColor = 'var(--accent)';
+    btnIncome.style.color = '#fff';
+  }
+  
+  populateModalMovimentoCategories(type);
+}
+
+// === POPOLA LE CATEGORIE NEL MODALE ===
+function populateModalMovimentoCategories(type) {
+  const sel = document.getElementById('modal-movimento-categoria');
+  if (!sel) return;
+  sel.innerHTML = '';
+  (state.categories[type] || []).forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c;
+    opt.textContent = c;
+    sel.appendChild(opt);
+  });
+}
+
+// === SALVA IL MOVIMENTO DAL MODALE ===
+window.saveMovimentoFromModal = async function() {
+  console.log('💾 Salvataggio movimento dal modale');
+  
+  const desc = document.getElementById('modal-movimento-desc').value.trim();
+  const importoStr = document.getElementById('modal-movimento-importo').value;
+  const importo = parseFloat(importoStr);
+  const categoria = document.getElementById('modal-movimento-categoria').value;
+  const data = document.getElementById('modal-movimento-data').value || todayISO();
+  
+  if (!desc) {
+    alert('Inserisci una descrizione');
+    document.getElementById('modal-movimento-desc').focus();
+    return;
+  }
+  
+  if (isNaN(importo) || importo <= 0) {
+    alert('Inserisci un importo valido');
+    document.getElementById('modal-movimento-importo').focus();
+    return;
+  }
+  
+  state.transactions.push({
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2,7),
+    type: modalMovimentoType,
+    description: desc,
+    amount: Math.round(importo * 100) / 100,
+    category: categoria,
+    date: data,
+    source: 'cash'
+  });
+  
+  await saveTransactions();
+  renderAll();
+  window.closeMovimentoModal();
+  console.log('✅ Movimento aggiunto con successo!');
+};
+
+// === LISTENER PER I PULSANTI TIPO NEL MODALE ===
+document.addEventListener('DOMContentLoaded', function() {
+  const btnExpense = document.getElementById('modal-tab-expense');
+  const btnIncome = document.getElementById('modal-tab-income');
+  
+  if (btnExpense) {
+    btnExpense.addEventListener('click', function() {
+      setModalMovimentoType('expense');
+    });
+  }
+  
+  if (btnIncome) {
+    btnIncome.addEventListener('click', function() {
+      setModalMovimentoType('income');
+    });
+  }
+  
+  // Click fuori dal modale per chiudere
+  const overlay = document.getElementById('movimento-modal-overlay');
+  if (overlay) {
+    overlay.addEventListener('click', function(e) {
+      if (e.target === this) {
+        window.closeMovimentoModal();
+      }
+    });
+  }
+  
+  // Invio con Enter
+  const descInput = document.getElementById('modal-movimento-desc');
+  if (descInput) {
+    descInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        document.getElementById('modal-movimento-importo').focus();
+      }
+    });
+  }
+  
+  const importoInput = document.getElementById('modal-movimento-importo');
+  if (importoInput) {
+    importoInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        window.saveMovimentoFromModal();
+      }
+    });
+  }
+});  
+  
 function setTab(type) {
 state.currentType = type;
 document.getElementById('tab-expense').classList.toggle('active', type === 'expense');
