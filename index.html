@@ -4633,19 +4633,43 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
   
+// === SETTAB MODIFICATA (SICURA) ===
 function setTab(type) {
-state.currentType = type;
-document.getElementById('tab-expense').classList.toggle('active', type === 'expense');
-document.getElementById('tab-income').classList.toggle('active', type === 'income');
-populateCategorySelect();
+  state.currentType = type;
+  
+  // Controlla se i tab esistono prima di modificarli
+  var expenseTab = document.getElementById('tab-expense');
+  var incomeTab = document.getElementById('tab-income');
+  
+  if (expenseTab) {
+    expenseTab.classList.toggle('active', type === 'expense');
+  }
+  if (incomeTab) {
+    incomeTab.classList.toggle('active', type === 'income');
+  }
+  
+  // Popola il select delle categorie solo se esiste
+  var categorySelect = document.getElementById('inp-category');
+  if (categorySelect) {
+    populateCategorySelect();
+  }
 }
+
+// === POPULATE CATEGORY SELECT MODIFICATA (SICURA) ===
 function populateCategorySelect() {
-const sel = document.getElementById('inp-category');
-sel.innerHTML = '';
-state.categories[state.currentType].forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.textContent = c; sel.appendChild(opt); });
+  var sel = document.getElementById('inp-category');
+  if (!sel) return; // Se il select non esiste, esci
+  
+  sel.innerHTML = '';
+  var categories = state.categories[state.currentType] || [];
+  for (var i = 0; i < categories.length; i++) {
+    var opt = document.createElement('option');
+    opt.value = categories[i];
+    opt.textContent = categories[i];
+    sel.appendChild(opt);
+  }
 }
-document.getElementById('tab-expense').addEventListener('click', () => setTab('expense'));
-document.getElementById('tab-income').addEventListener('click', () => setTab('income'));
+  
 function matchesSourceFilter(t) { return activeSourceFilter === 'all' || (t.source || 'cash') === activeSourceFilter; }
 function updateStats() {
 const from = filterFrom || todayISO().slice(0,7) + '-01';
