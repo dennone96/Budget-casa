@@ -4488,7 +4488,7 @@ window.openMovimentoModal = function() {
     setModalMovimentoType('expense');
     populateModalMovimentoCategories('expense');
     
-    setTimeout(() => {
+    setTimeout(function() {
       document.getElementById('modal-movimento-desc').focus();
     }, 100);
   }
@@ -4497,7 +4497,7 @@ window.openMovimentoModal = function() {
 // === CHIUDI IL MODALE MOVIMENTO ===
 window.closeMovimentoModal = function() {
   console.log('🔒 Chiusura modale movimento');
-  const overlay = document.getElementById('movimento-modal-overlay');
+  var overlay = document.getElementById('movimento-modal-overlay');
   if (overlay) {
     overlay.style.display = 'none';
   }
@@ -4507,8 +4507,8 @@ window.closeMovimentoModal = function() {
 function setModalMovimentoType(type) {
   modalMovimentoType = type;
   
-  const btnExpense = document.getElementById('modal-tab-expense');
-  const btnIncome = document.getElementById('modal-tab-income');
+  var btnExpense = document.getElementById('modal-tab-expense');
+  var btnIncome = document.getElementById('modal-tab-income');
   
   if (!btnExpense || !btnIncome) return;
   
@@ -4534,26 +4534,27 @@ function setModalMovimentoType(type) {
 
 // === POPOLA LE CATEGORIE NEL MODALE ===
 function populateModalMovimentoCategories(type) {
-  const sel = document.getElementById('modal-movimento-categoria');
+  var sel = document.getElementById('modal-movimento-categoria');
   if (!sel) return;
   sel.innerHTML = '';
-  (state.categories[type] || []).forEach(c => {
-    const opt = document.createElement('option');
-    opt.value = c;
-    opt.textContent = c;
+  var categories = state.categories[type] || [];
+  for (var i = 0; i < categories.length; i++) {
+    var opt = document.createElement('option');
+    opt.value = categories[i];
+    opt.textContent = categories[i];
     sel.appendChild(opt);
-  });
+  }
 }
 
 // === SALVA IL MOVIMENTO DAL MODALE ===
 window.saveMovimentoFromModal = async function() {
   console.log('💾 Salvataggio movimento dal modale');
   
-  const desc = document.getElementById('modal-movimento-desc').value.trim();
-  const importoStr = document.getElementById('modal-movimento-importo').value;
-  const importo = parseFloat(importoStr);
-  const categoria = document.getElementById('modal-movimento-categoria').value;
-  const data = document.getElementById('modal-movimento-data').value || todayISO();
+  var desc = document.getElementById('modal-movimento-desc').value.trim();
+  var importoStr = document.getElementById('modal-movimento-importo').value;
+  var importo = parseFloat(importoStr);
+  var categoria = document.getElementById('modal-movimento-categoria').value;
+  var data = document.getElementById('modal-movimento-data').value || todayISO();
   
   if (!desc) {
     alert('Inserisci una descrizione');
@@ -4568,7 +4569,7 @@ window.saveMovimentoFromModal = async function() {
   }
   
   state.transactions.push({
-    id: Date.now().toString(36) + Math.random().toString(36).slice(2,7),
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
     type: modalMovimentoType,
     description: desc,
     amount: Math.round(importo * 100) / 100,
@@ -4585,8 +4586,8 @@ window.saveMovimentoFromModal = async function() {
 
 // === LISTENER PER I PULSANTI TIPO NEL MODALE ===
 document.addEventListener('DOMContentLoaded', function() {
-  const btnExpense = document.getElementById('modal-tab-expense');
-  const btnIncome = document.getElementById('modal-tab-income');
+  var btnExpense = document.getElementById('modal-tab-expense');
+  var btnIncome = document.getElementById('modal-tab-income');
   
   if (btnExpense) {
     btnExpense.addEventListener('click', function() {
@@ -4601,7 +4602,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   // Click fuori dal modale per chiudere
-  const overlay = document.getElementById('movimento-modal-overlay');
+  var overlay = document.getElementById('movimento-modal-overlay');
   if (overlay) {
     overlay.addEventListener('click', function(e) {
       if (e.target === this) {
@@ -4611,7 +4612,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   // Invio con Enter
-  const descInput = document.getElementById('modal-movimento-desc');
+  var descInput = document.getElementById('modal-movimento-desc');
   if (descInput) {
     descInput.addEventListener('keypress', function(e) {
       if (e.key === 'Enter') {
@@ -4620,7 +4621,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  const importoInput = document.getElementById('modal-movimento-importo');
+  var importoInput = document.getElementById('modal-movimento-importo');
   if (importoInput) {
     importoInput.addEventListener('keypress', function(e) {
       if (e.key === 'Enter') {
@@ -4628,7 +4629,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
-});  
+});
   
 function setTab(type) {
 state.currentType = type;
