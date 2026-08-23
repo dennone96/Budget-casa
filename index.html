@@ -2833,14 +2833,97 @@ border-radius: var(--radius-sm);
   box-shadow: var(--shadow);
 }  
 
-/* === LAYOUT MOVIMENTI MOBILE (STILE BANCA) === */
-/* Nasconde l'intestazione tabella su mobile */
-@media screen and (max-width: 600px) {
-  .tx-header.desktop-only {
+/* === LAYOUT MOVIMENTI - DESKTOP (SENZA CHECKBOX) === */
+@media screen and (min-width: 601px) {
+  .tx-header {
     display: none !important;
   }
-  
-  /* Layout a card per i movimenti */
+
+  #transactions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .tx-row.mobile-card {
+    display: grid !important;
+    grid-template-columns: 100px 1fr 90px 120px !important; /* Data | Movimento | Tipo | Importo */
+    gap: 12px !important;
+    align-items: center !important;
+    padding: 12px 16px !important;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+
+  .tx-row.mobile-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent);
+  }
+
+  .tx-row.mobile-card.selected {
+    background: var(--accent-light) !important;
+    border-color: var(--accent) !important;
+  }
+
+  .tx-row.mobile-card .tx-card-content {
+    display: contents; /* I figli occupano le colonne della griglia */
+  }
+
+  .tx-row.mobile-card .tx-card-date {
+    grid-column: 1;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    white-space: nowrap;
+  }
+
+  .tx-row.mobile-card .tx-card-desc {
+    grid-column: 2;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tx-row.mobile-card .tx-card-category {
+    display: none; /* Su desktop non mostriamo la categoria separatamente */
+  }
+
+  .tx-row.mobile-card .tx-card-badge {
+    grid-column: 3;
+    justify-self: center;
+    font-size: 11px !important;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 4px 12px !important;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .tx-row.mobile-card .tx-card-amount {
+    grid-column: 4;
+    justify-self: end;
+    font-size: 15px !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.5px;
+    white-space: nowrap;
+  }
+}
+
+/* === LAYOUT MOVIMENTI - MOBILE (CARD SENZA CHECKBOX) === */
+@media screen and (max-width: 600px) {
+  .tx-header {
+    display: none !important;
+  }
+
   .tx-row.mobile-card {
     display: block !important;
     padding: 12px 14px !important;
@@ -2849,35 +2932,33 @@ border-radius: var(--radius-sm);
     background: var(--surface);
     border: 1px solid var(--border);
     box-shadow: var(--shadow-sm);
-    grid-template-columns: none !important;
-    gap: 0 !important;
+    cursor: pointer;
   }
-  
+
   .tx-row.mobile-card.selected {
     background: var(--accent-light) !important;
     border-color: var(--accent) !important;
   }
-  
+
   .tx-card-content {
-    cursor: pointer;
     width: 100%;
   }
-  
+
   .tx-card-header {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
     flex-wrap: wrap;
   }
-  
+
   .tx-card-date {
     font-size: 12px;
     font-weight: 700;
     color: var(--text-secondary);
     min-width: 70px;
   }
-  
+
   .tx-card-badge {
     font-size: 10px !important;
     font-weight: 800;
@@ -2887,21 +2968,21 @@ border-radius: var(--radius-sm);
     border-radius: 999px;
     flex-shrink: 0;
   }
-  
+
   .tx-card-amount {
     font-size: 16px !important;
     font-weight: 800 !important;
     margin-left: auto;
     letter-spacing: -0.5px;
   }
-  
+
   .tx-card-body {
     display: flex;
     flex-direction: column;
     gap: 2px;
     padding-left: 0;
   }
-  
+
   .tx-card-desc {
     font-size: 14px !important;
     font-weight: 700;
@@ -2910,67 +2991,13 @@ border-radius: var(--radius-sm);
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  
+
   .tx-card-category {
     font-size: 12px !important;
     color: var(--text-muted);
     font-weight: 600;
   }
-  
-  /* Checkbox più piccolo e allineato */
-  .tx-row.mobile-card .tx-checkbox {
-    position: absolute;
-    right: 12px;
-    bottom: 12px;
-    width: 16px !important;
-    height: 16px !important;
-    margin: 0;
-  }
-  
-  .tx-row.mobile-card {
-    position: relative;
-    padding-right: 40px !important;
-  }
-}
-
-/* Desktop: layout normale */
-@media screen and (min-width: 601px) {
-  .tx-row.mobile-card .tx-card-content {
-    display: contents;
-  }
-  
-  .tx-row.mobile-card .tx-card-header,
-  .tx-row.mobile-card .tx-card-body {
-    display: contents;
-  }
-  
-  .tx-row.mobile-card .tx-card-date {
-    grid-column: 2;
-  }
-  
-  .tx-row.mobile-card .tx-card-desc {
-    grid-column: 3;
-  }
-  
-  .tx-row.mobile-card .tx-card-category {
-    display: none;
-  }
-  
-  .tx-row.mobile-card .tx-card-badge {
-    grid-column: 4;
-    text-align: center;
-  }
-  
-  .tx-row.mobile-card .tx-card-amount {
-    grid-column: 5;
-    text-align: right;
-  }
-  
-  .tx-row.mobile-card .tx-checkbox {
-    grid-column: 1;
-  }
-}
-  
+}  
 </style>
 </head>
 <body>
@@ -3130,10 +3157,10 @@ Budget
 <div id="bulk-actions-container"></div>
 <div class="tx-header">
   <span></span>
-  <span>Data</span>
-  <span>Movimento</span>
-  <span style="text-align:center;">Tipo</span>
-  <span style="text-align:right;">Importo</span>
+  <span></span>
+  <span></span>
+  <span style="text-align:center;"></span>
+  <span style="text-align:right;"></span>
 </div>
 <div id="transactions-list"></div>
 <p id="save-status">I dati sono sincronizzati con il tuo account.</p>
@@ -5335,7 +5362,8 @@ document.getElementById('search-transactions').addEventListener('input', (e) => 
 searchQuery = e.target.value.toLowerCase().trim();
 updateTransactionsList();
 });
-// === VERSIONE MODIFICATA DI updateTransactionsList CON LAYOUT MOBILE ===
+
+// === VERSIONE MODIFICATA: SENZA INTESTAZIONI E SENZA SELEZIONE MULTIPLA ===
 function updateTransactionsList() {
   const from = filterFrom || todayISO().slice(0, 7) + '-01';
   const to = filterTo || todayISO();
@@ -5350,85 +5378,17 @@ function updateTransactionsList() {
   mt.sort((a, b) => b.date.localeCompare(a.date));
   
   const list = document.getElementById('transactions-list');
-  const bulkContainer = document.getElementById('bulk-actions-container');
   list.innerHTML = '';
-  bulkContainer.innerHTML = '';
-  
-  // === INTESTAZIONE TABELLA (visibile solo su desktop) ===
-  const headerDiv = document.createElement('div');
-  headerDiv.className = 'tx-header desktop-only';
-  headerDiv.innerHTML = `
-    <span></span>
-    <span>Data</span>
-    <span>Movimento</span>
-    <span style="text-align:center;">Tipo</span>
-    <span style="text-align:right;">Importo</span>
-  `;
-  list.appendChild(headerDiv);
   
   if (mt.length === 0) {
     list.innerHTML = '<p class="empty-msg">' + (searchQuery ? 'Nessun movimento trovato con questa ricerca' : 'Nessun movimento in questo periodo.') + '</p>';
     return;
   }
   
-  // === BULK ACTIONS BAR ===
-  if (mt.length > 0) {
-    const bulkBar = document.createElement('div');
-    bulkBar.className = 'bulk-actions-bar';
-    const selectAllLabel = document.createElement('label');
-    selectAllLabel.style.cssText = 'display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:700; font-size:14px;';
-    const selectAllCheckbox = document.createElement('input');
-    selectAllCheckbox.type = 'checkbox';
-    selectAllCheckbox.checked = mt.every(t => selectedTransactions.has(t.id));
-    selectAllCheckbox.addEventListener('change', (e) => {
-      if (e.target.checked) {
-        mt.forEach(t => selectedTransactions.add(t.id));
-      } else {
-        mt.forEach(t => selectedTransactions.delete(t.id));
-      }
-      updateTransactionsList();
-    });
-    selectAllLabel.appendChild(selectAllCheckbox);
-    selectAllLabel.appendChild(document.createTextNode(' Seleziona tutti'));
-    bulkBar.appendChild(selectAllLabel);
-    
-    if (selectedTransactions.size > 0) {
-      const countSpan = document.createElement('span');
-      countSpan.className = 'bulk-count';
-      countSpan.textContent = selectedTransactions.size + ' selezionati';
-      bulkBar.appendChild(countSpan);
-      
-      const deleteBtn = document.createElement('button');
-      deleteBtn.className = 'btn-bulk-delete';
-      deleteBtn.textContent = '🗑️ Elimina selezionati';
-      deleteBtn.addEventListener('click', async () => {
-        if (!confirm('Eliminare ' + selectedTransactions.size + ' movimenti selezionati?')) return;
-        state.transactions = state.transactions.filter(t => !selectedTransactions.has(t.id));
-        selectedTransactions.clear();
-        await saveTransactions();
-        renderAll();
-      });
-      bulkBar.appendChild(deleteBtn);
-      
-      const clearBtn = document.createElement('button');
-      clearBtn.className = 'btn-bulk-clear';
-      clearBtn.textContent = '✖ Deseleziona';
-      clearBtn.addEventListener('click', () => {
-        selectedTransactions.clear();
-        updateTransactionsList();
-      });
-      bulkBar.appendChild(clearBtn);
-    }
-    bulkContainer.appendChild(bulkBar);
-  }
-  
-  // === RIGHE MOVIMENTI ===
+  // === RIGHE MOVIMENTI (senza checkbox) ===
   mt.forEach(t => {
     const row = document.createElement('div');
     row.className = 'tx-row mobile-card';
-    if (selectedTransactions.has(t.id)) {
-      row.classList.add('selected');
-    }
     
     const isIncome = t.type === 'income';
     const src = t.source || 'cash';
@@ -5439,22 +5399,7 @@ function updateTransactionsList() {
     const amountSign = isIncome ? '+' : '-';
     const hasAttachment = t.attachment ? ' 📎' : '';
     
-    // CHECKBOX
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.className = 'tx-checkbox';
-    checkbox.checked = selectedTransactions.has(t.id);
-    checkbox.addEventListener('change', (e) => {
-      if (e.target.checked) {
-        selectedTransactions.add(t.id);
-      } else {
-        selectedTransactions.delete(t.id);
-      }
-      updateTransactionsList();
-    });
-    row.appendChild(checkbox);
-    
-    // === CONTENUTO CARD ===
+    // === CONTENUTO CARD (senza checkbox) ===
     const cardContent = document.createElement('div');
     cardContent.className = 'tx-card-content';
     cardContent.setAttribute('data-id', t.id);
@@ -5473,7 +5418,6 @@ function updateTransactionsList() {
     
     // Click sulla card per aprire dettaglio
     cardContent.addEventListener('click', function(e) {
-      if (e.target.closest('.tx-checkbox')) return;
       const id = this.getAttribute('data-id');
       if (id) openDetailModal(id);
     });
@@ -5481,6 +5425,7 @@ function updateTransactionsList() {
     list.appendChild(row);
   });
 }
+  
 function openDetailModal(id) {
 const t = state.transactions.find(t => t.id === id); if (!t) return;
 detailId = id;
