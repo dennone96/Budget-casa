@@ -2832,6 +2832,145 @@ border-radius: var(--radius-sm);
   transform: scale(1.02);
   box-shadow: var(--shadow);
 }  
+
+/* === LAYOUT MOVIMENTI MOBILE (STILE BANCA) === */
+/* Nasconde l'intestazione tabella su mobile */
+@media screen and (max-width: 600px) {
+  .tx-header.desktop-only {
+    display: none !important;
+  }
+  
+  /* Layout a card per i movimenti */
+  .tx-row.mobile-card {
+    display: block !important;
+    padding: 12px 14px !important;
+    margin-bottom: 10px !important;
+    border-radius: var(--radius) !important;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    grid-template-columns: none !important;
+    gap: 0 !important;
+  }
+  
+  .tx-row.mobile-card.selected {
+    background: var(--accent-light) !important;
+    border-color: var(--accent) !important;
+  }
+  
+  .tx-card-content {
+    cursor: pointer;
+    width: 100%;
+  }
+  
+  .tx-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+  }
+  
+  .tx-card-date {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    min-width: 70px;
+  }
+  
+  .tx-card-badge {
+    font-size: 10px !important;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 3px 10px !important;
+    border-radius: 999px;
+    flex-shrink: 0;
+  }
+  
+  .tx-card-amount {
+    font-size: 16px !important;
+    font-weight: 800 !important;
+    margin-left: auto;
+    letter-spacing: -0.5px;
+  }
+  
+  .tx-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-left: 0;
+  }
+  
+  .tx-card-desc {
+    font-size: 14px !important;
+    font-weight: 700;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .tx-card-category {
+    font-size: 12px !important;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+  
+  /* Checkbox più piccolo e allineato */
+  .tx-row.mobile-card .tx-checkbox {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    width: 16px !important;
+    height: 16px !important;
+    margin: 0;
+  }
+  
+  .tx-row.mobile-card {
+    position: relative;
+    padding-right: 40px !important;
+  }
+}
+
+/* Desktop: layout normale */
+@media screen and (min-width: 601px) {
+  .tx-row.mobile-card .tx-card-content {
+    display: contents;
+  }
+  
+  .tx-row.mobile-card .tx-card-header,
+  .tx-row.mobile-card .tx-card-body {
+    display: contents;
+  }
+  
+  .tx-row.mobile-card .tx-card-date {
+    grid-column: 2;
+  }
+  
+  .tx-row.mobile-card .tx-card-desc {
+    grid-column: 3;
+  }
+  
+  .tx-row.mobile-card .tx-card-category {
+    display: none;
+  }
+  
+  .tx-row.mobile-card .tx-card-badge {
+    grid-column: 4;
+    text-align: center;
+  }
+  
+  .tx-row.mobile-card .tx-card-amount {
+    grid-column: 5;
+    text-align: right;
+  }
+  
+  .tx-row.mobile-card .tx-checkbox {
+    grid-column: 1;
+  }
+}
+  
 </style>
 </head>
 <body>
@@ -5196,133 +5335,152 @@ document.getElementById('search-transactions').addEventListener('input', (e) => 
 searchQuery = e.target.value.toLowerCase().trim();
 updateTransactionsList();
 });
+// === VERSIONE MODIFICATA DI updateTransactionsList CON LAYOUT MOBILE ===
 function updateTransactionsList() {
-const from = filterFrom || todayISO().slice(0,7) + '-01';
-const to = filterTo || todayISO();
-let mt = state.transactions.filter(t => t.date >= from && t.date <= to && matchesSourceFilter(t));
-if (searchQuery) {
-mt = mt.filter(t =>
-(t.description || '').toLowerCase().includes(searchQuery) ||
-(t.category || '').toLowerCase().includes(searchQuery)
-);
-}
-mt.sort((a,b) => b.date.localeCompare(a.date));
-const list = document.getElementById('transactions-list');
-list.innerHTML = '';
-const bulkContainer = document.getElementById('bulk-actions-container');
-bulkContainer.innerHTML = '';
-if (mt.length > 0) {
-const bulkBar = document.createElement('div');
-bulkBar.className = 'bulk-actions-bar';
-const selectAllLabel = document.createElement('label');
-selectAllLabel.style.cssText = 'display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:700; font-size:14px;';
-const selectAllCheckbox = document.createElement('input');
-selectAllCheckbox.type = 'checkbox';
-selectAllCheckbox.checked = mt.every(t => selectedTransactions.has(t.id));
-selectAllCheckbox.addEventListener('change', (e) => {
-if (e.target.checked) {
-mt.forEach(t => selectedTransactions.add(t.id));
-} else {
-mt.forEach(t => selectedTransactions.delete(t.id));
-}
-updateTransactionsList();
-});
-selectAllLabel.appendChild(selectAllCheckbox);
-selectAllLabel.appendChild(document.createTextNode(' Seleziona tutti'));
-bulkBar.appendChild(selectAllLabel);
-if (selectedTransactions.size > 0) {
-const countSpan = document.createElement('span');
-countSpan.className = 'bulk-count';
-countSpan.textContent = `${selectedTransactions.size} selezionati`;
-bulkBar.appendChild(countSpan);
-const deleteBtn = document.createElement('button');
-deleteBtn.className = 'btn-bulk-delete';
-deleteBtn.textContent = '🗑️ Elimina selezionati';
-deleteBtn.addEventListener('click', async () => {
-if (!confirm(`Eliminare ${selectedTransactions.size} movimenti selezionati?`)) return;
-state.transactions = state.transactions.filter(t => !selectedTransactions.has(t.id));
-selectedTransactions.clear();
-await saveTransactions();
-renderAll();
-});
-bulkBar.appendChild(deleteBtn);
-const clearBtn = document.createElement('button');
-clearBtn.className = 'btn-bulk-clear';
-clearBtn.textContent = '✖ Deseleziona';
-clearBtn.addEventListener('click', () => {
-selectedTransactions.clear();
-updateTransactionsList();
-});
-bulkBar.appendChild(clearBtn);
-}
-bulkContainer.appendChild(bulkBar);
-}
-if (mt.length === 0) {
-list.innerHTML = '<p class="empty-msg">' + (searchQuery ? 'Nessun movimento trovato con questa ricerca' : 'Nessun movimento in questo periodo.') + '</p>';
-return;
-}
-mt.forEach(t => {
-  const row = document.createElement('div'); 
-  row.className = 'tx-row';
-  if (selectedTransactions.has(t.id)) {
-    row.classList.add('selected');
+  const from = filterFrom || todayISO().slice(0, 7) + '-01';
+  const to = filterTo || todayISO();
+  let mt = state.transactions.filter(t => t.date >= from && t.date <= to && matchesSourceFilter(t));
+  
+  if (searchQuery) {
+    mt = mt.filter(t =>
+      (t.description || '').toLowerCase().includes(searchQuery) ||
+      (t.category || '').toLowerCase().includes(searchQuery)
+    );
+  }
+  mt.sort((a, b) => b.date.localeCompare(a.date));
+  
+  const list = document.getElementById('transactions-list');
+  const bulkContainer = document.getElementById('bulk-actions-container');
+  list.innerHTML = '';
+  bulkContainer.innerHTML = '';
+  
+  // === INTESTAZIONE TABELLA (visibile solo su desktop) ===
+  const headerDiv = document.createElement('div');
+  headerDiv.className = 'tx-header desktop-only';
+  headerDiv.innerHTML = `
+    <span></span>
+    <span>Data</span>
+    <span>Movimento</span>
+    <span style="text-align:center;">Tipo</span>
+    <span style="text-align:right;">Importo</span>
+  `;
+  list.appendChild(headerDiv);
+  
+  if (mt.length === 0) {
+    list.innerHTML = '<p class="empty-msg">' + (searchQuery ? 'Nessun movimento trovato con questa ricerca' : 'Nessun movimento in questo periodo.') + '</p>';
+    return;
   }
   
-  const isIncome = t.type === 'income';
-  const src = t.source || 'cash';
-  const badgeLabel = src === 'bank' ? '🏦 C/C' : '💵 Cash';
-  const badgeCls = src === 'bank' ? 'badge-bank' : 'badge-cash';
-  const dateLabel = new Date(t.date).toLocaleDateString('it-IT', { day:'2-digit', month:'2-digit', year:'2-digit' });
-  const amountColor = isIncome ? 'var(--success)' : 'var(--danger)';
-  const amountSign = isIncome ? '+' : '-';
-  const hasAttachment = t.attachment ? ' 📎' : '';
-  
-  const checkbox = document.createElement('input');
-  checkbox.type = 'checkbox';
-  checkbox.className = 'tx-checkbox';
-  checkbox.checked = selectedTransactions.has(t.id);
-  checkbox.addEventListener('change', (e) => {
-    if (e.target.checked) {
-      selectedTransactions.add(t.id);
-    } else {
-      selectedTransactions.delete(t.id);
+  // === BULK ACTIONS BAR ===
+  if (mt.length > 0) {
+    const bulkBar = document.createElement('div');
+    bulkBar.className = 'bulk-actions-bar';
+    const selectAllLabel = document.createElement('label');
+    selectAllLabel.style.cssText = 'display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:700; font-size:14px;';
+    const selectAllCheckbox = document.createElement('input');
+    selectAllCheckbox.type = 'checkbox';
+    selectAllCheckbox.checked = mt.every(t => selectedTransactions.has(t.id));
+    selectAllCheckbox.addEventListener('change', (e) => {
+      if (e.target.checked) {
+        mt.forEach(t => selectedTransactions.add(t.id));
+      } else {
+        mt.forEach(t => selectedTransactions.delete(t.id));
+      }
+      updateTransactionsList();
+    });
+    selectAllLabel.appendChild(selectAllCheckbox);
+    selectAllLabel.appendChild(document.createTextNode(' Seleziona tutti'));
+    bulkBar.appendChild(selectAllLabel);
+    
+    if (selectedTransactions.size > 0) {
+      const countSpan = document.createElement('span');
+      countSpan.className = 'bulk-count';
+      countSpan.textContent = selectedTransactions.size + ' selezionati';
+      bulkBar.appendChild(countSpan);
+      
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'btn-bulk-delete';
+      deleteBtn.textContent = '🗑️ Elimina selezionati';
+      deleteBtn.addEventListener('click', async () => {
+        if (!confirm('Eliminare ' + selectedTransactions.size + ' movimenti selezionati?')) return;
+        state.transactions = state.transactions.filter(t => !selectedTransactions.has(t.id));
+        selectedTransactions.clear();
+        await saveTransactions();
+        renderAll();
+      });
+      bulkBar.appendChild(deleteBtn);
+      
+      const clearBtn = document.createElement('button');
+      clearBtn.className = 'btn-bulk-clear';
+      clearBtn.textContent = '✖ Deseleziona';
+      clearBtn.addEventListener('click', () => {
+        selectedTransactions.clear();
+        updateTransactionsList();
+      });
+      bulkBar.appendChild(clearBtn);
     }
-    updateTransactionsList();
+    bulkContainer.appendChild(bulkBar);
+  }
+  
+  // === RIGHE MOVIMENTI ===
+  mt.forEach(t => {
+    const row = document.createElement('div');
+    row.className = 'tx-row mobile-card';
+    if (selectedTransactions.has(t.id)) {
+      row.classList.add('selected');
+    }
+    
+    const isIncome = t.type === 'income';
+    const src = t.source || 'cash';
+    const badgeLabel = src === 'bank' ? '🏦 C/C' : '💵 Cash';
+    const badgeCls = src === 'bank' ? 'badge-bank' : 'badge-cash';
+    const dateLabel = new Date(t.date).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: '2-digit' });
+    const amountColor = isIncome ? 'var(--success)' : 'var(--danger)';
+    const amountSign = isIncome ? '+' : '-';
+    const hasAttachment = t.attachment ? ' 📎' : '';
+    
+    // CHECKBOX
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.className = 'tx-checkbox';
+    checkbox.checked = selectedTransactions.has(t.id);
+    checkbox.addEventListener('change', (e) => {
+      if (e.target.checked) {
+        selectedTransactions.add(t.id);
+      } else {
+        selectedTransactions.delete(t.id);
+      }
+      updateTransactionsList();
+    });
+    row.appendChild(checkbox);
+    
+    // === CONTENUTO CARD ===
+    const cardContent = document.createElement('div');
+    cardContent.className = 'tx-card-content';
+    cardContent.setAttribute('data-id', t.id);
+    cardContent.innerHTML = `
+      <div class="tx-card-header">
+        <span class="tx-card-date">${dateLabel}</span>
+        <span class="tx-card-badge ${badgeCls}">${badgeLabel}</span>
+        <span class="tx-card-amount" style="color:${amountColor};">${amountSign}${fmtEUR(amountValue(t.amount))}</span>
+      </div>
+      <div class="tx-card-body">
+        <span class="tx-card-desc">${escapeHtml(t.description || t.category)}${hasAttachment}</span>
+        <span class="tx-card-category">${escapeHtml(t.category)}</span>
+      </div>
+    `;
+    row.appendChild(cardContent);
+    
+    // Click sulla card per aprire dettaglio
+    cardContent.addEventListener('click', function(e) {
+      if (e.target.closest('.tx-checkbox')) return;
+      const id = this.getAttribute('data-id');
+      if (id) openDetailModal(id);
+    });
+    
+    list.appendChild(row);
   });
-  row.appendChild(checkbox);  // 1. CHECKBOX
-  
-  const dateDiv = document.createElement('div');
-  dateDiv.className = 'tx-col-date';
-  dateDiv.textContent = dateLabel;
-  row.appendChild(dateDiv);  // 2. DATA
-  
-  const descDiv = document.createElement('div');
-  descDiv.className = 'tx-col-desc';
-  descDiv.setAttribute('data-id', t.id);
-  descDiv.setAttribute('title', 'Dettagli');
-  descDiv.setAttribute('role', 'button');
-  descDiv.setAttribute('tabindex', '0');
-  descDiv.innerHTML = `<span class="tx-desc-text">${escapeHtml(t.description || t.category)}${hasAttachment}</span><span style="font-size:12px; color:var(--text-muted); font-weight:700;">${escapeHtml(t.category)}</span>`;
-  row.appendChild(descDiv);  // 3. MOVIMENTO
-  
-  const typeDiv = document.createElement('div');
-  typeDiv.className = 'tx-col-type';
-  typeDiv.innerHTML = `<span class="badge-source ${badgeCls}">${badgeLabel}</span>`;
-  row.appendChild(typeDiv);  // 4. TIPO (prima dell'importo)
-  
-  const amountDiv = document.createElement('div');
-  amountDiv.className = 'tx-col-amount';
-  amountDiv.style.color = amountColor;
-  amountDiv.textContent = `${amountSign}${fmtEUR(amountValue(t.amount))}`;
-  row.appendChild(amountDiv);  // 5. IMPORTO (dopo il tipo)
-  
-  // NON AGGIUNGERE colonne vuote!
-  
-  list.appendChild(row);
-});
-list.querySelectorAll('.tx-col-desc').forEach(el => el.addEventListener('click', () => openDetailModal(el.getAttribute('data-id'))));
 }
-let detailId = null;
 function openDetailModal(id) {
 const t = state.transactions.find(t => t.id === id); if (!t) return;
 detailId = id;
