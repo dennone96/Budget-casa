@@ -2833,24 +2833,139 @@ border-radius: var(--radius-sm);
   box-shadow: var(--shadow);
 }  
 
-/* === LAYOUT MOVIMENTI - DESKTOP (SENZA CHECKBOX) === */
+/* === LAYOUT MOVIMENTI - STILE BANCA (MOBILE E DESKTOP) === */
+
+/* Mobile: layout a card in stile banca */
+@media screen and (max-width: 600px) {
+  /* Nasconde header */
+  .tx-header {
+    display: none !important;
+  }
+  
+  /* Contenitore liste */
+  #transactions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 0;
+  }
+  
+  /* Card movimento */
+  .tx-row.mobile-card {
+    display: block !important;
+    padding: 14px 16px !important;
+    margin: 0 !important;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+  }
+  
+  .tx-row.mobile-card:active {
+    transform: scale(0.99);
+  }
+  
+  .tx-card-content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  /* Header della card: data + importo */
+  .tx-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .tx-card-date {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-secondary);
+  }
+  
+  .tx-card-amount {
+    font-size: 18px !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.5px;
+    font-variant-numeric: tabular-nums;
+  }
+  
+  /* Body della card: descrizione + categoria */
+  .tx-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-top: 4px;
+  }
+  
+  .tx-card-desc {
+    font-size: 15px !important;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.4;
+    word-break: break-word;
+  }
+  
+  .tx-card-category {
+    font-size: 12px !important;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+  
+  .tx-card-badge {
+    display: none !important;
+  }
+  
+  /* Badge tipo (Cash/C/C) mostrato a sinistra */
+  .tx-card-type-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    margin-top: 6px;
+    align-self: flex-start;
+  }
+  
+  .tx-card-type-badge.badge-cash {
+    background: var(--success-light);
+    color: var(--success);
+  }
+  
+  .tx-card-type-badge.badge-bank {
+    background: var(--info-light);
+    color: var(--info);
+  }
+}
+
+/* Desktop: layout tabella pulito */
 @media screen and (min-width: 601px) {
   .tx-header {
     display: none !important;
   }
-
+  
   #transactions-list {
     display: flex;
     flex-direction: column;
     gap: 6px;
   }
-
+  
   .tx-row.mobile-card {
     display: grid !important;
     grid-template-columns: 100px 1fr 90px 120px !important;
-    gap: 12px !important;
+    gap: 16px !important;
     align-items: center !important;
-    padding: 12px 16px !important;
+    padding: 12px 18px !important;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
@@ -2858,24 +2973,24 @@ border-radius: var(--radius-sm);
     transition: all 0.2s;
     cursor: pointer;
   }
-
+  
   .tx-row.mobile-card:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
     border-color: var(--accent);
   }
-
+  
   .tx-row.mobile-card .tx-card-content {
     display: contents;
   }
-
+  
   .tx-row.mobile-card .tx-card-date {
     grid-column: 1;
     font-size: 13px;
     font-weight: 700;
     color: var(--text-secondary);
   }
-
+  
   .tx-row.mobile-card .tx-card-desc {
     grid-column: 2;
     font-size: 14px;
@@ -2885,11 +3000,11 @@ border-radius: var(--radius-sm);
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-
+  
   .tx-row.mobile-card .tx-card-category {
     display: none;
   }
-
+  
   .tx-row.mobile-card .tx-card-badge {
     grid-column: 3;
     justify-self: center;
@@ -2901,7 +3016,7 @@ border-radius: var(--radius-sm);
     border-radius: 999px;
     white-space: nowrap;
   }
-
+  
   .tx-row.mobile-card .tx-card-amount {
     grid-column: 4;
     justify-self: end;
@@ -2910,15 +3025,9 @@ border-radius: var(--radius-sm);
     letter-spacing: -0.5px;
     white-space: nowrap;
   }
-}
-
-/* Mobile: già presente, ma assicuriamoci che non ci siano riferimenti a checkbox */
-@media screen and (max-width: 600px) {
-  .tx-row.mobile-card {
-    padding-right: 14px !important; /* rimuove lo spazio per il checkbox */
-  }
-  .tx-row.mobile-card .tx-checkbox {
-    display: none !important;
+  
+  .tx-card-type-badge {
+    display: none;
   }
 }
 </style>
@@ -5279,7 +5388,7 @@ searchQuery = e.target.value.toLowerCase().trim();
 updateTransactionsList();
 });
 
-// === VERSIONE DEFINITIVA SENZA SELEZIONE MULTIPLA E SENZA INTESTAZIONI ===
+// === VERSIONE DEFINITIVA CON STILE BANCA ===
 function updateTransactionsList() {
   const from = filterFrom || todayISO().slice(0, 7) + '-01';
   const to = filterTo || todayISO();
@@ -5301,24 +5410,26 @@ function updateTransactionsList() {
     return;
   }
   
-  // === RIGHE MOVIMENTI (senza checkbox e senza bulk) ===
   mt.forEach(t => {
     const row = document.createElement('div');
     row.className = 'tx-row mobile-card';
     
     const isIncome = t.type === 'income';
     const src = t.source || 'cash';
-    const badgeLabel = src === 'bank' ? '🏦 C/C' : '💵 Cash';
+    const badgeLabel = src === 'bank' ? 'C/C' : 'Cash';
     const badgeCls = src === 'bank' ? 'badge-bank' : 'badge-cash';
     const dateLabel = new Date(t.date).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: '2-digit' });
     const amountColor = isIncome ? 'var(--success)' : 'var(--danger)';
     const amountSign = isIncome ? '+' : '-';
     const hasAttachment = t.attachment ? ' 📎' : '';
     
-    // === CONTENUTO CARD (nessun checkbox) ===
     const cardContent = document.createElement('div');
     cardContent.className = 'tx-card-content';
     cardContent.setAttribute('data-id', t.id);
+    
+    // Badge tipo (visibile su mobile)
+    const typeBadge = `<span class="tx-card-type-badge ${badgeCls}">${badgeLabel}</span>`;
+    
     cardContent.innerHTML = `
       <div class="tx-card-header">
         <span class="tx-card-date">${dateLabel}</span>
@@ -5328,11 +5439,11 @@ function updateTransactionsList() {
       <div class="tx-card-body">
         <span class="tx-card-desc">${escapeHtml(t.description || t.category)}${hasAttachment}</span>
         <span class="tx-card-category">${escapeHtml(t.category)}</span>
+        ${typeBadge}
       </div>
     `;
     row.appendChild(cardContent);
     
-    // Click sulla card per aprire dettaglio
     cardContent.addEventListener('click', function(e) {
       const id = this.getAttribute('data-id');
       if (id) openDetailModal(id);
