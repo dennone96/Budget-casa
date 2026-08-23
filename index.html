@@ -2948,21 +2948,25 @@ border-radius: var(--radius-sm);
   }
 }
 
-/* Desktop: layout tabella pulito */
+/* === LAYOUT DESKTOP - TABELLA ALLINEATA COME MOBILE === */
 @media screen and (min-width: 601px) {
+  /* Nasconde l'header statico */
   .tx-header {
     display: none !important;
   }
   
+  /* Contenitore lista */
   #transactions-list {
     display: flex;
     flex-direction: column;
     gap: 6px;
+    width: 100%;
   }
   
+  /* Riga movimento desktop */
   .tx-row.mobile-card {
     display: grid !important;
-    grid-template-columns: 100px 1fr 90px 120px !important;
+    grid-template-columns: 90px 1fr 80px 110px !important;
     gap: 16px !important;
     align-items: center !important;
     padding: 12px 18px !important;
@@ -2972,6 +2976,8 @@ border-radius: var(--radius-sm);
     box-shadow: var(--shadow-sm);
     transition: all 0.2s;
     cursor: pointer;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
   
   .tx-row.mobile-card:hover {
@@ -2980,17 +2986,16 @@ border-radius: var(--radius-sm);
     border-color: var(--accent);
   }
   
-  .tx-row.mobile-card .tx-card-content {
-    display: contents;
-  }
-  
+  /* Colonna Data */
   .tx-row.mobile-card .tx-card-date {
     grid-column: 1;
     font-size: 13px;
     font-weight: 700;
     color: var(--text-secondary);
+    white-space: nowrap;
   }
   
+  /* Colonna Movimento (descrizione) */
   .tx-row.mobile-card .tx-card-desc {
     grid-column: 2;
     font-size: 14px;
@@ -3001,10 +3006,7 @@ border-radius: var(--radius-sm);
     white-space: nowrap;
   }
   
-  .tx-row.mobile-card .tx-card-category {
-    display: none;
-  }
-  
+  /* Colonna Tipo (Cash/C/C) */
   .tx-row.mobile-card .tx-card-badge {
     grid-column: 3;
     justify-self: center;
@@ -3015,8 +3017,10 @@ border-radius: var(--radius-sm);
     padding: 4px 12px !important;
     border-radius: 999px;
     white-space: nowrap;
+    display: inline-block !important;
   }
   
+  /* Colonna Importo */
   .tx-row.mobile-card .tx-card-amount {
     grid-column: 4;
     justify-self: end;
@@ -3026,8 +3030,19 @@ border-radius: var(--radius-sm);
     white-space: nowrap;
   }
   
+  /* Nasconde il badge tipo (quello nel body) su desktop */
   .tx-card-type-badge {
-    display: none;
+    display: none !important;
+  }
+  
+  /* Nasconde categoria su desktop (è già nella descrizione) */
+  .tx-row.mobile-card .tx-card-category {
+    display: none !important;
+  }
+  
+  /* Permette ai figli di occupare le colonne della griglia */
+  .tx-row.mobile-card .tx-card-content {
+    display: contents;
   }
 }
   
