@@ -2833,27 +2833,143 @@ border-radius: var(--radius-sm);
   box-shadow: var(--shadow);
 }  
 
-/* === LAYOUT MOVIMENTI UNIFICATO (FUNZIONA SU TUTTI) === */
 
-/* Reset per la lista */
+
+
+  
+/* === LAYOUT MOVIMENTI UNIFICATO === */
+
+/* Header: visibile solo su desktop */
+.tx-header.desktop-only {
+  display: grid;
+  grid-template-columns: 30px 90px 1fr 80px 110px;
+  gap: 12px;
+  padding: 8px 18px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 6px;
+}
+
+/* Nasconde l'header su mobile */
+@media screen and (max-width: 600px) {
+  .tx-header.desktop-only {
+    display: none !important;
+  }
+}
+
+/* Contenitore lista */
 #transactions-list {
   width: 100%;
   padding: 0;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* === DESKTOP (min 601px) === */
+@media screen and (min-width: 601px) {
+  #transactions-list {
+    gap: 6px;
+  }
+
+  .tx-row.mobile-card {
+    display: grid !important;
+    grid-template-columns: 30px 90px 1fr 80px 110px !important;
+    gap: 12px !important;
+    align-items: center !important;
+    padding: 12px 18px !important;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s;
+    cursor: pointer;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .tx-row.mobile-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent);
+  }
+
+  /* Spazio per checkbox (vuoto) */
+  .tx-row.mobile-card .tx-checkbox-placeholder {
+    grid-column: 1;
+  }
+
+  /* Colonna Data */
+  .tx-row.mobile-card .tx-card-date {
+    grid-column: 2;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    white-space: nowrap;
+  }
+
+  /* Colonna Movimento (descrizione) */
+  .tx-row.mobile-card .tx-card-desc {
+    grid-column: 3;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Colonna Tipo (Cash/C/C) */
+  .tx-row.mobile-card .tx-card-badge {
+    grid-column: 4;
+    justify-self: center;
+    font-size: 11px !important;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 4px 12px !important;
+    border-radius: 999px;
+    white-space: nowrap;
+    display: inline-block !important;
+  }
+
+  /* Colonna Importo */
+  .tx-row.mobile-card .tx-card-amount {
+    grid-column: 5;
+    justify-self: end;
+    font-size: 15px !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.5px;
+    white-space: nowrap;
+  }
+
+  /* Nasconde il badge tipo (quello nel body) su desktop */
+  .tx-card-type-badge {
+    display: none !important;
+  }
+
+  /* Nasconde categoria su desktop (è già nella descrizione) */
+  .tx-row.mobile-card .tx-card-category {
+    display: none !important;
+  }
+
+  /* Permette ai figli di occupare le colonne della griglia */
+  .tx-row.mobile-card .tx-card-content {
+    display: contents;
+  }
 }
 
 /* === MOBILE (max 600px) === */
 @media screen and (max-width: 600px) {
-  .tx-header {
-    display: none !important;
-  }
-  
   #transactions-list {
-    display: flex;
-    flex-direction: column;
     gap: 10px;
   }
-  
+
   .tx-row.mobile-card {
     display: block !important;
     width: 100% !important;
@@ -2866,11 +2982,11 @@ border-radius: var(--radius-sm);
     cursor: pointer;
     box-sizing: border-box !important;
   }
-  
+
   .tx-card-content {
     width: 100%;
   }
-  
+
   .tx-card-header {
     display: flex;
     align-items: center;
@@ -2879,41 +2995,41 @@ border-radius: var(--radius-sm);
     padding-bottom: 6px;
     border-bottom: 1px solid var(--border);
   }
-  
+
   .tx-card-date {
     font-size: 13px;
     font-weight: 700;
     color: var(--text-secondary);
   }
-  
+
   .tx-card-amount {
     font-size: 18px !important;
     font-weight: 800 !important;
   }
-  
+
   .tx-card-body {
     display: flex;
     flex-direction: column;
     gap: 2px;
     padding-top: 4px;
   }
-  
+
   .tx-card-desc {
     font-size: 15px !important;
     font-weight: 700;
     color: var(--text-primary);
   }
-  
+
   .tx-card-category {
     font-size: 12px !important;
     color: var(--text-muted);
     font-weight: 600;
   }
-  
+
   .tx-card-badge {
     display: none !important;
   }
-  
+
   .tx-card-type-badge {
     display: inline-block !important;
     font-size: 10px;
@@ -2924,113 +3040,17 @@ border-radius: var(--radius-sm);
     margin-top: 6px;
     align-self: flex-start;
   }
-  
+
   .tx-card-type-badge.badge-cash {
     background: var(--success-light);
     color: var(--success);
   }
-  
+
   .tx-card-type-badge.badge-bank {
     background: var(--info-light);
     color: var(--info);
   }
-}
-
-/* === DESKTOP (min 601px) === */
-@media screen and (min-width: 601px) {
-  .tx-header {
-    display: none !important;
-  }
-  
-  #transactions-list {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    width: 100%;
-  }
-  
-  .tx-row.mobile-card {
-    display: grid !important;
-    grid-template-columns: 90px 1fr 80px 110px !important;
-    gap: 16px !important;
-    align-items: center !important;
-    padding: 12px 18px !important;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    box-shadow: var(--shadow-sm);
-    transition: all 0.2s;
-    cursor: pointer;
-    width: 100% !important;
-    box-sizing: border-box !important;
-  }
-  
-  .tx-row.mobile-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
-    border-color: var(--accent);
-  }
-  
-  /* Colonna Data */
-  .tx-row.mobile-card .tx-card-date {
-    grid-column: 1;
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--text-secondary);
-    white-space: nowrap;
-  }
-  
-  /* Colonna Movimento (descrizione) */
-  .tx-row.mobile-card .tx-card-desc {
-    grid-column: 2;
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--text-primary);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  
-  /* Colonna Tipo (Cash/C/C) */
-  .tx-row.mobile-card .tx-card-badge {
-    grid-column: 3;
-    justify-self: center;
-    font-size: 11px !important;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 4px 12px !important;
-    border-radius: 999px;
-    white-space: nowrap;
-    display: inline-block !important;
-  }
-  
-  /* Colonna Importo */
-  .tx-row.mobile-card .tx-card-amount {
-    grid-column: 4;
-    justify-self: end;
-    font-size: 15px !important;
-    font-weight: 800 !important;
-    letter-spacing: -0.5px;
-    white-space: nowrap;
-  }
-  
-  /* Nasconde il badge tipo (quello nel body) su desktop */
-  .tx-card-type-badge {
-    display: none !important;
-  }
-  
-  /* Nasconde categoria su desktop (è già nella descrizione) */
-  .tx-row.mobile-card .tx-card-category {
-    display: none !important;
-  }
-  
-  /* Permette ai figli di occupare le colonne della griglia */
-  .tx-row.mobile-card .tx-card-content {
-    display: contents;
-  }
-}
-  
+}  
 </style>
 </head>
 <body>
@@ -3187,7 +3207,16 @@ Budget
 <button data-source="cash">💵 Contanti</button>
 <button data-source="bank">🏦 Conto corrente</button>
 </div>
-
+  
+<!-- Header visibile solo su desktop -->
+<div class="tx-header desktop-only">
+  <span></span>
+  <span>Data</span>
+  <span>Movimento</span>
+  <span style="text-align:center;">Tipo</span>
+  <span style="text-align:right;">Importo</span>
+</div>
+  
 <div id="transactions-list"></div>
 <p id="save-status">I dati sono sincronizzati con il tuo account.</p>
 </div>
