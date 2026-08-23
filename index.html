@@ -2834,13 +2834,12 @@ border-radius: var(--radius-sm);
 }  
 
 /* === LAYOUT MOVIMENTI MOBILE (STILE BANCA) === */
-/* Nasconde l'intestazione tabella su mobile */
 @media screen and (max-width: 600px) {
+  /* Nasconde l'intestazione tabella su mobile (non serve più) */
   .tx-header.desktop-only {
     display: none !important;
   }
-  
-  /* Layout a card per i movimenti */
+
   .tx-row.mobile-card {
     display: block !important;
     padding: 12px 14px !important;
@@ -2849,35 +2848,35 @@ border-radius: var(--radius-sm);
     background: var(--surface);
     border: 1px solid var(--border);
     box-shadow: var(--shadow-sm);
-    grid-template-columns: none !important;
-    gap: 0 !important;
+    position: relative;
+    padding-right: 44px !important; /* spazio per il checkbox */
   }
-  
+
   .tx-row.mobile-card.selected {
     background: var(--accent-light) !important;
     border-color: var(--accent) !important;
   }
-  
+
   .tx-card-content {
     cursor: pointer;
     width: 100%;
   }
-  
+
   .tx-card-header {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
     flex-wrap: wrap;
   }
-  
+
   .tx-card-date {
     font-size: 12px;
     font-weight: 700;
     color: var(--text-secondary);
     min-width: 70px;
   }
-  
+
   .tx-card-badge {
     font-size: 10px !important;
     font-weight: 800;
@@ -2887,21 +2886,21 @@ border-radius: var(--radius-sm);
     border-radius: 999px;
     flex-shrink: 0;
   }
-  
+
   .tx-card-amount {
     font-size: 16px !important;
     font-weight: 800 !important;
     margin-left: auto;
     letter-spacing: -0.5px;
   }
-  
+
   .tx-card-body {
     display: flex;
     flex-direction: column;
     gap: 2px;
     padding-left: 0;
   }
-  
+
   .tx-card-desc {
     font-size: 14px !important;
     font-weight: 700;
@@ -2910,64 +2909,23 @@ border-radius: var(--radius-sm);
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  
+
   .tx-card-category {
     font-size: 12px !important;
     color: var(--text-muted);
     font-weight: 600;
   }
-  
-  /* Checkbox più piccolo e allineato */
+
+  /* Checkbox allineato in alto a destra */
   .tx-row.mobile-card .tx-checkbox {
     position: absolute;
+    top: 12px;
     right: 12px;
-    bottom: 12px;
-    width: 16px !important;
-    height: 16px !important;
+    width: 18px !important;
+    height: 18px !important;
     margin: 0;
-  }
-  
-  .tx-row.mobile-card {
-    position: relative;
-    padding-right: 40px !important;
-  }
-}
-
-/* Desktop: layout normale */
-@media screen and (min-width: 601px) {
-  .tx-row.mobile-card .tx-card-content {
-    display: contents;
-  }
-  
-  .tx-row.mobile-card .tx-card-header,
-  .tx-row.mobile-card .tx-card-body {
-    display: contents;
-  }
-  
-  .tx-row.mobile-card .tx-card-date {
-    grid-column: 2;
-  }
-  
-  .tx-row.mobile-card .tx-card-desc {
-    grid-column: 3;
-  }
-  
-  .tx-row.mobile-card .tx-card-category {
-    display: none;
-  }
-  
-  .tx-row.mobile-card .tx-card-badge {
-    grid-column: 4;
-    text-align: center;
-  }
-  
-  .tx-row.mobile-card .tx-card-amount {
-    grid-column: 5;
-    text-align: right;
-  }
-  
-  .tx-row.mobile-card .tx-checkbox {
-    grid-column: 1;
+    accent-color: var(--accent);
+    cursor: pointer;
   }
 }
   
@@ -3128,13 +3086,7 @@ Budget
 <button data-source="bank">🏦 Conto corrente</button>
 </div>
 <div id="bulk-actions-container"></div>
-<div class="tx-header">
-  <span></span>
-  <span>Data</span>
-  <span>Movimento</span>
-  <span style="text-align:center;">Tipo</span>
-  <span style="text-align:right;">Importo</span>
-</div>
+
 <div id="transactions-list"></div>
 <p id="save-status">I dati sono sincronizzati con il tuo account.</p>
 </div>
@@ -5354,17 +5306,6 @@ function updateTransactionsList() {
   list.innerHTML = '';
   bulkContainer.innerHTML = '';
   
-  // === INTESTAZIONE TABELLA (visibile solo su desktop) ===
-  const headerDiv = document.createElement('div');
-  headerDiv.className = 'tx-header desktop-only';
-  headerDiv.innerHTML = `
-    <span></span>
-    <span>Data</span>
-    <span>Movimento</span>
-    <span style="text-align:center;">Tipo</span>
-    <span style="text-align:right;">Importo</span>
-  `;
-  list.appendChild(headerDiv);
   
   if (mt.length === 0) {
     list.innerHTML = '<p class="empty-msg">' + (searchQuery ? 'Nessun movimento trovato con questa ricerca' : 'Nessun movimento in questo periodo.') + '</p>';
