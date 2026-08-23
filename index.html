@@ -2833,10 +2833,96 @@ border-radius: var(--radius-sm);
   box-shadow: var(--shadow);
 }  
 
-/* === LAYOUT MOVIMENTI MOBILE (STILE BANCA) === */
+/* === LAYOUT MOVIMENTI - DESKTOP (TABELLA) === */
+@media screen and (min-width: 601px) {
+  /* Nasconde l'header delle colonne (eliminato dall'HTML) */
+  .tx-header {
+    display: none !important;
+  }
+
+  .tx-row.mobile-card {
+    display: grid !important;
+    grid-template-columns: 30px 100px 1fr 110px 130px !important;
+    gap: 12px !important;
+    align-items: center !important;
+    padding: 14px 20px !important;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    margin-bottom: 8px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s;
+  }
+
+  .tx-row.mobile-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent);
+  }
+
+  .tx-row.mobile-card.selected {
+    background: var(--accent-light) !important;
+    border-color: var(--accent) !important;
+  }
+
+  .tx-row.mobile-card .tx-card-content {
+    display: contents; /* Permette ai figli di occupare le colonne della griglia */
+  }
+
+  .tx-row.mobile-card .tx-checkbox {
+    grid-column: 1;
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+    cursor: pointer;
+    justify-self: center;
+  }
+
+  .tx-row.mobile-card .tx-card-date {
+    grid-column: 2;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-secondary);
+  }
+
+  .tx-row.mobile-card .tx-card-desc {
+    grid-column: 3;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .tx-row.mobile-card .tx-card-category {
+    display: none; /* Su desktop non mostriamo la categoria separatamente */
+  }
+
+  .tx-row.mobile-card .tx-card-badge {
+    grid-column: 4;
+    justify-self: center;
+    font-size: 11px !important;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 5px 12px !important;
+    border-radius: 999px;
+  }
+
+  .tx-row.mobile-card .tx-card-amount {
+    grid-column: 5;
+    justify-self: end;
+    font-size: 16px !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.5px;
+  }
+}
+
+/* === LAYOUT MOVIMENTI - MOBILE (CARD) === */
 @media screen and (max-width: 600px) {
-  /* Nasconde l'intestazione tabella su mobile (non serve più) */
-  .tx-header.desktop-only {
+  .tx-header {
     display: none !important;
   }
 
@@ -2849,7 +2935,7 @@ border-radius: var(--radius-sm);
     border: 1px solid var(--border);
     box-shadow: var(--shadow-sm);
     position: relative;
-    padding-right: 44px !important; /* spazio per il checkbox */
+    padding-right: 44px !important;
   }
 
   .tx-row.mobile-card.selected {
@@ -2916,7 +3002,6 @@ border-radius: var(--radius-sm);
     font-weight: 600;
   }
 
-  /* Checkbox allineato in alto a destra */
   .tx-row.mobile-card .tx-checkbox {
     position: absolute;
     top: 12px;
