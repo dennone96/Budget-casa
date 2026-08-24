@@ -4050,41 +4050,80 @@ async function saveBolletteData(userId) {
 
 console.log('✅ Funzioni globali bolletta definite!');
 
+// === FUNZIONE MODIFICATA PER ELIMINARE BOLLETTA CON GESTIONE ERRORI ===
 window.deleteBollettaFromDetail = async function() {
   console.log('🗑️ Elimina bolletta dal dettaglio');
+  
   if (!bollettaDetailData) {
     alert('Nessuna bolletta selezionata');
     return;
   }
+  
   if (!confirm('Eliminare questa bolletta?')) {
     return;
   }
+  
   const { tipo, meseKey, index } = bollettaDetailData;
   const bolletta = bolletteData[tipo]?.[meseKey]?.[index];
+  
   if (!bolletta) {
     alert('Bolletta non trovata');
     return;
   }
+  
   try {
+    // Tenta di eliminare il file da Storage (se esiste)
     if (bolletta.storagePath) {
-      const fileRef = storage.ref().child(bolletta.storagePath);
-      await fileRef.delete();
+      try {
+        const fileRef = storage.ref().child(bolletta.storagePath);
+        await fileRef.delete();
+        console.log('✅ File eliminato da Storage');
+      } catch (storageErr) {
+        // Se il file non esiste, procedi comunque
+        if (storageErr.code === 'storage/object-not-found') {
+          console.warn('⚠️ File non trovato in Storage, continuo con l\'eliminazione del record');
+        } else {
+          // Altro errore di Storage: lo rilancia
+          throw storageErr;
+        }
+      }
     }
+    
+    // Elimina il record dal database
     bolletteData[tipo][meseKey].splice(index, 1);
     if (bolletteData[tipo][meseKey].length === 0) {
       delete bolletteData[tipo][meseKey];
     }
+    
     await saveBolletteData();
-    closeBollettaDetail(); // se è definita come funzione normale o window
+    closeBollettaDetail();
     renderBolletteList();
     alert('✅ Bolletta eliminata con successo!');
+    
   } catch (err) {
-    alert('❌ Errore nell\'eliminazione: ' + err.message);
-    console.error('Errore eliminazione:', err);
+    // Se l'errore è "file non trovato" ma l'abbiamo già gestito, non dovrebbe arrivare qui
+    if (err.code === 'storage/object-not-found') {
+      // Caso raro: se l'errore arriva qui, significa che non è stato catturato prima
+      // Proviamo a eliminare solo il record senza il file
+      try {
+        bolletteData[tipo][meseKey].splice(index, 1);
+        if (bolletteData[tipo][meseKey].length === 0) {
+          delete bolletteData[tipo][meseKey];
+        }
+        await saveBolletteData();
+        closeBollettaDetail();
+        renderBolletteList();
+        alert('✅ Bolletta eliminata (file non trovato, record rimosso)');
+      } catch (e) {
+        alert('❌ Errore: ' + e.message);
+        console.error('Errore eliminazione record:', e);
+      }
+    } else {
+      alert('❌ Errore nell\'eliminazione: ' + err.message);
+      console.error('Errore eliminazione:', err);
+    }
   }
 };
-
-window.deleteBollettaFromDetail = deleteBollettaFromDetail  
 
 
   
