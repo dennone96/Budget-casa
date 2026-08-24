@@ -3937,18 +3937,15 @@ window.closeBollettaModal = function() {
     overlay.style.display = 'none';
   }
 };
-  
+
 async function saveBolletteData(userId) {
-  // Se userId non viene passato, usa currentUser
   if (!userId && currentUser) {
     userId = currentUser.uid;
   }
-  
   if (!userId) {
     console.error('❌ Nessun utente loggato, impossibile salvare');
     return;
   }
-  
   try {
     await db.collection('bollette').doc(userId).set(bolletteData);
     console.log('✅ Dati bollette salvati!');
@@ -3957,89 +3954,92 @@ async function saveBolletteData(userId) {
     throw err;
   }
 }
+
+window.saveBollettaFromModal = async function() {
+  console.log('💾 Salvataggio bolletta dal modale');
   
-  window.saveBollettaFromModal = async function() {
-    console.log('💾 Salvataggio bolletta dal modale');
+  const tipo = document.getElementById('bolletta-modal-tipo').value;
+  const fornitore = document.getElementById('bolletta-modal-fornitore').value.trim();
+  const importoStr = document.getElementById('bolletta-modal-importo').value;
+  const importo = parseFloat(importoStr);
+  const mese = document.getElementById('bolletta-modal-mese').value;
+  const fileInput = document.getElementById('bolletta-modal-file');
+  const file = fileInput.files[0];
+  
+  if (!fornitore) {
+    alert('Inserisci il nome del fornitore');
+    document.getElementById('bolletta-modal-fornitore').focus();
+    return;
+  }
+  if (isNaN(importo) || importo <= 0) {
+    alert('Inserisci un importo valido');
+    document.getElementById('bolletta-modal-importo').focus();
+    return;
+  }
+  if (!file) {
+    alert('Seleziona un file PDF');
+    return;
+  }
+  if (file.type !== 'application/pdf') {
+    alert('Il file deve essere in formato PDF');
+    return;
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    alert('Il file è troppo grande. Dimensione massima: 10MB');
+    return;
+  }
+  
+  const saveBtn = document.getElementById('bolletta-modal-save');
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Caricamento...';
+  
+  const progressDiv = document.getElementById('bolletta-modal-progress');
+  const progressFill = document.getElementById('bolletta-modal-progress-fill');
+  const progressText = document.getElementById('bolletta-modal-progress-text');
+  
+  try {
+    progressDiv.style.display = 'block';
+    const timestamp = Date.now();
+    const storagePath = `bollette/${currentUser.uid}/${tipo}/${mese}/${timestamp}_${file.name}`;
+    const fileRef = storage.ref().child(storagePath);
+    const uploadTask = fileRef.put(file);
     
-    const tipo = document.getElementById('bolletta-modal-tipo').value;
-    const fornitore = document.getElementById('bolletta-modal-fornitore').value.trim();
-    const importoStr = document.getElementById('bolletta-modal-importo').value;
-    const importo = parseFloat(importoStr);
-    const mese = document.getElementById('bolletta-modal-mese').value;
-    const fileInput = document.getElementById('bolletta-modal-file');
-    const file = fileInput.files[0];
+    await new Promise((resolve, reject) => {
+      uploadTask.on('state_changed',
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          progressFill.style.width = progress + '%';
+          progressText.textContent = `Caricamento... ${Math.round(progress)}%`;
+        },
+        (error) => reject(error),
+        async () => {
+          const downloadUrl = await uploadTask.snapshot.ref.getDownloadURL();
+          if (!bolletteData[tipo]) bolletteData[tipo] = {};
+          if (!bolletteData[tipo][mese]) bolletteData[tipo][mese] = [];
+          bolletteData[tipo][mese].push({
+            nome: file.name,
+            fornitore: fornitore,
+            importo: importo,
+            url: downloadUrl,
+            storagePath: storagePath,
+            size: file.size,
+            dataCaricamento: new Date().toISOString()
+          });
+          await saveBolletteData(currentUser.uid);
+          renderBolletteList();
+          resolve();
+        }
+      );
+    });
     
-    if (!fornitore) {
-      alert('Inserisci il nome del fornitore');
-      document.getElementById('bolletta-modal-fornitore').focus();
-      return;
+    // Chiusura modale con verifica
+    if (typeof window.closeBollettaModal === 'function') {
+      window.closeBollettaModal();
+    } else {
+      console.warn('⚠️ window.closeBollettaModal non trovata, chiusura manuale');
+      const overlay = document.getElementById('bolletta-modal-overlay');
+      if (overlay) overlay.style.display = 'none';
     }
-    
-    if (isNaN(importo) || importo <= 0) {
-      alert('Inserisci un importo valido');
-      document.getElementById('bolletta-modal-importo').focus();
-      return;
-    }
-    
-    if (!file) {
-      alert('Seleziona un file PDF');
-      return;
-    }
-    
-    if (file.type !== 'application/pdf') {
-      alert('Il file deve essere in formato PDF');
-      return;
-    }
-    
-    if (file.size > 10 * 1024 * 1024) {
-      alert('Il file è troppo grande. Dimensione massima: 10MB');
-      return;
-    }
-    
-    const saveBtn = document.getElementById('bolletta-modal-save');
-    saveBtn.disabled = true;
-    saveBtn.textContent = 'Caricamento...';
-    
-    const progressDiv = document.getElementById('bolletta-modal-progress');
-    const progressFill = document.getElementById('bolletta-modal-progress-fill');
-    const progressText = document.getElementById('bolletta-modal-progress-text');
-    
-    try {
-      progressDiv.style.display = 'block';
-      const timestamp = Date.now();
-      const storagePath = `bollette/${currentUser.uid}/${tipo}/${mese}/${timestamp}_${file.name}`;
-      const fileRef = storage.ref().child(storagePath);
-      const uploadTask = fileRef.put(file);
-      
-      await new Promise((resolve, reject) => {
-        uploadTask.on('state_changed',
-          (snapshot) => {
-            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            progressFill.style.width = progress + '%';
-            progressText.textContent = `Caricamento... ${Math.round(progress)}%`;
-          },
-          (error) => reject(error),
-          async () => {
-            const downloadUrl = await uploadTask.snapshot.ref.getDownloadURL();
-            if (!bolletteData[tipo]) bolletteData[tipo] = {};
-            if (!bolletteData[tipo][mese]) bolletteData[tipo][mese] = [];
-            bolletteData[tipo][mese].push({
-              nome: file.name,
-              fornitore: fornitore,
-              importo: importo,
-              url: downloadUrl,
-              storagePath: storagePath,
-              size: file.size,
-              dataCaricamento: new Date().toISOString()
-            });
-            await saveBolletteData(currentUser.uid);
-            renderBolletteList();
-            resolve();
-          }
-        );
-      });
-    
-    window.closeBolletteModal();
     alert('✅ Bolletta caricata con successo!');
     
   } catch (err) {
@@ -4054,7 +4054,7 @@ async function saveBolletteData(userId) {
 };
 
 console.log('✅ Funzioni globali bolletta definite!');
-
+  
 // === FUNZIONE MODIFICATA PER ELIMINARE BOLLETTA CON GESTIONE ERRORI ===
 window.deleteBollettaFromDetail = async function() {
   console.log('🗑️ Elimina bolletta dal dettaglio');
