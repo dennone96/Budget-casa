@@ -2973,14 +2973,15 @@ border-radius: var(--radius-sm);
     box-sizing: border-box !important;
   }
 
-  /* NASCONDI GLI ELEMENTI DIRETTI SU MOBILE (desktop-only) */
-  .tx-row.mobile-card .tx-card-date,
-  .tx-row.mobile-card .tx-card-desc,
-  .tx-row.mobile-card .tx-card-badge,
-  .tx-row.mobile-card .tx-card-amount {
+  /* NASCONDI SOLO I FIGLI DIRETTI (elementi desktop) */
+  .tx-row.mobile-card > .tx-card-date,
+  .tx-row.mobile-card > .tx-card-desc,
+  .tx-row.mobile-card > .tx-card-badge,
+  .tx-row.mobile-card > .tx-card-amount {
     display: none !important;
   }
 
+  /* MOSTRA IL CONTENUTO DELLA CARD */
   .tx-card-content {
     width: 100%;
     display: block !important;
@@ -2995,15 +2996,17 @@ border-radius: var(--radius-sm);
     border-bottom: 1px solid var(--border);
   }
 
-  .tx-card-date {
+  .tx-card-header .tx-card-date {
     font-size: 13px;
     font-weight: 700;
     color: var(--text-secondary);
+    display: inline !important;
   }
 
-  .tx-card-amount {
+  .tx-card-header .tx-card-amount {
     font-size: 18px !important;
     font-weight: 800 !important;
+    display: inline !important;
   }
 
   .tx-card-body {
@@ -3013,16 +3016,18 @@ border-radius: var(--radius-sm);
     padding-top: 4px;
   }
 
-  .tx-card-desc {
+  .tx-card-body .tx-card-desc {
     font-size: 15px !important;
     font-weight: 700;
     color: var(--text-primary);
+    display: inline !important;
   }
 
-  .tx-card-category {
+  .tx-card-body .tx-card-category {
     font-size: 12px !important;
     color: var(--text-muted);
     font-weight: 600;
+    display: inline !important;
   }
 
   .tx-card-badge {
