@@ -3939,8 +3939,13 @@ window.closeBollettaModal = function() {
 };
   
 async function saveBolletteData(userId) {
+  // Se userId non viene passato, usa currentUser
+  if (!userId && currentUser) {
+    userId = currentUser.uid;
+  }
+  
   if (!userId) {
-    console.error('❌ Nessun utente loggato');
+    console.error('❌ Nessun utente loggato, impossibile salvare');
     return;
   }
   
@@ -4027,7 +4032,7 @@ async function saveBolletteData(userId) {
               size: file.size,
               dataCaricamento: new Date().toISOString()
             });
-            await saveBolletteData();
+            await saveBolletteData(currentUser.uid);
             renderBolletteList();
             resolve();
           }
@@ -4095,7 +4100,7 @@ window.deleteBollettaFromDetail = async function() {
       delete bolletteData[tipo][meseKey];
     }
     
-    await saveBolletteData();
+    await saveBolletteData(currentUser.uid);
     closeBollettaDetail();
     renderBolletteList();
     alert('✅ Bolletta eliminata con successo!');
@@ -4110,7 +4115,7 @@ window.deleteBollettaFromDetail = async function() {
         if (bolletteData[tipo][meseKey].length === 0) {
           delete bolletteData[tipo][meseKey];
         }
-        await saveBolletteData();
+        await saveBolletteData(currentUser.uid);
         closeBollettaDetail();
         renderBolletteList();
         alert('✅ Bolletta eliminata (file non trovato, record rimosso)');
@@ -6810,7 +6815,7 @@ async function deleteBollettaFromDetail() {
             delete bolletteData[tipo][meseKey];
         }
         
-        await saveBolletteData();
+        await saveBolletteData(currentUser.uid);
         closeBollettaDetail();
         renderBolletteList();
         
@@ -6906,7 +6911,7 @@ storagePath: storagePath,
 size: file.size,
 dataCaricamento: new Date().toISOString()
 });
-await saveBolletteData();
+await saveBolletteData(currentUser.uid);
 renderBolletteList();
 resolve();
 }
