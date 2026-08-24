@@ -2973,7 +2973,7 @@ border-radius: var(--radius-sm);
     box-sizing: border-box !important;
   }
 
-  /* NASCONDI SOLO I FIGLI DIRETTI (elementi desktop) */
+  /* NASCONDI I FIGLI DIRETTI (elementi desktop) */
   .tx-row.mobile-card > .tx-card-date,
   .tx-row.mobile-card > .tx-card-desc,
   .tx-row.mobile-card > .tx-card-badge,
@@ -2981,14 +2981,15 @@ border-radius: var(--radius-sm);
     display: none !important;
   }
 
-  /* MOSTRA IL CONTENUTO DELLA CARD */
+  /* MOSTRA LA CARD */
   .tx-card-content {
-    width: 100%;
     display: block !important;
+    width: 100%;
   }
 
+  /* HEADER: data e importo */
   .tx-card-header {
-    display: flex;
+    display: flex !important;
     align-items: center;
     justify-content: space-between;
     width: 100%;
@@ -2997,41 +2998,43 @@ border-radius: var(--radius-sm);
   }
 
   .tx-card-header .tx-card-date {
+    display: inline !important;
     font-size: 13px;
     font-weight: 700;
     color: var(--text-secondary);
-    display: inline !important;
   }
 
   .tx-card-header .tx-card-amount {
+    display: inline !important;
     font-size: 18px !important;
     font-weight: 800 !important;
-    display: inline !important;
   }
 
+  /* Nascondi badge nell'header (se presente) */
+  .tx-card-header .tx-card-badge {
+    display: none !important;
+  }
+
+  /* BODY: descrizione, categoria, badge */
   .tx-card-body {
-    display: flex;
+    display: flex !important;
     flex-direction: column;
     gap: 2px;
     padding-top: 4px;
   }
 
   .tx-card-body .tx-card-desc {
+    display: inline !important;
     font-size: 15px !important;
     font-weight: 700;
     color: var(--text-primary);
-    display: inline !important;
   }
 
   .tx-card-body .tx-card-category {
+    display: inline !important;
     font-size: 12px !important;
     color: var(--text-muted);
     font-weight: 600;
-    display: inline !important;
-  }
-
-  .tx-card-badge {
-    display: none !important;
   }
 
   .tx-card-type-badge {
@@ -3054,8 +3057,7 @@ border-radius: var(--radius-sm);
     background: var(--info-light);
     color: var(--info);
   }
-}
-  
+}  
 
 </style>
 </head>
