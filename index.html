@@ -2835,14 +2835,12 @@ border-radius: var(--radius-sm);
 
 
 
-
-  
 /* === LAYOUT MOVIMENTI UNIFICATO === */
 
 /* Header: visibile solo su desktop - 4 colonne */
 .tx-header.desktop-only {
   display: grid;
-  grid-template-columns: 90px 1fr 80px 110px !important; /* 4 colonne: Data | Movimento | Tipo | Importo */
+  grid-template-columns: 100px 1fr 80px 110px !important;
   gap: 16px;
   padding: 8px 18px;
   font-size: 11px;
@@ -2879,7 +2877,7 @@ border-radius: var(--radius-sm);
 
   .tx-row.mobile-card {
     display: grid !important;
-    grid-template-columns: 90px 1fr 80px 110px !important; /* 4 colonne */
+    grid-template-columns: 100px 1fr 80px 110px !important;
     gap: 16px !important;
     align-items: center !important;
     padding: 12px 18px !important;
@@ -2942,7 +2940,7 @@ border-radius: var(--radius-sm);
     white-space: nowrap;
   }
 
-  /* Nasconde elementi solo mobile su desktop */
+  /* NASCONDI TUTTI GLI ELEMENTI MOBILE SU DESKTOP */
   .tx-row.mobile-card .tx-card-content {
     display: none !important;
   }
@@ -2975,8 +2973,17 @@ border-radius: var(--radius-sm);
     box-sizing: border-box !important;
   }
 
+  /* NASCONDI GLI ELEMENTI DIRETTI SU MOBILE (desktop-only) */
+  .tx-row.mobile-card .tx-card-date,
+  .tx-row.mobile-card .tx-card-desc,
+  .tx-row.mobile-card .tx-card-badge,
+  .tx-row.mobile-card .tx-card-amount {
+    display: none !important;
+  }
+
   .tx-card-content {
     width: 100%;
+    display: block !important;
   }
 
   .tx-card-header {
@@ -3042,7 +3049,9 @@ border-radius: var(--radius-sm);
     background: var(--info-light);
     color: var(--info);
   }
-}  
+}
+  
+
 </style>
 </head>
 <body>
@@ -3202,7 +3211,6 @@ Budget
   
 <!-- Header visibile solo su desktop -->
 <div class="tx-header desktop-only">
-  <span></span>
   <span>Data</span>
   <span>Movimento</span>
   <span style="text-align:center;">Tipo</span>
@@ -5409,6 +5417,7 @@ document.getElementById('search-transactions').addEventListener('input', (e) => 
 searchQuery = e.target.value.toLowerCase().trim();
 updateTransactionsList();
 });
+
 // === VERSIONE CORRETTA CON STRUTTURA PER LA GRIGLIA ===
 function updateTransactionsList() {
   const from = filterFrom || todayISO().slice(0, 7) + '-01';
@@ -5444,81 +5453,66 @@ function updateTransactionsList() {
     const amountSign = isIncome ? '+' : '-';
     const hasAttachment = t.attachment ? ' 📎' : '';
     
-    // === STRUTTURA PER DESKTOP (elementi separati) ===
-    // 1. DATA
+    // === ELEMENTI PER DESKTOP (diretti nella riga) ===
     const dateEl = document.createElement('span');
     dateEl.className = 'tx-card-date';
     dateEl.textContent = dateLabel;
     
-    // 2. BADGE (Tipo)
     const badgeEl = document.createElement('span');
     badgeEl.className = 'tx-card-badge ' + badgeCls;
     badgeEl.textContent = badgeLabel;
     
-    // 3. IMPORTO
     const amountEl = document.createElement('span');
     amountEl.className = 'tx-card-amount';
     amountEl.style.color = amountColor;
     amountEl.textContent = amountSign + fmtEUR(amountValue(t.amount));
     
-    // 4. DESCRIZIONE (Movimento)
     const descEl = document.createElement('span');
     descEl.className = 'tx-card-desc';
     descEl.textContent = escapeHtml(t.description || t.category) + hasAttachment;
     
-    // 5. CATEGORIA (solo mobile)
-    const catEl = document.createElement('span');
-    catEl.className = 'tx-card-category';
-    catEl.textContent = escapeHtml(t.category);
-    
-    // 6. BADGE TIPO (solo mobile)
-    const typeBadgeEl = document.createElement('span');
-    typeBadgeEl.className = 'tx-card-type-badge ' + badgeCls;
-    typeBadgeEl.textContent = badgeLabel;
-    
-    // === CONTENITORE CARD (per mobile) ===
-    const cardContent = document.createElement('div');
-    cardContent.className = 'tx-card-content';
-    cardContent.setAttribute('data-id', t.id);
-    
-    // Header della card (mobile: data + importo)
-    const headerDiv = document.createElement('div');
-    headerDiv.className = 'tx-card-header';
-    headerDiv.appendChild(dateEl.cloneNode(true));
-    headerDiv.appendChild(badgeEl.cloneNode(true));
-    headerDiv.appendChild(amountEl.cloneNode(true));
-    cardContent.appendChild(headerDiv);
-    
-    // Body della card (mobile: descrizione + categoria + badge)
-    const bodyDiv = document.createElement('div');
-    bodyDiv.className = 'tx-card-body';
-    bodyDiv.appendChild(descEl.cloneNode(true));
-    bodyDiv.appendChild(catEl.cloneNode(true));
-    bodyDiv.appendChild(typeBadgeEl.cloneNode(true));
-    cardContent.appendChild(bodyDiv);
-    
-    // === AGGIUNGI ANCHE GLI ELEMENTI DIRETTI PER LA GRIGLIA DESKTOP ===
-    // (sono nascosti su mobile, visibili su desktop)
+    // Aggiungi elementi diretti alla riga (visibili su desktop)
     row.appendChild(dateEl);
     row.appendChild(descEl);
     row.appendChild(badgeEl);
     row.appendChild(amountEl);
-    // La categoria e il typeBadge sono solo su mobile
     
-    // Aggiungi il contenitore card per mobile
+    // === CONTENITORE CARD PER MOBILE ===
+    const cardContent = document.createElement('div');
+    cardContent.className = 'tx-card-content';
+    cardContent.setAttribute('data-id', t.id);
+    
+    // Header card (data + importo)
+    const headerDiv = document.createElement('div');
+    headerDiv.className = 'tx-card-header';
+    headerDiv.innerHTML = `
+      <span class="tx-card-date">${dateLabel}</span>
+      <span class="tx-card-amount" style="color:${amountColor};">${amountSign}${fmtEUR(amountValue(t.amount))}</span>
+    `;
+    cardContent.appendChild(headerDiv);
+    
+    // Body card (descrizione + categoria + badge tipo)
+    const bodyDiv = document.createElement('div');
+    bodyDiv.className = 'tx-card-body';
+    bodyDiv.innerHTML = `
+      <span class="tx-card-desc">${escapeHtml(t.description || t.category)}${hasAttachment}</span>
+      <span class="tx-card-category">${escapeHtml(t.category)}</span>
+      <span class="tx-card-type-badge ${badgeCls}">${badgeLabel}</span>
+    `;
+    cardContent.appendChild(bodyDiv);
+    
     row.appendChild(cardContent);
     
-    // Click sulla riga per aprire dettaglio
+    // Click per dettaglio
     row.addEventListener('click', function(e) {
-      // Evita che il click sui checkbox (se presenti) apra il dettaglio
-      if (e.target.closest('.tx-checkbox')) return;
       const id = this.querySelector('.tx-card-content')?.getAttribute('data-id');
       if (id) openDetailModal(id);
     });
     
     list.appendChild(row);
   });
-}  
+}
+  
 function openDetailModal(id) {
 const t = state.transactions.find(t => t.id === id); if (!t) return;
 detailId = id;
