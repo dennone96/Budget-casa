@@ -2946,16 +2946,20 @@ border-radius: var(--radius-sm);
     display: none !important;
   }
 
-#transactions-list {
-  gap: 14px;
-  padding: 0 !important;
-}
+  /* Lista: rimuovi gap e usa solo i margini delle card */
+  #transactions-list {
+    gap: 0 !important;
+    padding: 0 !important;
+    display: flex;
+    flex-direction: column;
+  }
 
+  /* Ogni card con margine inferiore per separarle */
   .tx-row.mobile-card {
     display: block !important;
     width: 100% !important;
     padding: 14px 16px !important;
-    margin: 0 0 6px 0 !important;  /* margine inferiore per separare */
+    margin: 0 0 14px 0 !important;  /* margine inferiore per separare */
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm) !important;
