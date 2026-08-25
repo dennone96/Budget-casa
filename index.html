@@ -4274,21 +4274,23 @@ let eventsData = {};
   
 // === GESTIONE EVENTI CALENDARIO ===
 
+// Variabili globali per il calendario (vanno dichiarate PRIMA di tutto)
+let selectedDate = new Date();
+let currentMonth = new Date().getMonth();
+let currentYear = new Date().getFullYear();
+
 // Carica gli eventi
 async function loadEvents() {
   if (!currentUser) return;
-  
   try {
     const userDoc = await userDocRef().get();
     const data = userDoc.data();
-    
     if (data && data.events) {
       eventsData = data.events;
     } else {
       eventsData = {};
       await userDocRef().update({ events: eventsData });
     }
-    
     renderCalendar();
   } catch (err) {
     console.error('Errore caricamento eventi:', err);
@@ -4298,7 +4300,6 @@ async function loadEvents() {
 // Salva gli eventi
 async function saveEvents() {
   if (!currentUser) return;
-  
   try {
     await userDocRef().update({ events: eventsData });
   } catch (err) {
@@ -4310,74 +4311,62 @@ async function saveEvents() {
 function renderCalendar() {
   const container = document.getElementById('calendario-giorni');
   if (!container) return;
-  
   const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
   const meseTitolo = document.getElementById('mese-titolo');
   if (meseTitolo) {
     meseTitolo.textContent = monthNames[currentMonth] + ' ' + currentYear;
   }
-  
   const firstDay = new Date(currentYear, currentMonth, 1);
   const lastDay = new Date(currentYear, currentMonth + 1, 0);
   const daysInMonth = lastDay.getDate();
   const startDay = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
-  
   const today = new Date();
   const todayStr = today.toISOString().slice(0, 10);
-  
   let html = '';
-  
   const prevMonthLastDay = new Date(currentYear, currentMonth, 0).getDate();
   for (let i = startDay - 1; i >= 0; i--) {
     const day = prevMonthLastDay - i;
-    html += `<div class="giorno-cell altro-mese" data-date="${currentYear}-${String(currentMonth).padStart(2,'0')}-${String(day).padStart(2,'0')}">${day}</div>`;
+    const month = currentMonth === 0 ? 12 : currentMonth;
+    const year = currentMonth === 0 ? currentYear - 1 : currentYear;
+    html += `<div class="giorno-cell altro-mese" data-date="${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}">${day}</div>`;
   }
-  
   for (let day = 1; day <= daysInMonth; day++) {
     const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
     const isToday = dateStr === todayStr;
     const isSelected = dateStr === selectedDate.toISOString().slice(0, 10);
     const hasEvent = eventsData[dateStr] && eventsData[dateStr].length > 0;
-    
     let classes = 'giorno-cell';
     if (isToday) classes += ' oggi';
     if (isSelected) classes += ' selezionato';
     if (hasEvent) classes += ' has-event';
-    
     html += `<div class="${classes}" data-date="${dateStr}">${day}</div>`;
   }
-  
   const totalCells = startDay + daysInMonth;
   const remainingCells = (7 - (totalCells % 7)) % 7;
+  const nextMonth = currentMonth === 11 ? 0 : currentMonth + 1;
+  const nextYear = currentMonth === 11 ? currentYear + 1 : currentYear;
   for (let day = 1; day <= remainingCells; day++) {
-    html += `<div class="giorno-cell altro-mese" data-date="${currentYear}-${String(currentMonth + 2).padStart(2,'0')}-${String(day).padStart(2,'0')}">${day}</div>`;
+    html += `<div class="giorno-cell altro-mese" data-date="${nextYear}-${String(nextMonth + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}">${day}</div>`;
   }
-  
   container.innerHTML = html;
-  
-  // Seleziona il giorno corrente
   const todayDateStr = today.toISOString().slice(0, 10);
   renderEventsForDay(todayDateStr);
 }
 
-// Renderizza gli eventi del giorno selezionato (VERSIONE ORIGINALE MODIFICATA)
+// Renderizza gli eventi del giorno selezionato
 function renderEventsForDay(dateStr) {
   const container = document.getElementById('eventi-del-giorno');
   if (!container) return;
-  
   const date = new Date(dateStr);
   const dayNames = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica'];
   const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
-  
   const isToday = dateStr === new Date().toISOString().slice(0, 10);
   const dayName = dayNames[date.getDay() === 0 ? 6 : date.getDay() - 1];
   const giornoTitolo = document.getElementById('giorno-selezionato-titolo');
   if (giornoTitolo) {
     giornoTitolo.textContent = (isToday ? 'Oggi - ' : '') + dayName + ' ' + date.getDate() + ' ' + monthNames[date.getMonth()];
   }
-  
   const events = eventsData[dateStr] || [];
-  
   if (events.length === 0) {
     container.innerHTML = `
       <div style="text-align:center; padding:20px; color:var(--text-muted);">
@@ -4387,7 +4376,6 @@ function renderEventsForDay(dateStr) {
     `;
     return;
   }
-  
   let html = '';
   events.forEach((event, index) => {
     let oraDisplay = event.ora || 'Tutto il giorno';
@@ -4402,10 +4390,8 @@ function renderEventsForDay(dateStr) {
       </div>
     `;
   });
-  
   container.innerHTML = html;
-  
-  // Listener per eliminazione (come era prima)
+  // Listener per eliminazione
   container.querySelectorAll('.evento-delete').forEach(btn => {
     btn.addEventListener('click', async function(e) {
       e.stopPropagation();
@@ -4422,43 +4408,13 @@ function renderEventsForDay(dateStr) {
       }
     });
   });
-  
-  // Listener per click sulla card (APRE MODIFICA)
+  // Listener per click sulla card (apre modifica)
   container.querySelectorAll('.evento-card').forEach(card => {
     card.addEventListener('click', function(e) {
       if (e.target.classList.contains('evento-delete')) return;
       const date = this.dataset.date;
       const index = parseInt(this.dataset.index);
       openEditEventModal(date, index);
-    });
-  });
-}
-  
-  // === LISTENER PER MODIFICA EVENTO (click sulla card) ===
-  container.querySelectorAll('.evento-card').forEach(card => {
-    card.addEventListener('click', function(e) {
-      if (e.target.classList.contains('evento-delete')) return;
-      const date = this.dataset.date;
-      const index = parseInt(this.dataset.index);
-      openEditEventModal(date, index);
-    });
-  });
-  
-  // === LISTENER PER ELIMINAZIONE EVENTO ===
-  container.querySelectorAll('.evento-delete').forEach(btn => {
-    btn.addEventListener('click', async function(e) {
-      e.stopPropagation();
-      const date = this.dataset.date;
-      const index = parseInt(this.dataset.index);
-      if (confirm('Eliminare questo evento?')) {
-        eventsData[date].splice(index, 1);
-        if (eventsData[date].length === 0) {
-          delete eventsData[date];
-        }
-        await saveEvents();
-        renderCalendar();
-        renderEventsForDay(date);
-      }
     });
   });
 }
@@ -4470,14 +4426,10 @@ function openEditEventModal(date, index) {
     alert('Evento non trovato');
     return;
   }
-  
-  // Rimuovi eventuali modali aperti
   const existingModal = document.getElementById('evento-edit-modal-overlay');
   if (existingModal) existingModal.remove();
-  
   const isAllDayExisting = event.isAllDay || false;
   const oraValue = isAllDayExisting ? '' : (event.ora || '');
-  
   const overlay = document.createElement('div');
   overlay.className = 'evento-modal-overlay open';
   overlay.id = 'evento-edit-modal-overlay';
@@ -4493,7 +4445,6 @@ function openEditEventModal(date, index) {
         <label>Ora</label>
         <input type="time" id="edit-evento-ora" value="${oraValue}">
       </div>
-      <!-- TOGGLE GIORNATA INTERA -->
       <div class="toggle-row-eventi">
         <div class="toggle-eventi-container ${isAllDayExisting ? 'active' : ''}" id="edit-toggle-giornata-intera">
           <div class="toggle-switch-eventi"></div>
@@ -4511,18 +4462,13 @@ function openEditEventModal(date, index) {
     </div>
   `;
   document.body.appendChild(overlay);
-  
-  // === TOGGLE GIORNATA INTERA ===
   const toggleContainer = document.getElementById('edit-toggle-giornata-intera');
   const oraInput = document.getElementById('edit-evento-ora');
   let isAllDay = isAllDayExisting;
-  
-  // Se è già attivo, disabilita il campo ora
   if (isAllDay) {
     oraInput.disabled = true;
     oraInput.style.opacity = '0.5';
   }
-  
   toggleContainer.addEventListener('click', function() {
     isAllDay = !isAllDay;
     this.classList.toggle('active', isAllDay);
@@ -4535,50 +4481,36 @@ function openEditEventModal(date, index) {
       oraInput.style.opacity = '1';
     }
   });
-  
-  // Focus sul campo titolo
   setTimeout(() => {
     document.getElementById('edit-evento-titolo').focus();
     document.getElementById('edit-evento-titolo').select();
   }, 100);
-  
-  // === LISTENER ANNULLA ===
   document.getElementById('edit-evento-cancel').addEventListener('click', function() {
     overlay.remove();
   });
-  
-  // === LISTENER SALVA ===
   document.getElementById('edit-evento-save').addEventListener('click', async function() {
     const titolo = document.getElementById('edit-evento-titolo').value.trim();
     const ora = document.getElementById('edit-evento-ora').value || 'Tutta la giornata';
     const note = document.getElementById('edit-evento-note').value.trim();
-    
     if (!titolo) {
       alert('Inserisci un titolo');
       document.getElementById('edit-evento-titolo').focus();
       return;
     }
-    
-    // Aggiorna l'evento
     eventsData[date][index].titolo = titolo;
     eventsData[date][index].ora = isAllDay ? 'Tutta la giornata' : ora;
     eventsData[date][index].note = note;
     eventsData[date][index].isAllDay = isAllDay;
-    
     await saveEvents();
     overlay.remove();
     renderCalendar();
     renderEventsForDay(date);
   });
-  
-  // === INVIO CON ENTER ===
   document.getElementById('edit-evento-titolo').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
       document.getElementById('edit-evento-save').click();
     }
   });
-  
-  // === CHIUDI CLICCANDO FUORI ===
   overlay.addEventListener('click', function(e) {
     if (e.target === overlay) overlay.remove();
   });
@@ -4587,7 +4519,6 @@ function openEditEventModal(date, index) {
 // Mostra il modale per nuovo evento (CON TOGGLE GIORNATA INTERA)
 function showNewEventModal() {
   console.log('📝 Apertura modale nuovo evento');
-  
   const overlay = document.createElement('div');
   overlay.className = 'evento-modal-overlay open';
   overlay.id = 'evento-modal-overlay';
@@ -4595,50 +4526,38 @@ function showNewEventModal() {
     <div class="evento-modal">
       <h3>📝 Nuovo evento</h3>
       <p>Inserisci i dettagli dell'evento per il giorno selezionato</p>
-      
       <div class="campo">
         <label>Titolo evento *</label>
         <input type="text" id="evento-titolo-input" placeholder="es. Riunione famiglia" autofocus>
       </div>
-      
       <div class="campo">
         <label>Ora</label>
         <input type="time" id="evento-ora-input">
       </div>
-      
-      <!-- TOGGLE GIORNATA INTERA (aggiunto) -->
       <div class="toggle-row-eventi">
         <div class="toggle-eventi-container" id="toggle-giornata-intera">
           <div class="toggle-switch-eventi"></div>
           <span class="toggle-eventi-label">Giornata intera</span>
         </div>
       </div>
-      
       <div class="campo">
         <label>Note (opzionale)</label>
         <textarea id="evento-note-input" placeholder="Aggiungi dettagli..."></textarea>
       </div>
-      
       <div class="modal-actions">
         <button class="btn-cancel" id="evento-modal-cancel">Annulla</button>
         <button class="btn-create" id="evento-modal-create">Crea evento</button>
       </div>
     </div>
   `;
-  
   document.body.appendChild(overlay);
-  
-  // Focus
   setTimeout(() => {
     const input = document.getElementById('evento-titolo-input');
     if (input) input.focus();
   }, 100);
-  
-  // --- TOGGLE GIORNATA INTERA ---
   const toggleContainer = document.getElementById('toggle-giornata-intera');
   const oraInput = document.getElementById('evento-ora-input');
   let isAllDay = false;
-  
   toggleContainer.addEventListener('click', function() {
     isAllDay = !isAllDay;
     this.classList.toggle('active', isAllDay);
@@ -4651,31 +4570,23 @@ function showNewEventModal() {
       oraInput.style.opacity = '1';
     }
   });
-  
-  // --- LISTENER ANNULLA ---
   document.getElementById('evento-modal-cancel').addEventListener('click', function() {
     overlay.remove();
   });
-  
-  // --- LISTENER CREA ---
   document.getElementById('evento-modal-create').addEventListener('click', async function() {
     const titolo = document.getElementById('evento-titolo-input').value.trim();
     const ora = document.getElementById('evento-ora-input').value || 'Tutto il giorno';
     const note = document.getElementById('evento-note-input').value.trim();
-    
     if (!titolo) {
       document.getElementById('evento-titolo-input').style.borderColor = '#E74C3C';
       document.getElementById('evento-titolo-input').style.boxShadow = '0 0 0 4px #FDE8E8';
       document.getElementById('evento-titolo-input').focus();
       return;
     }
-    
     const dateStr = selectedDate.toISOString().slice(0, 10);
-    
     if (!eventsData[dateStr]) {
       eventsData[dateStr] = [];
     }
-    
     eventsData[dateStr].push({
       titolo: titolo,
       ora: isAllDay ? 'Tutta la giornata' : ora,
@@ -4683,21 +4594,16 @@ function showNewEventModal() {
       isAllDay: isAllDay,
       createdAt: new Date().toISOString()
     });
-    
     await saveEvents();
     overlay.remove();
     renderCalendar();
     renderEventsForDay(dateStr);
   });
-  
-  // --- INVIO CON ENTER ---
   document.getElementById('evento-titolo-input').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
       document.getElementById('evento-modal-create').click();
     }
   });
-  
-  // --- CHIUDI CLICCANDO FUORI ---
   overlay.addEventListener('click', function(e) {
     if (e.target === overlay) overlay.remove();
   });
@@ -4715,7 +4621,6 @@ document.addEventListener('click', function(e) {
     }
     return;
   }
-  
   const btnPrec = e.target.closest('#btn-mese-prec');
   if (btnPrec) {
     e.preventDefault();
@@ -4728,7 +4633,6 @@ document.addEventListener('click', function(e) {
     renderCalendar();
     return;
   }
-  
   const btnSucc = e.target.closest('#btn-mese-succ');
   if (btnSucc) {
     e.preventDefault();
@@ -4741,7 +4645,6 @@ document.addEventListener('click', function(e) {
     renderCalendar();
     return;
   }
-  
   const btnNuovo = e.target.closest('#btn-nuovo-evento');
   if (btnNuovo) {
     e.preventDefault();
