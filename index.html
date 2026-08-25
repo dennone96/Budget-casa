@@ -2833,51 +2833,33 @@ border-radius: var(--radius-sm);
   box-shadow: var(--shadow);
 }  
 
-
-
-/* === LAYOUT MOVIMENTI UNIFICATO === */
-
-/* Header: visibile solo su desktop - 4 colonne */
-.tx-header.desktop-only {
-  display: grid;
-  grid-template-columns: 100px 1fr 80px 110px !important;
-  gap: 16px;
-  padding: 8px 18px;
-  font-size: 11px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  color: var(--text-muted);
-  border-bottom: 2px solid var(--border);
-  margin-bottom: 8px;
-}
-
-/* Nasconde l'header su mobile */
-@media screen and (max-width: 600px) {
-  .tx-header.desktop-only {
-    display: none !important;
-  }
-}
-
-/* Contenitore lista */
-#transactions-list {
-  width: 100%;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-/* === DESKTOP (min 601px) - 5 colonne === */
+/* === LAYOUT MOVIMENTI - DESKTOP (5 COLONNE) === */
 @media screen and (min-width: 601px) {
+  /* Header desktop */
+  .tx-header.desktop-only {
+    display: grid !important;
+    grid-template-columns: 100px 1fr 100px 80px 110px !important;
+    gap: 12px !important;
+    padding: 8px 18px !important;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 8px;
+  }
+
   #transactions-list {
+    display: flex;
+    flex-direction: column;
     gap: 6px;
+    width: 100%;
   }
 
   .tx-row.mobile-card {
     display: grid !important;
-    grid-template-columns: 100px 1fr 100px 80px 110px !important; /* 5 colonne */
+    grid-template-columns: 100px 1fr 100px 80px 110px !important;
     gap: 12px !important;
     align-items: center !important;
     padding: 12px 18px !important;
@@ -2928,7 +2910,7 @@ border-radius: var(--radius-sm);
     white-space: nowrap;
   }
 
-  /* Colonna Tipo (Cash/C/C) */
+  /* Colonna Tipo */
   .tx-row.mobile-card .desktop-badge {
     grid-column: 4;
     justify-self: center;
@@ -2951,7 +2933,7 @@ border-radius: var(--radius-sm);
     white-space: nowrap;
   }
 
-  /* NASCONDI TUTTI GLI ELEMENTI MOBILE SU DESKTOP */
+  /* NASCONDI LA CARD MOBILE SU DESKTOP */
   .tx-row.mobile-card .mobile-card-content {
     display: none !important;
   }
@@ -2959,8 +2941,14 @@ border-radius: var(--radius-sm);
 
 /* === MOBILE (max 600px) === */
 @media screen and (max-width: 600px) {
+  /* Nasconde l'header */
+  .tx-header.desktop-only {
+    display: none !important;
+  }
+
   #transactions-list {
     gap: 10px;
+    padding: 0 !important;
   }
 
   .tx-row.mobile-card {
@@ -2976,22 +2964,23 @@ border-radius: var(--radius-sm);
     box-sizing: border-box !important;
   }
 
-  /* NASCONDI I FIGLI DIRETTI (elementi desktop) */
-  .tx-row.mobile-card > .tx-card-date,
-  .tx-row.mobile-card > .tx-card-desc,
-  .tx-row.mobile-card > .tx-card-badge,
-  .tx-row.mobile-card > .tx-card-amount {
+  /* NASCONDI TUTTI GLI ELEMENTI DESKTOP SU MOBILE */
+  .tx-row.mobile-card .desktop-date,
+  .tx-row.mobile-card .desktop-desc,
+  .tx-row.mobile-card .desktop-category,
+  .tx-row.mobile-card .desktop-badge,
+  .tx-row.mobile-card .desktop-amount {
     display: none !important;
   }
 
-  /* MOSTRA LA CARD */
-  .tx-card-content {
+  /* MOSTRA LA CARD MOBILE */
+  .tx-row.mobile-card .mobile-card-content {
     display: block !important;
-    width: 100%;
+    width: 100% !important;
   }
 
-  /* HEADER: data e importo */
-  .tx-card-header {
+  /* HEADER CARD: data a sinistra, importo a destra */
+  .tx-row.mobile-card .mobile-card-header {
     display: flex !important;
     align-items: center;
     justify-content: space-between;
@@ -3000,47 +2989,42 @@ border-radius: var(--radius-sm);
     border-bottom: 1px solid var(--border);
   }
 
-  .tx-card-header .tx-card-date {
+  .tx-row.mobile-card .mobile-date {
     display: inline !important;
     font-size: 13px;
     font-weight: 700;
     color: var(--text-secondary);
   }
 
-  .tx-card-header .tx-card-amount {
+  .tx-row.mobile-card .mobile-amount {
     display: inline !important;
     font-size: 18px !important;
     font-weight: 800 !important;
   }
 
-  /* Nascondi badge nell'header (se presente) */
-  .tx-card-header .tx-card-badge {
-    display: none !important;
-  }
-
-  /* BODY: descrizione, categoria, badge */
-  .tx-card-body {
+  /* BODY CARD */
+  .tx-row.mobile-card .mobile-card-body {
     display: flex !important;
     flex-direction: column;
     gap: 2px;
     padding-top: 4px;
   }
 
-  .tx-card-body .tx-card-desc {
+  .tx-row.mobile-card .mobile-desc {
     display: inline !important;
     font-size: 15px !important;
     font-weight: 700;
     color: var(--text-primary);
   }
 
-  .tx-card-body .tx-card-category {
+  .tx-row.mobile-card .mobile-category {
     display: inline !important;
     font-size: 12px !important;
     color: var(--text-muted);
     font-weight: 600;
   }
 
-  .tx-card-type-badge {
+  .tx-row.mobile-card .mobile-type-badge {
     display: inline-block !important;
     font-size: 10px;
     font-weight: 800;
@@ -3051,16 +3035,18 @@ border-radius: var(--radius-sm);
     align-self: flex-start;
   }
 
-  .tx-card-type-badge.badge-cash {
+  .tx-row.mobile-card .mobile-type-badge.badge-cash {
     background: var(--success-light);
     color: var(--success);
   }
 
-  .tx-card-type-badge.badge-bank {
+  .tx-row.mobile-card .mobile-type-badge.badge-bank {
     background: var(--info-light);
     color: var(--info);
   }
-}  
+}
+
+
 
 </style>
 </head>
@@ -3219,7 +3205,7 @@ Budget
 <button data-source="bank">🏦 Conto corrente</button>
 </div>
   
-<!-- Header visibile solo su desktop -->
+<!-- Header visibile solo su desktop - 5 colonne -->
 <div class="tx-header desktop-only">
   <span>Data</span>
   <span>Movimento</span>
@@ -5473,7 +5459,6 @@ searchQuery = e.target.value.toLowerCase().trim();
 updateTransactionsList();
 });
 
-// === VERSIONE CORRETTA CON STRUTTURA PER LA GRIGLIA ===
 function updateTransactionsList() {
   const from = filterFrom || todayISO().slice(0, 7) + '-01';
   const to = filterTo || todayISO();
@@ -5508,65 +5493,55 @@ function updateTransactionsList() {
     const amountSign = isIncome ? '+' : '-';
     const hasAttachment = t.attachment ? ' 📎' : '';
     
-// === ELEMENTI PER DESKTOP (con classe desktop-*) ===
-const dateEl = document.createElement('span');
-dateEl.className = 'desktop-date';
-dateEl.textContent = dateLabel;
-
-const descEl = document.createElement('span');
-descEl.className = 'desktop-desc';
-descEl.textContent = escapeHtml(t.description || t.category) + hasAttachment;
-
-// === NUOVO: Categoria per desktop ===
-const catElDesktop = document.createElement('span');
-catElDesktop.className = 'desktop-category';
-catElDesktop.textContent = escapeHtml(t.category);
-
-const badgeEl = document.createElement('span');
-badgeEl.className = 'desktop-badge ' + badgeCls;
-badgeEl.textContent = badgeLabel;
-
-const amountEl = document.createElement('span');
-amountEl.className = 'desktop-amount';
-amountEl.style.color = amountColor;
-amountEl.textContent = amountSign + fmtEUR(amountValue(t.amount));
-
-// Aggiungi alla riga (ordine: Data, Descrizione, Categoria, Badge, Importo)
-row.appendChild(dateEl);
-row.appendChild(descEl);
-row.appendChild(catElDesktop);  // ← NUOVO
-row.appendChild(badgeEl);
-row.appendChild(amountEl);
+    // === ELEMENTI DESKTOP (5 colonne) ===
+    const dateEl = document.createElement('span');
+    dateEl.className = 'desktop-date';
+    dateEl.textContent = dateLabel;
     
-    // === CONTENITORE CARD PER MOBILE ===
+    const descEl = document.createElement('span');
+    descEl.className = 'desktop-desc';
+    descEl.textContent = escapeHtml(t.description || t.category) + hasAttachment;
+    
+    const catEl = document.createElement('span');
+    catEl.className = 'desktop-category';
+    catEl.textContent = escapeHtml(t.category);
+    
+    const badgeEl = document.createElement('span');
+    badgeEl.className = 'desktop-badge ' + badgeCls;
+    badgeEl.textContent = badgeLabel;
+    
+    const amountEl = document.createElement('span');
+    amountEl.className = 'desktop-amount';
+    amountEl.style.color = amountColor;
+    amountEl.textContent = amountSign + fmtEUR(amountValue(t.amount));
+    
+    // Aggiungi alla riga (ordine: Data, Movimento, Categoria, Tipo, Importo)
+    row.appendChild(dateEl);
+    row.appendChild(descEl);
+    row.appendChild(catEl);
+    row.appendChild(badgeEl);
+    row.appendChild(amountEl);
+    
+    // === CARD MOBILE ===
     const cardContent = document.createElement('div');
-    cardContent.className = 'tx-card-content';
+    cardContent.className = 'mobile-card-content';
     cardContent.setAttribute('data-id', t.id);
-    
-    // Header card (data + importo)
-    const headerDiv = document.createElement('div');
-    headerDiv.className = 'tx-card-header';
-    headerDiv.innerHTML = `
-      <span class="tx-card-date">${dateLabel}</span>
-      <span class="tx-card-amount" style="color:${amountColor};">${amountSign}${fmtEUR(amountValue(t.amount))}</span>
+    cardContent.innerHTML = `
+      <div class="mobile-card-header">
+        <span class="mobile-date">${dateLabel}</span>
+        <span class="mobile-amount" style="color:${amountColor};">${amountSign}${fmtEUR(amountValue(t.amount))}</span>
+      </div>
+      <div class="mobile-card-body">
+        <span class="mobile-desc">${escapeHtml(t.description || t.category)}${hasAttachment}</span>
+        <span class="mobile-category">${escapeHtml(t.category)}</span>
+        <span class="mobile-type-badge ${badgeCls}">${badgeLabel}</span>
+      </div>
     `;
-    cardContent.appendChild(headerDiv);
-    
-    // Body card (descrizione + categoria + badge tipo)
-    const bodyDiv = document.createElement('div');
-    bodyDiv.className = 'tx-card-body';
-    bodyDiv.innerHTML = `
-      <span class="tx-card-desc">${escapeHtml(t.description || t.category)}${hasAttachment}</span>
-      <span class="tx-card-category">${escapeHtml(t.category)}</span>
-      <span class="tx-card-type-badge ${badgeCls}">${badgeLabel}</span>
-    `;
-    cardContent.appendChild(bodyDiv);
-    
     row.appendChild(cardContent);
     
     // Click per dettaglio
     row.addEventListener('click', function(e) {
-      const id = this.querySelector('.tx-card-content')?.getAttribute('data-id');
+      const id = this.querySelector('.mobile-card-content')?.getAttribute('data-id');
       if (id) openDetailModal(id);
     });
     
