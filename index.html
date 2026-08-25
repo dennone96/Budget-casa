@@ -4360,7 +4360,7 @@ function renderCalendar() {
   renderEventsForDay(todayDateStr);
 }
 
-// Renderizza gli eventi del giorno selezionato (CON MODIFICA)
+// Renderizza gli eventi del giorno selezionato (VERSIONE ORIGINALE MODIFICATA)
 function renderEventsForDay(dateStr) {
   const container = document.getElementById('eventi-del-giorno');
   if (!container) return;
@@ -4388,24 +4388,51 @@ function renderEventsForDay(dateStr) {
     return;
   }
   
-let html = '';
-events.forEach((event, index) => {
-  // Determina il testo da mostrare per l'ora
-  let oraDisplay = event.ora || 'Tutto il giorno';
-  if (event.isAllDay) {
-    oraDisplay = '🌅 Tutta la giornata';
-  }
-  
-  html += `
-    <div class="evento-card" data-date="${dateStr}" data-index="${index}">
-      <div class="evento-ora">${oraDisplay}</div>
-      <div class="evento-titolo">${escapeHtml(event.titolo)}</div>
-      <button class="evento-delete" data-index="${index}" data-date="${dateStr}">✕</button>
-    </div>
-  `;
-});
+  let html = '';
+  events.forEach((event, index) => {
+    let oraDisplay = event.ora || 'Tutto il giorno';
+    if (event.isAllDay) {
+      oraDisplay = '🌅 Tutta la giornata';
+    }
+    html += `
+      <div class="evento-card" data-date="${dateStr}" data-index="${index}">
+        <div class="evento-ora">${oraDisplay}</div>
+        <div class="evento-titolo">${escapeHtml(event.titolo)}</div>
+        <button class="evento-delete" data-index="${index}" data-date="${dateStr}">✕</button>
+      </div>
+    `;
+  });
   
   container.innerHTML = html;
+  
+  // Listener per eliminazione (come era prima)
+  container.querySelectorAll('.evento-delete').forEach(btn => {
+    btn.addEventListener('click', async function(e) {
+      e.stopPropagation();
+      const date = this.dataset.date;
+      const index = parseInt(this.dataset.index);
+      if (confirm('Eliminare questo evento?')) {
+        eventsData[date].splice(index, 1);
+        if (eventsData[date].length === 0) {
+          delete eventsData[date];
+        }
+        await saveEvents();
+        renderCalendar();
+        renderEventsForDay(date);
+      }
+    });
+  });
+  
+  // Listener per click sulla card (APRE MODIFICA)
+  container.querySelectorAll('.evento-card').forEach(card => {
+    card.addEventListener('click', function(e) {
+      if (e.target.classList.contains('evento-delete')) return;
+      const date = this.dataset.date;
+      const index = parseInt(this.dataset.index);
+      openEditEventModal(date, index);
+    });
+  });
+}
   
   // === LISTENER PER MODIFICA EVENTO (click sulla card) ===
   container.querySelectorAll('.evento-card').forEach(card => {
@@ -4557,13 +4584,9 @@ function openEditEventModal(date, index) {
   });
 }
 
-// Mostra il modale per nuovo evento
+// Mostra il modale per nuovo evento (CON TOGGLE GIORNATA INTERA)
 function showNewEventModal() {
   console.log('📝 Apertura modale nuovo evento');
-  
-  // Rimuovi eventuali modali aperti
-  const existingModal = document.getElementById('evento-modal-overlay');
-  if (existingModal) existingModal.remove();
   
   const overlay = document.createElement('div');
   overlay.className = 'evento-modal-overlay open';
@@ -4583,7 +4606,7 @@ function showNewEventModal() {
         <input type="time" id="evento-ora-input">
       </div>
       
-      <!-- TOGGLE GIORNATA INTERA -->
+      <!-- TOGGLE GIORNATA INTERA (aggiunto) -->
       <div class="toggle-row-eventi">
         <div class="toggle-eventi-container" id="toggle-giornata-intera">
           <div class="toggle-switch-eventi"></div>
@@ -4605,12 +4628,13 @@ function showNewEventModal() {
   
   document.body.appendChild(overlay);
   
+  // Focus
   setTimeout(() => {
     const input = document.getElementById('evento-titolo-input');
     if (input) input.focus();
   }, 100);
   
-  // === TOGGLE GIORNATA INTERA ===
+  // --- TOGGLE GIORNATA INTERA ---
   const toggleContainer = document.getElementById('toggle-giornata-intera');
   const oraInput = document.getElementById('evento-ora-input');
   let isAllDay = false;
@@ -4628,12 +4652,12 @@ function showNewEventModal() {
     }
   });
   
-  // === LISTENER ANNULLA ===
+  // --- LISTENER ANNULLA ---
   document.getElementById('evento-modal-cancel').addEventListener('click', function() {
     overlay.remove();
   });
   
-  // === LISTENER CREA ===
+  // --- LISTENER CREA ---
   document.getElementById('evento-modal-create').addEventListener('click', async function() {
     const titolo = document.getElementById('evento-titolo-input').value.trim();
     const ora = document.getElementById('evento-ora-input').value || 'Tutto il giorno';
@@ -4666,14 +4690,14 @@ function showNewEventModal() {
     renderEventsForDay(dateStr);
   });
   
-  // === INVIO CON ENTER ===
+  // --- INVIO CON ENTER ---
   document.getElementById('evento-titolo-input').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
       document.getElementById('evento-modal-create').click();
     }
   });
   
-  // === CHIUDI CLICCANDO FUORI ===
+  // --- CHIUDI CLICCANDO FUORI ---
   overlay.addEventListener('click', function(e) {
     if (e.target === overlay) overlay.remove();
   });
