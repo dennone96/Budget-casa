@@ -2869,7 +2869,7 @@ border-radius: var(--radius-sm);
   gap: 6px;
 }
 
-/* === DESKTOP (min 601px) - 4 colonne === */
+/* === DESKTOP (min 601px) - 5 colonne === */
 @media screen and (min-width: 601px) {
   #transactions-list {
     gap: 6px;
@@ -2877,8 +2877,8 @@ border-radius: var(--radius-sm);
 
   .tx-row.mobile-card {
     display: grid !important;
-    grid-template-columns: 100px 1fr 80px 110px !important;
-    gap: 16px !important;
+    grid-template-columns: 100px 1fr 100px 80px 110px !important; /* 5 colonne */
+    gap: 12px !important;
     align-items: center !important;
     padding: 12px 18px !important;
     background: var(--surface);
@@ -2898,7 +2898,7 @@ border-radius: var(--radius-sm);
   }
 
   /* Colonna Data */
-  .tx-row.mobile-card .tx-card-date {
+  .tx-row.mobile-card .desktop-date {
     grid-column: 1;
     font-size: 13px;
     font-weight: 700;
@@ -2907,7 +2907,7 @@ border-radius: var(--radius-sm);
   }
 
   /* Colonna Movimento (descrizione) */
-  .tx-row.mobile-card .tx-card-desc {
+  .tx-row.mobile-card .desktop-desc {
     grid-column: 2;
     font-size: 14px;
     font-weight: 700;
@@ -2917,9 +2917,20 @@ border-radius: var(--radius-sm);
     white-space: nowrap;
   }
 
-  /* Colonna Tipo (Cash/C/C) */
-  .tx-row.mobile-card .tx-card-badge {
+  /* Colonna Categoria */
+  .tx-row.mobile-card .desktop-category {
     grid-column: 3;
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Colonna Tipo (Cash/C/C) */
+  .tx-row.mobile-card .desktop-badge {
+    grid-column: 4;
     justify-self: center;
     font-size: 11px !important;
     font-weight: 800;
@@ -2931,8 +2942,8 @@ border-radius: var(--radius-sm);
   }
 
   /* Colonna Importo */
-  .tx-row.mobile-card .tx-card-amount {
-    grid-column: 4;
+  .tx-row.mobile-card .desktop-amount {
+    grid-column: 5;
     justify-self: end;
     font-size: 15px !important;
     font-weight: 800 !important;
@@ -2941,15 +2952,7 @@ border-radius: var(--radius-sm);
   }
 
   /* NASCONDI TUTTI GLI ELEMENTI MOBILE SU DESKTOP */
-  .tx-row.mobile-card .tx-card-content {
-    display: none !important;
-  }
-
-  .tx-row.mobile-card .tx-card-category {
-    display: none !important;
-  }
-
-  .tx-row.mobile-card .tx-card-type-badge {
+  .tx-row.mobile-card .mobile-card-content {
     display: none !important;
   }
 }
@@ -3220,6 +3223,7 @@ Budget
 <div class="tx-header desktop-only">
   <span>Data</span>
   <span>Movimento</span>
+  <span>Categoria</span>
   <span style="text-align:center;">Tipo</span>
   <span style="text-align:right;">Importo</span>
 </div>
@@ -5504,29 +5508,35 @@ function updateTransactionsList() {
     const amountSign = isIncome ? '+' : '-';
     const hasAttachment = t.attachment ? ' 📎' : '';
     
-    // === ELEMENTI PER DESKTOP (diretti nella riga) ===
-    const dateEl = document.createElement('span');
-    dateEl.className = 'tx-card-date';
-    dateEl.textContent = dateLabel;
-    
-    const badgeEl = document.createElement('span');
-    badgeEl.className = 'tx-card-badge ' + badgeCls;
-    badgeEl.textContent = badgeLabel;
-    
-    const amountEl = document.createElement('span');
-    amountEl.className = 'tx-card-amount';
-    amountEl.style.color = amountColor;
-    amountEl.textContent = amountSign + fmtEUR(amountValue(t.amount));
-    
-    const descEl = document.createElement('span');
-    descEl.className = 'tx-card-desc';
-    descEl.textContent = escapeHtml(t.description || t.category) + hasAttachment;
-    
-    // Aggiungi elementi diretti alla riga (visibili su desktop)
-    row.appendChild(dateEl);
-    row.appendChild(descEl);
-    row.appendChild(badgeEl);
-    row.appendChild(amountEl);
+// === ELEMENTI PER DESKTOP (con classe desktop-*) ===
+const dateEl = document.createElement('span');
+dateEl.className = 'desktop-date';
+dateEl.textContent = dateLabel;
+
+const descEl = document.createElement('span');
+descEl.className = 'desktop-desc';
+descEl.textContent = escapeHtml(t.description || t.category) + hasAttachment;
+
+// === NUOVO: Categoria per desktop ===
+const catElDesktop = document.createElement('span');
+catElDesktop.className = 'desktop-category';
+catElDesktop.textContent = escapeHtml(t.category);
+
+const badgeEl = document.createElement('span');
+badgeEl.className = 'desktop-badge ' + badgeCls;
+badgeEl.textContent = badgeLabel;
+
+const amountEl = document.createElement('span');
+amountEl.className = 'desktop-amount';
+amountEl.style.color = amountColor;
+amountEl.textContent = amountSign + fmtEUR(amountValue(t.amount));
+
+// Aggiungi alla riga (ordine: Data, Descrizione, Categoria, Badge, Importo)
+row.appendChild(dateEl);
+row.appendChild(descEl);
+row.appendChild(catElDesktop);  // ← NUOVO
+row.appendChild(badgeEl);
+row.appendChild(amountEl);
     
     // === CONTENITORE CARD PER MOBILE ===
     const cardContent = document.createElement('div');
