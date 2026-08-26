@@ -6371,21 +6371,7 @@ document.getElementById('color-picker-overlay').addEventListener('click', (e) =>
 document.addEventListener('DOMContentLoaded', function() {
   setTimeout(initCatEditModalListeners, 200);
 });
-Assicurati che nel tuo file HTML ci siano i seguenti elementi:
 
-#cat-edit-modal con input #cat-edit-input, pulsanti #cat-edit-cancel, #cat-edit-save
-
-#color-picker-overlay con tutti gli ID relativi
-
-Sostituisci il blocco di codice delle categorie con questo, e ricarica. Ora dovrebbe funzionare tutto (aggiunta, modifica, eliminazione, cambio colore).
-
-Il tuo codice è quasi completo, ma manca la dichiarazione di editingCat e colorPickerContext. Inoltre, initCatEditModalListeners usa editingCat che potrebbe non essere definita se non la dichiari prima.
-
-Ecco il codice completo e corretto da sostituire a tutto il blocco della gestione categorie (da function renderCategories() fino alla fine del blocco).
-
-Incolla questo codice al posto del tuo attuale blocco renderCategories() e funzioni correlate:
-
-javascript
 // === GESTIONE CATEGORIE ===
 
 // Dichiarazione variabili globali per la gestione categorie
