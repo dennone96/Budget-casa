@@ -3742,20 +3742,7 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 </div>
 </div>
 </div>
-<!-- MODALE MODIFICA CATEGORIA -->
-<div id="cat-edit-modal" style="display:none; position:fixed; inset:0; background:rgba(15,25,35,0.6); backdrop-filter:blur(8px); z-index:600; align-items:center; justify-content:center; padding:1rem;">
-  <div style="background:var(--surface); border-radius:var(--radius-lg); padding:2rem; width:100%; max-width:440px; box-shadow:var(--shadow-xl); animation:modalIn 0.3s ease;">
-    <h3 style="margin:0 0 1.5rem; font-size:22px; font-weight:800; letter-spacing:-0.5px;">✏️ Modifica categoria</h3>
-    <div class="modal-field">
-      <label style="display:block; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-muted); margin-bottom:8px;">Nuovo nome</label>
-      <input type="text" id="cat-edit-input" style="width:100%; height:46px; font-weight:700; border-radius:var(--radius-sm); border:1.5px solid var(--border); padding:0 14px; font-size:14px; background:var(--surface-2); color:var(--text-primary);">
-    </div>
-    <div class="modal-actions" style="display:flex; gap:10px; margin-top:1.5rem;">
-      <button id="cat-edit-cancel" style="flex:1; height:46px; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; background:var(--surface-2); border:1px solid var(--border); color:var(--text-secondary);">Annulla</button>
-      <button id="cat-edit-save" style="flex:2; height:46px; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; background:var(--accent-gradient); color:#fff; border:none;">Salva</button>
-    </div>
-  </div>
-</div>
+
 <div id="bolletta-detail-overlay" style="display:none; position:fixed; inset:0; background:rgba(15,25,35,0.6); backdrop-filter:blur(8px); z-index:600; align-items:center; justify-content:center; padding:1rem;">
 <div style="background:var(--surface); border-radius:var(--radius-lg); padding:2rem; width:100%; max-width:500px; box-shadow:var(--shadow-xl); animation:modalIn 0.3s ease;">
 <h3 style="margin:0 0 1.5rem; font-size:22px; font-weight:800; letter-spacing:-0.5px;">📄 Dettaglio bolletta</h3>
@@ -3786,21 +3773,21 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 </div>
 </div>
 
-<div id="color-picker-overlay" style="display:none; position:fixed; inset:0; background:rgba(15,25,35,0.6); backdrop-filter:blur(8px); z-index:700; align-items:center; justify-content:center; padding:1rem;">
-  <div id="color-picker-box" style="background:var(--surface); border-radius:var(--radius-lg); padding:2rem; width:100%; max-width:420px; box-shadow:var(--shadow-xl); animation:modalIn 0.3s ease;">
-    <h3 style="margin:0 0 0.5rem; font-size:22px; font-weight:800; letter-spacing:-0.5px;">🎨 Cambia colore</h3>
-    <p class="color-picker-subtitle" style="font-size:13px; color:var(--text-muted); margin-bottom:1.5rem; font-weight:600;">Scegli un colore per questa categoria</p>
-    <div class="color-picker-preview" style="display:flex; align-items:center; gap:12px; padding:14px 16px; background:var(--surface-2); border-radius:var(--radius-sm); margin-bottom:1.5rem; border:1px solid var(--border);">
-      <div class="color-picker-preview-dot" id="color-picker-preview-dot" style="width:36px; height:36px; border-radius:50%; border:3px solid #fff; box-shadow:var(--shadow); transition:background-color 0.3s;"></div>
-      <div class="color-picker-preview-name" id="color-picker-preview-name" style="font-size:15px; font-weight:700; color:var(--text-primary); flex:1;"></div>
-      <div class="color-picker-preview-hex" id="color-picker-preview-hex" style="font-size:12px; font-weight:700; color:var(--text-muted); font-family:monospace;"></div>
-    </div>
-    <div class="color-picker-grid" id="color-picker-grid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:1.5rem;"></div>
-    <div class="color-picker-actions" style="display:flex; gap:10px;">
-      <button id="color-picker-cancel" style="flex:1; height:46px; font-size:14px; font-weight:700; border-radius:var(--radius-sm); background:var(--surface-2); border:1px solid var(--border); color:var(--text-primary); cursor:pointer;">Annulla</button>
-      <button id="color-picker-save" style="flex:2; height:46px; font-size:14px; font-weight:700; border-radius:var(--radius-sm); background:var(--accent-gradient); color:#fff; border:none; cursor:pointer;">Salva colore</button>
-    </div>
-  </div>
+<!-- Modale modifica categoria -->
+<div id="cat-edit-modal" style="display:none; ...">
+  <input type="text" id="cat-edit-input">
+  <button id="cat-edit-cancel">Annulla</button>
+  <button id="cat-edit-save">Salva</button>
+</div>
+
+<!-- Color picker -->
+<div id="color-picker-overlay" style="display:none; ...">
+  <div id="color-picker-preview-name"></div>
+  <div id="color-picker-preview-dot"></div>
+  <div id="color-picker-preview-hex"></div>
+  <div id="color-picker-grid"></div>
+  <button id="color-picker-cancel">Annulla</button>
+  <button id="color-picker-save">Salva</button>
 </div>
   
 <div id="income-expense-overlay">
@@ -6063,17 +6050,14 @@ const msgEl = document.getElementById('profile-msg'); msgEl.textContent = '';
 try { await auth.sendPasswordResetEmail(currentUser.email); msgEl.style.color = 'var(--success)'; msgEl.textContent = 'Email inviata!'; } catch(e) { msgEl.style.color = 'var(--danger)'; msgEl.textContent = 'Errore: ' + e.message; }
 });
 
-// === GESTIONE CATEGORIE (VERSIONE DEFINITIVA - SENZA DOPPIE DICHIARAZIONI) ===
+// === GESTIONE CATEGORIE (VERSIONE FUNZIONANTE) ===
 
-// NOTA: editingCat e colorPickerContext sono già dichiarate globalmente
-// Non dichiararle di nuovo qui!
+// Nota: editingCat e colorPickerContext sono già dichiarate globalmente nel tuo file
+// Non dichiararle di nuovo!
 
 // Renderizza le categorie
 function renderCategories() {
   console.log('🔄 renderCategories() chiamata');
-
-  // Assicura che i listener del modale di modifica siano attaccati
-  initCatEditModalListeners();
 
   // Renderizza le liste
   ['expense', 'income'].forEach(type => {
@@ -6101,35 +6085,35 @@ function renderCategories() {
           <span>${escapeHtml(cat)}</span>
         </div>
         <div class="cat-actions">
-          <button class="btn-edit-tx" data-type="${type}" data-idx="${idx}" title="Modifica" style="background: linear-gradient(135deg, #2F80ED 0%, #1558C0 100%); border-radius: 12px; width:36px; height:36px; display:inline-flex; align-items:center; justify-content:center; border:none; cursor:pointer;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-          </button>
-          <button class="btn-delete" data-type="${type}" data-idx="${idx}" title="Elimina" style="background: linear-gradient(135deg, #F04438 0%, #B42318 100%); border-radius: 12px; width:36px; height:36px; display:inline-flex; align-items:center; justify-content:center; border:none; cursor:pointer;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-          </button>
+          <button class="btn-edit-tx" data-type="${type}" data-idx="${idx}" title="Modifica">✏️</button>
+          <button class="btn-delete" data-type="${type}" data-idx="${idx}" title="Elimina">🗑️</button>
         </div>
       `;
       ul.appendChild(li);
     });
   });
 
-  // Listener per i pulsanti "Aggiungi"
+  // === LISTENER PER I PULSANTI "AGGIUNGI" ===
   ['expense', 'income'].forEach(type => {
     const btnId = type === 'expense' ? 'btn-add-cat-expense' : 'btn-add-cat-income';
     const btn = document.getElementById(btnId);
     if (btn) {
-      const newBtn = btn.cloneNode(true);
-      btn.parentNode.replaceChild(newBtn, btn);
-      newBtn.addEventListener('click', () => addCategory(type));
+      btn.onclick = function() {
+        addCategory(type);
+      };
     }
   });
 
-  // Delegate listener per le liste (modifica, elimina, colore)
+  // === LISTENER PER MODIFICA, ELIMINA, COLORE (DELEGA SULLE LISTE) ===
   ['cat-list-expense', 'cat-list-income'].forEach(listId => {
     const list = document.getElementById(listId);
     if (!list) return;
+    
+    // Rimuovi tutti i listener clonando l'elemento
     const newList = list.cloneNode(true);
     list.parentNode.replaceChild(newList, list);
+    
+    // Attacca il listener sul nuovo elemento
     newList.addEventListener('click', function(e) {
       // Pulsante modifica
       const editBtn = e.target.closest('.btn-edit-tx');
@@ -6142,6 +6126,7 @@ function renderCategories() {
         openCatEditModal(type, idx);
         return;
       }
+      
       // Pulsante elimina
       const delBtn = e.target.closest('.btn-delete');
       if (delBtn) {
@@ -6153,6 +6138,7 @@ function renderCategories() {
         deleteCategory(type, idx);
         return;
       }
+      
       // Pallino colore
       const dot = e.target.closest('.cat-color-dot');
       if (dot) {
@@ -6166,6 +6152,9 @@ function renderCategories() {
       }
     });
   });
+
+  // === LISTENER PER IL MODALE DI MODIFICA ===
+  initCatEditModalListeners();
 
   console.log('✅ Categorie renderizzate e listener attaccati');
 }
@@ -6217,6 +6206,8 @@ async function deleteCategory(type, idx) {
 // --- Modifica categoria ---
 function openCatEditModal(type, idx) {
   console.log('✏️ openCatEditModal chiamata con:', type, idx);
+  
+  // Salva i dati
   editingCat.type = type;
   editingCat.index = idx;
 
@@ -6253,16 +6244,14 @@ function initCatEditModalListeners() {
     return;
   }
 
+  // Pulsante Annulla
   if (cancelBtn) {
-    const newCancel = cancelBtn.cloneNode(true);
-    cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
-    newCancel.addEventListener('click', closeCatEditModal);
+    cancelBtn.onclick = closeCatEditModal;
   }
 
+  // Pulsante Salva
   if (saveBtn) {
-    const newSave = saveBtn.cloneNode(true);
-    saveBtn.parentNode.replaceChild(newSave, saveBtn);
-    newSave.addEventListener('click', async function() {
+    saveBtn.onclick = async function() {
       const input = document.getElementById('cat-edit-input');
       if (!input) return;
 
@@ -6299,15 +6288,13 @@ function initCatEditModalListeners() {
       renderCategories();
       populateCategorySelect();
       console.log('✅ Categoria modificata da', oldName, 'a', newName);
-    });
+    };
   }
 
-  // Click fuori
-  const newModal = modal.cloneNode(true);
-  modal.parentNode.replaceChild(newModal, modal);
-  newModal.addEventListener('click', function(e) {
+  // Click fuori dal modale
+  modal.onclick = function(e) {
     if (e.target === this) closeCatEditModal();
-  });
+  };
 }
 
 // --- Color Picker ---
@@ -6346,15 +6333,15 @@ function renderColorPalette() {
     option.className = 'color-picker-option' + (color.hex === colorPickerContext.selectedColor ? ' selected' : '');
     option.style.backgroundColor = color.hex;
     option.title = color.name;
-    option.addEventListener('click', () => {
+    option.onclick = function() {
       colorPickerContext.selectedColor = color.hex;
       const dot = document.getElementById('color-picker-preview-dot');
       const hex = document.getElementById('color-picker-preview-hex');
       if (dot) dot.style.backgroundColor = color.hex;
       if (hex) hex.textContent = color.hex;
       grid.querySelectorAll('.color-picker-option').forEach(opt => opt.classList.remove('selected'));
-      option.classList.add('selected');
-    });
+      this.classList.add('selected');
+    };
     grid.appendChild(option);
   });
 }
@@ -6383,20 +6370,17 @@ async function saveSelectedColor() {
   console.log('✅ Colore salvato per', colorPickerContext.category);
 }
 
-// Attacca i listener ai pulsanti del color picker (una volta)
+// === ATTACCA LISTENER AI PULSANTI DEL COLOR PICKER ===
 document.getElementById('color-picker-cancel')?.addEventListener('click', closeColorPicker);
 document.getElementById('color-picker-save')?.addEventListener('click', saveSelectedColor);
-document.getElementById('color-picker-overlay')?.addEventListener('click', (e) => {
+document.getElementById('color-picker-overlay')?.addEventListener('click', function(e) {
   if (e.target.id === 'color-picker-overlay') closeColorPicker();
 });
 
-// Inizializza i listener del modale di modifica (una volta all'avvio)
+// === INIZIALIZZA ALL'AVVIO ===
 document.addEventListener('DOMContentLoaded', function() {
-  initCatEditModalListeners();
-  // Chiama renderCategories per essere sicuri
   setTimeout(renderCategories, 300);
 });
-
 
 function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
 function populateMonthSelects() {
