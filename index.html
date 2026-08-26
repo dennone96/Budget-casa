@@ -6094,10 +6094,10 @@ function renderCategories() {
           <span>${escapeHtml(cat)}</span>
         </div>
         <div class="cat-actions">
-          <button class="btn-edit-cat" data-type="${type}" data-idx="${idx}" title="Modifica" style="background: linear-gradient(135deg, #2F80ED 0%, #1558C0 100%); border-radius: 12px; width:36px; height:36px; display:inline-flex; align-items:center; justify-content:center; border:none; cursor:pointer;">
+          <button class="btn-edit-tx" data-type="${type}" data-idx="${idx}" title="Modifica" style="background: linear-gradient(135deg, #2F80ED 0%, #1558C0 100%); border-radius: 12px; width:36px; height:36px; display:inline-flex; align-items:center; justify-content:center; border:none; cursor:pointer;">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           </button>
-          <button class="btn-delete-cat" data-type="${type}" data-idx="${idx}" title="Elimina" style="background: linear-gradient(135deg, #F04438 0%, #B42318 100%); border-radius: 12px; width:36px; height:36px; display:inline-flex; align-items:center; justify-content:center; border:none; cursor:pointer;">
+          <button class="btn-delete" data-type="${type}" data-idx="${idx}" title="Elimina" style="background: linear-gradient(135deg, #F04438 0%, #B42318 100%); border-radius: 12px; width:36px; height:36px; display:inline-flex; align-items:center; justify-content:center; border:none; cursor:pointer;">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
           </button>
         </div>
@@ -6129,26 +6129,47 @@ function renderCategories() {
     });
   }
   
-  // === ATTACCA LISTENER AI PULSANTI DI MODIFICA ED ELIMINA (DELEGA) ===
+  // === ATTACCA LISTENER PER MODIFICA/ELIMINAZIONE (DELEGA SULLE LISTE) ===
   document.querySelectorAll('#cat-list-expense, #cat-list-income').forEach(list => {
     if (!list) return;
     list.addEventListener('click', function(e) {
       const target = e.target.closest('button');
       if (!target) return;
       
-      if (target.classList.contains('btn-edit-cat')) {
+      if (target.classList.contains('btn-edit-tx')) {
+        e.preventDefault();
+        e.stopPropagation();
         const type = target.getAttribute('data-type');
         const idx = parseInt(target.getAttribute('data-idx'));
+        console.log('✏️ Modifica categoria:', type, idx);
         openCatEditModal(type, idx);
         return;
       }
       
-      if (target.classList.contains('btn-delete-cat')) {
+      if (target.classList.contains('btn-delete')) {
+        e.preventDefault();
+        e.stopPropagation();
         const type = target.getAttribute('data-type');
         const idx = parseInt(target.getAttribute('data-idx'));
+        console.log('🗑️ Elimina categoria:', type, idx);
         deleteCategory(type, idx);
         return;
       }
+    });
+  });
+  
+  // === ATTACCA LISTENER PER IL COLOR PICKER (DELEGA SUI PALLINI) ===
+  document.querySelectorAll('#cat-list-expense, #cat-list-income').forEach(list => {
+    if (!list) return;
+    list.addEventListener('click', function(e) {
+      const target = e.target.closest('.cat-color-dot');
+      if (!target) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const type = target.getAttribute('data-type');
+      const category = target.getAttribute('data-category');
+      console.log('🎨 Cambio colore per:', category);
+      openColorPicker(type, category);
     });
   });
   
@@ -6201,62 +6222,16 @@ async function deleteCategory(type, idx) {
   populateCategorySelect();
 }
 
-  
-function renderColorPalette() {
-const grid = document.getElementById('color-picker-grid');
-grid.innerHTML = '';
-COLOR_PALETTE.forEach(color => {
-const option = document.createElement('div');
-option.className = 'color-picker-option' + (color.hex === colorPickerContext.selectedColor ? ' selected' : '');
-option.style.backgroundColor = color.hex;
-option.title = color.name;
-option.addEventListener('click', () => {
-colorPickerContext.selectedColor = color.hex;
-document.getElementById('color-picker-preview-dot').style.backgroundColor = color.hex;
-document.getElementById('color-picker-preview-hex').textContent = color.hex;
-grid.querySelectorAll('.color-picker-option').forEach(opt => opt.classList.remove('selected'));
-option.classList.add('selected');
-});
-grid.appendChild(option);
-});
-}
-
-function closeColorPicker() {
-document.getElementById('color-picker-overlay').classList.remove('open');
-colorPickerContext = { category: null, type: null, selectedColor: null };
-}
-
-async function saveSelectedColor() {
-if (!colorPickerContext.category || !colorPickerContext.selectedColor) return;
-categoryColors[colorPickerContext.category] = colorPickerContext.selectedColor;
-await saveCategoryColors();
-renderCategories();
-if (document.getElementById('page-grafici').classList.contains('active')) {
-updateChartCategory();
-}
-closeColorPicker();
-}
-
-document.getElementById('color-picker-cancel').addEventListener('click', closeColorPicker);
-document.getElementById('color-picker-save').addEventListener('click', saveSelectedColor);
-document.getElementById('color-picker-overlay').addEventListener('click', (e) => {
-if (e.target.id === 'color-picker-overlay') closeColorPicker();
-});
-
 // === GESTIONE MODIFICA CATEGORIE ===
 
-// Apri il modale di modifica categoria
 function openCatEditModal(type, idx) {
   console.log('✏️ Apertura modifica categoria:', type, idx);
-  
-  // Salva i dati della categoria in modifica
   editingCat = { type: type, index: idx };
   
   const input = document.getElementById('cat-edit-input');
   if (input) {
     input.value = state.categories[type][idx];
-    input.focus();
-    input.select();
+    setTimeout(() => { input.focus(); input.select(); }, 100);
   }
   
   const modal = document.getElementById('cat-edit-modal');
@@ -6268,28 +6243,21 @@ function openCatEditModal(type, idx) {
   }
 }
 
-// Chiudi il modale di modifica categoria
 function closeCatEditModal() {
   const modal = document.getElementById('cat-edit-modal');
-  if (modal) {
-    modal.style.display = 'none';
-  }
+  if (modal) modal.style.display = 'none';
   editingCat = { type: null, index: null };
 }
 
-// Inizializza i listener per il modale di modifica categoria
 function initCatEditModalListeners() {
   const cancelBtn = document.getElementById('cat-edit-cancel');
   const saveBtn = document.getElementById('cat-edit-save');
   const modal = document.getElementById('cat-edit-modal');
   
   if (cancelBtn) {
-    // Rimuovi listener vecchi clonando
     const newCancel = cancelBtn.cloneNode(true);
     cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
     newCancel.addEventListener('click', closeCatEditModal);
-  } else {
-    console.warn('⚠️ btn cat-edit-cancel non trovato');
   }
   
   if (saveBtn) {
@@ -6308,25 +6276,19 @@ function initCatEditModalListeners() {
       
       const type = editingCat.type;
       const idx = editingCat.index;
-      
       if (type === null || idx === null) {
         alert('Errore: nessuna categoria selezionata.');
         return;
       }
       
       const oldName = state.categories[type][idx];
-      
-      // Controlla se il nome esiste già (e non è lo stesso)
       if (state.categories[type].includes(newName) && newName !== oldName) {
         alert('Categoria già esistente.');
         input.focus();
         return;
       }
       
-      // Aggiorna il nome
       state.categories[type][idx] = newName;
-      
-      // Se il nome è cambiato, aggiorna anche i colori
       if (newName !== oldName && categoryColors[oldName]) {
         categoryColors[newName] = categoryColors[oldName];
         delete categoryColors[oldName];
@@ -6337,31 +6299,412 @@ function initCatEditModalListeners() {
       closeCatEditModal();
       renderCategories();
       populateCategorySelect();
-      console.log('✅ Categoria modificata:', oldName, '→', newName);
     });
-  } else {
-    console.warn('⚠️ btn cat-edit-save non trovato');
   }
   
-  // Click fuori dal modale per chiudere
   if (modal) {
     const newModal = modal.cloneNode(true);
     modal.parentNode.replaceChild(newModal, modal);
     newModal.addEventListener('click', function(e) {
-      if (e.target === this) {
-        closeCatEditModal();
-      }
+      if (e.target === this) closeCatEditModal();
     });
   }
 }
 
-// Chiama initCatEditModalListeners una volta all'avvio
+// === FUNZIONI COLOR PICKER ===
+// (se già presenti, salta)
+function openColorPicker(type, category) {
+  colorPickerContext = {
+    type: type,
+    category: category,
+    selectedColor: getCategoryColor(category)
+  };
+  document.getElementById('color-picker-preview-name').textContent = category;
+  document.getElementById('color-picker-preview-dot').style.backgroundColor = colorPickerContext.selectedColor;
+  document.getElementById('color-picker-preview-hex').textContent = colorPickerContext.selectedColor;
+  renderColorPalette();
+  document.getElementById('color-picker-overlay').classList.add('open');
+}
+
+function renderColorPalette() {
+  const grid = document.getElementById('color-picker-grid');
+  grid.innerHTML = '';
+  COLOR_PALETTE.forEach(color => {
+    const option = document.createElement('div');
+    option.className = 'color-picker-option' + (color.hex === colorPickerContext.selectedColor ? ' selected' : '');
+    option.style.backgroundColor = color.hex;
+    option.title = color.name;
+    option.addEventListener('click', () => {
+      colorPickerContext.selectedColor = color.hex;
+      document.getElementById('color-picker-preview-dot').style.backgroundColor = color.hex;
+      document.getElementById('color-picker-preview-hex').textContent = color.hex;
+      grid.querySelectorAll('.color-picker-option').forEach(opt => opt.classList.remove('selected'));
+      option.classList.add('selected');
+    });
+    grid.appendChild(option);
+  });
+}
+
+function closeColorPicker() {
+  document.getElementById('color-picker-overlay').classList.remove('open');
+  colorPickerContext = { category: null, type: null, selectedColor: null };
+}
+
+async function saveSelectedColor() {
+  if (!colorPickerContext.category || !colorPickerContext.selectedColor) return;
+  categoryColors[colorPickerContext.category] = colorPickerContext.selectedColor;
+  await saveCategoryColors();
+  renderCategories();
+  if (document.getElementById('page-grafici').classList.contains('active')) {
+    updateChartCategory();
+  }
+  closeColorPicker();
+}
+
+document.getElementById('color-picker-cancel').addEventListener('click', closeColorPicker);
+document.getElementById('color-picker-save').addEventListener('click', saveSelectedColor);
+document.getElementById('color-picker-overlay').addEventListener('click', (e) => {
+  if (e.target.id === 'color-picker-overlay') closeColorPicker();
+});
+
+// Inizializza i listener del modale all'avvio
 document.addEventListener('DOMContentLoaded', function() {
   setTimeout(initCatEditModalListeners, 200);
 });
+Assicurati che nel tuo file HTML ci siano i seguenti elementi:
 
-// Se il modale viene ricreato, riattacca i listener
-// La funzione renderCategories chiamerà initCatEditModalListeners
+#cat-edit-modal con input #cat-edit-input, pulsanti #cat-edit-cancel, #cat-edit-save
+
+#color-picker-overlay con tutti gli ID relativi
+
+Sostituisci il blocco di codice delle categorie con questo, e ricarica. Ora dovrebbe funzionare tutto (aggiunta, modifica, eliminazione, cambio colore).
+
+Il tuo codice è quasi completo, ma manca la dichiarazione di editingCat e colorPickerContext. Inoltre, initCatEditModalListeners usa editingCat che potrebbe non essere definita se non la dichiari prima.
+
+Ecco il codice completo e corretto da sostituire a tutto il blocco della gestione categorie (da function renderCategories() fino alla fine del blocco).
+
+Incolla questo codice al posto del tuo attuale blocco renderCategories() e funzioni correlate:
+
+javascript
+// === GESTIONE CATEGORIE ===
+
+// Dichiarazione variabili globali per la gestione categorie
+let editingCat = { type: null, index: null };
+let colorPickerContext = { category: null, type: null, selectedColor: null };
+
+// Renderizza le categorie
+function renderCategories() {
+  console.log('🔄 Render categorie chiamata');
+  
+  // Riattacca i listener del modale di modifica
+  initCatEditModalListeners();
+  
+  const renderList = (type, listId) => {
+    const ul = document.getElementById(listId);
+    if (!ul) {
+      console.warn('⚠️ Elemento non trovato:', listId);
+      return;
+    }
+    ul.innerHTML = '';
+    
+    const categories = state.categories[type] || [];
+    if (categories.length === 0) {
+      ul.innerHTML = '<li style="padding:12px 0; color:var(--text-muted); font-size:13px; font-weight:600;">Nessuna categoria</li>';
+      return;
+    }
+    
+    categories.forEach((cat, idx) => {
+      const li = document.createElement('li');
+      li.className = 'cat-item';
+      const currentColor = getCategoryColor(cat);
+      
+      li.innerHTML = `
+        <div class="cat-item-name">
+          <div class="cat-color-dot" data-type="${type}" data-category="${escapeHtml(cat)}" style="background-color: ${currentColor};" title="Clicca per cambiare colore"></div>
+          <span>${escapeHtml(cat)}</span>
+        </div>
+        <div class="cat-actions">
+          <button class="btn-edit-tx" data-type="${type}" data-idx="${idx}" title="Modifica" style="background: linear-gradient(135deg, #2F80ED 0%, #1558C0 100%); border-radius: 12px; width:36px; height:36px; display:inline-flex; align-items:center; justify-content:center; border:none; cursor:pointer;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="btn-delete" data-type="${type}" data-idx="${idx}" title="Elimina" style="background: linear-gradient(135deg, #F04438 0%, #B42318 100%); border-radius: 12px; width:36px; height:36px; display:inline-flex; align-items:center; justify-content:center; border:none; cursor:pointer;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          </button>
+        </div>
+      `;
+      ul.appendChild(li);
+    });
+  };
+  
+  renderList('expense', 'cat-list-expense');
+  renderList('income', 'cat-list-income');
+  
+  // === ATTACCA LISTENER PER I PULSANTI AGGIUNGI ===
+  const addExpenseBtn = document.getElementById('btn-add-cat-expense');
+  const addIncomeBtn = document.getElementById('btn-add-cat-income');
+  
+  if (addExpenseBtn) {
+    const newBtn = addExpenseBtn.cloneNode(true);
+    addExpenseBtn.parentNode.replaceChild(newBtn, addExpenseBtn);
+    newBtn.addEventListener('click', function() {
+      addCategory('expense');
+    });
+  }
+  
+  if (addIncomeBtn) {
+    const newBtn = addIncomeBtn.cloneNode(true);
+    addIncomeBtn.parentNode.replaceChild(newBtn, addIncomeBtn);
+    newBtn.addEventListener('click', function() {
+      addCategory('income');
+    });
+  }
+  
+  // === ATTACCA LISTENER PER MODIFICA/ELIMINAZIONE (DELEGA SULLE LISTE) ===
+  document.querySelectorAll('#cat-list-expense, #cat-list-income').forEach(list => {
+    if (!list) return;
+    list.addEventListener('click', function(e) {
+      const target = e.target.closest('button');
+      if (!target) return;
+      
+      // Modifica
+      if (target.classList.contains('btn-edit-tx')) {
+        e.preventDefault();
+        e.stopPropagation();
+        const type = target.getAttribute('data-type');
+        const idx = parseInt(target.getAttribute('data-idx'));
+        console.log('✏️ Modifica categoria:', type, idx);
+        openCatEditModal(type, idx);
+        return;
+      }
+      
+      // Elimina
+      if (target.classList.contains('btn-delete')) {
+        e.preventDefault();
+        e.stopPropagation();
+        const type = target.getAttribute('data-type');
+        const idx = parseInt(target.getAttribute('data-idx'));
+        console.log('🗑️ Elimina categoria:', type, idx);
+        deleteCategory(type, idx);
+        return;
+      }
+    });
+  });
+  
+  // === ATTACCA LISTENER PER IL COLOR PICKER (DELEGA SUI PALLINI) ===
+  document.querySelectorAll('#cat-list-expense, #cat-list-income').forEach(list => {
+    if (!list) return;
+    list.addEventListener('click', function(e) {
+      const target = e.target.closest('.cat-color-dot');
+      if (!target) return;
+      
+      e.preventDefault();
+      e.stopPropagation();
+      const type = target.getAttribute('data-type');
+      const category = target.getAttribute('data-category');
+      console.log('🎨 Cambio colore per:', category);
+      openColorPicker(type, category);
+    });
+  });
+  
+  console.log('✅ Categorie renderizzate e listener attaccati');
+}
+
+// Funzione per aggiungere categoria
+async function addCategory(type) {
+  const inputId = type === 'expense' ? 'new-cat-expense' : 'new-cat-income';
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  
+  const val = input.value.trim();
+  if (!val) {
+    alert('Inserisci un nome per la categoria.');
+    input.focus();
+    return;
+  }
+  
+  if (state.categories[type].includes(val)) {
+    alert('Categoria già esistente.');
+    input.value = '';
+    input.focus();
+    return;
+  }
+  
+  state.categories[type].push(val);
+  input.value = '';
+  await saveCategories();
+  renderCategories();
+  populateCategorySelect();
+}
+
+// Funzione per eliminare categoria
+async function deleteCategory(type, idx) {
+  if (state.categories[type].length <= 1) {
+    alert('Deve esserci almeno una categoria.');
+    return;
+  }
+  const catName = state.categories[type][idx];
+  if (!confirm(`Eliminare la categoria "${catName}"?`)) return;
+  
+  state.categories[type].splice(idx, 1);
+  if (categoryColors[catName]) {
+    delete categoryColors[catName];
+    await saveCategoryColors();
+  }
+  await saveCategories();
+  renderCategories();
+  populateCategorySelect();
+}
+
+// === GESTIONE MODIFICA CATEGORIE ===
+
+function openCatEditModal(type, idx) {
+  console.log('✏️ Apertura modifica categoria:', type, idx);
+  editingCat = { type: type, index: idx };
+  
+  const input = document.getElementById('cat-edit-input');
+  if (input) {
+    input.value = state.categories[type][idx];
+    setTimeout(() => { input.focus(); input.select(); }, 100);
+  }
+  
+  const modal = document.getElementById('cat-edit-modal');
+  if (modal) {
+    modal.style.display = 'flex';
+  } else {
+    console.error('❌ Modale cat-edit-modal non trovato!');
+    alert('Errore: modale non trovato. Ricarica la pagina.');
+  }
+}
+
+function closeCatEditModal() {
+  const modal = document.getElementById('cat-edit-modal');
+  if (modal) modal.style.display = 'none';
+  editingCat = { type: null, index: null };
+}
+
+function initCatEditModalListeners() {
+  const cancelBtn = document.getElementById('cat-edit-cancel');
+  const saveBtn = document.getElementById('cat-edit-save');
+  const modal = document.getElementById('cat-edit-modal');
+  
+  if (cancelBtn) {
+    const newCancel = cancelBtn.cloneNode(true);
+    cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
+    newCancel.addEventListener('click', closeCatEditModal);
+  }
+  
+  if (saveBtn) {
+    const newSave = saveBtn.cloneNode(true);
+    saveBtn.parentNode.replaceChild(newSave, saveBtn);
+    newSave.addEventListener('click', async function() {
+      const input = document.getElementById('cat-edit-input');
+      if (!input) return;
+      
+      const newName = input.value.trim();
+      if (!newName) {
+        alert('Inserisci un nome valido.');
+        input.focus();
+        return;
+      }
+      
+      const type = editingCat.type;
+      const idx = editingCat.index;
+      if (type === null || idx === null) {
+        alert('Errore: nessuna categoria selezionata.');
+        return;
+      }
+      
+      const oldName = state.categories[type][idx];
+      if (state.categories[type].includes(newName) && newName !== oldName) {
+        alert('Categoria già esistente.');
+        input.focus();
+        return;
+      }
+      
+      state.categories[type][idx] = newName;
+      if (newName !== oldName && categoryColors[oldName]) {
+        categoryColors[newName] = categoryColors[oldName];
+        delete categoryColors[oldName];
+        await saveCategoryColors();
+      }
+      
+      await saveCategories();
+      closeCatEditModal();
+      renderCategories();
+      populateCategorySelect();
+    });
+  }
+  
+  if (modal) {
+    const newModal = modal.cloneNode(true);
+    modal.parentNode.replaceChild(newModal, modal);
+    newModal.addEventListener('click', function(e) {
+      if (e.target === this) closeCatEditModal();
+    });
+  }
+}
+
+// === COLOR PICKER ===
+
+function openColorPicker(type, category) {
+  colorPickerContext = {
+    type: type,
+    category: category,
+    selectedColor: getCategoryColor(category)
+  };
+  document.getElementById('color-picker-preview-name').textContent = category;
+  document.getElementById('color-picker-preview-dot').style.backgroundColor = colorPickerContext.selectedColor;
+  document.getElementById('color-picker-preview-hex').textContent = colorPickerContext.selectedColor;
+  renderColorPalette();
+  document.getElementById('color-picker-overlay').classList.add('open');
+}
+
+function renderColorPalette() {
+  const grid = document.getElementById('color-picker-grid');
+  grid.innerHTML = '';
+  COLOR_PALETTE.forEach(color => {
+    const option = document.createElement('div');
+    option.className = 'color-picker-option' + (color.hex === colorPickerContext.selectedColor ? ' selected' : '');
+    option.style.backgroundColor = color.hex;
+    option.title = color.name;
+    option.addEventListener('click', () => {
+      colorPickerContext.selectedColor = color.hex;
+      document.getElementById('color-picker-preview-dot').style.backgroundColor = color.hex;
+      document.getElementById('color-picker-preview-hex').textContent = color.hex;
+      grid.querySelectorAll('.color-picker-option').forEach(opt => opt.classList.remove('selected'));
+      option.classList.add('selected');
+    });
+    grid.appendChild(option);
+  });
+}
+
+function closeColorPicker() {
+  document.getElementById('color-picker-overlay').classList.remove('open');
+  colorPickerContext = { category: null, type: null, selectedColor: null };
+}
+
+async function saveSelectedColor() {
+  if (!colorPickerContext.category || !colorPickerContext.selectedColor) return;
+  categoryColors[colorPickerContext.category] = colorPickerContext.selectedColor;
+  await saveCategoryColors();
+  renderCategories();
+  if (document.getElementById('page-grafici').classList.contains('active')) {
+    updateChartCategory();
+  }
+  closeColorPicker();
+}
+
+// Inizializza i listener per i pulsanti del color picker (una volta)
+document.getElementById('color-picker-cancel').addEventListener('click', closeColorPicker);
+document.getElementById('color-picker-save').addEventListener('click', saveSelectedColor);
+document.getElementById('color-picker-overlay').addEventListener('click', (e) => {
+  if (e.target.id === 'color-picker-overlay') closeColorPicker();
+});
+
+// Inizializza i listener del modale di modifica all'avvio
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(initCatEditModalListeners, 200);
+});
   
 function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
 function populateMonthSelects() {
