@@ -2833,6 +2833,69 @@ border-radius: var(--radius-sm);
   box-shadow: var(--shadow);
 }  
 
+/* === TOGGLE SWITCH PER GIORNATA INTERA === */
+.toggle-row-eventi {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 0 10px 0;
+  padding: 8px 12px;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.toggle-eventi-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.3s ease;
+}
+
+.toggle-eventi-container .toggle-switch-eventi {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: var(--border);
+  border-radius: 999px;
+  transition: background 0.3s ease;
+  flex-shrink: 0;
+}
+
+.toggle-eventi-container .toggle-switch-eventi::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.toggle-eventi-container.active .toggle-switch-eventi {
+  background: #5CB85C;
+}
+
+.toggle-eventi-container.active .toggle-switch-eventi::after {
+  transform: translateX(20px);
+}
+
+.toggle-eventi-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
+}
+
+.toggle-eventi-container.active .toggle-eventi-label {
+  color: #5CB85C;
+}
+  
 /* === LAYOUT MOVIMENTI - DESKTOP (5 COLONNE) === */
 @media screen and (min-width: 601px) {
   /* Header desktop */
@@ -4211,21 +4274,23 @@ let eventsData = {};
   
 // === GESTIONE EVENTI CALENDARIO ===
 
+// Variabili globali per il calendario
+let selectedDate = new Date();
+let currentMonth = new Date().getMonth();
+let currentYear = new Date().getFullYear();
+
 // Carica gli eventi
 async function loadEvents() {
   if (!currentUser) return;
-  
   try {
     const userDoc = await userDocRef().get();
     const data = userDoc.data();
-    
     if (data && data.events) {
       eventsData = data.events;
     } else {
       eventsData = {};
       await userDocRef().update({ events: eventsData });
     }
-    
     renderCalendar();
   } catch (err) {
     console.error('Errore caricamento eventi:', err);
@@ -4235,7 +4300,6 @@ async function loadEvents() {
 // Salva gli eventi
 async function saveEvents() {
   if (!currentUser) return;
-  
   try {
     await userDocRef().update({ events: eventsData });
   } catch (err) {
@@ -4247,51 +4311,44 @@ async function saveEvents() {
 function renderCalendar() {
   const container = document.getElementById('calendario-giorni');
   if (!container) return;
-  
   const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
   const meseTitolo = document.getElementById('mese-titolo');
   if (meseTitolo) {
     meseTitolo.textContent = monthNames[currentMonth] + ' ' + currentYear;
   }
-  
   const firstDay = new Date(currentYear, currentMonth, 1);
   const lastDay = new Date(currentYear, currentMonth + 1, 0);
   const daysInMonth = lastDay.getDate();
   const startDay = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
-  
   const today = new Date();
   const todayStr = today.toISOString().slice(0, 10);
-  
   let html = '';
-  
   const prevMonthLastDay = new Date(currentYear, currentMonth, 0).getDate();
   for (let i = startDay - 1; i >= 0; i--) {
     const day = prevMonthLastDay - i;
-    html += `<div class="giorno-cell altro-mese" data-date="${currentYear}-${String(currentMonth).padStart(2,'0')}-${String(day).padStart(2,'0')}">${day}</div>`;
+    const month = currentMonth === 0 ? 12 : currentMonth;
+    const year = currentMonth === 0 ? currentYear - 1 : currentYear;
+    html += `<div class="giorno-cell altro-mese" data-date="${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}">${day}</div>`;
   }
-  
   for (let day = 1; day <= daysInMonth; day++) {
     const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
     const isToday = dateStr === todayStr;
     const isSelected = dateStr === selectedDate.toISOString().slice(0, 10);
     const hasEvent = eventsData[dateStr] && eventsData[dateStr].length > 0;
-    
     let classes = 'giorno-cell';
     if (isToday) classes += ' oggi';
     if (isSelected) classes += ' selezionato';
     if (hasEvent) classes += ' has-event';
-    
     html += `<div class="${classes}" data-date="${dateStr}">${day}</div>`;
   }
-  
   const totalCells = startDay + daysInMonth;
   const remainingCells = (7 - (totalCells % 7)) % 7;
+  const nextMonth = currentMonth === 11 ? 0 : currentMonth + 1;
+  const nextYear = currentMonth === 11 ? currentYear + 1 : currentYear;
   for (let day = 1; day <= remainingCells; day++) {
-    html += `<div class="giorno-cell altro-mese" data-date="${currentYear}-${String(currentMonth + 2).padStart(2,'0')}-${String(day).padStart(2,'0')}">${day}</div>`;
+    html += `<div class="giorno-cell altro-mese" data-date="${nextYear}-${String(nextMonth + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}">${day}</div>`;
   }
-  
   container.innerHTML = html;
-  
   // Seleziona il giorno corrente
   const todayDateStr = today.toISOString().slice(0, 10);
   renderEventsForDay(todayDateStr);
@@ -4327,9 +4384,13 @@ function renderEventsForDay(dateStr) {
   
   let html = '';
   events.forEach((event, index) => {
+    let oraDisplay = event.ora || 'Tutto il giorno';
+    if (event.isAllDay) {
+      oraDisplay = '🌅 Tutta la giornata';
+    }
     html += `
-      <div class="evento-card">
-        <div class="evento-ora">${event.ora || 'Tutto il giorno'}</div>
+      <div class="evento-card" data-date="${dateStr}" data-index="${index}">
+        <div class="evento-ora">${oraDisplay}</div>
         <div class="evento-titolo">${escapeHtml(event.titolo)}</div>
         <button class="evento-delete" data-index="${index}" data-date="${dateStr}">✕</button>
       </div>
@@ -4337,9 +4398,37 @@ function renderEventsForDay(dateStr) {
   });
   
   container.innerHTML = html;
+  
+  // Eliminazione evento
+  container.querySelectorAll('.evento-delete').forEach(btn => {
+    btn.addEventListener('click', async function(e) {
+      e.stopPropagation();
+      const date = this.dataset.date;
+      const index = parseInt(this.dataset.index);
+      if (confirm('Eliminare questo evento?')) {
+        eventsData[date].splice(index, 1);
+        if (eventsData[date].length === 0) {
+          delete eventsData[date];
+        }
+        await saveEvents();
+        renderCalendar();
+        renderEventsForDay(date);
+      }
+    });
+  });
+  
+  // Click sulla card ⇒ modifica evento
+  container.querySelectorAll('.evento-card').forEach(card => {
+    card.addEventListener('click', function(e) {
+      if (e.target.classList.contains('evento-delete')) return;
+      const date = this.dataset.date;
+      const index = parseInt(this.dataset.index);
+      openEditEventModal(date, index);
+    });
+  });
 }
 
-// Mostra il modale per nuovo evento
+// Mostra il modale per nuovo evento (con toggle)
 function showNewEventModal() {
   console.log('📝 Apertura modale nuovo evento');
   
@@ -4361,6 +4450,13 @@ function showNewEventModal() {
         <input type="time" id="evento-ora-input">
       </div>
       
+      <div class="toggle-row-eventi">
+        <div class="toggle-eventi-container" id="toggle-giornata-intera">
+          <div class="toggle-switch-eventi"></div>
+          <span class="toggle-eventi-label">Giornata intera</span>
+        </div>
+      </div>
+      
       <div class="campo">
         <label>Note (opzionale)</label>
         <textarea id="evento-note-input" placeholder="Aggiungi dettagli..."></textarea>
@@ -4380,10 +4476,30 @@ function showNewEventModal() {
     if (input) input.focus();
   }, 100);
   
+  // Toggle "Giornata intera"
+  const toggleContainer = document.getElementById('toggle-giornata-intera');
+  const oraInput = document.getElementById('evento-ora-input');
+  let isAllDay = false;
+  
+  toggleContainer.addEventListener('click', function() {
+    isAllDay = !isAllDay;
+    this.classList.toggle('active', isAllDay);
+    if (isAllDay) {
+      oraInput.value = '';
+      oraInput.disabled = true;
+      oraInput.style.opacity = '0.5';
+    } else {
+      oraInput.disabled = false;
+      oraInput.style.opacity = '1';
+    }
+  });
+  
+  // Annulla
   document.getElementById('evento-modal-cancel').addEventListener('click', function() {
     overlay.remove();
   });
   
+  // Crea evento
   document.getElementById('evento-modal-create').addEventListener('click', async function() {
     const titolo = document.getElementById('evento-titolo-input').value.trim();
     const ora = document.getElementById('evento-ora-input').value || 'Tutto il giorno';
@@ -4404,14 +4520,16 @@ function showNewEventModal() {
     
     eventsData[dateStr].push({
       titolo: titolo,
-      ora: ora,
+      ora: isAllDay ? 'Tutta la giornata' : ora,
       note: note,
+      isAllDay: isAllDay,
       createdAt: new Date().toISOString()
     });
     
     await saveEvents();
     overlay.remove();
     renderCalendar();
+    renderEventsForDay(dateStr);
   });
   
   document.getElementById('evento-titolo-input').addEventListener('keypress', function(e) {
@@ -4421,14 +4539,123 @@ function showNewEventModal() {
   });
   
   overlay.addEventListener('click', function(e) {
-    if (e.target === overlay) {
-      overlay.remove();
+    if (e.target === overlay) overlay.remove();
+  });
+}
+
+// Modifica evento
+function openEditEventModal(date, index) {
+  const event = eventsData[date]?.[index];
+  if (!event) {
+    alert('Evento non trovato');
+    return;
+  }
+  
+  const existingModal = document.getElementById('evento-edit-modal-overlay');
+  if (existingModal) existingModal.remove();
+  
+  const isAllDayExisting = event.isAllDay || false;
+  const oraValue = isAllDayExisting ? '' : (event.ora || '');
+  
+  const overlay = document.createElement('div');
+  overlay.className = 'evento-modal-overlay open';
+  overlay.id = 'evento-edit-modal-overlay';
+  overlay.innerHTML = `
+    <div class="evento-modal">
+      <h3>✏️ Modifica evento</h3>
+      <p>Modifica i dettagli dell'evento</p>
+      <div class="campo">
+        <label>Titolo evento *</label>
+        <input type="text" id="edit-evento-titolo" value="${escapeHtml(event.titolo)}">
+      </div>
+      <div class="campo">
+        <label>Ora</label>
+        <input type="time" id="edit-evento-ora" value="${oraValue}">
+      </div>
+      <div class="toggle-row-eventi">
+        <div class="toggle-eventi-container ${isAllDayExisting ? 'active' : ''}" id="edit-toggle-giornata-intera">
+          <div class="toggle-switch-eventi"></div>
+          <span class="toggle-eventi-label">Giornata intera</span>
+        </div>
+      </div>
+      <div class="campo">
+        <label>Note (opzionale)</label>
+        <textarea id="edit-evento-note">${escapeHtml(event.note || '')}</textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="edit-evento-cancel">Annulla</button>
+        <button class="btn-create" id="edit-evento-save">Salva modifiche</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  
+  // Toggle
+  const toggleContainer = document.getElementById('edit-toggle-giornata-intera');
+  const oraInput = document.getElementById('edit-evento-ora');
+  let isAllDay = isAllDayExisting;
+  
+  if (isAllDay) {
+    oraInput.disabled = true;
+    oraInput.style.opacity = '0.5';
+  }
+  
+  toggleContainer.addEventListener('click', function() {
+    isAllDay = !isAllDay;
+    this.classList.toggle('active', isAllDay);
+    if (isAllDay) {
+      oraInput.value = '';
+      oraInput.disabled = true;
+      oraInput.style.opacity = '0.5';
+    } else {
+      oraInput.disabled = false;
+      oraInput.style.opacity = '1';
     }
+  });
+  
+  setTimeout(() => {
+    document.getElementById('edit-evento-titolo').focus();
+    document.getElementById('edit-evento-titolo').select();
+  }, 100);
+  
+  document.getElementById('edit-evento-cancel').addEventListener('click', function() {
+    overlay.remove();
+  });
+  
+  document.getElementById('edit-evento-save').addEventListener('click', async function() {
+    const titolo = document.getElementById('edit-evento-titolo').value.trim();
+    const ora = document.getElementById('edit-evento-ora').value || 'Tutta la giornata';
+    const note = document.getElementById('edit-evento-note').value.trim();
+    
+    if (!titolo) {
+      alert('Inserisci un titolo');
+      document.getElementById('edit-evento-titolo').focus();
+      return;
+    }
+    
+    eventsData[date][index].titolo = titolo;
+    eventsData[date][index].ora = isAllDay ? 'Tutta la giornata' : ora;
+    eventsData[date][index].note = note;
+    eventsData[date][index].isAllDay = isAllDay;
+    
+    await saveEvents();
+    overlay.remove();
+    renderCalendar();
+    renderEventsForDay(date);
+  });
+  
+  document.getElementById('edit-evento-titolo').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      document.getElementById('edit-evento-save').click();
+    }
+  });
+  
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) overlay.remove();
   });
 }
 
 // === DELEGAMENTO EVENTI PER IL CALENDARIO ===
-// UNICO LISTENER PER TUTTI GLI EVENTI DEL CALENDARIO
 document.addEventListener('click', function(e) {
   // Click su giorno del calendario
   const giornoCell = e.target.closest('.giorno-cell');
@@ -4477,28 +4704,9 @@ document.addEventListener('click', function(e) {
     showNewEventModal();
     return;
   }
-  
-  // Elimina evento
-  const btnDelete = e.target.closest('.evento-delete');
-  if (btnDelete) {
-    const date = btnDelete.dataset.date;
-    const index = parseInt(btnDelete.dataset.index);
-    
-    if (confirm('Eliminare questo evento?')) {
-      eventsData[date].splice(index, 1);
-      if (eventsData[date].length === 0) {
-        delete eventsData[date];
-      }
-      saveEvents().then(() => {
-        renderCalendar();
-        renderEventsForDay(date);
-      });
-    }
-    return;
-  }
 });
 
-// Inizializza il calendario quando la pagina è pronta
+// Inizializza il calendario
 function initEventPage() {
   console.log('📅 Inizializzazione pagina eventi...');
   const now = new Date();
@@ -8274,195 +8482,6 @@ function renderCalendar() {
   const todayDateStr = today.toISOString().slice(0, 10);
   renderEventsForDay(todayDateStr);
 }
-
-// Renderizza gli eventi del giorno selezionato
-function renderEventsForDay(dateStr) {
-  const container = document.getElementById('eventi-del-giorno');
-  if (!container) return;
-  
-  const date = new Date(dateStr);
-  const dayNames = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica'];
-  const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
-  
-  const isToday = dateStr === new Date().toISOString().slice(0, 10);
-  const dayName = dayNames[date.getDay() === 0 ? 6 : date.getDay() - 1];
-  document.getElementById('giorno-selezionato-titolo').textContent = 
-    (isToday ? 'Oggi - ' : '') + dayName + ' ' + date.getDate() + ' ' + monthNames[date.getMonth()];
-  
-  const events = eventsData[dateStr] || [];
-  
-  if (events.length === 0) {
-    container.innerHTML = `
-      <div style="text-align:center; padding:20px; color:var(--text-muted);">
-        <p style="font-size:14px;">Niente programmato</p>
-        <p style="font-size:12px;">Clicca su "+ Nuovo evento" per aggiungere un evento</p>
-      </div>
-    `;
-    return;
-  }
-  
-  let html = '';
-  events.forEach((event, index) => {
-    html += `
-      <div class="evento-card">
-        <div class="evento-ora">${event.ora || 'Tutto il giorno'}</div>
-        <div class="evento-titolo">${escapeHtml(event.titolo)}</div>
-        <button class="evento-delete" data-index="${index}" data-date="${dateStr}">✕</button>
-      </div>
-    `;
-  });
-  
-  container.innerHTML = html;
-  
-  // Event listener per eliminare evento
-  container.querySelectorAll('.evento-delete').forEach(btn => {
-    btn.addEventListener('click', async function() {
-      const date = this.dataset.date;
-      const index = parseInt(this.dataset.index);
-      
-      if (confirm('Eliminare questo evento?')) {
-        eventsData[date].splice(index, 1);
-        if (eventsData[date].length === 0) {
-          delete eventsData[date];
-        }
-        await saveEvents();
-        renderCalendar();
-        renderEventsForDay(date);
-      }
-    });
-  });
-}
-
-// Mostra il modale per nuovo evento
-function showNewEventModal() {
-  const overlay = document.createElement('div');
-  overlay.className = 'evento-modal-overlay open';
-  overlay.innerHTML = `
-    <div class="evento-modal">
-      <h3>📝 Nuovo evento</h3>
-      <p>Inserisci i dettagli dell'evento per il giorno selezionato</p>
-      
-      <div class="campo">
-        <label>Titolo evento *</label>
-        <input type="text" id="evento-titolo-input" placeholder="es. Riunione famiglia" autofocus>
-      </div>
-      
-      <div class="campo">
-        <label>Ora</label>
-        <input type="time" id="evento-ora-input">
-      </div>
-      
-      <div class="campo">
-        <label>Note (opzionale)</label>
-        <textarea id="evento-note-input" placeholder="Aggiungi dettagli..."></textarea>
-      </div>
-      
-      <div class="modal-actions">
-        <button class="btn-cancel" id="evento-modal-cancel">Annulla</button>
-        <button class="btn-create" id="evento-modal-create">Crea evento</button>
-      </div>
-    </div>
-  `;
-  
-  document.body.appendChild(overlay);
-  
-  setTimeout(() => {
-    const input = document.getElementById('evento-titolo-input');
-    if (input) input.focus();
-  }, 100);
-  
-  document.getElementById('evento-modal-cancel').addEventListener('click', function() {
-    overlay.remove();
-  });
-  
-  document.getElementById('evento-modal-create').addEventListener('click', async function() {
-    const titolo = document.getElementById('evento-titolo-input').value.trim();
-    const ora = document.getElementById('evento-ora-input').value || 'Tutto il giorno';
-    const note = document.getElementById('evento-note-input').value.trim();
-    
-    if (!titolo) {
-      document.getElementById('evento-titolo-input').style.borderColor = '#E74C3C';
-      document.getElementById('evento-titolo-input').style.boxShadow = '0 0 0 4px #FDE8E8';
-      document.getElementById('evento-titolo-input').focus();
-      return;
-    }
-    
-    const dateStr = selectedDate.toISOString().slice(0, 10);
-    
-    if (!eventsData[dateStr]) {
-      eventsData[dateStr] = [];
-    }
-    
-    eventsData[dateStr].push({
-      titolo: titolo,
-      ora: ora,
-      note: note,
-      createdAt: new Date().toISOString()
-    });
-    
-    await saveEvents();
-    overlay.remove();
-    renderCalendar();
-    renderEventsForDay(dateStr);
-  });
-  
-  document.getElementById('evento-titolo-input').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-      document.getElementById('evento-modal-create').click();
-    }
-  });
-  
-  overlay.addEventListener('click', function(e) {
-    if (e.target === overlay) {
-      overlay.remove();
-    }
-  });
-}
-document.addEventListener('DOMContentLoaded', function() {
-  // Navigazione mesi
-  const btnPrec = document.getElementById('btn-mese-prec');
-  const btnSucc = document.getElementById('btn-mese-succ');
-  const btnNuovo = document.getElementById('btn-nuovo-evento');
-  
-  if (btnPrec) {
-    btnPrec.addEventListener('click', function() {
-      console.log('⬅️ Mese precedente');
-      if (currentMonth === 0) {
-        currentMonth = 11;
-        currentYear--;
-      } else {
-        currentMonth--;
-      }
-      renderCalendar();
-    });
-  } else {
-    console.warn('⚠️ btn-mese-prec non trovato');
-  }
-  
-  if (btnSucc) {
-    btnSucc.addEventListener('click', function() {
-      console.log('➡️ Mese successivo');
-      if (currentMonth === 11) {
-        currentMonth = 0;
-        currentYear++;
-      } else {
-        currentMonth++;
-      }
-      renderCalendar();
-    });
-  } else {
-    console.warn('⚠️ btn-mese-succ non trovato');
-  }
-  
-  if (btnNuovo) {
-    btnNuovo.addEventListener('click', function() {
-      console.log('📝 Nuovo evento');
-      showNewEventModal();
-    });
-  } else {
-    console.warn('⚠️ btn-nuovo-evento non trovato');
-  }
-});
 
  
 })();
