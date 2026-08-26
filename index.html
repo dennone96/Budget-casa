@@ -6063,343 +6063,43 @@ const msgEl = document.getElementById('profile-msg'); msgEl.textContent = '';
 try { await auth.sendPasswordResetEmail(currentUser.email); msgEl.style.color = 'var(--success)'; msgEl.textContent = 'Email inviata!'; } catch(e) { msgEl.style.color = 'var(--danger)'; msgEl.textContent = 'Errore: ' + e.message; }
 });
 
-function renderCategories() {
-  console.log('🔄 Render categorie chiamata');
-  
-  // Riattacca i listener del modale di modifica
-  initCatEditModalListeners();
-  
-  const renderList = (type, listId) => {
-    const ul = document.getElementById(listId);
-    if (!ul) {
-      console.warn('⚠️ Elemento non trovato:', listId);
-      return;
-    }
-    ul.innerHTML = '';
-    
-    const categories = state.categories[type] || [];
-    if (categories.length === 0) {
-      ul.innerHTML = '<li style="padding:12px 0; color:var(--text-muted); font-size:13px; font-weight:600;">Nessuna categoria</li>';
-      return;
-    }
-    
-    categories.forEach((cat, idx) => {
-      const li = document.createElement('li');
-      li.className = 'cat-item';
-      const currentColor = getCategoryColor(cat);
-      
-      li.innerHTML = `
-        <div class="cat-item-name">
-          <div class="cat-color-dot" data-type="${type}" data-category="${escapeHtml(cat)}" style="background-color: ${currentColor};" title="Clicca per cambiare colore"></div>
-          <span>${escapeHtml(cat)}</span>
-        </div>
-        <div class="cat-actions">
-          <button class="btn-edit-tx" data-type="${type}" data-idx="${idx}" title="Modifica" style="background: linear-gradient(135deg, #2F80ED 0%, #1558C0 100%); border-radius: 12px; width:36px; height:36px; display:inline-flex; align-items:center; justify-content:center; border:none; cursor:pointer;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-          </button>
-          <button class="btn-delete" data-type="${type}" data-idx="${idx}" title="Elimina" style="background: linear-gradient(135deg, #F04438 0%, #B42318 100%); border-radius: 12px; width:36px; height:36px; display:inline-flex; align-items:center; justify-content:center; border:none; cursor:pointer;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-          </button>
-        </div>
-      `;
-      ul.appendChild(li);
-    });
-  };
-  
-  renderList('expense', 'cat-list-expense');
-  renderList('income', 'cat-list-income');
-  
-  // === ATTACCA LISTENER PER I PULSANTI AGGIUNGI ===
-  const addExpenseBtn = document.getElementById('btn-add-cat-expense');
-  const addIncomeBtn = document.getElementById('btn-add-cat-income');
-  
-  if (addExpenseBtn) {
-    const newBtn = addExpenseBtn.cloneNode(true);
-    addExpenseBtn.parentNode.replaceChild(newBtn, addExpenseBtn);
-    newBtn.addEventListener('click', function() {
-      addCategory('expense');
-    });
-  }
-  
-  if (addIncomeBtn) {
-    const newBtn = addIncomeBtn.cloneNode(true);
-    addIncomeBtn.parentNode.replaceChild(newBtn, addIncomeBtn);
-    newBtn.addEventListener('click', function() {
-      addCategory('income');
-    });
-  }
-  
-  // === ATTACCA LISTENER PER MODIFICA/ELIMINAZIONE (DELEGA SULLE LISTE) ===
-  document.querySelectorAll('#cat-list-expense, #cat-list-income').forEach(list => {
-    if (!list) return;
-    list.addEventListener('click', function(e) {
-      const target = e.target.closest('button');
-      if (!target) return;
-      
-      if (target.classList.contains('btn-edit-tx')) {
-        e.preventDefault();
-        e.stopPropagation();
-        const type = target.getAttribute('data-type');
-        const idx = parseInt(target.getAttribute('data-idx'));
-        console.log('✏️ Modifica categoria:', type, idx);
-        openCatEditModal(type, idx);
-        return;
-      }
-      
-      if (target.classList.contains('btn-delete')) {
-        e.preventDefault();
-        e.stopPropagation();
-        const type = target.getAttribute('data-type');
-        const idx = parseInt(target.getAttribute('data-idx'));
-        console.log('🗑️ Elimina categoria:', type, idx);
-        deleteCategory(type, idx);
-        return;
-      }
-    });
-  });
-  
-  // === ATTACCA LISTENER PER IL COLOR PICKER (DELEGA SUI PALLINI) ===
-  document.querySelectorAll('#cat-list-expense, #cat-list-income').forEach(list => {
-    if (!list) return;
-    list.addEventListener('click', function(e) {
-      const target = e.target.closest('.cat-color-dot');
-      if (!target) return;
-      e.preventDefault();
-      e.stopPropagation();
-      const type = target.getAttribute('data-type');
-      const category = target.getAttribute('data-category');
-      console.log('🎨 Cambio colore per:', category);
-      openColorPicker(type, category);
-    });
-  });
-  
-  console.log('✅ Categorie renderizzate e listener attaccati');
+// === GESTIONE CATEGORIE (VERSIONE DEFINITIVA) ===
+
+// Dichiarazione delle variabili globali (se non esistono già)
+if (typeof editingCat === 'undefined') {
+  var editingCat = { type: null, index: null };
 }
-
-// Funzione per aggiungere categoria
-async function addCategory(type) {
-  const inputId = type === 'expense' ? 'new-cat-expense' : 'new-cat-income';
-  const input = document.getElementById(inputId);
-  if (!input) return;
-  
-  const val = input.value.trim();
-  if (!val) {
-    alert('Inserisci un nome per la categoria.');
-    input.focus();
-    return;
-  }
-  
-  if (state.categories[type].includes(val)) {
-    alert('Categoria già esistente.');
-    input.value = '';
-    input.focus();
-    return;
-  }
-  
-  state.categories[type].push(val);
-  input.value = '';
-  await saveCategories();
-  renderCategories();
-  populateCategorySelect();
+if (typeof colorPickerContext === 'undefined') {
+  var colorPickerContext = { category: null, type: null, selectedColor: null };
 }
-
-// Funzione per eliminare categoria
-async function deleteCategory(type, idx) {
-  if (state.categories[type].length <= 1) {
-    alert('Deve esserci almeno una categoria.');
-    return;
-  }
-  const catName = state.categories[type][idx];
-  if (!confirm(`Eliminare la categoria "${catName}"?`)) return;
-  
-  state.categories[type].splice(idx, 1);
-  if (categoryColors[catName]) {
-    delete categoryColors[catName];
-    await saveCategoryColors();
-  }
-  await saveCategories();
-  renderCategories();
-  populateCategorySelect();
-}
-
-// === GESTIONE MODIFICA CATEGORIE ===
-
-function openCatEditModal(type, idx) {
-  console.log('✏️ Apertura modifica categoria:', type, idx);
-  editingCat = { type: type, index: idx };
-  
-  const input = document.getElementById('cat-edit-input');
-  if (input) {
-    input.value = state.categories[type][idx];
-    setTimeout(() => { input.focus(); input.select(); }, 100);
-  }
-  
-  const modal = document.getElementById('cat-edit-modal');
-  if (modal) {
-    modal.style.display = 'flex';
-  } else {
-    console.error('❌ Modale cat-edit-modal non trovato!');
-    alert('Errore: modale non trovato. Ricarica la pagina.');
-  }
-}
-
-function closeCatEditModal() {
-  const modal = document.getElementById('cat-edit-modal');
-  if (modal) modal.style.display = 'none';
-  editingCat = { type: null, index: null };
-}
-
-function initCatEditModalListeners() {
-  const cancelBtn = document.getElementById('cat-edit-cancel');
-  const saveBtn = document.getElementById('cat-edit-save');
-  const modal = document.getElementById('cat-edit-modal');
-  
-  if (cancelBtn) {
-    const newCancel = cancelBtn.cloneNode(true);
-    cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
-    newCancel.addEventListener('click', closeCatEditModal);
-  }
-  
-  if (saveBtn) {
-    const newSave = saveBtn.cloneNode(true);
-    saveBtn.parentNode.replaceChild(newSave, saveBtn);
-    newSave.addEventListener('click', async function() {
-      const input = document.getElementById('cat-edit-input');
-      if (!input) return;
-      
-      const newName = input.value.trim();
-      if (!newName) {
-        alert('Inserisci un nome valido.');
-        input.focus();
-        return;
-      }
-      
-      const type = editingCat.type;
-      const idx = editingCat.index;
-      if (type === null || idx === null) {
-        alert('Errore: nessuna categoria selezionata.');
-        return;
-      }
-      
-      const oldName = state.categories[type][idx];
-      if (state.categories[type].includes(newName) && newName !== oldName) {
-        alert('Categoria già esistente.');
-        input.focus();
-        return;
-      }
-      
-      state.categories[type][idx] = newName;
-      if (newName !== oldName && categoryColors[oldName]) {
-        categoryColors[newName] = categoryColors[oldName];
-        delete categoryColors[oldName];
-        await saveCategoryColors();
-      }
-      
-      await saveCategories();
-      closeCatEditModal();
-      renderCategories();
-      populateCategorySelect();
-    });
-  }
-  
-  if (modal) {
-    const newModal = modal.cloneNode(true);
-    modal.parentNode.replaceChild(newModal, modal);
-    newModal.addEventListener('click', function(e) {
-      if (e.target === this) closeCatEditModal();
-    });
-  }
-}
-
-// === FUNZIONI COLOR PICKER ===
-// (se già presenti, salta)
-function openColorPicker(type, category) {
-  colorPickerContext = {
-    type: type,
-    category: category,
-    selectedColor: getCategoryColor(category)
-  };
-  document.getElementById('color-picker-preview-name').textContent = category;
-  document.getElementById('color-picker-preview-dot').style.backgroundColor = colorPickerContext.selectedColor;
-  document.getElementById('color-picker-preview-hex').textContent = colorPickerContext.selectedColor;
-  renderColorPalette();
-  document.getElementById('color-picker-overlay').classList.add('open');
-}
-
-function renderColorPalette() {
-  const grid = document.getElementById('color-picker-grid');
-  grid.innerHTML = '';
-  COLOR_PALETTE.forEach(color => {
-    const option = document.createElement('div');
-    option.className = 'color-picker-option' + (color.hex === colorPickerContext.selectedColor ? ' selected' : '');
-    option.style.backgroundColor = color.hex;
-    option.title = color.name;
-    option.addEventListener('click', () => {
-      colorPickerContext.selectedColor = color.hex;
-      document.getElementById('color-picker-preview-dot').style.backgroundColor = color.hex;
-      document.getElementById('color-picker-preview-hex').textContent = color.hex;
-      grid.querySelectorAll('.color-picker-option').forEach(opt => opt.classList.remove('selected'));
-      option.classList.add('selected');
-    });
-    grid.appendChild(option);
-  });
-}
-
-function closeColorPicker() {
-  document.getElementById('color-picker-overlay').classList.remove('open');
-  colorPickerContext = { category: null, type: null, selectedColor: null };
-}
-
-async function saveSelectedColor() {
-  if (!colorPickerContext.category || !colorPickerContext.selectedColor) return;
-  categoryColors[colorPickerContext.category] = colorPickerContext.selectedColor;
-  await saveCategoryColors();
-  renderCategories();
-  if (document.getElementById('page-grafici').classList.contains('active')) {
-    updateChartCategory();
-  }
-  closeColorPicker();
-}
-
-document.getElementById('color-picker-cancel').addEventListener('click', closeColorPicker);
-document.getElementById('color-picker-save').addEventListener('click', saveSelectedColor);
-document.getElementById('color-picker-overlay').addEventListener('click', (e) => {
-  if (e.target.id === 'color-picker-overlay') closeColorPicker();
-});
-
-// Inizializza i listener del modale all'avvio
-document.addEventListener('DOMContentLoaded', function() {
-  setTimeout(initCatEditModalListeners, 200);
-});
-
-// === GESTIONE CATEGORIE ===
 
 // Renderizza le categorie
 function renderCategories() {
-  console.log('🔄 Render categorie chiamata');
-  
-  // Riattacca i listener del modale di modifica
+  console.log('🔄 renderCategories() chiamata');
+
+  // Assicura che i listener del modale di modifica siano attaccati
   initCatEditModalListeners();
-  
-  const renderList = (type, listId) => {
+
+  // Renderizza le liste
+  ['expense', 'income'].forEach(type => {
+    const listId = type === 'expense' ? 'cat-list-expense' : 'cat-list-income';
     const ul = document.getElementById(listId);
     if (!ul) {
       console.warn('⚠️ Elemento non trovato:', listId);
       return;
     }
     ul.innerHTML = '';
-    
+
     const categories = state.categories[type] || [];
     if (categories.length === 0) {
       ul.innerHTML = '<li style="padding:12px 0; color:var(--text-muted); font-size:13px; font-weight:600;">Nessuna categoria</li>';
       return;
     }
-    
+
     categories.forEach((cat, idx) => {
       const li = document.createElement('li');
       li.className = 'cat-item';
       const currentColor = getCategoryColor(cat);
-      
       li.innerHTML = `
         <div class="cat-item-name">
           <div class="cat-color-dot" data-type="${type}" data-category="${escapeHtml(cat)}" style="background-color: ${currentColor};" title="Clicca per cambiare colore"></div>
@@ -6416,101 +6116,85 @@ function renderCategories() {
       `;
       ul.appendChild(li);
     });
-  };
-  
-  renderList('expense', 'cat-list-expense');
-  renderList('income', 'cat-list-income');
-  
-  // === ATTACCA LISTENER PER I PULSANTI AGGIUNGI ===
-  const addExpenseBtn = document.getElementById('btn-add-cat-expense');
-  const addIncomeBtn = document.getElementById('btn-add-cat-income');
-  
-  if (addExpenseBtn) {
-    const newBtn = addExpenseBtn.cloneNode(true);
-    addExpenseBtn.parentNode.replaceChild(newBtn, addExpenseBtn);
-    newBtn.addEventListener('click', function() {
-      addCategory('expense');
-    });
-  }
-  
-  if (addIncomeBtn) {
-    const newBtn = addIncomeBtn.cloneNode(true);
-    addIncomeBtn.parentNode.replaceChild(newBtn, addIncomeBtn);
-    newBtn.addEventListener('click', function() {
-      addCategory('income');
-    });
-  }
-  
-  // === ATTACCA LISTENER PER MODIFICA/ELIMINAZIONE (DELEGA SULLE LISTE) ===
-  document.querySelectorAll('#cat-list-expense, #cat-list-income').forEach(list => {
+  });
+
+  // Listener per i pulsanti "Aggiungi"
+  ['expense', 'income'].forEach(type => {
+    const btnId = type === 'expense' ? 'btn-add-cat-expense' : 'btn-add-cat-income';
+    const btn = document.getElementById(btnId);
+    if (btn) {
+      // Rimuovi vecchi listener clonando
+      const newBtn = btn.cloneNode(true);
+      btn.parentNode.replaceChild(newBtn, btn);
+      newBtn.addEventListener('click', () => addCategory(type));
+    }
+  });
+
+  // Delegate listener per le liste (modifica, elimina, colore)
+  ['cat-list-expense', 'cat-list-income'].forEach(listId => {
+    const list = document.getElementById(listId);
     if (!list) return;
-    list.addEventListener('click', function(e) {
-      const target = e.target.closest('button');
-      if (!target) return;
-      
-      // Modifica
-      if (target.classList.contains('btn-edit-tx')) {
+    // Rimuovi listener vecchi (cloniamo) e riattacchiamo
+    const newList = list.cloneNode(true);
+    list.parentNode.replaceChild(newList, list);
+    newList.addEventListener('click', function(e) {
+      // Pulsante modifica
+      const editBtn = e.target.closest('.btn-edit-tx');
+      if (editBtn) {
         e.preventDefault();
         e.stopPropagation();
-        const type = target.getAttribute('data-type');
-        const idx = parseInt(target.getAttribute('data-idx'));
+        const type = editBtn.getAttribute('data-type');
+        const idx = parseInt(editBtn.getAttribute('data-idx'));
         console.log('✏️ Modifica categoria:', type, idx);
         openCatEditModal(type, idx);
         return;
       }
-      
-      // Elimina
-      if (target.classList.contains('btn-delete')) {
+      // Pulsante elimina
+      const delBtn = e.target.closest('.btn-delete');
+      if (delBtn) {
         e.preventDefault();
         e.stopPropagation();
-        const type = target.getAttribute('data-type');
-        const idx = parseInt(target.getAttribute('data-idx'));
+        const type = delBtn.getAttribute('data-type');
+        const idx = parseInt(delBtn.getAttribute('data-idx'));
         console.log('🗑️ Elimina categoria:', type, idx);
         deleteCategory(type, idx);
         return;
       }
+      // Pallino colore
+      const dot = e.target.closest('.cat-color-dot');
+      if (dot) {
+        e.preventDefault();
+        e.stopPropagation();
+        const type = dot.getAttribute('data-type');
+        const category = dot.getAttribute('data-category');
+        console.log('🎨 Cambio colore per:', category);
+        openColorPicker(type, category);
+        return;
+      }
     });
   });
-  
-  // === ATTACCA LISTENER PER IL COLOR PICKER (DELEGA SUI PALLINI) ===
-  document.querySelectorAll('#cat-list-expense, #cat-list-income').forEach(list => {
-    if (!list) return;
-    list.addEventListener('click', function(e) {
-      const target = e.target.closest('.cat-color-dot');
-      if (!target) return;
-      
-      e.preventDefault();
-      e.stopPropagation();
-      const type = target.getAttribute('data-type');
-      const category = target.getAttribute('data-category');
-      console.log('🎨 Cambio colore per:', category);
-      openColorPicker(type, category);
-    });
-  });
-  
+
   console.log('✅ Categorie renderizzate e listener attaccati');
 }
 
-// Funzione per aggiungere categoria
+// --- Aggiungi categoria ---
 async function addCategory(type) {
   const inputId = type === 'expense' ? 'new-cat-expense' : 'new-cat-income';
   const input = document.getElementById(inputId);
   if (!input) return;
-  
+
   const val = input.value.trim();
   if (!val) {
     alert('Inserisci un nome per la categoria.');
     input.focus();
     return;
   }
-  
   if (state.categories[type].includes(val)) {
     alert('Categoria già esistente.');
     input.value = '';
     input.focus();
     return;
   }
-  
   state.categories[type].push(val);
   input.value = '';
   await saveCategories();
@@ -6518,7 +6202,7 @@ async function addCategory(type) {
   populateCategorySelect();
 }
 
-// Funzione per eliminare categoria
+// --- Elimina categoria ---
 async function deleteCategory(type, idx) {
   if (state.categories[type].length <= 1) {
     alert('Deve esserci almeno una categoria.');
@@ -6526,7 +6210,7 @@ async function deleteCategory(type, idx) {
   }
   const catName = state.categories[type][idx];
   if (!confirm(`Eliminare la categoria "${catName}"?`)) return;
-  
+
   state.categories[type].splice(idx, 1);
   if (categoryColors[catName]) {
     delete categoryColors[catName];
@@ -6537,21 +6221,23 @@ async function deleteCategory(type, idx) {
   populateCategorySelect();
 }
 
-// === GESTIONE MODIFICA CATEGORIE ===
-
+// --- Modifica categoria ---
 function openCatEditModal(type, idx) {
-  console.log('✏️ Apertura modifica categoria:', type, idx);
-  editingCat = { type: type, index: idx };
-  
+  console.log('✏️ openCatEditModal chiamata con:', type, idx);
+  // Aggiorna la variabile globale
+  editingCat.type = type;
+  editingCat.index = idx;
+
   const input = document.getElementById('cat-edit-input');
   if (input) {
     input.value = state.categories[type][idx];
     setTimeout(() => { input.focus(); input.select(); }, 100);
   }
-  
+
   const modal = document.getElementById('cat-edit-modal');
   if (modal) {
     modal.style.display = 'flex';
+    console.log('✅ Modale aperto');
   } else {
     console.error('❌ Modale cat-edit-modal non trovato!');
     alert('Errore: modale non trovato. Ricarica la pagina.');
@@ -6561,88 +6247,110 @@ function openCatEditModal(type, idx) {
 function closeCatEditModal() {
   const modal = document.getElementById('cat-edit-modal');
   if (modal) modal.style.display = 'none';
-  editingCat = { type: null, index: null };
+  editingCat.type = null;
+  editingCat.index = null;
 }
 
 function initCatEditModalListeners() {
+  const modal = document.getElementById('cat-edit-modal');
   const cancelBtn = document.getElementById('cat-edit-cancel');
   const saveBtn = document.getElementById('cat-edit-save');
-  const modal = document.getElementById('cat-edit-modal');
-  
+
+  if (!modal) {
+    console.warn('⚠️ cat-edit-modal non trovato');
+    return;
+  }
+
+  // Annulla
   if (cancelBtn) {
     const newCancel = cancelBtn.cloneNode(true);
     cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
     newCancel.addEventListener('click', closeCatEditModal);
   }
-  
+
+  // Salva
   if (saveBtn) {
     const newSave = saveBtn.cloneNode(true);
     saveBtn.parentNode.replaceChild(newSave, saveBtn);
     newSave.addEventListener('click', async function() {
       const input = document.getElementById('cat-edit-input');
       if (!input) return;
-      
+
       const newName = input.value.trim();
       if (!newName) {
         alert('Inserisci un nome valido.');
         input.focus();
         return;
       }
-      
+
       const type = editingCat.type;
       const idx = editingCat.index;
       if (type === null || idx === null) {
         alert('Errore: nessuna categoria selezionata.');
         return;
       }
-      
+
       const oldName = state.categories[type][idx];
       if (state.categories[type].includes(newName) && newName !== oldName) {
         alert('Categoria già esistente.');
         input.focus();
         return;
       }
-      
+
       state.categories[type][idx] = newName;
       if (newName !== oldName && categoryColors[oldName]) {
         categoryColors[newName] = categoryColors[oldName];
         delete categoryColors[oldName];
         await saveCategoryColors();
       }
-      
+
       await saveCategories();
       closeCatEditModal();
       renderCategories();
       populateCategorySelect();
+      console.log('✅ Categoria modificata da', oldName, 'a', newName);
     });
   }
-  
-  if (modal) {
-    const newModal = modal.cloneNode(true);
-    modal.parentNode.replaceChild(newModal, modal);
-    newModal.addEventListener('click', function(e) {
-      if (e.target === this) closeCatEditModal();
-    });
-  }
+
+  // Click fuori
+  const newModal = modal.cloneNode(true);
+  modal.parentNode.replaceChild(newModal, modal);
+  newModal.addEventListener('click', function(e) {
+    if (e.target === this) closeCatEditModal();
+  });
 }
 
-// === COLOR PICKER ===
-
+// --- Color Picker ---
 function openColorPicker(type, category) {
-  colorPickerContext = {
-    type: type,
-    category: category,
-    selectedColor: getCategoryColor(category)
-  };
-  document.getElementById('color-picker-preview-name').textContent = category;
-  document.getElementById('color-picker-preview-dot').style.backgroundColor = colorPickerContext.selectedColor;
-  document.getElementById('color-picker-preview-hex').textContent = colorPickerContext.selectedColor;
+  console.log('🎨 openColorPicker chiamata per:', category);
+
+  // Assicurati che l'overlay esista
+  const overlay = document.getElementById('color-picker-overlay');
+  if (!overlay) {
+    console.error('❌ color-picker-overlay non trovato!');
+    alert('Errore: color picker non trovato. Ricarica la pagina.');
+    return;
+  }
+
+  colorPickerContext.type = type;
+  colorPickerContext.category = category;
+  colorPickerContext.selectedColor = getCategoryColor(category);
+
+  const nameEl = document.getElementById('color-picker-preview-name');
+  const dotEl = document.getElementById('color-picker-preview-dot');
+  const hexEl = document.getElementById('color-picker-preview-hex');
+  if (nameEl) nameEl.textContent = category;
+  if (dotEl) dotEl.style.backgroundColor = colorPickerContext.selectedColor;
+  if (hexEl) hexEl.textContent = colorPickerContext.selectedColor;
+
   renderColorPalette();
-  document.getElementById('color-picker-overlay').classList.add('open');
+  overlay.classList.add('open');
+  console.log('✅ Color picker aperto');
 }
 
 function renderColorPalette() {
   const grid = document.getElementById('color-picker-grid');
+  if (!grid) return;
   grid.innerHTML = '';
   COLOR_PALETTE.forEach(color => {
     const option = document.createElement('div');
@@ -6651,8 +6359,10 @@ function renderColorPalette() {
     option.title = color.name;
     option.addEventListener('click', () => {
       colorPickerContext.selectedColor = color.hex;
-      document.getElementById('color-picker-preview-dot').style.backgroundColor = color.hex;
-      document.getElementById('color-picker-preview-hex').textContent = color.hex;
+      const dot = document.getElementById('color-picker-preview-dot');
+      const hex = document.getElementById('color-picker-preview-hex');
+      if (dot) dot.style.backgroundColor = color.hex;
+      if (hex) hex.textContent = color.hex;
       grid.querySelectorAll('.color-picker-option').forEach(opt => opt.classList.remove('selected'));
       option.classList.add('selected');
     });
@@ -6661,33 +6371,44 @@ function renderColorPalette() {
 }
 
 function closeColorPicker() {
-  document.getElementById('color-picker-overlay').classList.remove('open');
-  colorPickerContext = { category: null, type: null, selectedColor: null };
+  const overlay = document.getElementById('color-picker-overlay');
+  if (overlay) overlay.classList.remove('open');
+  colorPickerContext.category = null;
+  colorPickerContext.type = null;
+  colorPickerContext.selectedColor = null;
 }
 
 async function saveSelectedColor() {
-  if (!colorPickerContext.category || !colorPickerContext.selectedColor) return;
+  console.log('💾 saveSelectedColor chiamata');
+  if (!colorPickerContext.category || !colorPickerContext.selectedColor) {
+    console.warn('Nessun colore selezionato');
+    return;
+  }
   categoryColors[colorPickerContext.category] = colorPickerContext.selectedColor;
   await saveCategoryColors();
+  closeColorPicker();
   renderCategories();
-  if (document.getElementById('page-grafici').classList.contains('active')) {
+  if (document.getElementById('page-grafici')?.classList.contains('active')) {
     updateChartCategory();
   }
-  closeColorPicker();
+  console.log('✅ Colore salvato per', colorPickerContext.category);
 }
 
-// Inizializza i listener per i pulsanti del color picker (una volta)
-document.getElementById('color-picker-cancel').addEventListener('click', closeColorPicker);
-document.getElementById('color-picker-save').addEventListener('click', saveSelectedColor);
-document.getElementById('color-picker-overlay').addEventListener('click', (e) => {
+// Attacca i listener ai pulsanti del color picker (una volta)
+document.getElementById('color-picker-cancel')?.addEventListener('click', closeColorPicker);
+document.getElementById('color-picker-save')?.addEventListener('click', saveSelectedColor);
+document.getElementById('color-picker-overlay')?.addEventListener('click', (e) => {
   if (e.target.id === 'color-picker-overlay') closeColorPicker();
 });
 
-// Inizializza i listener del modale di modifica all'avvio
+// Inizializza i listener del modale di modifica (una volta all'avvio)
 document.addEventListener('DOMContentLoaded', function() {
-  setTimeout(initCatEditModalListeners, 200);
+  initCatEditModalListeners();
+  // Chiama renderCategories per essere sicuri
+  setTimeout(renderCategories, 300);
 });
-  
+
+
 function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
 function populateMonthSelects() {
 const months = Array.from(new Set(state.transactions.map(t => monthKey(t.date)))); months.push(monthKey(todayISO()));
