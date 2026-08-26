@@ -6063,15 +6063,10 @@ const msgEl = document.getElementById('profile-msg'); msgEl.textContent = '';
 try { await auth.sendPasswordResetEmail(currentUser.email); msgEl.style.color = 'var(--success)'; msgEl.textContent = 'Email inviata!'; } catch(e) { msgEl.style.color = 'var(--danger)'; msgEl.textContent = 'Errore: ' + e.message; }
 });
 
-// === GESTIONE CATEGORIE (VERSIONE DEFINITIVA) ===
+// === GESTIONE CATEGORIE (VERSIONE DEFINITIVA - SENZA DOPPIE DICHIARAZIONI) ===
 
-// Dichiarazione delle variabili globali (se non esistono già)
-if (typeof editingCat === 'undefined') {
-  var editingCat = { type: null, index: null };
-}
-if (typeof colorPickerContext === 'undefined') {
-  var colorPickerContext = { category: null, type: null, selectedColor: null };
-}
+// NOTA: editingCat e colorPickerContext sono già dichiarate globalmente
+// Non dichiararle di nuovo qui!
 
 // Renderizza le categorie
 function renderCategories() {
@@ -6123,7 +6118,6 @@ function renderCategories() {
     const btnId = type === 'expense' ? 'btn-add-cat-expense' : 'btn-add-cat-income';
     const btn = document.getElementById(btnId);
     if (btn) {
-      // Rimuovi vecchi listener clonando
       const newBtn = btn.cloneNode(true);
       btn.parentNode.replaceChild(newBtn, btn);
       newBtn.addEventListener('click', () => addCategory(type));
@@ -6134,7 +6128,6 @@ function renderCategories() {
   ['cat-list-expense', 'cat-list-income'].forEach(listId => {
     const list = document.getElementById(listId);
     if (!list) return;
-    // Rimuovi listener vecchi (cloniamo) e riattacchiamo
     const newList = list.cloneNode(true);
     list.parentNode.replaceChild(newList, list);
     newList.addEventListener('click', function(e) {
@@ -6224,7 +6217,6 @@ async function deleteCategory(type, idx) {
 // --- Modifica categoria ---
 function openCatEditModal(type, idx) {
   console.log('✏️ openCatEditModal chiamata con:', type, idx);
-  // Aggiorna la variabile globale
   editingCat.type = type;
   editingCat.index = idx;
 
@@ -6261,14 +6253,12 @@ function initCatEditModalListeners() {
     return;
   }
 
-  // Annulla
   if (cancelBtn) {
     const newCancel = cancelBtn.cloneNode(true);
     cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
     newCancel.addEventListener('click', closeCatEditModal);
   }
 
-  // Salva
   if (saveBtn) {
     const newSave = saveBtn.cloneNode(true);
     saveBtn.parentNode.replaceChild(newSave, saveBtn);
@@ -6324,7 +6314,6 @@ function initCatEditModalListeners() {
 function openColorPicker(type, category) {
   console.log('🎨 openColorPicker chiamata per:', category);
 
-  // Assicurati che l'overlay esista
   const overlay = document.getElementById('color-picker-overlay');
   if (!overlay) {
     console.error('❌ color-picker-overlay non trovato!');
