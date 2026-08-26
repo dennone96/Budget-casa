@@ -6058,71 +6058,165 @@ try { await auth.sendPasswordResetEmail(currentUser.email); msgEl.style.color = 
 });
 
 function renderCategories() {
-const renderList = (type, listId) => {
-const ul = document.getElementById(listId); ul.innerHTML = '';
-state.categories[type].forEach((cat, idx) => {
-const li = document.createElement('li'); li.className = 'cat-item';
-const currentColor = getCategoryColor(cat);
-li.innerHTML = `
-<div class="cat-item-name">
-<div class="cat-color-dot" data-type="${type}" data-category="${escapeHtml(cat)}" style="background-color: ${currentColor};" title="Clicca per cambiare colore"></div>
-<span>${escapeHtml(cat)}</span>
-</div>
-<div class="cat-actions">
-<button class="btn-edit-tx" data-type="${type}" data-idx="${idx}" title="Modifica" style="background: linear-gradient(135deg, #2F80ED 0%, #1558C0 100%); border-radius: 12px;">
-<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512"><defs><linearGradient id="buttonGradientEdit" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#2F80ED"/><stop offset="1" stop-color="#1558C0"/></linearGradient><filter id="softShadowEdit" x="44" y="44" width="424" height="424" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#0B2E63" flood-opacity="0.24"/></filter></defs><rect x="72" y="72" width="368" height="368" rx="92" fill="url(#buttonGradientEdit)" filter="url(#softShadowEdit)"/><path d="M338.7 130.8c12.6-12.6 33.1-12.6 45.7 0l17.8 17.8c12.6 12.6 12.6 33.1 0 45.7l-24.5 24.5-63.5-63.5 24.5-24.5Z" fill="#FFFFFF"/><path d="M287.7 181.8 151.8 317.7c-3.2 3.2-5.4 7.2-6.5 11.6l-17.5 69.9c-2.5 9.9 6.5 18.9 16.4 16.4l69.9-17.5c4.4-1.1 8.4-3.3 11.6-6.5l135.9-135.9-73.9-73.9Z" fill="#FFFFFF"/><path d="M287.7 181.8 361.6 255.7 338 279.3 264.1 205.4l23.6-23.6Z" fill="#DDEBFF"/><path d="M151.8 317.7c-3.2 3.2-5.4 7.2-6.5 11.6l-10.3 41 40.9 40.9 40.9-10.3c4.4-1.1 8.4-3.3 11.6-6.5l-76.6-76.7Z" fill="#EAF3FF"/><path d="M135 370.3 127.8 399.2c-2.5 9.9 6.5 18.9 16.4 16.4l28.9-7.2L135 370.3Z" fill="#102A43"/></svg>
-</button>
-<button class="btn-delete" data-type="${type}" data-idx="${idx}" title="Elimina" style="background: linear-gradient(135deg, #F04438 0%, #B42318 100%); border-radius: 12px;">
-<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512"><defs><linearGradient id="buttonGradient" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#F04438"/><stop offset="1" stop-color="#B42318"/></linearGradient><filter id="softShadow" x="44" y="44" width="424" height="424" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#65160F" flood-opacity="0.24"/></filter></defs><rect x="72" y="72" width="368" height="368" rx="92" fill="url(#buttonGradient)" filter="url(#softShadow)"/><path d="M202 154c0-17.7 14.3-32 32-32h44c17.7 0 32 14.3 32 32v14h52c11 0 20 9 20 20s-9 20-20 20H150c-11 0-20-9-20-20s9-20 20-20h52v-14Zm40 14h28v-6c0-3.3-2.7-6-6-6h-16c-3.3 0-6 2.7-6 6v6Z" fill="#FFFFFF"/><path d="M170 238c-1.1-13.8 9.8-25.6 23.6-25.6h124.8c13.8 0 24.7 11.8 23.6 25.6l-12.2 144.9c-1.5 17.5-16.1 31.1-33.7 31.1h-80.2c-17.6 0-32.2-13.6-33.7-31.1L170 238Z" fill="#FFFFFF"/></svg>
-</button>
-</div>
-`;
-ul.appendChild(li);
-});
-ul.querySelectorAll('.cat-color-dot').forEach(dot => {
-dot.addEventListener('click', (e) => {
-e.stopPropagation();
-const type = dot.getAttribute('data-type');
-const category = dot.getAttribute('data-category');
-openColorPicker(type, category);
-});
-});
-ul.querySelectorAll('.btn-delete').forEach(btn => btn.addEventListener('click', async () => {
-const type = btn.getAttribute('data-type');
-const idx = parseInt(btn.getAttribute('data-idx'));
-if (state.categories[type].length <= 1) { alert('Deve esserci almeno una categoria.'); return; }
-if (!confirm(`Eliminare la categoria "${state.categories[type][idx]}"?`)) return;
-const catName = state.categories[type][idx];
-state.categories[type].splice(idx, 1);
-if (categoryColors[catName]) {
-delete categoryColors[catName];
-saveCategoryColors();
-}
-await saveCategories(); renderCategories(); populateCategorySelect();
-}));
-ul.querySelectorAll('.btn-edit-tx').forEach(btn => btn.addEventListener('click', () => {
-const type = btn.getAttribute('data-type');
-const idx = parseInt(btn.getAttribute('data-idx'));
-openCatEditModal(type, idx);
-}));
-};
-renderList('expense', 'cat-list-expense');
-renderList('income', 'cat-list-income');
+  console.log('🔄 Render categorie chiamata');
+  
+  const renderList = (type, listId) => {
+    const ul = document.getElementById(listId);
+    if (!ul) {
+      console.warn('⚠️ Elemento non trovato:', listId);
+      return;
+    }
+    ul.innerHTML = '';
+    
+    const categories = state.categories[type] || [];
+    if (categories.length === 0) {
+      ul.innerHTML = '<li style="padding:12px 0; color:var(--text-muted); font-size:13px; font-weight:600;">Nessuna categoria</li>';
+      return;
+    }
+    
+    categories.forEach((cat, idx) => {
+      const li = document.createElement('li');
+      li.className = 'cat-item';
+      const currentColor = getCategoryColor(cat);
+      
+      li.innerHTML = `
+        <div class="cat-item-name">
+          <div class="cat-color-dot" data-type="${type}" data-category="${escapeHtml(cat)}" style="background-color: ${currentColor};" title="Clicca per cambiare colore"></div>
+          <span>${escapeHtml(cat)}</span>
+        </div>
+        <div class="cat-actions">
+          <button class="btn-edit-cat" data-type="${type}" data-idx="${idx}" title="Modifica">✏️</button>
+          <button class="btn-delete-cat" data-type="${type}" data-idx="${idx}" title="Elimina">🗑️</button>
+        </div>
+      `;
+      ul.appendChild(li);
+    });
+  };
+  
+  renderList('expense', 'cat-list-expense');
+  renderList('income', 'cat-list-income');
+  
+  // === ATTACCA LISTENER AI PULSANTI AGGIUNGI ===
+  const addExpenseBtn = document.getElementById('btn-add-cat-expense');
+  const addIncomeBtn = document.getElementById('btn-add-cat-income');
+  
+  if (addExpenseBtn) {
+    // Rimuovi vecchi listener clonando e sostituendo
+    const newBtn = addExpenseBtn.cloneNode(true);
+    addExpenseBtn.parentNode.replaceChild(newBtn, addExpenseBtn);
+    newBtn.addEventListener('click', function() {
+      addCategory('expense');
+    });
+  }
+  
+  if (addIncomeBtn) {
+    const newBtn = addIncomeBtn.cloneNode(true);
+    addIncomeBtn.parentNode.replaceChild(newBtn, addIncomeBtn);
+    newBtn.addEventListener('click', function() {
+      addCategory('income');
+    });
+  }
+  
+  // === ATTACCA LISTENER AI PULSANTI DI MODIFICA ED ELIMINA (USANDO DELEGA) ===
+  const listExpense = document.getElementById('cat-list-expense');
+  const listIncome = document.getElementById('cat-list-income');
+  
+  if (listExpense) {
+    listExpense.addEventListener('click', function(e) {
+      const target = e.target.closest('button');
+      if (!target) return;
+      
+      // Modifica
+      if (target.classList.contains('btn-edit-cat')) {
+        const type = target.getAttribute('data-type');
+        const idx = parseInt(target.getAttribute('data-idx'));
+        openCatEditModal(type, idx);
+        return;
+      }
+      
+      // Elimina
+      if (target.classList.contains('btn-delete-cat')) {
+        const type = target.getAttribute('data-type');
+        const idx = parseInt(target.getAttribute('data-idx'));
+        deleteCategory(type, idx);
+        return;
+      }
+    });
+  }
+  
+  if (listIncome) {
+    listIncome.addEventListener('click', function(e) {
+      const target = e.target.closest('button');
+      if (!target) return;
+      
+      if (target.classList.contains('btn-edit-cat')) {
+        const type = target.getAttribute('data-type');
+        const idx = parseInt(target.getAttribute('data-idx'));
+        openCatEditModal(type, idx);
+        return;
+      }
+      
+      if (target.classList.contains('btn-delete-cat')) {
+        const type = target.getAttribute('data-type');
+        const idx = parseInt(target.getAttribute('data-idx'));
+        deleteCategory(type, idx);
+        return;
+      }
+    });
+  }
+  
+  console.log('✅ Categorie renderizzate e listener attaccati');
 }
 
-function openColorPicker(type, category) {
-colorPickerContext = {
-type: type,
-category: category,
-selectedColor: getCategoryColor(category)
-};
-document.getElementById('color-picker-preview-name').textContent = category;
-document.getElementById('color-picker-preview-dot').style.backgroundColor = colorPickerContext.selectedColor;
-document.getElementById('color-picker-preview-hex').textContent = colorPickerContext.selectedColor;
-renderColorPalette();
-document.getElementById('color-picker-overlay').classList.add('open');
+// Funzione helper per aggiungere categoria
+async function addCategory(type) {
+  const inputId = type === 'expense' ? 'new-cat-expense' : 'new-cat-income';
+  const input = document.getElementById(inputId);
+  if (!input) {
+    console.warn('Input non trovato:', inputId);
+    return;
+  }
+  
+  const val = input.value.trim();
+  if (!val) {
+    alert('Inserisci un nome per la categoria.');
+    input.focus();
+    return;
+  }
+  
+  if (state.categories[type].includes(val)) {
+    alert('Categoria già esistente.');
+    input.value = '';
+    input.focus();
+    return;
+  }
+  
+  state.categories[type].push(val);
+  input.value = '';
+  await saveCategories();
+  renderCategories();
+  populateCategorySelect();
+  console.log('✅ Categoria aggiunta:', val);
 }
 
+// Funzione helper per eliminare categoria
+async function deleteCategory(type, idx) {
+  if (state.categories[type].length <= 1) {
+    alert('Deve esserci almeno una categoria.');
+    return;
+  }
+  const catName = state.categories[type][idx];
+  if (!confirm(`Eliminare la categoria "${catName}"?`)) return;
+  
+  state.categories[type].splice(idx, 1);
+  if (categoryColors[catName]) {
+    delete categoryColors[catName];
+    await saveCategoryColors();
+  }
+  await saveCategories();
+  renderCategories();
+  populateCategorySelect();
+}
 function renderColorPalette() {
 const grid = document.getElementById('color-picker-grid');
 grid.innerHTML = '';
