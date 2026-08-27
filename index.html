@@ -3742,15 +3742,19 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 </div>
 </div>
 </div>
+<!-- MODALE MODIFICA CATEGORIA -->
 <div id="cat-edit-modal" style="display:none; position:fixed; inset:0; background:rgba(15,25,35,0.6); backdrop-filter:blur(8px); z-index:600; align-items:center; justify-content:center; padding:1rem;">
-<div style="background:var(--surface); border-radius:var(--radius-lg); padding:2rem; width:100%; max-width:440px; box-shadow:var(--shadow-xl);">
-<h3 style="margin:0 0 1.5rem; font-size:22px; font-weight:800; letter-spacing:-0.5px;">Modifica categoria</h3>
-<div class="modal-field"><label>Nuovo nome</label><input type="text" id="cat-edit-input" style="height:46px;"></div>
-<div class="modal-actions">
-<button id="cat-edit-cancel" style="background:var(--surface-2); border:1px solid var(--border); color:var(--text-primary);">Annulla</button>
-<button id="cat-edit-save" style="background:var(--accent-gradient); color:#fff; border:none;">Salva</button>
-</div>
-</div>
+  <div style="background:var(--surface); border-radius:var(--radius-lg); padding:2rem; width:100%; max-width:440px; box-shadow:var(--shadow-xl); animation:modalIn 0.3s ease;">
+    <h3 style="margin:0 0 1.5rem; font-size:22px; font-weight:800; letter-spacing:-0.5px;">✏️ Modifica categoria</h3>
+    <div class="modal-field">
+      <label style="display:block; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-muted); margin-bottom:8px;">Nuovo nome</label>
+      <input type="text" id="cat-edit-input" style="width:100%; height:46px; font-weight:700; border-radius:var(--radius-sm); border:1.5px solid var(--border); padding:0 14px; font-size:14px; background:var(--surface-2); color:var(--text-primary);">
+    </div>
+    <div class="modal-actions" style="display:flex; gap:10px; margin-top:1.5rem;">
+      <button id="cat-edit-cancel" onclick="closeCatEditModal()" style="flex:1; height:46px; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; background:var(--surface-2); border:1px solid var(--border); color:var(--text-secondary);">Annulla</button>
+      <button id="cat-edit-save" onclick="saveCategoryEdit()" style="flex:2; height:46px; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; background:var(--accent-gradient); color:#fff; border:none;">Salva</button>
+    </div>
+  </div>
 </div>
 <div id="bolletta-detail-overlay" style="display:none; position:fixed; inset:0; background:rgba(15,25,35,0.6); backdrop-filter:blur(8px); z-index:600; align-items:center; justify-content:center; padding:1rem;">
 <div style="background:var(--surface); border-radius:var(--radius-lg); padding:2rem; width:100%; max-width:500px; box-shadow:var(--shadow-xl); animation:modalIn 0.3s ease;">
@@ -6208,10 +6212,10 @@ async function deleteCategory(type, idx) {
   populateCategorySelect();
 }
 
-// --- Modifica categoria ---
+
+// Apri modale modifica categoria
 function openCatEditModal(type, idx) {
   console.log('✏️ openCatEditModal chiamata con:', type, idx);
-  
   editingCat.type = type;
   editingCat.index = idx;
 
@@ -6231,6 +6235,7 @@ function openCatEditModal(type, idx) {
   }
 }
 
+// Chiudi modale modifica categoria
 function closeCatEditModal() {
   const modal = document.getElementById('cat-edit-modal');
   if (modal) modal.style.display = 'none';
@@ -6238,89 +6243,56 @@ function closeCatEditModal() {
   editingCat.index = null;
 }
 
-// --- INIZIALIZZAZIONE LISTENER DEL MODALE (UNA SOLA VOLTA) ---
-function initCatEditModalListeners() {
-  console.log('🔧 initCatEditModalListeners chiamata');
+// Salva modifica categoria (chiamata dal pulsante onclick)
+async function saveCategoryEdit() {
+  console.log('💾 saveCategoryEdit chiamata');
   
-  // Se già inizializzata, esci
-  if (categoryListenersInitialized) {
-    console.log('⏩ Listener già inizializzati, salto');
-    return;
+  try {
+    const input = document.getElementById('cat-edit-input');
+    if (!input) {
+      alert('Campo input non trovato!');
+      return;
+    }
+
+    const newName = input.value.trim();
+    if (!newName) {
+      alert('Inserisci un nome valido.');
+      input.focus();
+      return;
+    }
+
+    const type = editingCat.type;
+    const idx = editingCat.index;
+    if (type === null || idx === null) {
+      alert('Errore: nessuna categoria selezionata.');
+      return;
+    }
+
+    const oldName = state.categories[type][idx];
+    if (state.categories[type].includes(newName) && newName !== oldName) {
+      alert('Categoria già esistente.');
+      input.focus();
+      return;
+    }
+
+    state.categories[type][idx] = newName;
+    if (newName !== oldName && categoryColors[oldName]) {
+      categoryColors[newName] = categoryColors[oldName];
+      delete categoryColors[oldName];
+      await saveCategoryColors();
+    }
+
+    await saveCategories();
+    closeCatEditModal();
+    renderCategories();
+    populateCategorySelect();
+    console.log('✅ Categoria modificata da', oldName, 'a', newName);
+  } catch (err) {
+    console.error('❌ Errore durante il salvataggio:', err);
+    alert('Errore: ' + err.message);
   }
-  
-  const cancelBtn = document.getElementById('cat-edit-cancel');
-  const saveBtn = document.getElementById('cat-edit-save');
-  const modal = document.getElementById('cat-edit-modal');
-
-  console.log('🔍 Elementi trovati:', {
-    cancelBtn: !!cancelBtn,
-    saveBtn: !!saveBtn,
-    modal: !!modal
-  });
-
-  if (cancelBtn) {
-    cancelBtn.addEventListener('click', function(e) {
-      e.preventDefault();
-      console.log('❌ Annulla cliccato');
-      closeCatEditModal();
-    });
-  }
-
-  if (saveBtn) {
-    saveBtn.addEventListener('click', async function(e) {
-      e.preventDefault();
-      console.log('💾 Salva cliccato');
-      const input = document.getElementById('cat-edit-input');
-      if (!input) return;
-
-      const newName = input.value.trim();
-      if (!newName) {
-        alert('Inserisci un nome valido.');
-        input.focus();
-        return;
-      }
-
-      const type = editingCat.type;
-      const idx = editingCat.index;
-      if (type === null || idx === null) {
-        alert('Errore: nessuna categoria selezionata.');
-        return;
-      }
-
-      const oldName = state.categories[type][idx];
-      if (state.categories[type].includes(newName) && newName !== oldName) {
-        alert('Categoria già esistente.');
-        input.focus();
-        return;
-      }
-
-      state.categories[type][idx] = newName;
-      if (newName !== oldName && categoryColors[oldName]) {
-        categoryColors[newName] = categoryColors[oldName];
-        delete categoryColors[oldName];
-        await saveCategoryColors();
-      }
-
-      await saveCategories();
-      closeCatEditModal();
-      renderCategories();
-      populateCategorySelect();
-      console.log('✅ Categoria modificata da', oldName, 'a', newName);
-    });
-  }
-
-  if (modal) {
-    modal.addEventListener('click', function(e) {
-      if (e.target === this) {
-        console.log('❌ Click fuori dal modale');
-        closeCatEditModal();
-      }
-    });
-  }
-  
-  categoryListenersInitialized = true;
-  console.log('✅ Listener del modale inizializzati (una volta)');
 }
+
 
 // --- Color Picker ---
 function openColorPicker(type, category) {
