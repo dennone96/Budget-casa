@@ -6057,6 +6057,14 @@ const msgEl = document.getElementById('profile-msg'); msgEl.textContent = '';
 try { await auth.sendPasswordResetEmail(currentUser.email); msgEl.style.color = 'var(--success)'; msgEl.textContent = 'Email inviata!'; } catch(e) { msgEl.style.color = 'var(--danger)'; msgEl.textContent = 'Errore: ' + e.message; }
 });
 
+// === GESTIONE CATEGORIE ===
+
+// Variabili globali già dichiarate all'inizio del file
+// editingCat e colorPickerContext sono già definite
+
+// Flag per evitare duplicazione dei listener
+let categoryListenersInitialized = false;
+
 // Renderizza le categorie
 function renderCategories() {
   console.log('🔄 renderCategories() chiamata');
@@ -6230,17 +6238,38 @@ function closeCatEditModal() {
   editingCat.index = null;
 }
 
-// Inizializza i listener del modale di modifica (una volta all'avvio)
+// --- INIZIALIZZAZIONE LISTENER DEL MODALE (UNA SOLA VOLTA) ---
 function initCatEditModalListeners() {
+  console.log('🔧 initCatEditModalListeners chiamata');
+  
+  // Se già inizializzata, esci
+  if (categoryListenersInitialized) {
+    console.log('⏩ Listener già inizializzati, salto');
+    return;
+  }
+  
   const cancelBtn = document.getElementById('cat-edit-cancel');
   const saveBtn = document.getElementById('cat-edit-save');
   const modal = document.getElementById('cat-edit-modal');
 
+  console.log('🔍 Elementi trovati:', {
+    cancelBtn: !!cancelBtn,
+    saveBtn: !!saveBtn,
+    modal: !!modal
+  });
+
   if (cancelBtn) {
-    cancelBtn.onclick = closeCatEditModal;
+    cancelBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      console.log('❌ Annulla cliccato');
+      closeCatEditModal();
+    });
   }
+
   if (saveBtn) {
-    saveBtn.onclick = async function() {
+    saveBtn.addEventListener('click', async function(e) {
+      e.preventDefault();
+      console.log('💾 Salva cliccato');
       const input = document.getElementById('cat-edit-input');
       if (!input) return;
 
@@ -6277,13 +6306,20 @@ function initCatEditModalListeners() {
       renderCategories();
       populateCategorySelect();
       console.log('✅ Categoria modificata da', oldName, 'a', newName);
-    };
+    });
   }
+
   if (modal) {
-    modal.onclick = function(e) {
-      if (e.target === this) closeCatEditModal();
-    };
+    modal.addEventListener('click', function(e) {
+      if (e.target === this) {
+        console.log('❌ Click fuori dal modale');
+        closeCatEditModal();
+      }
+    });
   }
+  
+  categoryListenersInitialized = true;
+  console.log('✅ Listener del modale inizializzati (una volta)');
 }
 
 // --- Color Picker ---
@@ -6364,11 +6400,21 @@ document.addEventListener('DOMContentLoaded', function() {
   initCatEditModalListeners();
   
   // Attacca listener ai pulsanti del color picker
-  document.getElementById('color-picker-cancel')?.addEventListener('click', closeColorPicker);
-  document.getElementById('color-picker-save')?.addEventListener('click', saveSelectedColor);
-  document.getElementById('color-picker-overlay')?.addEventListener('click', function(e) {
-    if (e.target.id === 'color-picker-overlay') closeColorPicker();
-  });
+  const pickerCancel = document.getElementById('color-picker-cancel');
+  const pickerSave = document.getElementById('color-picker-save');
+  const pickerOverlay = document.getElementById('color-picker-overlay');
+  
+  if (pickerCancel) {
+    pickerCancel.addEventListener('click', closeColorPicker);
+  }
+  if (pickerSave) {
+    pickerSave.addEventListener('click', saveSelectedColor);
+  }
+  if (pickerOverlay) {
+    pickerOverlay.addEventListener('click', function(e) {
+      if (e.target.id === 'color-picker-overlay') closeColorPicker();
+    });
+  }
   
   // Carica le categorie
   setTimeout(renderCategories, 300);
