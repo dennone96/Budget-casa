@@ -3796,8 +3796,8 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 </div>
 <div class="color-picker-grid" id="color-picker-grid"></div>
 <div class="color-picker-actions">
-<button id="color-picker-cancel" onclick="window.closeColorPicker()">Annulla</button>
-<button id="color-picker-save" onclick="window.saveColorPicker()">Salva colore</button>
+<button id="color-picker-cancel" style="flex:1; height:46px; font-size:14px; font-weight:700; border-radius:var(--radius-sm); background:var(--surface-2); border:1px solid var(--border); color:var(--text-primary); cursor:pointer;">Annulla</button>
+<button id="color-picker-save" style="flex:2; height:46px; font-size:14px; font-weight:700; border-radius:var(--radius-sm); background:var(--accent-gradient); color:#fff; border:none; cursor:pointer;">Salva colore</button>
 </div>
 </div>
 </div>
@@ -6289,25 +6289,24 @@ function renderColorPalette() {
   });
 }
 
-// Esponi le funzioni del color picker globalmente per l'HTML
-window.closeColorPicker = function() {
+function closeColorPicker() {
   const overlay = document.getElementById('color-picker-overlay');
   if (overlay) overlay.classList.remove('open');
   colorPickerContext.category = null;
   colorPickerContext.type = null;
   colorPickerContext.selectedColor = null;
-};
+}
 
-window.saveColorPicker = async function() {
+async function saveColorPicker() {
   if (!colorPickerContext.category || !colorPickerContext.selectedColor) return;
   categoryColors[colorPickerContext.category] = colorPickerContext.selectedColor;
   await saveCategoryColors();
-  window.closeColorPicker();
+  closeColorPicker();
   renderCategories();
   if (document.getElementById('page-grafici')?.classList.contains('active')) {
     updateChartCategory();
   }
-};
+}
 
 // --- INIZIALIZZAZIONE ---
 document.addEventListener('DOMContentLoaded', function() {
@@ -6338,6 +6337,29 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('❌ Click fuori dal modale');
         closeCatEditModal();
       }
+    });
+  }
+
+  // Listener per il color picker
+  const pickerCancel = document.getElementById('color-picker-cancel');
+  const pickerSave = document.getElementById('color-picker-save');
+  const pickerOverlay = document.getElementById('color-picker-overlay');
+
+  if (pickerCancel) {
+    pickerCancel.addEventListener('click', function() {
+      closeColorPicker();
+    });
+  }
+
+  if (pickerSave) {
+    pickerSave.addEventListener('click', function() {
+      saveColorPicker();
+    });
+  }
+
+  if (pickerOverlay) {
+    pickerOverlay.addEventListener('click', function(e) {
+      if (e.target.id === 'color-picker-overlay') closeColorPicker();
     });
   }
 
