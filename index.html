@@ -5901,7 +5901,10 @@ openCatEditModal(type, idx);
 renderList('expense', 'cat-list-expense');
 renderList('income', 'cat-list-income');
 }
+  // === AGGIUNGI QUI ===
+  initCatEditModalListeners();
 
+  
 function openColorPicker(type, category) {
 colorPickerContext = {
 type: type,
@@ -5979,7 +5982,100 @@ document.getElementById('cat-edit-modal').style.display = 'none';
 document.getElementById('cat-edit-modal').addEventListener('click', (e) => { if (e.target.id === 'cat-edit-modal') { document.getElementById('cat-edit-modal').style.display = 'none'; editingCat = { type: null, index: null }; } });
 document.getElementById('btn-add-cat-expense').addEventListener('click', async () => { const val = document.getElementById('new-cat-expense').value.trim(); if (!val) return; if (state.categories.expense.includes(val)) { alert('Categoria già esistente.'); return; } state.categories.expense.push(val); document.getElementById('new-cat-expense').value = ''; await saveCategories(); renderCategories(); populateCategorySelect(); });
 document.getElementById('btn-add-cat-income').addEventListener('click', async () => { const val = document.getElementById('new-cat-income').value.trim(); if (!val) return; if (state.categories.income.includes(val)) { alert('Categoria già esistente.'); return; } state.categories.income.push(val); document.getElementById('new-cat-income').value = ''; await saveCategories(); renderCategories(); populateCategorySelect(); });
-function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
+
+// === FUNZIONE PER CHIUDERE IL MODALE DI MODIFICA CATEGORIA ===
+function closeCatEditModal() {
+  console.log('🔴 closeCatEditModal chiamata');
+  const modal = document.getElementById('cat-edit-modal');
+  if (modal) {
+    modal.style.display = 'none';
+    console.log('✅ Modale chiuso');
+  }
+  editingCat.type = null;
+  editingCat.index = null;
+}
+
+// === INIZIALIZZA I LISTENER DEL MODALE DI MODIFICA CATEGORIA ===
+function initCatEditModalListeners() {
+  console.log('🔧 initCatEditModalListeners chiamata');
+  
+  const cancelBtn = document.getElementById('cat-edit-cancel');
+  const saveBtn = document.getElementById('cat-edit-save');
+  const modal = document.getElementById('cat-edit-modal');
+
+  // Pulsante ANNULLA
+  if (cancelBtn) {
+    const newCancel = cancelBtn.cloneNode(true);
+    cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
+    newCancel.addEventListener('click', function(e) {
+      e.preventDefault();
+      console.log('❌ Annulla cliccato');
+      closeCatEditModal();
+    });
+  }
+
+  // Pulsante SALVA
+  if (saveBtn) {
+    const newSave = saveBtn.cloneNode(true);
+    saveBtn.parentNode.replaceChild(newSave, saveBtn);
+    newSave.addEventListener('click', async function(e) {
+      e.preventDefault();
+      console.log('💾 Salva cliccato');
+      
+      const input = document.getElementById('cat-edit-input');
+      if (!input) return;
+      
+      const newName = input.value.trim();
+      if (!newName) {
+        alert('Inserisci un nome valido.');
+        input.focus();
+        return;
+      }
+      
+      const type = editingCat.type;
+      const idx = editingCat.index;
+      if (type === null || idx === null) {
+        alert('Errore: nessuna categoria selezionata.');
+        return;
+      }
+      
+      const oldName = state.categories[type][idx];
+      if (state.categories[type].includes(newName) && newName !== oldName) {
+        alert('Categoria già esistente.');
+        input.focus();
+        return;
+      }
+      
+      state.categories[type][idx] = newName;
+      if (newName !== oldName && categoryColors[oldName]) {
+        categoryColors[newName] = categoryColors[oldName];
+        delete categoryColors[oldName];
+        await saveCategoryColors();
+      }
+      
+      await saveCategories();
+      closeCatEditModal();
+      renderCategories();
+      populateCategorySelect();
+      console.log('✅ Categoria modificata da', oldName, 'a', newName);
+    });
+  }
+
+  // Click fuori dal modale
+  if (modal) {
+    const newModal = modal.cloneNode(true);
+    modal.parentNode.replaceChild(newModal, modal);
+    newModal.addEventListener('click', function(e) {
+      if (e.target === this) {
+        console.log('❌ Click fuori dal modale');
+        closeCatEditModal();
+      }
+    });
+  }
+}  
+  
+  
+  function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
 function populateMonthSelects() {
 const months = Array.from(new Set(state.transactions.map(t => monthKey(t.date)))); months.push(monthKey(todayISO()));
 const uniqueMonths = Array.from(new Set(months)).sort().reverse();
@@ -8419,6 +8515,9 @@ function showNewEventModal() {
   });
 }
 document.addEventListener('DOMContentLoaded', function() {
+  // === AGGIUNGI QUI ===
+  initCatEditModalListeners();
+  
   // Navigazione mesi
   const btnPrec = document.getElementById('btn-mese-prec');
   const btnSucc = document.getElementById('btn-mese-succ');
