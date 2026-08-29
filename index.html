@@ -6244,40 +6244,82 @@ async function saveCategoryEdit() {
     alert('Errore: ' + err.message);
   }
 }
-
-
 // --- Color Picker ---
 function openColorPicker(type, category) {
+  console.log('🎨 openColorPicker chiamata per:', category);
+  
   const overlay = document.getElementById('color-picker-overlay');
-  if (!overlay) return;
+  if (!overlay) {
+    console.error('❌ color-picker-overlay non trovato!');
+    alert('Errore: color picker non trovato.');
+    return;
+  }
+
+  // Salva il contesto
   colorPickerContext.type = type;
   colorPickerContext.category = category;
   colorPickerContext.selectedColor = getCategoryColor(category);
-  document.getElementById('color-picker-preview-name').textContent = category;
-  document.getElementById('color-picker-preview-dot').style.backgroundColor = colorPickerContext.selectedColor;
-  document.getElementById('color-picker-preview-hex').textContent = colorPickerContext.selectedColor;
+
+  // Aggiorna l'anteprima
+  const nameEl = document.getElementById('color-picker-preview-name');
+  const dotEl = document.getElementById('color-picker-preview-dot');
+  const hexEl = document.getElementById('color-picker-preview-hex');
+  
+  if (nameEl) nameEl.textContent = category;
+  if (dotEl) dotEl.style.backgroundColor = colorPickerContext.selectedColor;
+  if (hexEl) hexEl.textContent = colorPickerContext.selectedColor;
+
+  // === RENDERIZZA LA GRIGLIA DEI COLORI ===
   renderColorPalette();
+
+  // === MOSTRA L'OVERLAY ===
   overlay.style.display = 'flex';
+  console.log('✅ Color picker aperto con', COLOR_PALETTE.length, 'colori');
 }
 
 function renderColorPalette() {
+  console.log('🎨 renderColorPalette chiamata');
   const grid = document.getElementById('color-picker-grid');
-  if (!grid) return;
+  if (!grid) {
+    console.error('❌ color-picker-grid non trovato!');
+    return;
+  }
+  
   grid.innerHTML = '';
-  COLOR_PALETTE.forEach(color => {
+  console.log('🔄 Caricamento', COLOR_PALETTE.length, 'colori...');
+  
+  COLOR_PALETTE.forEach((color, index) => {
     const option = document.createElement('div');
-    option.className = 'color-picker-option' + (color.hex === colorPickerContext.selectedColor ? ' selected' : '');
+    option.className = 'color-picker-option';
+    if (color.hex === colorPickerContext.selectedColor) {
+      option.classList.add('selected');
+    }
     option.style.backgroundColor = color.hex;
     option.title = color.name;
-    option.onclick = function() {
+    option.dataset.index = index;
+    option.dataset.hex = color.hex;
+    
+    option.addEventListener('click', function() {
+      console.log('🎨 Colore selezionato:', color.hex);
       colorPickerContext.selectedColor = color.hex;
-      document.getElementById('color-picker-preview-dot').style.backgroundColor = color.hex;
-      document.getElementById('color-picker-preview-hex').textContent = color.hex;
-      grid.querySelectorAll('.color-picker-option').forEach(opt => opt.classList.remove('selected'));
+      
+      // Aggiorna l'anteprima
+      const dot = document.getElementById('color-picker-preview-dot');
+      const hex = document.getElementById('color-picker-preview-hex');
+      if (dot) dot.style.backgroundColor = color.hex;
+      if (hex) hex.textContent = color.hex;
+      
+      // Rimuovi la selezione da tutti
+      grid.querySelectorAll('.color-picker-option').forEach(opt => {
+        opt.classList.remove('selected');
+      });
       this.classList.add('selected');
-    };
+    });
+    
     grid.appendChild(option);
   });
+  
+  console.log('✅ Griglia colori renderizzata con', grid.children.length, 'opzioni');
 }
 
 function closeColorPicker() {
@@ -6286,8 +6328,6 @@ function closeColorPicker() {
   if (overlay) {
     overlay.style.display = 'none';
     console.log('✅ Color picker chiuso');
-  } else {
-    console.error('❌ Color picker overlay non trovato!');
   }
   colorPickerContext.category = null;
   colorPickerContext.type = null;
@@ -6295,13 +6335,13 @@ function closeColorPicker() {
 }
 
 async function saveColorPicker() {
-  console.log('💾 saveColorPicker INIZIATA');
+  console.log('💾 saveColorPicker chiamata');
   try {
     if (!colorPickerContext.category || !colorPickerContext.selectedColor) {
-      console.warn('Nessun colore selezionato');
+      console.warn('⚠️ Nessun colore selezionato');
       return;
     }
-    console.log('🎨 Salvando colore per', colorPickerContext.category, ':', colorPickerContext.selectedColor);
+    console.log('🎨 Salvando colore', colorPickerContext.selectedColor, 'per', colorPickerContext.category);
     categoryColors[colorPickerContext.category] = colorPickerContext.selectedColor;
     await saveCategoryColors();
     closeColorPicker();
@@ -6309,12 +6349,17 @@ async function saveColorPicker() {
     if (document.getElementById('page-grafici')?.classList.contains('active')) {
       updateChartCategory();
     }
-    console.log('✅ Colore salvato');
+    console.log('✅ Colore salvato con successo');
   } catch (err) {
-    console.error('❌ ERRORE saveColorPicker:', err);
+    console.error('❌ Errore saveColorPicker:', err);
     alert('Errore: ' + err.message);
   }
 }
+
+
+
+
+
 
 // --- INIZIALIZZAZIONE ---
 document.addEventListener('DOMContentLoaded', function() {
