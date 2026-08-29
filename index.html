@@ -6184,23 +6184,45 @@ function openCatEditModal(type, idx) {
   if (modal) modal.style.display = 'flex';
 }
 
+// === FUNZIONI DI DEBUG PER CATEGORIE ===
+
 function closeCatEditModal() {
+  console.log('🔴 closeCatEditModal chiamata');
   const modal = document.getElementById('cat-edit-modal');
-  if (modal) modal.style.display = 'none';
+  if (modal) {
+    modal.style.display = 'none';
+    console.log('✅ Modale chiuso');
+  } else {
+    console.error('❌ Modale non trovato!');
+  }
   editingCat.type = null;
   editingCat.index = null;
 }
 
 async function saveCategoryEdit() {
+  console.log('💾 saveCategoryEdit INIZIATA');
   try {
     const input = document.getElementById('cat-edit-input');
-    if (!input) return;
+    if (!input) {
+      alert('Campo input non trovato!');
+      return;
+    }
     const newName = input.value.trim();
-    if (!newName) { alert('Inserisci un nome valido.'); input.focus(); return; }
+    console.log('📝 Nuovo nome:', newName);
+    if (!newName) {
+      alert('Inserisci un nome valido.');
+      input.focus();
+      return;
+    }
     const type = editingCat.type;
     const idx = editingCat.index;
-    if (type === null || idx === null) { alert('Nessuna categoria selezionata.'); return; }
+    console.log('🔍 Tipo:', type, 'Indice:', idx);
+    if (type === null || idx === null) {
+      alert('Errore: nessuna categoria selezionata.');
+      return;
+    }
     const oldName = state.categories[type][idx];
+    console.log('📛 Vecchio nome:', oldName);
     if (state.categories[type].includes(newName) && newName !== oldName) {
       alert('Categoria già esistente.');
       input.focus();
@@ -6216,11 +6238,13 @@ async function saveCategoryEdit() {
     closeCatEditModal();
     renderCategories();
     populateCategorySelect();
+    console.log('✅ Categoria modificata da', oldName, 'a', newName);
   } catch (err) {
-    console.error('Errore saveCategoryEdit:', err);
+    console.error('❌ ERRORE saveCategoryEdit:', err);
     alert('Errore: ' + err.message);
   }
 }
+
 
 // --- Color Picker ---
 function openColorPicker(type, category) {
@@ -6257,16 +6281,27 @@ function renderColorPalette() {
 }
 
 function closeColorPicker() {
+  console.log('🔴 closeColorPicker chiamata');
   const overlay = document.getElementById('color-picker-overlay');
-  if (overlay) overlay.style.display = 'none';
+  if (overlay) {
+    overlay.style.display = 'none';
+    console.log('✅ Color picker chiuso');
+  } else {
+    console.error('❌ Color picker overlay non trovato!');
+  }
   colorPickerContext.category = null;
   colorPickerContext.type = null;
   colorPickerContext.selectedColor = null;
 }
 
 async function saveColorPicker() {
+  console.log('💾 saveColorPicker INIZIATA');
   try {
-    if (!colorPickerContext.category || !colorPickerContext.selectedColor) return;
+    if (!colorPickerContext.category || !colorPickerContext.selectedColor) {
+      console.warn('Nessun colore selezionato');
+      return;
+    }
+    console.log('🎨 Salvando colore per', colorPickerContext.category, ':', colorPickerContext.selectedColor);
     categoryColors[colorPickerContext.category] = colorPickerContext.selectedColor;
     await saveCategoryColors();
     closeColorPicker();
@@ -6274,42 +6309,104 @@ async function saveColorPicker() {
     if (document.getElementById('page-grafici')?.classList.contains('active')) {
       updateChartCategory();
     }
+    console.log('✅ Colore salvato');
   } catch (err) {
-    console.error('Errore saveColorPicker:', err);
+    console.error('❌ ERRORE saveColorPicker:', err);
     alert('Errore: ' + err.message);
   }
 }
 
 // --- INIZIALIZZAZIONE ---
 document.addEventListener('DOMContentLoaded', function() {
-  // Modale modifica categoria
-  document.getElementById('cat-edit-cancel')?.addEventListener('click', function(e) {
-    e.preventDefault();
-    closeCatEditModal();
-  });
-  document.getElementById('cat-edit-save')?.addEventListener('click', function(e) {
-    e.preventDefault();
-    saveCategoryEdit();
-  });
-  document.getElementById('cat-edit-modal')?.addEventListener('click', function(e) {
-    if (e.target === this) closeCatEditModal();
+  console.log('🔧 Inizializzazione categorie...');
+
+  // === MODALE MODIFICA CATEGORIA ===
+  const cancelEdit = document.getElementById('cat-edit-cancel');
+  const saveEdit = document.getElementById('cat-edit-save');
+  const modalEdit = document.getElementById('cat-edit-modal');
+
+  if (cancelEdit) {
+    cancelEdit.addEventListener('click', function(e) {
+      e.preventDefault();
+      console.log('❌ Click su Annulla (modifica)');
+      closeCatEditModal();
+    });
+  } else {
+    console.warn('⚠️ cat-edit-cancel non trovato!');
+  }
+
+  if (saveEdit) {
+    saveEdit.addEventListener('click', function(e) {
+      e.preventDefault();
+      console.log('💾 Click su Salva (modifica)');
+      saveCategoryEdit();
+    });
+  } else {
+    console.warn('⚠️ cat-edit-save non trovato!');
+  }
+
+  if (modalEdit) {
+    modalEdit.addEventListener('click', function(e) {
+      if (e.target === this) {
+        console.log('🔴 Click fuori dal modale modifica');
+        closeCatEditModal();
+      }
+    });
+  } else {
+    console.warn('⚠️ cat-edit-modal non trovato!');
+  }
+
+  // === COLOR PICKER ===
+  const cancelColor = document.getElementById('color-picker-cancel');
+  const saveColor = document.getElementById('color-picker-save');
+  const overlayColor = document.getElementById('color-picker-overlay');
+
+  if (cancelColor) {
+    cancelColor.addEventListener('click', function(e) {
+      e.preventDefault();
+      console.log('❌ Click su Annulla (colore)');
+      closeColorPicker();
+    });
+  } else {
+    console.warn('⚠️ color-picker-cancel non trovato!');
+  }
+
+  if (saveColor) {
+    saveColor.addEventListener('click', function(e) {
+      e.preventDefault();
+      console.log('💾 Click su Salva (colore)');
+      saveColorPicker();
+    });
+  } else {
+    console.warn('⚠️ color-picker-save non trovato!');
+  }
+
+  if (overlayColor) {
+    overlayColor.addEventListener('click', function(e) {
+      if (e.target === this) {
+        console.log('🔴 Click fuori dal color picker');
+        closeColorPicker();
+      }
+    });
+  } else {
+    console.warn('⚠️ color-picker-overlay non trovato!');
+  }
+
+  // VERIFICA FINALE che tutti gli elementi esistano
+  console.log('🔍 Riepilogo elementi trovati:', {
+    'cat-edit-cancel': !!cancelEdit,
+    'cat-edit-save': !!saveEdit,
+    'cat-edit-modal': !!modalEdit,
+    'color-picker-cancel': !!cancelColor,
+    'color-picker-save': !!saveColor,
+    'color-picker-overlay': !!overlayColor
   });
 
-  // Color picker
-  document.getElementById('color-picker-cancel')?.addEventListener('click', function(e) {
-    e.preventDefault();
-    closeColorPicker();
-  });
-  document.getElementById('color-picker-save')?.addEventListener('click', function(e) {
-    e.preventDefault();
-    saveColorPicker();
-  });
-  document.getElementById('color-picker-overlay')?.addEventListener('click', function(e) {
-    if (e.target === this) closeColorPicker();
-  });
-
-  // Carica categorie
-  setTimeout(renderCategories, 300);
+  // Carica le categorie dopo 300ms
+  setTimeout(function() {
+    console.log('📋 Chiamata renderCategories()');
+    renderCategories();
+  }, 300);
 });
   
 function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
