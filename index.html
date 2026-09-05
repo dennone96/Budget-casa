@@ -5746,107 +5746,265 @@ state.transactions.push({ id: Date.now().toString(36) + Math.random().toString(3
 document.getElementById('inp-desc').value = ''; document.getElementById('inp-amount').value = '';
 await saveTransactions(); renderAll();
 });
-function normalizeHeader(h) { return String(h||'').trim().toLowerCase(); }
+function normalizeHeader(h) {
+  return String(h || '')
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[_\-]+/g, ' ')
+    .replace(/\s+/g, ' ');
+}
+
 function parseImportedDate(value) {
   if (value instanceof Date && !isNaN(value)) {
-    // Usa getFullYear, getMonth, getDate per ottenere la data locale
     const year = value.getFullYear();
     const month = String(value.getMonth() + 1).padStart(2, '0');
     const day = String(value.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   }
-  if (typeof value === 'number') { 
-    const d = XLSX.SSF.parse_date_code(value); 
-    if (d) return `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`; 
+  if (typeof value === 'number' && window.XLSX?.SSF) {
+    const d = XLSX.SSF.parse_date_code(value);
+    if (d) return `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`;
   }
-  const str = String(value||'').trim();
-  if (/^\d{4}-\d{2}-\d{2}/.test(str)) return str.slice(0,10);
+  const str = String(value || '').trim();
+  if (/^\d{4}-\d{2}-\d{2}/.test(str)) return str.slice(0, 10);
   const m = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
   if (m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
   return null;
 }
+
 function parseImportedAmount(value) {
-if (typeof value === 'number') return value;
-let s = String(value||'').trim().replace(/[€\s]/g,'');
-if (s.includes(',') && s.includes('.')) s = s.replace(/\./g,'').replace(',','.');
-else if (s.includes(',')) s = s.replace(',','.');
-const n = parseFloat(s); return isNaN(n) ? null : n;
+  if (typeof value === 'number') return Number.isFinite(value) ? value : null;
+  let s = String(value || '').trim().replace(/[€\s]/g, '');
+  if (!s) return null;
+  if (s.includes(',') && s.includes('.')) s = s.replace(/\./g, '').replace(',', '.');
+  else if (s.includes(',')) s = s.replace(',', '.');
+  const n = Number(s);
+  return Number.isFinite(n) ? n : null;
 }
+
 function parseMonthName(value) {
-const months = { 'gennaio':1,'febbraio':2,'marzo':3,'aprile':4,'maggio':5,'giugno':6,'luglio':7,'agosto':8,'settembre':9,'ottobre':10,'novembre':11,'dicembre':12 };
-const str = String(value||'').trim().toLowerCase();
-if (months[str]) return months[str];
-const n = parseInt(str); return (!isNaN(n) && n >= 1 && n <= 12) ? n : null;
+  const months = {
+    'gennaio':1,'febbraio':2,'marzo':3,'aprile':4,'maggio':5,'giugno':6,
+    'luglio':7,'agosto':8,'settembre':9,'ottobre':10,'novembre':11,'dicembre':12
+  };
+  const str = String(value || '').trim().toLowerCase();
+  if (months[str]) return months[str];
+  const n = parseInt(str, 10);
+  return (!isNaN(n) && n >= 1 && n <= 12) ? n : null;
 }
+
+async function ensureXLSX() {
+  if (window.XLSX) return true;
+
+  // Fallback: se il primo CDN non ha caricato XLSX, prova un secondo CDN.
+  const fallbackUrls = [
+    'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js',
+    'https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js'
+  ];
+
+  for (const url of fallbackUrls) {
+    try {
+      await new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = url;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+      if (window.XLSX) return true;
+    } catch (e) {
+      console.warn('CDN XLSX non disponibile:', url, e);
+    }
+  }
+  return false;
+}
+
 function setupImportSection(fileId, templateBtnId, errorId, previewWrapId, summaryId, previewBodyId, confirmBtnId, cancelBtnId, defaultSource) {
-let pendingRows = [];
-document.getElementById(templateBtnId).addEventListener('click', () => {
-const ws = XLSX.utils.aoa_to_sheet([['Mese', 'Anno', 'Data Contabile', 'Descrizione', 'Importo', 'Categoria'], ['Giugno', 2026, '05/06/2026', 'Spesa supermercato', -85.50, 'Spesa'], ['Giugno', 2026, '05/06/2026', 'Stipendio', 1800, 'Stipendio']]);
-const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Movimenti'); XLSX.writeFile(wb, 'modello-movimenti.xlsx');
-});
-document.getElementById(fileId).addEventListener('change', async (e) => {
-const file = e.target.files[0]; if (!file) return;
-const errorEl = document.getElementById(errorId); errorEl.textContent = '';
-document.getElementById(previewWrapId).classList.add('hidden');
-try {
-const buffer = await file.arrayBuffer();
-const wb = XLSX.read(buffer, { type: 'array', cellDates: true });
-const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' });
-const nonEmptyRows = rows.filter(row => Object.values(row).some(v => v !== '' && v !== null && v !== undefined));
-if (nonEmptyRows.length === 0) { errorEl.textContent = 'File vuoto.'; return; }
-const keys = Object.keys(nonEmptyRows[0]);
-const fk = (names) => keys.find(k => names.includes(normalizeHeader(k)));
-const kMese = fk(['mese', 'month']); const kAnno = fk(['anno', 'year']);
-const kData = fk(['data contabile', 'data', 'date', 'data_contabile']);
-const kDesc = fk(['descrizione', 'description', 'desc']);
-const kAmount = fk(['importo', 'amount', 'importo €']);
-const kCategory = fk(['categoria', 'category', 'cat']);
-if (!kAmount) { errorEl.textContent = 'Colonna "Importo" mancante.'; return; }
-if (!kData && (!kMese || !kAnno)) { errorEl.textContent = 'Servono almeno "Data Contabile" oppure "Mese" + "Anno".'; return; }
-pendingRows = nonEmptyRows.map(row => {
-const rawAmount = parseImportedAmount(row[kAmount]); const errors = [];
-let type = null; let amount = null;
-if (rawAmount === null) errors.push('importo non valido');
-else { amount = Math.abs(rawAmount); type = rawAmount < 0 ? 'expense' : 'income'; }
-let date = null;
-if (kData && row[kData] !== '') date = parseImportedDate(row[kData]);
-if (!date && kMese && kAnno) { const month = parseMonthName(row[kMese]); const year = parseInt(String(row[kAnno]||'').trim()); if (month && !isNaN(year) && year > 2000) date = `${year}-${String(month).padStart(2,'0')}-01`; }
-if (!date) errors.push('data non valida');
-const desc = kDesc ? String(row[kDesc]||'').trim() : '';
-let category = 'Altro';
-if (kCategory && row[kCategory] !== '') {
-const catRead = String(row[kCategory]).trim();
-if (type && state.categories[type].includes(catRead)) category = catRead;
+  let pendingRows = [];
+
+  const fileInput = document.getElementById(fileId);
+  const templateBtn = document.getElementById(templateBtnId);
+  const errorEl = document.getElementById(errorId);
+  const previewWrap = document.getElementById(previewWrapId);
+  const summaryEl = document.getElementById(summaryId);
+  const previewBody = document.getElementById(previewBodyId);
+  const confirmBtn = document.getElementById(confirmBtnId);
+  const cancelBtn = document.getElementById(cancelBtnId);
+
+  if (!fileInput || !templateBtn || !errorEl || !previewWrap || !summaryEl || !previewBody || !confirmBtn || !cancelBtn) {
+    console.error('Import Excel: elementi HTML mancanti per', fileId);
+    return;
+  }
+
+  templateBtn.addEventListener('click', async () => {
+    errorEl.textContent = '';
+    if (!(await ensureXLSX())) {
+      errorEl.textContent = 'La libreria Excel non è disponibile. Controlla la connessione e ricarica la pagina.';
+      return;
+    }
+    const ws = XLSX.utils.aoa_to_sheet([
+      ['Mese', 'Anno', 'Data Contabile', 'Descrizione', 'Importo', 'Categoria'],
+      ['Giugno', 2026, '05/06/2026', 'Spesa supermercato', -85.50, 'Spesa'],
+      ['Giugno', 2026, '05/06/2026', 'Stipendio', 1800, 'Stipendio']
+    ]);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Movimenti');
+    const filename = defaultSource === 'bank' ? 'modello-conto-corrente.xlsx' : 'modello-contanti.xlsx';
+    XLSX.writeFile(wb, filename);
+  });
+
+  fileInput.addEventListener('change', async (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+
+    errorEl.textContent = '';
+    previewWrap.classList.add('hidden');
+    previewBody.innerHTML = '';
+    summaryEl.textContent = '';
+    pendingRows = [];
+
+    try {
+      if (!(await ensureXLSX())) {
+        throw new Error('La libreria Excel non è caricata. Ricarica la pagina e riprova.');
+      }
+
+      const buffer = await file.arrayBuffer();
+      const wb = XLSX.read(buffer, { type: 'array', cellDates: true });
+      if (!wb.SheetNames || !wb.SheetNames.length) throw new Error('Il file non contiene fogli Excel.');
+
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+      const nonEmptyRows = rows.filter(row =>
+        Object.values(row).some(v => v !== '' && v !== null && v !== undefined)
+      );
+
+      if (nonEmptyRows.length === 0) {
+        errorEl.textContent = 'File vuoto.';
+        return;
+      }
+
+      const keys = Object.keys(nonEmptyRows[0]);
+      const fk = (names) => {
+        const normalizedNames = names.map(normalizeHeader);
+        return keys.find(k => normalizedNames.includes(normalizeHeader(k)));
+      };
+
+      const kMese = fk(['mese', 'month']);
+      const kAnno = fk(['anno', 'year']);
+      const kData = fk(['data contabile', 'data', 'date', 'data_contabile']);
+      const kDesc = fk(['descrizione', 'description', 'desc']);
+      const kAmount = fk(['importo', 'amount', 'importo €']);
+      const kCategory = fk(['categoria', 'category', 'cat']);
+
+      if (!kAmount) {
+        errorEl.textContent = 'Colonna "Importo" mancante.';
+        return;
+      }
+      if (!kData && (!kMese || !kAnno)) {
+        errorEl.textContent = 'Servono almeno "Data Contabile" oppure "Mese" + "Anno".';
+        return;
+      }
+
+      pendingRows = nonEmptyRows.map(row => {
+        const rawAmount = parseImportedAmount(row[kAmount]);
+        const errors = [];
+        let type = null;
+        let amount = null;
+
+        if (rawAmount === null) {
+          errors.push('importo non valido');
+        } else {
+          amount = Math.abs(rawAmount);
+          type = rawAmount < 0 ? 'expense' : 'income';
+        }
+
+        let date = null;
+        if (kData && row[kData] !== '') date = parseImportedDate(row[kData]);
+        if (!date && kMese && kAnno) {
+          const month = parseMonthName(row[kMese]);
+          const year = parseInt(String(row[kAnno] || '').trim(), 10);
+          if (month && !isNaN(year) && year > 2000) {
+            date = `${year}-${String(month).padStart(2,'0')}-01`;
+          }
+        }
+        if (!date) errors.push('data non valida');
+
+        const desc = kDesc ? String(row[kDesc] || '').trim() : '';
+        let category = 'Altro';
+        if (kCategory && row[kCategory] !== '' && type && state.categories[type]) {
+          const catRead = String(row[kCategory]).trim();
+          if (state.categories[type].includes(catRead)) category = catRead;
+        }
+
+        return { date, description: desc, amount, type, category, valid: errors.length === 0, errors };
+      });
+
+      renderPreview();
+    } catch (err) {
+      console.error('Errore importazione Excel:', err);
+      errorEl.textContent = 'Errore lettura file: ' + (err?.message || err);
+    }
+  });
+
+  function renderPreview() {
+    previewBody.innerHTML = '';
+    const validCount = pendingRows.filter(r => r.valid).length;
+    const errorCount = pendingRows.length - validCount;
+    summaryEl.textContent = `${pendingRows.length} righe trovate: ${validCount} valide, ${errorCount} con errori.`;
+
+    pendingRows.forEach(r => {
+      const tr = document.createElement('tr');
+      tr.className = r.valid ? 'import-row-ok' : 'import-row-error';
+      const tipoLabel = r.type === 'income' ? 'Entrata' : r.type === 'expense' ? 'Uscita' : '-';
+      const importoLabel = r.amount !== null
+        ? `<span style="color:${r.type === 'income' ? '#5CB85C' : '#E74C3C'}; font-weight:700;">${r.type === 'income' ? '+' : '-'}${fmtEUR(r.amount)}</span>`
+        : '-';
+      tr.innerHTML = `<td>${r.valid ? '✓' : '✗ ' + escapeHtml(r.errors.join(', '))}</td><td>${r.date || '-'}</td><td>${escapeHtml(r.description) || '-'}</td><td>${importoLabel}</td><td>${escapeHtml(r.category) || '-'}</td><td>${tipoLabel}</td>`;
+      previewBody.appendChild(tr);
+    });
+
+    confirmBtn.disabled = validCount === 0;
+    previewWrap.classList.remove('hidden');
+  }
+
+  cancelBtn.addEventListener('click', () => {
+    pendingRows = [];
+    previewBody.innerHTML = '';
+    summaryEl.textContent = '';
+    previewWrap.classList.add('hidden');
+    fileInput.value = '';
+    errorEl.textContent = '';
+  });
+
+  confirmBtn.addEventListener('click', async () => {
+    const validRows = pendingRows.filter(r => r.valid);
+    if (!validRows.length) return;
+
+    validRows.forEach(r => {
+      state.transactions.push({
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2,7),
+        type: r.type,
+        description: r.description,
+        amount: Math.round(r.amount * 100) / 100,
+        category: r.category,
+        date: r.date,
+        source: defaultSource
+      });
+    });
+
+    renderAll();
+    await saveTransactions();
+    pendingRows = [];
+    previewWrap.classList.add('hidden');
+    fileInput.value = '';
+  });
 }
-return { date, description: desc, amount, type, category, valid: errors.length === 0, errors };
-});
-renderPreview();
-} catch(err) { errorEl.textContent = 'Errore lettura file: ' + err.message; }
-});
-function renderPreview() {
-const body = document.getElementById(previewBodyId); body.innerHTML = '';
-const vc = pendingRows.filter(r => r.valid).length;
-document.getElementById(summaryId).textContent = `${pendingRows.length} righe trovate: ${vc} valide, ${pendingRows.length - vc} con errori.`;
-pendingRows.forEach(r => {
-const tr = document.createElement('tr'); tr.className = r.valid ? 'import-row-ok' : 'import-row-error';
-const tipoLabel = r.type === 'income' ? 'Entrata' : r.type === 'expense' ? 'Uscita' : '-';
-const importoLabel = r.amount !== null ? `<span style="color:${r.type==='income'?'#5CB85C':'#E74C3C'}; font-weight:700;">${r.type==='income'?'+':'-'}${fmtEUR(r.amount)}</span>` : '-';
-tr.innerHTML = `<td>${r.valid ? '✓' : '✗ ' + r.errors.join(', ')}</td><td>${r.date || '-'}</td><td>${escapeHtml(r.description) || '-'}</td><td>${importoLabel}</td><td>${escapeHtml(r.category) || '-'}</td><td>${tipoLabel}</td>`;
-body.appendChild(tr);
-});
-document.getElementById(confirmBtnId).disabled = vc === 0;
-document.getElementById(previewWrapId).classList.remove('hidden');
-}
-document.getElementById(cancelBtnId).addEventListener('click', () => { pendingRows = []; document.getElementById(previewWrapId).classList.add('hidden'); document.getElementById(fileId).value = ''; });
-document.getElementById(confirmBtnId).addEventListener('click', async () => {
-const validRows = pendingRows.filter(r => r.valid); if (!validRows.length) return;
-validRows.forEach(r => { state.transactions.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2,7), type: r.type, description: r.description, amount: Math.round(r.amount * 100) / 100, category: r.category, date: r.date, source: defaultSource }); });
-renderAll(); await saveTransactions();
-pendingRows = []; document.getElementById(previewWrapId).classList.add('hidden'); document.getElementById(fileId).value = '';
-});
-}
+
 setupImportSection('import-file-bank', 'btn-download-template-bank', 'import-error-text-bank', 'import-preview-wrap-bank', 'import-summary-bank', 'import-preview-body-bank', 'btn-import-confirm-bank', 'btn-import-cancel-bank', 'bank');
 setupImportSection('import-file-cash', 'btn-download-template-cash', 'import-error-text-cash', 'import-preview-wrap-cash', 'import-summary-cash', 'import-preview-body-cash', 'btn-import-confirm-cash', 'btn-import-cancel-cash', 'cash');
+
 function reminderStatus(dateStr) {
 const today = todayISO(); const diff = Math.ceil((new Date(dateStr) - new Date(today)) / 86400000);
 if (diff < 0) return { label: 'Scaduto', cls: 'overdue' };
