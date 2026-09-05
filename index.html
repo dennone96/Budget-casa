@@ -5778,75 +5778,248 @@ const str = String(value||'').trim().toLowerCase();
 if (months[str]) return months[str];
 const n = parseInt(str); return (!isNaN(n) && n >= 1 && n <= 12) ? n : null;
 }
+  
 function setupImportSection(fileId, templateBtnId, errorId, previewWrapId, summaryId, previewBodyId, confirmBtnId, cancelBtnId, defaultSource) {
-let pendingRows = [];
-document.getElementById(templateBtnId).addEventListener('click', () => {
-const ws = XLSX.utils.aoa_to_sheet([['Mese', 'Anno', 'Data Contabile', 'Descrizione', 'Importo', 'Categoria'], ['Giugno', 2026, '05/06/2026', 'Spesa supermercato', -85.50, 'Spesa'], ['Giugno', 2026, '05/06/2026', 'Stipendio', 1800, 'Stipendio']]);
-const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Movimenti'); XLSX.writeFile(wb, 'modello-movimenti.xlsx');
-});
-document.getElementById(fileId).addEventListener('change', async (e) => {
-const file = e.target.files[0]; if (!file) return;
-const errorEl = document.getElementById(errorId); errorEl.textContent = '';
-document.getElementById(previewWrapId).classList.add('hidden');
-try {
-const buffer = await file.arrayBuffer();
-const wb = XLSX.read(buffer, { type: 'array', cellDates: true });
-const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' });
-const nonEmptyRows = rows.filter(row => Object.values(row).some(v => v !== '' && v !== null && v !== undefined));
-if (nonEmptyRows.length === 0) { errorEl.textContent = 'File vuoto.'; return; }
-const keys = Object.keys(nonEmptyRows[0]);
-const fk = (names) => keys.find(k => names.includes(normalizeHeader(k)));
-const kMese = fk(['mese', 'month']); const kAnno = fk(['anno', 'year']);
-const kData = fk(['data contabile', 'data', 'date', 'data_contabile']);
-const kDesc = fk(['descrizione', 'description', 'desc']);
-const kAmount = fk(['importo', 'amount', 'importo €']);
-const kCategory = fk(['categoria', 'category', 'cat']);
-if (!kAmount) { errorEl.textContent = 'Colonna "Importo" mancante.'; return; }
-if (!kData && (!kMese || !kAnno)) { errorEl.textContent = 'Servono almeno "Data Contabile" oppure "Mese" + "Anno".'; return; }
-pendingRows = nonEmptyRows.map(row => {
-const rawAmount = parseImportedAmount(row[kAmount]); const errors = [];
-let type = null; let amount = null;
-if (rawAmount === null) errors.push('importo non valido');
-else { amount = Math.abs(rawAmount); type = rawAmount < 0 ? 'expense' : 'income'; }
-let date = null;
-if (kData && row[kData] !== '') date = parseImportedDate(row[kData]);
-if (!date && kMese && kAnno) { const month = parseMonthName(row[kMese]); const year = parseInt(String(row[kAnno]||'').trim()); if (month && !isNaN(year) && year > 2000) date = `${year}-${String(month).padStart(2,'0')}-01`; }
-if (!date) errors.push('data non valida');
-const desc = kDesc ? String(row[kDesc]||'').trim() : '';
-let category = 'Altro';
-if (kCategory && row[kCategory] !== '') {
-const catRead = String(row[kCategory]).trim();
-if (type && state.categories[type].includes(catRead)) category = catRead;
-}
-return { date, description: desc, amount, type, category, valid: errors.length === 0, errors };
-});
-renderPreview();
-} catch(err) { errorEl.textContent = 'Errore lettura file: ' + err.message; }
-});
-function renderPreview() {
-const body = document.getElementById(previewBodyId); body.innerHTML = '';
-const vc = pendingRows.filter(r => r.valid).length;
-document.getElementById(summaryId).textContent = `${pendingRows.length} righe trovate: ${vc} valide, ${pendingRows.length - vc} con errori.`;
-pendingRows.forEach(r => {
-const tr = document.createElement('tr'); tr.className = r.valid ? 'import-row-ok' : 'import-row-error';
-const tipoLabel = r.type === 'income' ? 'Entrata' : r.type === 'expense' ? 'Uscita' : '-';
-const importoLabel = r.amount !== null ? `<span style="color:${r.type==='income'?'#5CB85C':'#E74C3C'}; font-weight:700;">${r.type==='income'?'+':'-'}${fmtEUR(r.amount)}</span>` : '-';
-tr.innerHTML = `<td>${r.valid ? '✓' : '✗ ' + r.errors.join(', ')}</td><td>${r.date || '-'}</td><td>${escapeHtml(r.description) || '-'}</td><td>${importoLabel}</td><td>${escapeHtml(r.category) || '-'}</td><td>${tipoLabel}</td>`;
-body.appendChild(tr);
-});
-document.getElementById(confirmBtnId).disabled = vc === 0;
-document.getElementById(previewWrapId).classList.remove('hidden');
-}
-document.getElementById(cancelBtnId).addEventListener('click', () => { pendingRows = []; document.getElementById(previewWrapId).classList.add('hidden'); document.getElementById(fileId).value = ''; });
-document.getElementById(confirmBtnId).addEventListener('click', async () => {
-const validRows = pendingRows.filter(r => r.valid); if (!validRows.length) return;
-validRows.forEach(r => { state.transactions.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2,7), type: r.type, description: r.description, amount: Math.round(r.amount * 100) / 100, category: r.category, date: r.date, source: defaultSource }); });
-renderAll(); await saveTransactions();
-pendingRows = []; document.getElementById(previewWrapId).classList.add('hidden'); document.getElementById(fileId).value = '';
-});
+  console.log('🔧 setupImportSection chiamata per:', fileId);
+  
+  let pendingRows = [];
+  
+  // === LISTENER DOWNLOAD MODELLO ===
+  const templateBtn = document.getElementById(templateBtnId);
+  if (templateBtn) {
+    templateBtn.addEventListener('click', function() {
+      console.log('📥 Download template per:', fileId);
+      try {
+        const ws = XLSX.utils.aoa_to_sheet([
+          ['Mese', 'Anno', 'Data Contabile', 'Descrizione', 'Importo', 'Categoria'],
+          ['Giugno', 2026, '05/06/2026', 'Spesa supermercato', -85.50, 'Spesa'],
+          ['Giugno', 2026, '05/06/2026', 'Stipendio', 1800, 'Stipendio']
+        ]);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Movimenti');
+        const filename = fileId.includes('bank') ? 'modello-conto-corrente.xlsx' : 'modello-contanti.xlsx';
+        XLSX.writeFile(wb, filename);
+        console.log('✅ Modello scaricato:', filename);
+      } catch (err) {
+        console.error('❌ Errore download template:', err);
+        alert('Errore nel download del modello: ' + err.message);
+      }
+    });
+  } else {
+    console.warn('⚠️ Template button non trovato:', templateBtnId);
+  }
+
+  // === LISTENER FILE INPUT ===
+  const fileInput = document.getElementById(fileId);
+  if (!fileInput) {
+    console.error('❌ File input non trovato:', fileId);
+    return;
+  }
+  
+  // Rimuovi eventuali listener precedenti (clonando)
+  const newFileInput = fileInput.cloneNode(true);
+  fileInput.parentNode.replaceChild(newFileInput, fileInput);
+  
+  newFileInput.addEventListener('change', async function(e) {
+    console.log('📂 FILE CARICATO!', fileId);
+    const file = this.files[0];
+    if (!file) {
+      console.warn('Nessun file selezionato');
+      return;
+    }
+    
+    console.log('📄 Nome:', file.name, '| Dimensione:', file.size, '| Tipo:', file.type);
+    
+    const errorEl = document.getElementById(errorId);
+    if (errorEl) errorEl.textContent = '';
+    
+    const previewWrap = document.getElementById(previewWrapId);
+    if (previewWrap) previewWrap.classList.add('hidden');
+    
+    try {
+      // Leggi il file
+      const buffer = await file.arrayBuffer();
+      console.log('📦 Buffer letto, dimensione:', buffer.byteLength);
+      
+      const wb = XLSX.read(buffer, { type: 'array', cellDates: true });
+      console.log('📚 Sheet names:', wb.SheetNames);
+      
+      const sheet = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+      console.log('📊 Righe trovate:', rows.length);
+      
+      // Filtra righe vuote
+      const nonEmptyRows = rows.filter(row => Object.values(row).some(v => v !== '' && v !== null && v !== undefined));
+      console.log('📊 Righe non vuote:', nonEmptyRows.length);
+      
+      if (nonEmptyRows.length === 0) {
+        if (errorEl) errorEl.textContent = 'Il file è vuoto o non contiene dati validi.';
+        return;
+      }
+      
+      // Trova le colonne
+      const keys = Object.keys(nonEmptyRows[0]);
+      console.log('📋 Colonne trovate:', keys);
+      
+      const fk = (names) => keys.find(k => names.includes(normalizeHeader(k)));
+      
+      const kMese = fk(['mese', 'month']);
+      const kAnno = fk(['anno', 'year']);
+      const kData = fk(['data contabile', 'data', 'date', 'data_contabile']);
+      const kDesc = fk(['descrizione', 'description', 'desc']);
+      const kAmount = fk(['importo', 'amount', 'importo €']);
+      const kCategory = fk(['categoria', 'category', 'cat']);
+      
+      console.log('🔍 Colonne mappate:', { kMese, kAnno, kData, kDesc, kAmount, kCategory });
+      
+      if (!kAmount) {
+        if (errorEl) errorEl.textContent = 'Colonna "Importo" mancante. Assicurati che il file abbia una colonna "Importo" o "Amount".';
+        return;
+      }
+      if (!kData && (!kMese || !kAnno)) {
+        if (errorEl) errorEl.textContent = 'Servono almeno "Data Contabile" oppure "Mese" + "Anno".';
+        return;
+      }
+      
+      pendingRows = nonEmptyRows.map(row => {
+        const rawAmount = parseImportedAmount(row[kAmount]);
+        const errors = [];
+        let type = null;
+        let amount = null;
+        
+        if (rawAmount === null) {
+          errors.push('importo non valido');
+        } else {
+          amount = Math.abs(rawAmount);
+          type = rawAmount < 0 ? 'expense' : 'income';
+        }
+        
+        let date = null;
+        if (kData && row[kData] !== '') {
+          date = parseImportedDate(row[kData]);
+        }
+        if (!date && kMese && kAnno) {
+          const month = parseMonthName(row[kMese]);
+          const year = parseInt(String(row[kAnno] || '').trim());
+          if (month && !isNaN(year) && year > 2000) {
+            date = `${year}-${String(month).padStart(2, '0')}-01`;
+          }
+        }
+        if (!date) errors.push('data non valida');
+        
+        const desc = kDesc ? String(row[kDesc] || '').trim() : '';
+        let category = 'Altro';
+        if (kCategory && row[kCategory] !== '') {
+          const catRead = String(row[kCategory]).trim();
+          if (type && state.categories[type] && state.categories[type].includes(catRead)) {
+            category = catRead;
+          }
+        }
+        return { date, description: desc, amount, type, category, valid: errors.length === 0, errors };
+      });
+      
+      renderPreview();
+      
+    } catch (err) {
+      console.error('❌ Errore elaborazione file:', err);
+      if (errorEl) errorEl.textContent = 'Errore: ' + err.message;
+    }
+  });
+  
+  // === FUNZIONE RENDER PREVIEW ===
+  function renderPreview() {
+    console.log('🎨 renderPreview chiamata, pendingRows:', pendingRows.length);
+    const body = document.getElementById(previewBodyId);
+    if (!body) {
+      console.error('❌ previewBodyId non trovato:', previewBodyId);
+      return;
+    }
+    body.innerHTML = '';
+    
+    const vc = pendingRows.filter(r => r.valid).length;
+    const summaryEl = document.getElementById(summaryId);
+    if (summaryEl) {
+      summaryEl.textContent = `${pendingRows.length} righe trovate: ${vc} valide, ${pendingRows.length - vc} con errori.`;
+    }
+    
+    pendingRows.forEach(r => {
+      const tr = document.createElement('tr');
+      tr.className = r.valid ? 'import-row-ok' : 'import-row-error';
+      const tipoLabel = r.type === 'income' ? 'Entrata' : r.type === 'expense' ? 'Uscita' : '-';
+      const importoLabel = r.amount !== null 
+        ? `<span style="color:${r.type === 'income' ? '#5CB85C' : '#E74C3C'}; font-weight:700;">${r.type === 'income' ? '+' : '-'}${fmtEUR(r.amount)}</span>`
+        : '-';
+      tr.innerHTML = `
+        <td>${r.valid ? '✓' : '✗ ' + r.errors.join(', ')}</td>
+        <td>${r.date || '-'}</td>
+        <td>${escapeHtml(r.description) || '-'}</td>
+        <td>${importoLabel}</td>
+        <td>${escapeHtml(r.category) || '-'}</td>
+        <td>${tipoLabel}</td>
+      `;
+      body.appendChild(tr);
+    });
+    
+    const confirmBtn = document.getElementById(confirmBtnId);
+    if (confirmBtn) confirmBtn.disabled = vc === 0;
+    
+    const previewWrap = document.getElementById(previewWrapId);
+    if (previewWrap) previewWrap.classList.remove('hidden');
+    
+    console.log('✅ Anteprima renderizzata, righe valide:', vc);
+  }
+  
+  // === LISTENER ANNULLA ===
+  const cancelBtn = document.getElementById(cancelBtnId);
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', function() {
+      console.log('❌ Annulla importazione');
+      pendingRows = [];
+      const previewWrap = document.getElementById(previewWrapId);
+      if (previewWrap) previewWrap.classList.add('hidden');
+      const fileInput = document.getElementById(fileId);
+      if (fileInput) fileInput.value = '';
+    });
+  }
+  
+  // === LISTENER CONFERMA ===
+  const confirmBtn = document.getElementById(confirmBtnId);
+  if (confirmBtn) {
+    confirmBtn.addEventListener('click', async function() {
+      const validRows = pendingRows.filter(r => r.valid);
+      if (!validRows.length) {
+        alert('Nessuna riga valida da importare.');
+        return;
+      }
+      console.log('✅ Importazione di', validRows.length, 'righe');
+      validRows.forEach(r => {
+        state.transactions.push({
+          id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+          type: r.type,
+          description: r.description,
+          amount: Math.round(r.amount * 100) / 100,
+          category: r.category,
+          date: r.date,
+          source: defaultSource
+        });
+      });
+      renderAll();
+      await saveTransactions();
+      
+      pendingRows = [];
+      const previewWrap = document.getElementById(previewWrapId);
+      if (previewWrap) previewWrap.classList.add('hidden');
+      const fileInput = document.getElementById(fileId);
+      if (fileInput) fileInput.value = '';
+      
+      alert('✅ ' + validRows.length + ' movimenti importati con successo!');
+    });
+  }
 }
 setupImportSection('import-file-bank', 'btn-download-template-bank', 'import-error-text-bank', 'import-preview-wrap-bank', 'import-summary-bank', 'import-preview-body-bank', 'btn-import-confirm-bank', 'btn-import-cancel-bank', 'bank');
 setupImportSection('import-file-cash', 'btn-download-template-cash', 'import-error-text-cash', 'import-preview-wrap-cash', 'import-summary-cash', 'import-preview-body-cash', 'btn-import-confirm-cash', 'btn-import-cancel-cash', 'cash');
+
+  
 function reminderStatus(dateStr) {
 const today = todayISO(); const diff = Math.ceil((new Date(dateStr) - new Date(today)) / 86400000);
 if (diff < 0) return { label: 'Scaduto', cls: 'overdue' };
