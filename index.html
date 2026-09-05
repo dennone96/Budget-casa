@@ -5736,16 +5736,9 @@ state.transactions[idx] = { ...state.transactions[idx], type: document.getElemen
 await saveTransactions();
 document.getElementById('modal-overlay').classList.remove('open'); editingId = null; renderAll();
 });
-document.getElementById('btn-add').addEventListener('click', async () => {
-const desc = document.getElementById('inp-desc').value.trim();
-const amount = parseFloat(document.getElementById('inp-amount').value);
-const category = document.getElementById('inp-category').value;
-const date = document.getElementById('inp-date').value || todayISO();
-if (!amount || amount <= 0) return;
-state.transactions.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2,7), type: state.currentType, description: desc, amount: Math.round(amount*100)/100, category, date, source: 'cash' });
-document.getElementById('inp-desc').value = ''; document.getElementById('inp-amount').value = '';
-await saveTransactions(); renderAll();
-});
+// Vecchio listener del pulsante btn-add rimosso: l'elemento non esiste più nel layout attuale.
+// Il vecchio codice causava un errore JS (null.addEventListener) e bloccava l'esecuzione
+// del resto dello script, impedendo anche l'attivazione dell'importazione Excel.
 function normalizeHeader(h) {
   return String(h || '')
     .trim()
