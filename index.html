@@ -3379,7 +3379,7 @@ Movimenti bancari. Colonne: Mese, Anno, Data Contabile, Descrizione, Importo, Ca
 </p>
 <div class="import-row">
 <input type="file" id="import-file-bank" accept=".xlsx,.xls,.csv">
-<button id="btn-download-template-bank" style="border-radius:999px; padding:0 20px; font-weight:700;">Scarica modello</button>
+<button id="btn-download-template-bank" onclick="downloadTemplate('bank')" style="border-radius:999px; padding:0 20px; font-weight:700;">Scarica modello</button>
 </div>
 <p id="import-error-text-bank" class="import-error-text"></p>
 <div id="import-preview-wrap-bank" class="hidden">
@@ -3409,7 +3409,7 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 </p>
 <div class="import-row">
 <input type="file" id="import-file-cash" accept=".xlsx,.xls,.csv">
-<button id="btn-download-template-cash" style="border-radius:999px; padding:0 20px; font-weight:700;">Scarica modello</button>
+<button id="btn-download-template-cash" onclick="downloadTemplate('cash')" style="border-radius:999px; padding:0 20px; font-weight:700;">Scarica modello</button>
 </div>
 <p id="import-error-text-cash" class="import-error-text"></p>
 <div id="import-preview-wrap-cash" class="hidden">
@@ -4661,6 +4661,35 @@ auth.onAuthStateChanged((user) => {
   }
 });
 
+// === SCARICA MODELLO EXCEL ===
+function downloadTemplate(type) {
+  console.log('📥 Download modello per:', type);
+  
+  // Verifica che la libreria XLSX sia disponibile
+  if (typeof XLSX === 'undefined') {
+    alert('La libreria Excel non è caricata. Ricarica la pagina.');
+    return;
+  }
+  
+  // Crea il modello
+  const ws = XLSX.utils.aoa_to_sheet([
+    ['Mese', 'Anno', 'Data Contabile', 'Descrizione', 'Importo', 'Categoria'],
+    ['Giugno', 2026, '05/06/2026', 'Spesa supermercato', -85.50, 'Spesa'],
+    ['Giugno', 2026, '05/06/2026', 'Stipendio', 1800, 'Stipendio']
+  ]);
+  
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Movimenti');
+  
+  // Scarica il file
+  const filename = type === 'bank' ? 'modello-conto-corrente.xlsx' : 'modello-contanti.xlsx';
+  XLSX.writeFile(wb, filename);
+  console.log('✅ Modello scaricato:', filename);
+}
+
+// === ESPONI LA FUNZIONE GLOBALMENTE (per l'onclick) ===
+window.downloadTemplate = downloadTemplate;  
+
 function userDocRef() { return db.collection('famiglie').doc(currentUser.uid); }
 function attachFirestoreListener() {
 unsubscribeSnapshot = userDocRef().onSnapshot((doc) => {
@@ -4680,7 +4709,7 @@ renderAll();
 document.getElementById('save-status').textContent = 'I dati sono sincronizzati con il tuo account.';
 }, (err) => { document.getElementById('save-status').textContent = 'Errore: ' + err.message; });
 }
-// === SALVA I DATI NELLA FAMIGLIA CONDIVISA ===
+
 // === SALVA I DATI NELLA FAMIGLIA CONDIVISA ===
 async function saveTransactions() {
   if (!currentFamilyId) {
@@ -4994,6 +5023,7 @@ function updateFilterLabel() {
     el.textContent = `Dal ${fmtDateLabel(new Date(filterFrom + 'T00:00:00'))} al ${fmtDateLabel(new Date(filterTo + 'T00:00:00'))}`; 
   }
 }
+  
 // === GESTIONE FILTRI HOME (FIX) ===
 document.getElementById('btn-apply-range').addEventListener('click', () => { 
   const isCustom = document.getElementById('custom-toggle-container')?.classList.contains('active') || false;
