@@ -3378,7 +3378,7 @@ Budget
 Movimenti bancari. Colonne: Mese, Anno, Data Contabile, Descrizione, Importo, Categoria.
 </p>
 <div class="import-row">
-<input type="file" id="import-file-bank" accept=".xlsx,.xls,.csv">
+<input type="file" id="import-file-bank" accept=".xlsx,.xls,.csv" onchange="handleFileUpload('bank', this)">
 <button id="btn-download-template-bank" onclick="downloadTemplate('bank')" style="border-radius:999px; padding:0 20px; font-weight:700;">Scarica modello</button>
 </div>
 <p id="import-error-text-bank" class="import-error-text"></p>
@@ -3408,7 +3408,7 @@ Movimenti bancari. Colonne: Mese, Anno, Data Contabile, Descrizione, Importo, Ca
 Movimenti in contanti. Stesse colonne del conto corrente.
 </p>
 <div class="import-row">
-<input type="file" id="import-file-cash" accept=".xlsx,.xls,.csv">
+<input type="file" id="import-file-cash" accept=".xlsx,.xls,.csv" onchange="handleFileUpload('cash', this)">
 <button id="btn-download-template-cash" onclick="downloadTemplate('cash')" style="border-radius:999px; padding:0 20px; font-weight:700;">Scarica modello</button>
 </div>
 <p id="import-error-text-cash" class="import-error-text"></p>
@@ -6019,6 +6019,200 @@ function setupImportSection(fileId, templateBtnId, errorId, previewWrapId, summa
 setupImportSection('import-file-bank', 'btn-download-template-bank', 'import-error-text-bank', 'import-preview-wrap-bank', 'import-summary-bank', 'import-preview-body-bank', 'btn-import-confirm-bank', 'btn-import-cancel-bank', 'bank');
 setupImportSection('import-file-cash', 'btn-download-template-cash', 'import-error-text-cash', 'import-preview-wrap-cash', 'import-summary-cash', 'import-preview-body-cash', 'btn-import-confirm-cash', 'btn-import-cancel-cash', 'cash');
 
+// === GESTIONE CARICAMENTO FILE EXCEL ===
+window.handleFileUpload = async function(type, inputElement) {
+  console.log('📂 handleFileUpload chiamato per:', type);
+  
+  const file = inputElement.files[0];
+  if (!file) {
+    console.warn('Nessun file selezionato');
+    return;
+  }
+  
+  console.log('📄 Nome:', file.name, '| Dimensione:', file.size);
+  
+  const errorId = type === 'bank' ? 'import-error-text-bank' : 'import-error-text-cash';
+  const previewWrapId = type === 'bank' ? 'import-preview-wrap-bank' : 'import-preview-wrap-cash';
+  const summaryId = type === 'bank' ? 'import-summary-bank' : 'import-summary-cash';
+  const previewBodyId = type === 'bank' ? 'import-preview-body-bank' : 'import-preview-body-cash';
+  const confirmBtnId = type === 'bank' ? 'btn-import-confirm-bank' : 'btn-import-confirm-cash';
+  const cancelBtnId = type === 'bank' ? 'btn-import-cancel-bank' : 'btn-import-cancel-cash';
+  const defaultSource = type === 'bank' ? 'bank' : 'cash';
+  
+  const errorEl = document.getElementById(errorId);
+  if (errorEl) errorEl.textContent = '';
+  
+  const previewWrap = document.getElementById(previewWrapId);
+  if (previewWrap) previewWrap.classList.add('hidden');
+  
+  try {
+    // Leggi il file
+    const buffer = await file.arrayBuffer();
+    const wb = XLSX.read(buffer, { type: 'array', cellDates: true });
+    const sheet = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+    
+    // Filtra righe vuote
+    const nonEmptyRows = rows.filter(row => Object.values(row).some(v => v !== '' && v !== null && v !== undefined));
+    console.log('📊 Righe non vuote:', nonEmptyRows.length);
+    
+    if (nonEmptyRows.length === 0) {
+      if (errorEl) errorEl.textContent = 'Il file è vuoto o non contiene dati validi.';
+      return;
+    }
+    
+    // Trova le colonne
+    const keys = Object.keys(nonEmptyRows[0]);
+    const fk = (names) => keys.find(k => names.includes(normalizeHeader(k)));
+    const kMese = fk(['mese', 'month']);
+    const kAnno = fk(['anno', 'year']);
+    const kData = fk(['data contabile', 'data', 'date', 'data_contabile']);
+    const kDesc = fk(['descrizione', 'description', 'desc']);
+    const kAmount = fk(['importo', 'amount', 'importo €']);
+    const kCategory = fk(['categoria', 'category', 'cat']);
+    
+    if (!kAmount) {
+      if (errorEl) errorEl.textContent = 'Colonna "Importo" mancante.';
+      return;
+    }
+    if (!kData && (!kMese || !kAnno)) {
+      if (errorEl) errorEl.textContent = 'Servono almeno "Data Contabile" oppure "Mese" + "Anno".';
+      return;
+    }
+    
+    // Crea pendingRows
+    const pendingRows = nonEmptyRows.map(row => {
+      const rawAmount = parseImportedAmount(row[kAmount]);
+      const errors = [];
+      let type = null;
+      let amount = null;
+      if (rawAmount === null) {
+        errors.push('importo non valido');
+      } else {
+        amount = Math.abs(rawAmount);
+        type = rawAmount < 0 ? 'expense' : 'income';
+      }
+      let date = null;
+      if (kData && row[kData] !== '') {
+        date = parseImportedDate(row[kData]);
+      }
+      if (!date && kMese && kAnno) {
+        const month = parseMonthName(row[kMese]);
+        const year = parseInt(String(row[kAnno] || '').trim());
+        if (month && !isNaN(year) && year > 2000) {
+          date = `${year}-${String(month).padStart(2, '0')}-01`;
+        }
+      }
+      if (!date) errors.push('data non valida');
+      const desc = kDesc ? String(row[kDesc] || '').trim() : '';
+      let category = 'Altro';
+      if (kCategory && row[kCategory] !== '') {
+        const catRead = String(row[kCategory]).trim();
+        if (type && state.categories[type] && state.categories[type].includes(catRead)) {
+          category = catRead;
+        }
+      }
+      return { date, description: desc, amount, type, category, valid: errors.length === 0, errors };
+    });
+    
+    // Renderizza anteprima
+    renderPreview(pendingRows, previewWrapId, summaryId, previewBodyId, confirmBtnId, cancelBtnId, defaultSource);
+    
+  } catch (err) {
+    console.error('❌ Errore elaborazione file:', err);
+    if (errorEl) errorEl.textContent = 'Errore: ' + err.message;
+  }
+};
+
+// === FUNZIONE PER RENDERIZZARE L'ANTEPRIMA ===
+function renderPreview(pendingRows, previewWrapId, summaryId, previewBodyId, confirmBtnId, cancelBtnId, defaultSource) {
+  console.log('🎨 renderPreview chiamata, righe:', pendingRows.length);
+  
+  const body = document.getElementById(previewBodyId);
+  if (!body) {
+    console.error('❌ previewBodyId non trovato:', previewBodyId);
+    return;
+  }
+  body.innerHTML = '';
+  
+  const vc = pendingRows.filter(r => r.valid).length;
+  const summaryEl = document.getElementById(summaryId);
+  if (summaryEl) {
+    summaryEl.textContent = `${pendingRows.length} righe trovate: ${vc} valide, ${pendingRows.length - vc} con errori.`;
+  }
+  
+  pendingRows.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.className = r.valid ? 'import-row-ok' : 'import-row-error';
+    const tipoLabel = r.type === 'income' ? 'Entrata' : r.type === 'expense' ? 'Uscita' : '-';
+    const importoLabel = r.amount !== null 
+      ? `<span style="color:${r.type === 'income' ? '#5CB85C' : '#E74C3C'}; font-weight:700;">${r.type === 'income' ? '+' : '-'}${fmtEUR(r.amount)}</span>`
+      : '-';
+    tr.innerHTML = `
+      <td>${r.valid ? '✓' : '✗ ' + r.errors.join(', ')}</td>
+      <td>${r.date || '-'}</td>
+      <td>${escapeHtml(r.description) || '-'}</td>
+      <td>${importoLabel}</td>
+      <td>${escapeHtml(r.category) || '-'}</td>
+      <td>${tipoLabel}</td>
+    `;
+    body.appendChild(tr);
+  });
+  
+  const confirmBtn = document.getElementById(confirmBtnId);
+  if (confirmBtn) {
+    // Rimuovi vecchi listener
+    const newConfirm = confirmBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newConfirm, confirmBtn);
+    newConfirm.addEventListener('click', async function() {
+      const validRows = pendingRows.filter(r => r.valid);
+      if (!validRows.length) {
+        alert('Nessuna riga valida da importare.');
+        return;
+      }
+      console.log('✅ Importazione di', validRows.length, 'righe');
+      validRows.forEach(r => {
+        state.transactions.push({
+          id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+          type: r.type,
+          description: r.description,
+          amount: Math.round(r.amount * 100) / 100,
+          category: r.category,
+          date: r.date,
+          source: defaultSource
+        });
+      });
+      renderAll();
+      await saveTransactions();
+      
+      // Resetta
+      pendingRows = [];
+      const previewWrap = document.getElementById(previewWrapId);
+      if (previewWrap) previewWrap.classList.add('hidden');
+      const fileInput = document.getElementById(previewWrapId.replace('preview-wrap', 'file'));
+      if (fileInput) fileInput.value = '';
+      
+      alert('✅ ' + validRows.length + ' movimenti importati con successo!');
+    });
+  }
+  
+  const cancelBtn = document.getElementById(cancelBtnId);
+  if (cancelBtn) {
+    const newCancel = cancelBtn.cloneNode(true);
+    cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
+    newCancel.addEventListener('click', function() {
+      pendingRows = [];
+      const previewWrap = document.getElementById(previewWrapId);
+      if (previewWrap) previewWrap.classList.add('hidden');
+      const fileInput = document.getElementById(previewWrapId.replace('preview-wrap', 'file'));
+      if (fileInput) fileInput.value = '';
+    });
+  }
+  
+  const previewWrap = document.getElementById(previewWrapId);
+  if (previewWrap) previewWrap.classList.remove('hidden');
+  console.log('✅ Anteprima mostrata');
+}
   
 function reminderStatus(dateStr) {
 const today = todayISO(); const diff = Math.ceil((new Date(dateStr) - new Date(today)) / 86400000);
