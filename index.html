@@ -3378,7 +3378,7 @@ Budget
 Movimenti bancari. Colonne: Mese, Anno, Data Contabile, Descrizione, Importo, Categoria.
 </p>
 <div class="import-row">
-<input type="file" id="import-file-bank" accept=".xlsx,.xls,.csv" onchange="window.handleFileUpload('bank', this)">
+<input type="file" id="import-file-bank" accept=".xlsx,.xls,.csv">
 <button id="btn-download-template-bank" onclick="downloadTemplate('bank')" style="border-radius:999px; padding:0 20px; font-weight:700;">Scarica modello</button>
 </div>
 <p id="import-error-text-bank" class="import-error-text"></p>
@@ -3408,7 +3408,7 @@ Movimenti bancari. Colonne: Mese, Anno, Data Contabile, Descrizione, Importo, Ca
 Movimenti in contanti. Stesse colonne del conto corrente.
 </p>
 <div class="import-row">
-<input type="file" id="import-file-cash" accept=".xlsx,.xls,.csv" onchange="window.handleFileUpload('cash', this)">
+<input type="file" id="import-file-cash" accept=".xlsx,.xls,.csv">
 <button id="btn-download-template-cash" onclick="downloadTemplate('cash')" style="border-radius:999px; padding:0 20px; font-weight:700;">Scarica modello</button>
 </div>
 <p id="import-error-text-cash" class="import-error-text"></p>
@@ -5779,7 +5779,7 @@ if (months[str]) return months[str];
 const n = parseInt(str); return (!isNaN(n) && n >= 1 && n <= 12) ? n : null;
 }
   
-// === GESTIONE CARICAMENTO FILE EXCEL (GLOBALE) ===
+// === FUNZIONI PER L'IMPORTAZIONE EXCEL ===
 window.handleFileUpload = async function(type, inputElement) {
   console.log('📂 handleFileUpload chiamato per:', type);
   
@@ -5788,8 +5788,6 @@ window.handleFileUpload = async function(type, inputElement) {
     console.warn('Nessun file selezionato');
     return;
   }
-  
-  console.log('📄 Nome:', file.name, '| Dimensione:', file.size);
   
   const errorId = type === 'bank' ? 'import-error-text-bank' : 'import-error-text-cash';
   const previewWrapId = type === 'bank' ? 'import-preview-wrap-bank' : 'import-preview-wrap-cash';
@@ -5806,7 +5804,6 @@ window.handleFileUpload = async function(type, inputElement) {
   if (previewWrap) previewWrap.classList.add('hidden');
   
   try {
-    // Verifica che XLSX sia disponibile
     if (typeof XLSX === 'undefined') {
       alert('La libreria Excel non è caricata. Ricarica la pagina.');
       return;
@@ -5814,19 +5811,13 @@ window.handleFileUpload = async function(type, inputElement) {
     
     const buffer = await file.arrayBuffer();
     const wb = XLSX.read(buffer, { type: 'array', cellDates: true });
-    const sheet = wb.Sheets[wb.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
-    
-    // Filtra righe vuote
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' });
     const nonEmptyRows = rows.filter(row => Object.values(row).some(v => v !== '' && v !== null && v !== undefined));
-    console.log('📊 Righe non vuote:', nonEmptyRows.length);
-    
     if (nonEmptyRows.length === 0) {
-      if (errorEl) errorEl.textContent = 'Il file è vuoto o non contiene dati validi.';
+      if (errorEl) errorEl.textContent = 'Il file è vuoto.';
       return;
     }
     
-    // Trova le colonne
     const keys = Object.keys(nonEmptyRows[0]);
     const fk = (names) => keys.find(k => names.includes(normalizeHeader(k)));
     const kMese = fk(['mese', 'month']);
@@ -5841,16 +5832,14 @@ window.handleFileUpload = async function(type, inputElement) {
       return;
     }
     if (!kData && (!kMese || !kAnno)) {
-      if (errorEl) errorEl.textContent = 'Servono almeno "Data Contabile" oppure "Mese" + "Anno".';
+      if (errorEl) errorEl.textContent = 'Servono "Data Contabile" o "Mese"+"Anno".';
       return;
     }
     
-    // Crea pendingRows
     const pendingRows = nonEmptyRows.map(row => {
       const rawAmount = parseImportedAmount(row[kAmount]);
       const errors = [];
-      let type = null;
-      let amount = null;
+      let type = null, amount = null;
       if (rawAmount === null) {
         errors.push('importo non valido');
       } else {
@@ -5880,30 +5869,24 @@ window.handleFileUpload = async function(type, inputElement) {
       return { date, description: desc, amount, type, category, valid: errors.length === 0, errors };
     });
     
-    // Renderizza anteprima
     window.renderPreview(pendingRows, previewWrapId, summaryId, previewBodyId, confirmBtnId, cancelBtnId, defaultSource);
     
   } catch (err) {
-    console.error('❌ Errore elaborazione file:', err);
+    console.error('❌ Errore:', err);
     if (errorEl) errorEl.textContent = 'Errore: ' + err.message;
   }
 };
 
-// === FUNZIONE PER RENDERIZZARE L'ANTEPRIMA ===
 window.renderPreview = function(pendingRows, previewWrapId, summaryId, previewBodyId, confirmBtnId, cancelBtnId, defaultSource) {
-  console.log('🎨 renderPreview chiamata, righe:', pendingRows.length);
-  
+  console.log('🎨 renderPreview, righe:', pendingRows.length);
   const body = document.getElementById(previewBodyId);
-  if (!body) {
-    console.error('❌ previewBodyId non trovato:', previewBodyId);
-    return;
-  }
+  if (!body) return;
   body.innerHTML = '';
   
   const vc = pendingRows.filter(r => r.valid).length;
   const summaryEl = document.getElementById(summaryId);
   if (summaryEl) {
-    summaryEl.textContent = `${pendingRows.length} righe trovate: ${vc} valide, ${pendingRows.length - vc} con errori.`;
+    summaryEl.textContent = `${pendingRows.length} righe: ${vc} valide, ${pendingRows.length - vc} con errori.`;
   }
   
   pendingRows.forEach(r => {
@@ -5924,19 +5907,17 @@ window.renderPreview = function(pendingRows, previewWrapId, summaryId, previewBo
     body.appendChild(tr);
   });
   
-  // Pulsante CONFERMA
+  // Conferma
   const confirmBtn = document.getElementById(confirmBtnId);
   if (confirmBtn) {
-    // Rimuovi vecchi listener clonando
     const newConfirm = confirmBtn.cloneNode(true);
     confirmBtn.parentNode.replaceChild(newConfirm, confirmBtn);
     newConfirm.addEventListener('click', async function() {
       const validRows = pendingRows.filter(r => r.valid);
       if (!validRows.length) {
-        alert('Nessuna riga valida da importare.');
+        alert('Nessuna riga valida.');
         return;
       }
-      console.log('✅ Importazione di', validRows.length, 'righe');
       validRows.forEach(r => {
         state.transactions.push({
           id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
@@ -5950,36 +5931,60 @@ window.renderPreview = function(pendingRows, previewWrapId, summaryId, previewBo
       });
       renderAll();
       await saveTransactions();
-      
-      // Resetta
       pendingRows = [];
-      const previewWrap = document.getElementById(previewWrapId);
-      if (previewWrap) previewWrap.classList.add('hidden');
-      const fileInput = document.getElementById(previewWrapId.replace('preview-wrap', 'file'));
-      if (fileInput) fileInput.value = '';
-      
-      alert('✅ ' + validRows.length + ' movimenti importati con successo!');
+      document.getElementById(previewWrapId).classList.add('hidden');
+      document.getElementById(previewWrapId.replace('preview-wrap', 'file')).value = '';
+      alert('✅ ' + validRows.length + ' movimenti importati!');
     });
   }
   
-  // Pulsante ANNULLA
+  // Annulla
   const cancelBtn = document.getElementById(cancelBtnId);
   if (cancelBtn) {
     const newCancel = cancelBtn.cloneNode(true);
     cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
     newCancel.addEventListener('click', function() {
       pendingRows = [];
-      const previewWrap = document.getElementById(previewWrapId);
-      if (previewWrap) previewWrap.classList.add('hidden');
-      const fileInput = document.getElementById(previewWrapId.replace('preview-wrap', 'file'));
-      if (fileInput) fileInput.value = '';
+      document.getElementById(previewWrapId).classList.add('hidden');
+      document.getElementById(previewWrapId.replace('preview-wrap', 'file')).value = '';
     });
   }
   
-  const previewWrap = document.getElementById(previewWrapId);
-  if (previewWrap) previewWrap.classList.remove('hidden');
-  console.log('✅ Anteprima mostrata');
+  document.getElementById(previewWrapId).classList.remove('hidden');
 };
+
+// === ATTACCA LISTENER PER I FILE INPUT ===
+// Usa l'ultimo DOMContentLoaded per essere sicuro che tutto sia caricato
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('🔧 Attacco listener per file input...');
+  
+  const bankInput = document.getElementById('import-file-bank');
+  const cashInput = document.getElementById('import-file-cash');
+  
+  if (bankInput) {
+    const newBank = bankInput.cloneNode(true);
+    bankInput.parentNode.replaceChild(newBank, bankInput);
+    newBank.addEventListener('change', function(e) {
+      console.log('📂 File bank selezionato!');
+      window.handleFileUpload('bank', this);
+    });
+    console.log('✅ Listener bank attaccato');
+  } else {
+    console.warn('⚠️ import-file-bank non trovato');
+  }
+  
+  if (cashInput) {
+    const newCash = cashInput.cloneNode(true);
+    cashInput.parentNode.replaceChild(newCash, cashInput);
+    newCash.addEventListener('change', function(e) {
+      console.log('📂 File cash selezionato!');
+      window.handleFileUpload('cash', this);
+    });
+    console.log('✅ Listener cash attaccato');
+  } else {
+    console.warn('⚠️ import-file-cash non trovato');
+  }
+});
   
 function reminderStatus(dateStr) {
 const today = todayISO(); const diff = Math.ceil((new Date(dateStr) - new Date(today)) / 86400000);
