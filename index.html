@@ -3378,7 +3378,7 @@ Budget
 Movimenti bancari. Colonne: Mese, Anno, Data Contabile, Descrizione, Importo, Categoria.
 </p>
 <div class="import-row">
-<input type="file" id="import-file-bank" accept=".xlsx,.xls,.csv">
+<input type="file" id="import-file-bank" accept=".xlsx,.xls,.csv" onchange="window.handleFileUpload('bank', this)">
 <button id="btn-download-template-bank" onclick="downloadTemplate('bank')" style="border-radius:999px; padding:0 20px; font-weight:700;">Scarica modello</button>
 </div>
 <p id="import-error-text-bank" class="import-error-text"></p>
@@ -3408,7 +3408,7 @@ Movimenti bancari. Colonne: Mese, Anno, Data Contabile, Descrizione, Importo, Ca
 Movimenti in contanti. Stesse colonne del conto corrente.
 </p>
 <div class="import-row">
-<input type="file" id="import-file-cash" accept=".xlsx,.xls,.csv">
+<input type="file" id="import-file-cash" accept=".xlsx,.xls,.csv" onchange="window.handleFileUpload('cash', this)">
 <button id="btn-download-template-cash" onclick="downloadTemplate('cash')" style="border-radius:999px; padding:0 20px; font-weight:700;">Scarica modello</button>
 </div>
 <p id="import-error-text-cash" class="import-error-text"></p>
