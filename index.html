@@ -6082,1015 +6082,156 @@ openCatEditModal(type, idx);
 renderList('expense', 'cat-list-expense');
 renderList('income', 'cat-list-income');
 }
-  // === AGGIUNGI QUI ===
-  initCatEditModalListeners();
-
-  
 function openColorPicker(type, category) {
-colorPickerContext = {
-type: type,
-category: category,
-selectedColor: getCategoryColor(category)
-};
-document.getElementById('color-picker-preview-name').textContent = category;
-document.getElementById('color-picker-preview-dot').style.backgroundColor = colorPickerContext.selectedColor;
-document.getElementById('color-picker-preview-hex').textContent = colorPickerContext.selectedColor;
-renderColorPalette();
-document.getElementById('color-picker-overlay').classList.add('open');
+  colorPickerContext = {
+    type: type,
+    category: category,
+    selectedColor: getCategoryColor(category)
+  };
+  const nameEl = document.getElementById('color-picker-preview-name');
+  const dotEl = document.getElementById('color-picker-preview-dot');
+  const hexEl = document.getElementById('color-picker-preview-hex');
+  const overlay = document.getElementById('color-picker-overlay');
+  if (nameEl) nameEl.textContent = category;
+  if (dotEl) dotEl.style.backgroundColor = colorPickerContext.selectedColor;
+  if (hexEl) hexEl.textContent = colorPickerContext.selectedColor;
+  renderColorPalette();
+  if (overlay) overlay.classList.add('open');
 }
 
 function renderColorPalette() {
-const grid = document.getElementById('color-picker-grid');
-grid.innerHTML = '';
-COLOR_PALETTE.forEach(color => {
-const option = document.createElement('div');
-option.className = 'color-picker-option' + (color.hex === colorPickerContext.selectedColor ? ' selected' : '');
-option.style.backgroundColor = color.hex;
-option.title = color.name;
-option.addEventListener('click', () => {
-colorPickerContext.selectedColor = color.hex;
-document.getElementById('color-picker-preview-dot').style.backgroundColor = color.hex;
-document.getElementById('color-picker-preview-hex').textContent = color.hex;
-grid.querySelectorAll('.color-picker-option').forEach(opt => opt.classList.remove('selected'));
-option.classList.add('selected');
-});
-grid.appendChild(option);
-});
+  const grid = document.getElementById('color-picker-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  COLOR_PALETTE.forEach(color => {
+    const option = document.createElement('div');
+    option.className = 'color-picker-option' + (color.hex === colorPickerContext.selectedColor ? ' selected' : '');
+    option.style.backgroundColor = color.hex;
+    option.title = color.name;
+    option.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      colorPickerContext.selectedColor = color.hex;
+      const dotEl = document.getElementById('color-picker-preview-dot');
+      const hexEl = document.getElementById('color-picker-preview-hex');
+      if (dotEl) dotEl.style.backgroundColor = color.hex;
+      if (hexEl) hexEl.textContent = color.hex;
+      grid.querySelectorAll('.color-picker-option').forEach(opt => opt.classList.remove('selected'));
+      option.classList.add('selected');
+    });
+    grid.appendChild(option);
+  });
 }
 
 function closeColorPicker() {
-document.getElementById('color-picker-overlay').classList.remove('open');
-colorPickerContext = { category: null, type: null, selectedColor: null };
+  const overlay = document.getElementById('color-picker-overlay');
+  if (overlay) overlay.classList.remove('open');
+  colorPickerContext = { category: null, type: null, selectedColor: null };
 }
 
-async function saveSelectedColor() {
-if (!colorPickerContext.category || !colorPickerContext.selectedColor) return;
-categoryColors[colorPickerContext.category] = colorPickerContext.selectedColor;
-await saveCategoryColors();
-renderCategories();
-if (document.getElementById('page-grafici').classList.contains('active')) {
-updateChartCategory();
-}
-closeColorPicker();
+async function saveSelectedColor(e) {
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  const category = colorPickerContext.category;
+  const selectedColor = colorPickerContext.selectedColor;
+  if (!category || !selectedColor) return;
+  categoryColors[category] = selectedColor;
+  await saveCategoryColors();
+  renderCategories();
+  const pageGrafici = document.getElementById('page-grafici');
+  if (pageGrafici && pageGrafici.classList.contains('active')) updateChartCategory();
+  closeColorPicker();
 }
 
-document.getElementById('color-picker-cancel').addEventListener('click', closeColorPicker);
-document.getElementById('color-picker-save').addEventListener('click', saveSelectedColor);
-document.getElementById('color-picker-overlay').addEventListener('click', (e) => {
-if (e.target.id === 'color-picker-overlay') closeColorPicker();
-});
+// Listener del selettore colore: vengono collegati una sola volta.
+(function initColorPickerListeners() {
+  const cancelBtn = document.getElementById('color-picker-cancel');
+  const saveBtn = document.getElementById('color-picker-save');
+  const overlay = document.getElementById('color-picker-overlay');
+  if (cancelBtn) {
+    cancelBtn.onclick = function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      closeColorPicker();
+    };
+  }
+  if (saveBtn) {
+    saveBtn.onclick = function(e) {
+      saveSelectedColor(e);
+    };
+  }
+  if (overlay) {
+    overlay.onclick = function(e) {
+      if (e.target === overlay) closeColorPicker();
+    };
+  }
+})();
 
 function openCatEditModal(type, idx) {
-editingCat = { type, index: idx };
-document.getElementById('cat-edit-input').value = state.categories[type][idx];
-document.getElementById('cat-edit-modal').style.display = 'flex';
-}
-document.getElementById('cat-edit-cancel').addEventListener('click', () => { document.getElementById('cat-edit-modal').style.display = 'none'; editingCat = { type: null, index: null }; });
-document.getElementById('cat-edit-save').addEventListener('click', async () => {
-const newName = document.getElementById('cat-edit-input').value.trim();
-if (!newName) { alert('Inserisci un nome valido.'); return; }
-const oldName = state.categories[editingCat.type][editingCat.index];
-if (editingCat.type && state.categories[editingCat.type].includes(newName) && newName !== oldName) { alert('Categoria già esistente.'); return; }
-state.categories[editingCat.type][editingCat.index] = newName;
-if (newName !== oldName && categoryColors[oldName]) {
-categoryColors[newName] = categoryColors[oldName];
-delete categoryColors[oldName];
-saveCategoryColors();
-}
-await saveCategories(); renderCategories(); populateCategorySelect();
-document.getElementById('cat-edit-modal').style.display = 'none';
-});
-document.getElementById('cat-edit-modal').addEventListener('click', (e) => { if (e.target.id === 'cat-edit-modal') { document.getElementById('cat-edit-modal').style.display = 'none'; editingCat = { type: null, index: null }; } });
-document.getElementById('btn-add-cat-expense').addEventListener('click', async () => { const val = document.getElementById('new-cat-expense').value.trim(); if (!val) return; if (state.categories.expense.includes(val)) { alert('Categoria già esistente.'); return; } state.categories.expense.push(val); document.getElementById('new-cat-expense').value = ''; await saveCategories(); renderCategories(); populateCategorySelect(); });
-document.getElementById('btn-add-cat-income').addEventListener('click', async () => { const val = document.getElementById('new-cat-income').value.trim(); if (!val) return; if (state.categories.income.includes(val)) { alert('Categoria già esistente.'); return; } state.categories.income.push(val); document.getElementById('new-cat-income').value = ''; await saveCategories(); renderCategories(); populateCategorySelect(); });
-
-// === FUNZIONE PER CHIUDERE IL MODALE DI MODIFICA CATEGORIA ===
-function closeCatEditModal() {
-  console.log('🔴 closeCatEditModal chiamata');
+  if (!state.categories[type] || state.categories[type][idx] === undefined) return;
+  editingCat = { type: type, index: idx };
+  const input = document.getElementById('cat-edit-input');
   const modal = document.getElementById('cat-edit-modal');
-  if (modal) {
-    modal.style.display = 'none';
-    console.log('✅ Modale chiuso');
-  }
-  editingCat.type = null;
-  editingCat.index = null;
+  if (input) input.value = state.categories[type][idx];
+  if (modal) modal.style.display = 'flex';
 }
 
-// === INIZIALIZZA I LISTENER DEL MODALE DI MODIFICA CATEGORIA ===
-function initCatEditModalListeners() {
-  console.log('🔧 initCatEditModalListeners chiamata');
-  
+function closeCatEditModal() {
+  const modal = document.getElementById('cat-edit-modal');
+  if (modal) modal.style.display = 'none';
+  editingCat = { type: null, index: null };
+}
+
+async function saveCatEdit(e) {
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  const input = document.getElementById('cat-edit-input');
+  if (!input) return;
+  const newName = input.value.trim();
+  if (!newName) {
+    alert('Inserisci un nome valido.');
+    input.focus();
+    return;
+  }
+  const type = editingCat.type;
+  const idx = editingCat.index;
+  if (type === null || idx === null || !state.categories[type] || state.categories[type][idx] === undefined) {
+    alert('Errore: nessuna categoria selezionata.');
+    return;
+  }
+  const oldName = state.categories[type][idx];
+  if (state.categories[type].includes(newName) && newName !== oldName) {
+    alert('Categoria già esistente.');
+    input.focus();
+    return;
+  }
+  state.categories[type][idx] = newName;
+  if (newName !== oldName && categoryColors[oldName]) {
+    categoryColors[newName] = categoryColors[oldName];
+    delete categoryColors[oldName];
+    await saveCategoryColors();
+  }
+  await saveCategories();
+  closeCatEditModal();
+  renderCategories();
+  populateCategorySelect();
+}
+
+// Listener del modale categoria: assegnazione diretta, senza duplicazioni.
+(function initCatEditModalListeners() {
   const cancelBtn = document.getElementById('cat-edit-cancel');
   const saveBtn = document.getElementById('cat-edit-save');
   const modal = document.getElementById('cat-edit-modal');
-
-  // Pulsante ANNULLA
-  if (cancelBtn) {
-    const newCancel = cancelBtn.cloneNode(true);
-    cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
-    newCancel.addEventListener('click', function(e) {
-      e.preventDefault();
-      console.log('❌ Annulla cliccato');
-      closeCatEditModal();
-    });
-  }
-
-  // Pulsante SALVA
-  if (saveBtn) {
-    const newSave = saveBtn.cloneNode(true);
-    saveBtn.parentNode.replaceChild(newSave, saveBtn);
-    newSave.addEventListener('click', async function(e) {
-      e.preventDefault();
-      console.log('💾 Salva cliccato');
-      
-      const input = document.getElementById('cat-edit-input');
-      if (!input) return;
-      
-      const newName = input.value.trim();
-      if (!newName) {
-        alert('Inserisci un nome valido.');
-        input.focus();
-        return;
-      }
-      
-      const type = editingCat.type;
-      const idx = editingCat.index;
-      if (type === null || idx === null) {
-        alert('Errore: nessuna categoria selezionata.');
-        return;
-      }
-      
-      const oldName = state.categories[type][idx];
-      if (state.categories[type].includes(newName) && newName !== oldName) {
-        alert('Categoria già esistente.');
-        input.focus();
-        return;
-      }
-      
-      state.categories[type][idx] = newName;
-      if (newName !== oldName && categoryColors[oldName]) {
-        categoryColors[newName] = categoryColors[oldName];
-        delete categoryColors[oldName];
-        await saveCategoryColors();
-      }
-      
-      await saveCategories();
-      closeCatEditModal();
-      renderCategories();
-      populateCategorySelect();
-      console.log('✅ Categoria modificata da', oldName, 'a', newName);
-    });
-  }
-
-  // Click fuori dal modale
+  if (cancelBtn) cancelBtn.onclick = closeCatEditModal;
+  if (saveBtn) saveBtn.onclick = saveCatEdit;
   if (modal) {
-    const newModal = modal.cloneNode(true);
-    modal.parentNode.replaceChild(newModal, modal);
-    newModal.addEventListener('click', function(e) {
-      if (e.target === this) {
-        console.log('❌ Click fuori dal modale');
-        closeCatEditModal();
-      }
-    });
+    modal.onclick = function(e) {
+      if (e.target === modal) closeCatEditModal();
+    };
   }
-}  
-  
-  
-  function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
-function populateMonthSelects() {
-const months = Array.from(new Set(state.transactions.map(t => monthKey(t.date)))); months.push(monthKey(todayISO()));
-const uniqueMonths = Array.from(new Set(months)).sort().reverse();
-const chartMonthSel = document.getElementById('chart-month');
-if (chartMonthSel) { const prev = chartMonthSel.value; chartMonthSel.innerHTML = ''; uniqueMonths.forEach(m => { const opt = document.createElement('option'); opt.value = m; opt.textContent = monthLabel(m); chartMonthSel.appendChild(opt); }); if ([...chartMonthSel.options].some(o => o.value === prev)) chartMonthSel.value = prev; }
-const years = Array.from(new Set(state.transactions.map(t => t.date.slice(0,4)))); years.push(new Date().getFullYear().toString());
-const uniqueYears = Array.from(new Set(years)).sort().reverse();
-const ySel = document.getElementById('chart-year');
-if (ySel) { const prevY = ySel.value; ySel.innerHTML = ''; uniqueYears.forEach(y => { const opt = document.createElement('option'); opt.value = y; opt.textContent = y; ySel.appendChild(opt); }); if ([...ySel.options].some(o => o.value === prevY)) ySel.value = prevY; }
-const rSel = document.getElementById('chart-residuo-year');
-if (rSel) { const prevR = rSel.value; rSel.innerHTML = ''; uniqueYears.forEach(y => { const opt = document.createElement('option'); opt.value = y; opt.textContent = y; rSel.appendChild(opt); }); if ([...rSel.options].some(o => o.value === prevR)) rSel.value = prevR; }
-}
-function renderAll() { populateMonthSelects(); populateHomePeriodFilters(); updateStats(); updateFilterLabel(); updateTransactionsList(); }
-document.getElementById('inp-date').value = todayISO();
-document.getElementById('rem-date').value = todayISO();
-function showLoading(show) { document.getElementById('pdf-loading').classList.toggle('show', show); }
-function drawPDFTable(doc, headers, rows, margin, startY, colWidths, pageWidth) {
-let y = startY;
-const lineHeight = 7;
-doc.setFillColor(232, 240, 248);
-doc.rect(margin, y, pageWidth - 2*margin, lineHeight, 'F');
-doc.setFontSize(9);
-doc.setFont('helvetica', 'bold');
-doc.setTextColor(90, 107, 124);
-let colX = margin;
-headers.forEach((h, i) => {
-doc.text(h, colX + 2, y + 5);
-colX += colWidths[i];
-});
-y += lineHeight + 2;
-doc.setFont('helvetica', 'normal');
-doc.setFontSize(8);
-rows.forEach((row, idx) => {
-if (y > 270) { doc.addPage(); y = 20; }
-if (row.isTotal) {
-doc.setFillColor(232, 240, 248);
-doc.rect(margin, y - 2, pageWidth - 2*margin, lineHeight, 'F');
-doc.setFont('helvetica', 'bold');
-} else if (row.isSection) {
-doc.setFillColor(227, 240, 255);
-doc.rect(margin, y - 2, pageWidth - 2*margin, lineHeight, 'F');
-doc.setFont('helvetica', 'bold');
-} else if (idx % 2 === 0) {
-doc.setFillColor(250, 251, 252);
-doc.rect(margin, y - 2, pageWidth - 2*margin, lineHeight, 'F');
-}
-colX = margin;
-row.cells.forEach((cell, i) => {
-doc.setTextColor(cell.color ? cell.color[0] : 26, cell.color ? cell.color[1] : 43, cell.color ? cell.color[2] : 60);
-doc.text(cell.text, colX + 2, y);
-colX += colWidths[i];
-});
-if (row.isTotal || row.isSection) doc.setFont('helvetica', 'normal');
-y += lineHeight;
-});
-return y + 5;
-}
-async function generateHomePDF() {
-  showLoading(true);
-  try {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('p', 'mm', 'a4');
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-    const margin = 15;
-    let y = 15;
+})();
 
-    // === HEADER: TITOLO E PERIODO ===
-    const from = filterFrom || todayISO().slice(0,7) + '-01';
-    const to = filterTo || todayISO();
-    const mt = state.transactions.filter(t => t.date >= from && t.date <= to && matchesSourceFilter(t));
-    const income = mt.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0);
-    const expense = mt.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0);
+document.getElementById('btn-add-cat-expense').addEventListener('click', async () => { const val = document.getElementById('new-cat-expense').value.trim(); if (!val) return; if (state.categories.expense.includes(val)) { alert('Categoria già esistente.'); return; } state.categories.expense.push(val); document.getElementById('new-cat-expense').value = ''; await saveCategories(); renderCategories(); populateCategorySelect(); });
+document.getElementById('btn-add-cat-income').addEventListener('click', async () => { const val = document.getElementById('new-cat-income').value.trim(); if (!val) return; if (state.categories.income.includes(val)) { alert('Categoria già esistente.'); return; } state.categories.income.push(val); document.getElementById('new-cat-income').value = ''; await saveCategories(); renderCategories(); populateCategorySelect(); });
 
-    // Titolo
-    doc.setTextColor(26, 43, 60);
-    doc.setFontSize(24);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Budget di Famiglia', margin, y + 8);
-    
-    y += 12;
-    
-    // Periodo
-    const periodLabel = filterMode === 'month' 
-      ? `${document.getElementById('filter-month')?.selectedOptions[0]?.textContent || ''} ${document.getElementById('filter-year')?.value || ''}` 
-      : `Dal ${fmtDateLabel(new Date(filterFrom + 'T00:00:00'))} al ${fmtDateLabel(new Date(filterTo + 'T00:00:00'))}`;
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(108, 117, 125);
-    doc.text(`Lista movimenti di ${periodLabel}`, margin, y + 4);
-    
-    y += 12;
-
-    // === RIGA RIEPILOGO ENTRATE/USCITE (senza frecce) ===
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(92, 184, 92);
-    doc.text(`Entrate: ${fmtEUR(income)}`, margin, y + 2);
-    
-    doc.setTextColor(231, 76, 60);
-    doc.text(`Uscite: ${fmtEUR(expense)}`, margin + 55, y + 2);
-    
-    doc.setDrawColor(222, 226, 230);
-    doc.setLineWidth(0.3);
-    doc.line(margin, y + 8, pageWidth - margin, y + 8);
-    y += 18;
-
-    // === INTESTAZIONE TABELLA ===
-    const colWidths = [75, 35, 35, 25];
-    const headers = ['Transazione', 'Metodo', 'Giustificativo', 'Importo'];
-    
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(108, 117, 125);
-    let colX = margin;
-    headers.forEach((h, i) => {
-      doc.text(h, colX, y + 3);
-      colX += colWidths[i];
-    });
-    
-    y += 8;
-
-    // === LISTA MOVIMENTI ===
-    const sortedMt = [...mt].sort((a,b) => b.date.localeCompare(a.date));
-    const lineHeight = 9;
-    let rowCount = 0;
-    
-    // Funzione per disegnare badge - SENZA EMOJI
-    function drawBadge(doc, x, y, source) {
-      const isBank = source === 'bank';
-      const bgColor = isBank ? [52, 152, 219] : [92, 184, 92];
-      const bgLight = isBank ? [232, 244, 253] : [232, 245, 233];
-      const text = isBank ? 'C/C' : 'Cash';
-      
-      // Sfondo badge (arrotondato)
-      const badgeWidth = 22;
-      const badgeHeight = 6;
-      doc.setFillColor(bgLight[0], bgLight[1], bgLight[2]);
-      doc.roundedRect(x, y - 3, badgeWidth, badgeHeight, 3, 3, 'F');
-      
-      // Testo badge
-      doc.setFontSize(6);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(bgColor[0], bgColor[1], bgColor[2]);
-      doc.text(text, x + 2, y + 1.5);
-    }
-
-    sortedMt.forEach((t) => {
-      // Controllo spazio
-      if (y > pageHeight - 20) {
-        doc.addPage();
-        y = 15;
-        
-        // Ripeti header
-        doc.setFontSize(8);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(108, 117, 125);
-        colX = margin;
-        headers.forEach((h, i) => {
-          doc.text(h, colX, y + 3);
-          colX += colWidths[i];
-        });
-        y += 8;
-      }
-      
-      const isIncome = t.type === 'income';
-      const src = t.source || 'cash';
-      const dateLabel = new Date(t.date).toLocaleDateString('it-IT', { day:'2-digit', month:'2-digit', year:'2-digit' });
-      const amountSign = isIncome ? '+' : '-';
-      const amountColor = isIncome ? [92, 184, 92] : [231, 76, 60];
-      
-      // Riga movimenti
-      doc.setFontSize(9);
-      doc.setFont('helvetica', 'normal');
-      
-      colX = margin;
-      
-      // Transazione: data + descrizione
-      doc.setTextColor(26, 43, 60);
-      // Rimuovi le emoji dalla descrizione
-      let desc = (t.description || t.category || '').substring(0, 25);
-      desc = desc.replace(/[\u{1F600}-\u{1F6FF}]/gu, '').trim(); // Rimuovi emoji
-      doc.text(`${dateLabel} · ${desc}`, colX + 2, y + 4);
-      colX += colWidths[0];
-      
-      // Metodo (fonte) - con badge senza emoji
-      drawBadge(doc, colX + 2, y + 4, src);
-      colX += colWidths[1];
-      
-      // Giustificativo (categoria) - rimuovi emoji
-      doc.setTextColor(108, 117, 125);
-      let category = t.category || '—';
-      category = category.replace(/[\u{1F600}-\u{1F6FF}]/gu, '').trim(); // Rimuovi emoji
-      doc.text(category || '—', colX + 2, y + 4);
-      colX += colWidths[2];
-      
-      // Importo
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(amountColor[0], amountColor[1], amountColor[2]);
-      const amountText = `${amountSign}${fmtEUR(amountValue(t.amount))}`;
-      doc.text(amountText, colX + 2, y + 4);
-      
-      // Linea separatrice
-      doc.setDrawColor(240, 242, 245);
-      doc.setLineWidth(0.3);
-      doc.line(margin, y + 6.5, pageWidth - margin, y + 6.5);
-      
-      y += lineHeight;
-      rowCount++;
-    });
-
-    // === FOOTER ===
-    y = pageHeight - 12;
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(173, 181, 189);
-    doc.text(`${mt.length} transazioni · Generato il ${new Date().toLocaleDateString('it-IT')}`, margin, y);
-    
-    // Numero pagina
-    const pageCount = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(7);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(173, 181, 189);
-      doc.text(`Pagina ${i}/${pageCount}`, pageWidth - margin - 15, pageHeight - 8);
-    }
-    
-    doc.save(`budget-famiglia-${todayISO()}.pdf`);
-  } catch(err) {
-    alert('Errore PDF: ' + err.message);
-    console.error(err);
-  } finally {
-    showLoading(false);
-  }
-}
-async function generateStatsPDF() {
-showLoading(true);
-try {
-const { jsPDF } = window.jspdf;
-const doc = new jsPDF('p', 'mm', 'a4');
-const pageWidth = doc.internal.pageSize.getWidth();
-const margin = 15;
-let y = 20;
-const year = document.getElementById('chart-year')?.value || new Date().getFullYear().toString();
-const month = document.getElementById('chart-month')?.value || monthKey(todayISO());
-doc.setFillColor(74, 144, 217);
-doc.rect(0, 0, pageWidth, 40, 'F');
-doc.setTextColor(255, 255, 255);
-doc.setFontSize(22);
-doc.setFont('helvetica', 'bold');
-doc.text('Statistiche', margin, 24);
-doc.setFontSize(11);
-doc.setFont('helvetica', 'normal');
-doc.text(`Anno ${year}`, margin, 32);
-y = 55;
-doc.setTextColor(26, 43, 60);
-doc.setFontSize(14);
-doc.setFont('helvetica', 'bold');
-doc.text(`Riepilogo annuale ${year}`, margin, y);
-y += 10;
-const cardWidth = (pageWidth - 2*margin - 12) / 4;
-const uniqueCats = new Set(state.transactions.filter(t => t.type === 'expense').map(t => t.category));
-const totalIncome = state.transactions.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0);
-const totalExpense = state.transactions.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0);
-const stats = [
-{ label: 'ENTRATE TOTALI', value: fmtEUR(totalIncome), color: [92, 184, 92] },
-{ label: 'USCITE TOTALI', value: fmtEUR(totalExpense), color: [231, 76, 60] },
-{ label: 'RISPARMIO ANNUALE', value: fmtEUR(totalIncome - totalExpense), color: [74, 144, 217] },
-{ label: 'CATEGORIE SPESE', value: uniqueCats.size.toString(), color: [155, 89, 182] }
-];
-stats.forEach((stat, i) => {
-const x = margin + i * (cardWidth + 4);
-doc.setFillColor(232, 240, 248);
-doc.roundedRect(x, y, cardWidth, 28, 4, 4, 'F');
-doc.setTextColor(90, 107, 124);
-doc.setFontSize(8);
-doc.setFont('helvetica', 'bold');
-doc.text(stat.label, x + 3, y + 10);
-doc.setTextColor(stat.color[0], stat.color[1], stat.color[2]);
-doc.setFontSize(13);
-doc.text(stat.value, x + 3, y + 22);
-});
-doc.addPage();
-y = 20;
-doc.setTextColor(26, 43, 60);
-doc.setFontSize(14);
-doc.setFont('helvetica', 'bold');
-doc.text(`Dettaglio mensile ${year}`, margin, y);
-y += 10;
-const months = Array.from({length:12}, (_,i) => `${year}-${String(i+1).padStart(2,'0')}`);
-const incomes = months.map(m => state.transactions.filter(t => t.type==='income' && monthKey(t.date)===m).reduce((s,t)=>s+amountValue(t.amount),0));
-const expenses = months.map(m => state.transactions.filter(t => t.type==='expense' && monthKey(t.date)===m).reduce((s,t)=>s+amountValue(t.amount),0));
-const yearColWidths = [30, 45, 45, 45];
-const yearHeaders = ['Mese', 'Entrate', 'Uscite', 'Saldo'];
-const yearRows = months.map((m, i) => {
-const bal = incomes[i] - expenses[i];
-const mLabel = new Date(+year, i, 1).toLocaleDateString('it-IT', { month:'short' });
-return {
-cells: [
-{ text: mLabel.charAt(0).toUpperCase() + mLabel.slice(1) },
-{ text: fmtEUR(incomes[i]), color: [92, 184, 92] },
-{ text: fmtEUR(expenses[i]), color: [231, 76, 60] },
-{ text: fmtEUR(bal), color: bal >= 0 ? [92, 184, 92] : [231, 76, 60] }
-]
-};
-});
-y = drawPDFTable(doc, yearHeaders, yearRows, margin, y, yearColWidths, pageWidth);
-doc.addPage();
-y = 20;
-doc.setTextColor(26, 43, 60);
-doc.setFontSize(14);
-doc.setFont('helvetica', 'bold');
-doc.text(`Entrate vs Uscite - Anno ${year}`, margin, y);
-y += 15;
-updateChartYear();
-await new Promise(resolve => setTimeout(resolve, 1500));
-try {
-const yearChartCanvas = document.getElementById('yearChart');
-const yearChartImg = yearChartCanvas.toDataURL('image/png', 1.0);
-if (yearChartImg && yearChartImg.length > 1000) {
-const imgWidth = pageWidth - 2*margin;
-const imgHeight = 90;
-doc.addImage(yearChartImg, 'PNG', margin, y, imgWidth, imgHeight);
-y += imgHeight + 10;
-} else {
-doc.setTextColor(156, 163, 175);
-doc.setFontSize(10);
-doc.text('Grafico non disponibile', margin, y);
-y += 20;
-}
-} catch (imgErr) {
-console.error('Errore cattura grafico:', imgErr);
-doc.setTextColor(156, 163, 175);
-doc.setFontSize(10);
-doc.text('Grafico non disponibile', margin, y);
-y += 20;
-}
-doc.addPage();
-y = 20;
-doc.setTextColor(26, 43, 60);
-doc.setFontSize(14);
-doc.setFont('helvetica', 'bold');
-doc.text(`Residuo mensile - Anno ${year}`, margin, y);
-y += 10;
-const residuoColWidths = [30, 35, 35, 35, 40];
-const residuoHeaders = ['Mese', 'Entrate', 'Uscite', 'Saldo', 'Residuo'];
-let runningTotalPDF = 0;
-state.transactions.forEach(t => { if (t.date.slice(0,4) < year) runningTotalPDF += t.type === 'income' ? amountValue(t.amount) : -amountValue(t.amount); });
-const residuoRows = months.map((m, i) => {
-const mt = state.transactions.filter(t => monthKey(t.date) === m);
-const inc = mt.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0);
-const exp = mt.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0);
-const saldoMese = inc - exp;
-runningTotalPDF += saldoMese;
-const mLabel = new Date(+year, i, 1).toLocaleDateString('it-IT', { month:'short' });
-return {
-cells: [
-{ text: mLabel.charAt(0).toUpperCase() + mLabel.slice(1) },
-{ text: fmtEUR(inc), color: [92, 184, 92] },
-{ text: fmtEUR(exp), color: [231, 76, 60] },
-{ text: fmtEUR(saldoMese), color: saldoMese >= 0 ? [92, 184, 92] : [231, 76, 60] },
-{ text: fmtEUR(runningTotalPDF), color: runningTotalPDF >= 0 ? [92, 184, 92] : [231, 76, 60] }
-]
-};
-});
-y = drawPDFTable(doc, residuoHeaders, residuoRows, margin, y, residuoColWidths, pageWidth);
-y += 10;
-doc.setTextColor(26, 43, 60);
-doc.setFontSize(14);
-doc.setFont('helvetica', 'bold');
-doc.text(`Grafico Andamento Residuo`, margin, y);
-y += 15;
-updateChartResiduo();
-await new Promise(resolve => setTimeout(resolve, 1500));
-try {
-const residuoChartCanvas = document.getElementById('residuoChart');
-const residuoChartImg = residuoChartCanvas.toDataURL('image/png', 1.0);
-if (residuoChartImg && residuoChartImg.length > 1000) {
-const imgWidth = pageWidth - 2*margin;
-const imgHeight = 90;
-doc.addImage(residuoChartImg, 'PNG', margin, y, imgWidth, imgHeight);
-y += imgHeight + 10;
-} else {
-doc.setTextColor(156, 163, 175);
-doc.setFontSize(10);
-doc.text('Grafico non disponibile', margin, y);
-y += 20;
-}
-} catch (imgErr) {
-console.error('Errore cattura grafico:', imgErr);
-doc.setTextColor(156, 163, 175);
-doc.setFontSize(10);
-doc.text('Grafico non disponibile', margin, y);
-y += 20;
-}
-doc.addPage();
-y = 20;
-doc.setTextColor(26, 43, 60);
-doc.setFontSize(14);
-doc.setFont('helvetica', 'bold');
-doc.text(`Spese per categoria - ${monthLabel(month)}`, margin, y);
-y += 15;
-updateChartCategory();
-await new Promise(resolve => setTimeout(resolve, 1500));
-try {
-const categoryChartCanvas = document.getElementById('categoryChart');
-const categoryChartImg = categoryChartCanvas.toDataURL('image/png', 1.0);
-if (categoryChartImg && categoryChartImg.length > 1000) {
-const imgWidth = pageWidth - 2*margin;
-const imgHeight = 90;
-doc.addImage(categoryChartImg, 'PNG', margin, y, imgWidth, imgHeight);
-y += imgHeight + 10;
-} else {
-doc.setTextColor(156, 163, 175);
-doc.setFontSize(10);
-doc.text('Grafico non disponibile', margin, y);
-y += 20;
-}
-} catch (imgErr) {
-console.error('Errore cattura grafico:', imgErr);
-doc.setTextColor(156, 163, 175);
-doc.setFontSize(10);
-doc.text('Grafico non disponibile', margin, y);
-y += 20;
-}
-y += 10;
-doc.setTextColor(26, 43, 60);
-doc.setFontSize(14);
-doc.setFont('helvetica', 'bold');
-doc.text(`Dettaglio spese per categoria`, margin, y);
-y += 10;
-const byCategory = {};
-state.transactions.filter(t => t.type === 'expense' && monthKey(t.date) === month).forEach(t => { byCategory[t.category] = (byCategory[t.category] || 0) + amountValue(t.amount); });
-const cats = Object.keys(byCategory).sort((a,b) => byCategory[b] - byCategory[a]);
-if (cats.length > 0) {
-const catColWidths = [70, 50, 40];
-const catHeaders = ['Categoria', 'Importo', '%'];
-const totalCat = cats.reduce((s,c) => s + byCategory[c], 0);
-const catRows = cats.map((c, i) => {
-const pct = Math.round((byCategory[c] / totalCat) * 100);
-return {
-cells: [
-{ text: c },
-{ text: fmtEUR(byCategory[c]), color: [26, 43, 60] },
-{ text: pct + '%', color: [90, 107, 124] }
-]
-};
-});
-y = drawPDFTable(doc, catHeaders, catRows, margin, y, catColWidths, pageWidth);
-} else {
-doc.setTextColor(156, 163, 175);
-doc.setFontSize(10);
-doc.text('Nessuna spesa nel mese selezionato', margin, y + 5);
-}
-const pageCount = doc.internal.getNumberOfPages();
-for (let i = 1; i <= pageCount; i++) {
-doc.setPage(i);
-doc.setFontSize(8);
-doc.setTextColor(138, 155, 172);
-doc.text(`Budget di Famiglia · Pagina ${i}/${pageCount}`, pageWidth/2, 290, { align: 'center' });
-}
-doc.save(`statistiche-${year}.pdf`);
-} catch(err) {
-alert('Errore PDF: ' + err.message);
-console.error(err);
-} finally {
-showLoading(false);
-}
-}
-  
-  // ===== ORA TUTTE LE FUNZIONI =====
-  function attachBollettaYearListener() {
-    if (bollettaListenerAttached) {
-      console.log('ℹ️ Listener già attaccato');
-      return;
-    }
-    
-    const select = document.getElementById('bolletta-year-filter');
-    if (!select) {
-      console.warn('⚠️ Select bolletta-year-filter non trovato');
-      return;
-    }
-    
-    select.removeEventListener('change', handleYearChange);
-    select.addEventListener('change', handleYearChange);
-    
-    bollettaListenerAttached = true;
-    console.log('✅ Listener change attaccato DIRETTAMENTE al select');
-  }
-  
-  function handleYearChange(e) {
-    console.log('🔄 Cambio anno MANUALE dal select:', this.value);
-    renderBolletteList();
-  }
-  
-// 1. Popola il filtro anno
-function populateBollettaYearFilter() {
-  const select = document.getElementById('bolletta-year-filter');
-  if (!select) return;
-  
-  const currentYear = new Date().getFullYear();
-  const years = new Set();
-  years.add(currentYear);
-  years.add(currentYear - 1);
-  years.add(currentYear - 2);
-  
-  // Aggiungi anni dalle bollette esistenti
-  Object.keys(bolletteData).forEach(tipo => {
-    if (bolletteData[tipo] && typeof bolletteData[tipo] === 'object') {
-      Object.keys(bolletteData[tipo]).forEach(mese => {
-        const y = mese.split('-')[0];
-        if (y) years.add(parseInt(y));
-      });
-    }
-  });
-  
-  const currentValue = select.value;
-  select.innerHTML = '';
-  
-  Array.from(years).sort((a, b) => b - a).forEach(year => {
-    const option = document.createElement('option');
-    option.value = year;
-    option.textContent = year;
-    select.appendChild(option);
-  });
-  
-  // Ripristina il valore se esiste, altrimenti imposta l'anno corrente
-  if (currentValue && [...select.options].some(o => o.value === currentValue)) {
-    select.value = currentValue;
-  } else {
-    select.value = currentYear;
-  }
-  
-  // Attacca il listener DOPO che il select è stato popolato
-  attachBollettaYearListener();
-  
-  console.log('✅ Filtro anno popolato, valore:', select.value);
-}
-
-
-// 3. Funzione handler per il cambio anno (separata per poterla rimuovere)
-function handleYearChange(e) {
-  console.log('🔄 Cambio anno MANUALE dal select:', this.value);
-  renderBolletteList(); // aggiorna la tabella
-}
-
-// 4. Renderizza la tabella (usa il valore corrente del select)
-function renderBolletteList() {
-  const year = document.getElementById('bolletta-year-filter')?.value || new Date().getFullYear().toString();
-  console.log('📊 renderBolletteList con anno:', year);
-  
-  const tbody = document.getElementById('bolletta-table-body');
-  const tfoot = document.getElementById('bolletta-table-foot');
-  if (!tbody) return;
-  tbody.innerHTML = '';
-  if (tfoot) tfoot.innerHTML = '';
-  
-  let totalGas = 0, totalLuce = 0, totalAcqua = 0;
-  
-  // Usa FILTER_MONTHS (assicurati che sia definito)
-  const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
-  
-  monthNames.forEach((monthName, monthIndex) => {
-    const monthNum = monthIndex + 1;
-    const meseKey = `${year}-${String(monthNum).padStart(2, '0')}`;
-    const tr = document.createElement('tr');
-    const tdMonth = document.createElement('td');
-    tdMonth.className = 'bolletta-cell-month';
-    tdMonth.textContent = monthName;
-    tr.appendChild(tdMonth);
-    
-    const tdGas = document.createElement('td');
-    renderBollettaCell(tdGas, 'gas', meseKey, monthName);
-    tr.appendChild(tdGas);
-    
-    const tdLuce = document.createElement('td');
-    renderBollettaCell(tdLuce, 'luce', meseKey, monthName);
-    tr.appendChild(tdLuce);
-    
-    const tdAcqua = document.createElement('td');
-    renderBollettaCell(tdAcqua, 'acqua', meseKey, monthName);
-    tr.appendChild(tdAcqua);
-    
-    const tdTotal = document.createElement('td');
-    const gasImporto = getBollettaImporto('gas', meseKey);
-    const luceImporto = getBollettaImporto('luce', meseKey);
-    const acquaImporto = getBollettaImporto('acqua', meseKey);
-    const meseTotal = gasImporto + luceImporto + acquaImporto;
-    totalGas += gasImporto;
-    totalLuce += luceImporto;
-    totalAcqua += acquaImporto;
-    
-    if (meseTotal > 0) {
-      tdTotal.className = 'bolletta-cell-total';
-      tdTotal.textContent = meseTotal.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
-    } else {
-      tdTotal.className = 'bolletta-cell-empty';
-      tdTotal.textContent = '—';
-    }
-    tr.appendChild(tdTotal);
-    tbody.appendChild(tr);
-  });
-  
-  if (tfoot && (totalGas > 0 || totalLuce > 0 || totalAcqua > 0)) {
-    const grandTotal = totalGas + totalLuce + totalAcqua;
-    tfoot.innerHTML = `
-      <tr>
-        <td>TOTALE ANNUO ${year}</td>
-        <td>${totalGas.toFixed(2)} €</td>
-        <td>${totalLuce.toFixed(2)} €</td>
-        <td>${totalAcqua.toFixed(2)} €</td>
-        <td>${grandTotal.toFixed(2)} €</td>
-      </tr>
-    `;
-  }
-}
-
-// 5. Caricamento dati bollette
-async function loadBolletteData() {
-  if (!currentUser) return;
-  if (unsubscribeBollette) {
-    unsubscribeBollette();
-    unsubscribeBollette = null;
-  }
-  try {
-    unsubscribeBollette = db.collection('bollette').doc(currentUser.uid).onSnapshot((doc) => {
-      if (doc.exists) {
-        bolletteData = doc.data() || {};
-      } else {
-        bolletteData = {};
-      }
-      
-      // Aggiorna le opzioni del filtro
-      populateBollettaYearFilter();
-      
-      // Se la pagina è attiva, ridisegna la tabella
-      if (document.getElementById('page-bollette')?.classList?.contains('active')) {
-        renderBolletteList();
-      }
-    }, (err) => {
-      console.error('Errore caricamento bollette:', err);
-      bolletteData = {};
-    });
-  } catch (err) {
-    console.error('Errore setup bollette:', err);
-    bolletteData = {};
-  }
-}
-
-// 6. Popola il select del mese per il modale
-function populateBollettaMeseSelect() {
-  const select = document.getElementById('bolletta-mese');
-  if (!select) return;
-  const currentYear = new Date().getFullYear();
-  const currentMonth = new Date().getMonth() + 1;
-  select.innerHTML = '';
-  for (let year = currentYear; year >= currentYear - 2; year--) {
-    for (let month = 12; month >= 1; month--) {
-      if (year === currentYear && month > currentMonth) continue;
-      const value = `${year}-${String(month).padStart(2, '0')}`;
-      const label = `${FILTER_MONTHS[month - 1]} ${year}`;
-      const option = document.createElement('option');
-      option.value = value;
-      option.textContent = label;
-      select.appendChild(option);
-    }
-  }
-  const currentMonthKey = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
-  select.value = currentMonthKey;
-  populateBollettaYearFilter();
-}
-
-// 7. Funzioni helper
-function getBollettaImporto(tipo, meseKey) {
-  const attachments = (bolletteData[tipo] && bolletteData[tipo][meseKey]) || [];
-  if (attachments.length === 0) return 0;
-  const bolletta = attachments[attachments.length - 1];
-  return bolletta.importo || 0;
-}
-
-function renderBollettaCell(td, tipo, meseKey, monthName) {
-  const attachments = (bolletteData[tipo] && bolletteData[tipo][meseKey]) || [];
-  if (attachments.length === 0) {
-    td.className = 'bolletta-cell-empty';
-    td.textContent = '—';
-    return;
-  }
-  td.className = 'bolletta-cell-attachment';
-  const bolletta = attachments[attachments.length - 1];
-  const importoFormattato = bolletta.importo.toLocaleString('it-IT', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  }) + ' €';
-  
-  td.innerHTML = `<span style="font-weight:700; font-size:15px;">${importoFormattato}</span>`;
-  
-  if (attachments.length > 1) {
-    td.innerHTML += ` <span class="bolletta-multi-badge">+${attachments.length - 1}</span>`;
-  }
-  
-  td.addEventListener('click', function(e) {
-    e.stopPropagation();
-    openBollettaDetail(tipo, meseKey, attachments.length - 1);
-  });
-}
-
-// ... resto delle funzioni (openBollettaDetail, closeBollettaDetail, deleteBollettaFromDetail, ecc.)
-
-function getBollettaImporto(tipo, meseKey) {
-const attachments = (bolletteData[tipo] && bolletteData[tipo][meseKey]) || [];
-if (attachments.length === 0) return 0;
-const bolletta = attachments[attachments.length - 1];
-return bolletta.importo || 0;
-}
-function renderBollettaCell(td, tipo, meseKey, monthName) {
-  const attachments = (bolletteData[tipo] && bolletteData[tipo][meseKey]) || [];
-  if (attachments.length === 0) {
-    td.className = 'bolletta-cell-empty';
-    td.textContent = '—';
-    return;
-  }
-  td.className = 'bolletta-cell-attachment';
-  const bolletta = attachments[attachments.length - 1];
-  const importoFormattato = bolletta.importo.toLocaleString('it-IT', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  }) + ' €';
-  
-  // Mostra solo l'importo (senza fornitore e data)
-  td.innerHTML = `<span style="font-weight:700; font-size:15px;">${importoFormattato}</span>`;
-  
-  // Aggiungi indicatore se ci sono più bollette
-  if (attachments.length > 1) {
-    td.innerHTML += ` <span class="bolletta-multi-badge">+${attachments.length - 1}</span>`;
-  }
-  
-  // Mantieni il click per i dettagli
-  td.addEventListener('click', function(e) {
-    e.stopPropagation();
-    openBollettaDetail(tipo, meseKey, attachments.length - 1);
-  });
-}
-function openBollettaDetail(tipo, meseKey, index) {
-  const attachments = bolletteData[tipo]?.[meseKey];
-  if (!attachments || !attachments[index]) return;
-  
-  bollettaDetailData = { tipo, meseKey, index };
-  const bolletta = attachments[index];
-  
-  document.getElementById('bolletta-detail-name').textContent = bolletta.nome;
-  document.getElementById('bolletta-detail-fornitore').textContent = bolletta.fornitore || '—';
-  document.getElementById('bolletta-detail-importo').innerHTML = `<span style="font-size:20px; font-weight:800; color:var(--accent);">${bolletta.importo.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>`;
-  document.getElementById('bolletta-detail-date').textContent = new Date(bolletta.dataCaricamento).toLocaleDateString('it-IT', { day:'2-digit', month:'long', year:'numeric' });
-  document.getElementById('bolletta-detail-overlay').style.display = 'flex';
-  
-  // === ATTACCA IL LISTENER PER IL DOWNLOAD ===
-  const downloadBtn = document.getElementById('bolletta-detail-download');
-  if (downloadBtn) {
-    // Rimuovi listener vecchi clonando
-    const newBtn = downloadBtn.cloneNode(true);
-    downloadBtn.parentNode.replaceChild(newBtn, downloadBtn);
-    
-    newBtn.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      console.log('🖱️ Click su Scarica Bolletta');
-      
-      if (!bollettaDetailData) {
-        alert('Nessuna bolletta selezionata');
-        return;
-      }
-      
-      const { tipo, meseKey, index } = bollettaDetailData;
-      const bolletta = bolletteData[tipo]?.[meseKey]?.[index];
-      
-      if (!bolletta) {
-        alert('Bolletta non trovata');
-        return;
-      }
-      
-      try {
-        const link = document.createElement('a');
-        link.href = bolletta.url;
-        link.download = bolletta.nome;
-        link.target = '_blank';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        console.log('✅ Download avviato:', bolletta.nome);
-      } catch (err) {
-        alert('Errore nel download: ' + err.message);
-        console.error('❌ Errore download:', err);
-      }
-    });
-    console.log('✅ Listener Scarica attaccato al dettaglio');
-  }
-}
-function closeBollettaDetail() {
-document.getElementById('bolletta-detail-overlay').style.display = 'none';
-bollettaDetailData = null;
-}
-// La tua funzione (senza il doppio confirm, visto che lo facciamo prima del click, oppure lo teniamo qui)
-async function deleteBollettaFromDetail() {
-    if (!bollettaDetailData) return;
-    
-    // Il confirm ora è solo qui, non serve più nell'HTML
-    if (!confirm('Eliminare questa bolletta?')) return;
-    
-    const { tipo, meseKey, index } = bollettaDetailData;
-    const bolletta = bolletteData[tipo]?.[meseKey]?.[index];
-    if (!bolletta) return;
-    
-    try {
-        if (bolletta.storagePath) {
-            const fileRef = storage.ref().child(bolletta.storagePath);
-            await fileRef.delete();
-        }
-        
-        bolletteData[tipo][meseKey].splice(index, 1);
-        if (bolletteData[tipo][meseKey].length === 0) {
-            delete bolletteData[tipo][meseKey];
-        }
-        
-        await saveBolletteData(currentUser.uid);
-        closeBollettaDetail();
-        renderBolletteList();
-        
-    } catch (err) {
-        alert('Errore nell\'eliminazione: ' + err.message);
-    }
-}
-
-// Quando la pagina ha finito di caricare, colleghiamo il bottone alla funzione
 document.addEventListener('DOMContentLoaded', () => {
     const btnDelete = document.getElementById('bolletta-detail-delete');
     
@@ -8696,9 +7837,6 @@ function showNewEventModal() {
   });
 }
 document.addEventListener('DOMContentLoaded', function() {
-  // === AGGIUNGI QUI ===
-  initCatEditModalListeners();
-  
   // Navigazione mesi
   const btnPrec = document.getElementById('btn-mese-prec');
   const btnSucc = document.getElementById('btn-mese-succ');
