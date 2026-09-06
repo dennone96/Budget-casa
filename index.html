@@ -3297,34 +3297,90 @@ border-radius: var(--radius-sm);
   #page-home > div[style*="margin-bottom: 1rem"],
   #page-home > .search-bar,
   #page-home > .source-filter { margin-left: 14px; margin-right: 14px; }
-  #page-home .stats-row-top { gap: 10px; }
-  #page-home .stats-row-bottom { gap: 12px; }
-  #page-home .stat-card {
-    min-height: 148px;
-    padding: 22px 12px 20px 84px;
-    border-radius: 23px;
+
+  /* --- Schede statistiche: layout mobile compatto e senza sovrapposizioni --- */
+  #page-home .stats-row-top {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 10px;
   }
+  #page-home .stats-row-bottom {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  #page-home .stat-card {
+    position: relative;
+    min-width: 0;
+    width: 100%;
+    height: 132px !important;
+    min-height: 132px !important;
+    max-height: 132px !important;
+    padding: 18px 14px !important;
+    border-radius: 23px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    overflow: hidden;
+  }
+  #page-home .stat-card-full {
+    height: 148px !important;
+    min-height: 148px !important;
+    max-height: 148px !important;
+  }
+
+  /* Icona spostata in alto a destra: non copre più testo e importi */
   #page-home .home-stat-icon {
-    left: 15px;
-    top: 20px;
-    width: 52px;
-    height: 52px;
-    font-size: 28px;
+    left: auto !important;
+    right: 12px !important;
+    top: 12px !important;
+    width: 48px !important;
+    height: 48px !important;
+    font-size: 25px !important;
+    flex: 0 0 auto;
   }
   #page-home .stat-card p:first-of-type {
-    margin-top: 1px;
-    margin-bottom: 12px;
-    font-size: 12px;
-    letter-spacing: .7px;
+    position: relative;
+    z-index: 3;
+    width: calc(100% - 4px);
+    max-width: 75%;
+    margin: 0 0 8px !important;
+    font-size: 12px !important;
+    line-height: 1.2;
+    letter-spacing: .6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   #page-home .stat-card p:last-child {
-    font-size: clamp(23px, 7vw, 34px);
-    letter-spacing: -1.2px;
+    position: relative;
+    z-index: 3;
+    width: 100%;
+    margin: 0 !important;
+    font-size: clamp(20px, 6vw, 28px) !important;
+    line-height: 1.05;
+    letter-spacing: -1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
-  #page-home .stat-card-full { min-height: 138px; }
+  #page-home .stat-card-full p:first-of-type {
+    max-width: 70%;
+  }
+  #page-home .stat-card-full p:last-child {
+    font-size: clamp(24px, 7vw, 34px) !important;
+  }
   #page-home > .panel { padding: 16px; border-radius: 23px; }
   #page-home #btn-nuovo-movimento { height: 62px !important; font-size: 18px !important; border-radius: 22px !important; }
   #page-home #btn-nuovo-movimento i { font-size: 26px !important; }
+}
+
+@media (max-width: 380px) {
+  #page-home .stat-card { height: 124px !important; min-height: 124px !important; max-height: 124px !important; padding: 16px 12px !important; }
+  #page-home .stat-card-full { height: 140px !important; min-height: 140px !important; max-height: 140px !important; }
+  #page-home .home-stat-icon { width: 44px !important; height: 44px !important; right: 10px !important; top: 10px !important; font-size: 23px !important; }
+  #page-home .stat-card p:first-of-type { font-size: 11px !important; }
+  #page-home .stat-card p:last-child { font-size: 19px !important; }
+  #page-home .stat-card-full p:last-child { font-size: 23px !important; }
 }
 
 </style>
