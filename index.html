@@ -2730,6 +2730,33 @@ border-radius: var(--radius-sm);
   background: var(--danger-light);
 }
 
+.evento-card .evento-edit {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px 8px;
+  transition: all 0.2s;
+  border-radius: var(--radius-sm);
+}
+.evento-card .evento-edit:hover {
+  color: var(--accent);
+  background: var(--accent-light);
+}
+.evento-all-day-toggle {
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:12px 14px; background:var(--surface-2); border-radius:var(--radius-sm);
+  margin-top:4px;
+}
+.evento-switch { position:relative; display:inline-block; width:46px; height:24px; flex:0 0 auto; }
+.evento-switch input { opacity:0; width:0; height:0; }
+.evento-slider { position:absolute; inset:0; cursor:pointer; background:#c9ced6; border-radius:999px; transition:.2s; }
+.evento-slider:before { content:''; position:absolute; width:18px; height:18px; left:3px; top:3px; background:#fff; border-radius:50%; transition:.2s; box-shadow:0 1px 3px rgba(0,0,0,.25); }
+.evento-switch input:checked + .evento-slider { background:var(--accent); }
+.evento-switch input:checked + .evento-slider:before { transform:translateX(22px); }
+.evento-time-wrap.hidden { display:none; }
+
 /* Modale evento */
 .evento-modal-overlay {
   position: fixed;
@@ -4331,7 +4358,8 @@ function renderEventsForDay(dateStr) {
       <div class="evento-card">
         <div class="evento-ora">${event.ora || 'Tutto il giorno'}</div>
         <div class="evento-titolo">${escapeHtml(event.titolo)}</div>
-        <button class="evento-delete" data-index="${index}" data-date="${dateStr}">✕</button>
+        <button class="evento-edit" data-index="${index}" data-date="${dateStr}" title="Modifica evento">✎</button>
+        <button class="evento-delete" data-index="${index}" data-date="${dateStr}" title="Elimina evento">✕</button>
       </div>
     `;
   });
@@ -4340,90 +4368,122 @@ function renderEventsForDay(dateStr) {
 }
 
 // Mostra il modale per nuovo evento
-function showNewEventModal() {
-  console.log('📝 Apertura modale nuovo evento');
-  
+function showNewEventModal(editDate = null, editIndex = null) {
+  const isEdit = editDate !== null && editIndex !== null;
+  const dateStr = isEdit ? editDate : selectedDate.toISOString().slice(0, 10);
+  const existing = isEdit && eventsData[dateStr] && eventsData[dateStr][editIndex] ? eventsData[dateStr][editIndex] : null;
+  if (isEdit && !existing) return;
+
   const overlay = document.createElement('div');
   overlay.className = 'evento-modal-overlay open';
   overlay.id = 'evento-modal-overlay';
+
+  const existingAllDay = existing ? (existing.allDay === true || existing.tuttoGiorno === true || !existing.ora || existing.ora === 'Tutto il giorno') : false;
+  const existingOra = existing && !existingAllDay ? (existing.ora || '') : '';
+
   overlay.innerHTML = `
     <div class="evento-modal">
-      <h3>📝 Nuovo evento</h3>
-      <p>Inserisci i dettagli dell'evento per il giorno selezionato</p>
-      
+      <h3>${isEdit ? '✏️ Modifica evento' : '📝 Nuovo evento'}</h3>
+      <p>${isEdit ? "Modifica i dettagli dell'evento" : "Inserisci i dettagli dell'evento per il giorno selezionato"}</p>
+
       <div class="campo">
         <label>Titolo evento *</label>
-        <input type="text" id="evento-titolo-input" placeholder="es. Riunione famiglia" autofocus>
+        <input type="text" id="evento-titolo-input" placeholder="es. Riunione famiglia" value="${existing ? escapeHtml(existing.titolo || '') : ''}" autofocus>
       </div>
-      
-      <div class="campo">
+
+      <div class="campo evento-time-wrap ${existingAllDay ? 'hidden' : ''}" id="evento-time-wrap">
         <label>Ora</label>
-        <input type="time" id="evento-ora-input">
+        <input type="time" id="evento-ora-input" value="${existingOra}">
       </div>
-      
+
+      <div class="evento-all-day-toggle">
+        <div>
+          <div style="font-weight:700; font-size:14px;">Tutto il giorno</div>
+          <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">L'evento non ha un orario specifico</div>
+        </div>
+        <label class="evento-switch" title="Evento per tutta la giornata">
+          <input type="checkbox" id="evento-all-day-input" ${existingAllDay ? 'checked' : ''}>
+          <span class="evento-slider"></span>
+        </label>
+      </div>
+
       <div class="campo">
         <label>Note (opzionale)</label>
-        <textarea id="evento-note-input" placeholder="Aggiungi dettagli..."></textarea>
+        <textarea id="evento-note-input" placeholder="Aggiungi dettagli...">${existing ? escapeHtml(existing.note || '') : ''}</textarea>
       </div>
-      
+
       <div class="modal-actions">
         <button class="btn-cancel" id="evento-modal-cancel">Annulla</button>
-        <button class="btn-create" id="evento-modal-create">Crea evento</button>
+        <button class="btn-create" id="evento-modal-create">${isEdit ? 'Salva modifiche' : 'Crea evento'}</button>
       </div>
     </div>
   `;
-  
+
   document.body.appendChild(overlay);
-  
-  setTimeout(() => {
-    const input = document.getElementById('evento-titolo-input');
-    if (input) input.focus();
-  }, 100);
-  
-  document.getElementById('evento-modal-cancel').addEventListener('click', function() {
-    overlay.remove();
-  });
-  
+
+  const titoloInput = document.getElementById('evento-titolo-input');
+  const oraInput = document.getElementById('evento-ora-input');
+  const noteInput = document.getElementById('evento-note-input');
+  const allDayInput = document.getElementById('evento-all-day-input');
+  const timeWrap = document.getElementById('evento-time-wrap');
+
+  function updateTimeVisibility() {
+    if (timeWrap) timeWrap.classList.toggle('hidden', !!allDayInput.checked);
+    if (oraInput) oraInput.disabled = !!allDayInput.checked;
+  }
+  allDayInput.addEventListener('change', updateTimeVisibility);
+  updateTimeVisibility();
+
+  setTimeout(() => { if (titoloInput) titoloInput.focus(); }, 100);
+
+  document.getElementById('evento-modal-cancel').addEventListener('click', () => overlay.remove());
+
   document.getElementById('evento-modal-create').addEventListener('click', async function() {
-    const titolo = document.getElementById('evento-titolo-input').value.trim();
-    const ora = document.getElementById('evento-ora-input').value || 'Tutto il giorno';
-    const note = document.getElementById('evento-note-input').value.trim();
-    
+    const titolo = titoloInput.value.trim();
+    const allDay = !!allDayInput.checked;
+    const ora = allDay ? '' : (oraInput.value || '');
+    const note = noteInput.value.trim();
+
     if (!titolo) {
-      document.getElementById('evento-titolo-input').style.borderColor = '#E74C3C';
-      document.getElementById('evento-titolo-input').style.boxShadow = '0 0 0 4px #FDE8E8';
-      document.getElementById('evento-titolo-input').focus();
+      titoloInput.style.borderColor = '#E74C3C';
+      titoloInput.style.boxShadow = '0 0 0 4px #FDE8E8';
+      titoloInput.focus();
       return;
     }
-    
-    const dateStr = selectedDate.toISOString().slice(0, 10);
-    
-    if (!eventsData[dateStr]) {
-      eventsData[dateStr] = [];
+    if (!allDay && !ora) {
+      oraInput.style.borderColor = '#E74C3C';
+      oraInput.focus();
+      return;
     }
-    
-    eventsData[dateStr].push({
-      titolo: titolo,
-      ora: ora,
-      note: note,
-      createdAt: new Date().toISOString()
-    });
-    
+
+    if (!eventsData[dateStr]) eventsData[dateStr] = [];
+
+    const eventObj = {
+      titolo,
+      ora,
+      allDay,
+      note,
+      createdAt: existing && existing.createdAt ? existing.createdAt : new Date().toISOString()
+    };
+
+    if (isEdit) {
+      eventsData[dateStr][editIndex] = eventObj;
+    } else {
+      eventsData[dateStr].push(eventObj);
+    }
+
     await saveEvents();
     overlay.remove();
     renderCalendar();
+    renderEventsForDay(dateStr);
   });
-  
-  document.getElementById('evento-titolo-input').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-      document.getElementById('evento-modal-create').click();
-    }
+
+  titoloInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') document.getElementById('evento-modal-create').click();
   });
-  
+
   overlay.addEventListener('click', function(e) {
-    if (e.target === overlay) {
-      overlay.remove();
-    }
+    if (e.target === overlay) overlay.remove();
   });
 }
 
@@ -4478,6 +4538,15 @@ document.addEventListener('click', function(e) {
     return;
   }
   
+  // Modifica evento
+  const btnEdit = e.target.closest('.evento-edit');
+  if (btnEdit) {
+    e.preventDefault();
+    e.stopPropagation();
+    showNewEventModal(btnEdit.dataset.date, parseInt(btnEdit.dataset.index, 10));
+    return;
+  }
+
   // Elimina evento
   const btnDelete = e.target.closest('.evento-delete');
   if (btnDelete) {
@@ -8638,13 +8707,22 @@ function renderEventsForDay(dateStr) {
       <div class="evento-card">
         <div class="evento-ora">${event.ora || 'Tutto il giorno'}</div>
         <div class="evento-titolo">${escapeHtml(event.titolo)}</div>
-        <button class="evento-delete" data-index="${index}" data-date="${dateStr}">✕</button>
+        <button class="evento-edit" data-index="${index}" data-date="${dateStr}" title="Modifica evento">✎</button>
+        <button class="evento-delete" data-index="${index}" data-date="${dateStr}" title="Elimina evento">✕</button>
       </div>
     `;
   });
   
   container.innerHTML = html;
   
+  // Event listener per modificare evento
+  container.querySelectorAll('.evento-edit').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      showNewEventModal(this.dataset.date, parseInt(this.dataset.index, 10));
+    });
+  });
+
   // Event listener per eliminare evento
   container.querySelectorAll('.evento-delete').forEach(btn => {
     btn.addEventListener('click', async function() {
@@ -8665,88 +8743,122 @@ function renderEventsForDay(dateStr) {
 }
 
 // Mostra il modale per nuovo evento
-function showNewEventModal() {
+function showNewEventModal(editDate = null, editIndex = null) {
+  const isEdit = editDate !== null && editIndex !== null;
+  const dateStr = isEdit ? editDate : selectedDate.toISOString().slice(0, 10);
+  const existing = isEdit && eventsData[dateStr] && eventsData[dateStr][editIndex] ? eventsData[dateStr][editIndex] : null;
+  if (isEdit && !existing) return;
+
   const overlay = document.createElement('div');
   overlay.className = 'evento-modal-overlay open';
+  overlay.id = 'evento-modal-overlay';
+
+  const existingAllDay = existing ? (existing.allDay === true || existing.tuttoGiorno === true || !existing.ora || existing.ora === 'Tutto il giorno') : false;
+  const existingOra = existing && !existingAllDay ? (existing.ora || '') : '';
+
   overlay.innerHTML = `
     <div class="evento-modal">
-      <h3>📝 Nuovo evento</h3>
-      <p>Inserisci i dettagli dell'evento per il giorno selezionato</p>
-      
+      <h3>${isEdit ? '✏️ Modifica evento' : '📝 Nuovo evento'}</h3>
+      <p>${isEdit ? "Modifica i dettagli dell'evento" : "Inserisci i dettagli dell'evento per il giorno selezionato"}</p>
+
       <div class="campo">
         <label>Titolo evento *</label>
-        <input type="text" id="evento-titolo-input" placeholder="es. Riunione famiglia" autofocus>
+        <input type="text" id="evento-titolo-input" placeholder="es. Riunione famiglia" value="${existing ? escapeHtml(existing.titolo || '') : ''}" autofocus>
       </div>
-      
-      <div class="campo">
+
+      <div class="campo evento-time-wrap ${existingAllDay ? 'hidden' : ''}" id="evento-time-wrap">
         <label>Ora</label>
-        <input type="time" id="evento-ora-input">
+        <input type="time" id="evento-ora-input" value="${existingOra}">
       </div>
-      
+
+      <div class="evento-all-day-toggle">
+        <div>
+          <div style="font-weight:700; font-size:14px;">Tutto il giorno</div>
+          <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">L'evento non ha un orario specifico</div>
+        </div>
+        <label class="evento-switch" title="Evento per tutta la giornata">
+          <input type="checkbox" id="evento-all-day-input" ${existingAllDay ? 'checked' : ''}>
+          <span class="evento-slider"></span>
+        </label>
+      </div>
+
       <div class="campo">
         <label>Note (opzionale)</label>
-        <textarea id="evento-note-input" placeholder="Aggiungi dettagli..."></textarea>
+        <textarea id="evento-note-input" placeholder="Aggiungi dettagli...">${existing ? escapeHtml(existing.note || '') : ''}</textarea>
       </div>
-      
+
       <div class="modal-actions">
         <button class="btn-cancel" id="evento-modal-cancel">Annulla</button>
-        <button class="btn-create" id="evento-modal-create">Crea evento</button>
+        <button class="btn-create" id="evento-modal-create">${isEdit ? 'Salva modifiche' : 'Crea evento'}</button>
       </div>
     </div>
   `;
-  
+
   document.body.appendChild(overlay);
-  
-  setTimeout(() => {
-    const input = document.getElementById('evento-titolo-input');
-    if (input) input.focus();
-  }, 100);
-  
-  document.getElementById('evento-modal-cancel').addEventListener('click', function() {
-    overlay.remove();
-  });
-  
+
+  const titoloInput = document.getElementById('evento-titolo-input');
+  const oraInput = document.getElementById('evento-ora-input');
+  const noteInput = document.getElementById('evento-note-input');
+  const allDayInput = document.getElementById('evento-all-day-input');
+  const timeWrap = document.getElementById('evento-time-wrap');
+
+  function updateTimeVisibility() {
+    if (timeWrap) timeWrap.classList.toggle('hidden', !!allDayInput.checked);
+    if (oraInput) oraInput.disabled = !!allDayInput.checked;
+  }
+  allDayInput.addEventListener('change', updateTimeVisibility);
+  updateTimeVisibility();
+
+  setTimeout(() => { if (titoloInput) titoloInput.focus(); }, 100);
+
+  document.getElementById('evento-modal-cancel').addEventListener('click', () => overlay.remove());
+
   document.getElementById('evento-modal-create').addEventListener('click', async function() {
-    const titolo = document.getElementById('evento-titolo-input').value.trim();
-    const ora = document.getElementById('evento-ora-input').value || 'Tutto il giorno';
-    const note = document.getElementById('evento-note-input').value.trim();
-    
+    const titolo = titoloInput.value.trim();
+    const allDay = !!allDayInput.checked;
+    const ora = allDay ? '' : (oraInput.value || '');
+    const note = noteInput.value.trim();
+
     if (!titolo) {
-      document.getElementById('evento-titolo-input').style.borderColor = '#E74C3C';
-      document.getElementById('evento-titolo-input').style.boxShadow = '0 0 0 4px #FDE8E8';
-      document.getElementById('evento-titolo-input').focus();
+      titoloInput.style.borderColor = '#E74C3C';
+      titoloInput.style.boxShadow = '0 0 0 4px #FDE8E8';
+      titoloInput.focus();
       return;
     }
-    
-    const dateStr = selectedDate.toISOString().slice(0, 10);
-    
-    if (!eventsData[dateStr]) {
-      eventsData[dateStr] = [];
+    if (!allDay && !ora) {
+      oraInput.style.borderColor = '#E74C3C';
+      oraInput.focus();
+      return;
     }
-    
-    eventsData[dateStr].push({
-      titolo: titolo,
-      ora: ora,
-      note: note,
-      createdAt: new Date().toISOString()
-    });
-    
+
+    if (!eventsData[dateStr]) eventsData[dateStr] = [];
+
+    const eventObj = {
+      titolo,
+      ora,
+      allDay,
+      note,
+      createdAt: existing && existing.createdAt ? existing.createdAt : new Date().toISOString()
+    };
+
+    if (isEdit) {
+      eventsData[dateStr][editIndex] = eventObj;
+    } else {
+      eventsData[dateStr].push(eventObj);
+    }
+
     await saveEvents();
     overlay.remove();
     renderCalendar();
     renderEventsForDay(dateStr);
   });
-  
-  document.getElementById('evento-titolo-input').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-      document.getElementById('evento-modal-create').click();
-    }
+
+  titoloInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') document.getElementById('evento-modal-create').click();
   });
-  
+
   overlay.addEventListener('click', function(e) {
-    if (e.target === overlay) {
-      overlay.remove();
-    }
+    if (e.target === overlay) overlay.remove();
   });
 }
 document.addEventListener('DOMContentLoaded', function() {
