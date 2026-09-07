@@ -5384,7 +5384,11 @@ try { renderCategories(); } catch(e) { console.error('Errore categorie:', e); }
 console.error('Errore navigazione:', err);
 }
 }
-navItems.forEach(btn => btn.addEventListener('click', () => showPage(btn.dataset.page)));
+navItems.forEach(btn => {
+  if (!btn.classList.contains('nav-statistiche')) {
+    btn.addEventListener('click', () => showPage(btn.dataset.page));
+  }
+});
 // === NAVIGAZIONE SOTTOSEZIONI STATISTICHE ===
 const statsNav = document.querySelector('.nav-statistiche');
 const statsSubmenu = document.getElementById('stats-submenu');
@@ -5411,8 +5415,9 @@ if (statsNav && statsSubmenu) {
     statsNav.setAttribute('aria-expanded', String(isOpen));
     statsSubmenu.setAttribute('aria-hidden', String(!isOpen));
     if (isOpen) {
-      showPage('page-grafici');
-      openStatsSection(document.querySelector('.stats-subitem.active')?.dataset.tab || 'tab-categorie');
+      // Apri solo il sotto-menu: la sezione viene scelta dall'utente.
+      pages.forEach(p => p.classList.toggle('active', p.id === 'page-grafici'));
+      navItems.forEach(n => n.classList.toggle('active', n === statsNav));
     }
   });
 }
@@ -5420,7 +5425,13 @@ if (statsNav && statsSubmenu) {
 statsSubitems.forEach(item => {
   item.addEventListener('click', (e) => {
     e.stopPropagation();
-    showPage('page-grafici');
+    // Seleziona la sottosezione senza richiudere il menu laterale.
+    pages.forEach(p => p.classList.toggle('active', p.id === 'page-grafici'));
+    navItems.forEach(n => n.classList.toggle('active', n === statsNav));
+    statsSubmenu.classList.add('open');
+    statsNav.classList.add('expanded');
+    statsNav.setAttribute('aria-expanded', 'true');
+    statsSubmenu.setAttribute('aria-hidden', 'false');
     openStatsSection(item.dataset.tab);
   });
 });
