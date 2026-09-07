@@ -972,8 +972,8 @@ overflow-x: auto;
   margin-right: 10px;
   vertical-align: middle;
   background: var(--surface-2);
-  color: var(--accent);
-  border: 1px solid var(--border);
+  color: var(--category-color, var(--accent));
+  border: 1px solid var(--category-color, var(--border));
   flex-shrink: 0;
 }
 .category-icon i { font-size: 17px; }
@@ -1010,8 +1010,8 @@ overflow-x: auto;
 .category-detail-footer { padding:12px; border-top:1px solid var(--border); }
 #category-detail-close { width:100%; height:44px; border:1px solid var(--border); background:var(--surface-2); color:var(--text-primary); border-radius:var(--radius-sm); font-weight:700; cursor:pointer; }
 @media (max-width:600px) {
-  #category-detail-overlay { padding:10px; align-items:flex-end; }
-  #category-detail-box { max-height:82vh; border-radius:20px 20px 14px 14px; }
+  #category-detail-overlay { padding:18px 10px 72px; align-items:center; }
+  #category-detail-box { max-height:74vh; border-radius:20px; margin-top:-6vh; }
   .category-detail-head { padding:16px 16px 12px; }
   .category-detail-total { font-size:21px; }
   .category-detail-item { padding:11px 6px; }
@@ -5850,6 +5850,7 @@ function openCategoryDetail(category, month) {
 
   const monthLabel = new Date(month + '-01T12:00:00').toLocaleDateString('it-IT', { month:'long', year:'numeric' });
   const icon = getCategoryIcon(category);
+  document.getElementById('category-detail-icon').style.setProperty('--category-color', getCategoryColor(category));
   document.getElementById('category-detail-icon').innerHTML = '<i class="ti ' + icon + '"></i>';
   document.getElementById('category-detail-title').textContent = category;
   document.getElementById('category-detail-period').textContent = 'Movimenti di ' + monthLabel;
@@ -5865,7 +5866,7 @@ function openCategoryDetail(category, month) {
       item.className = 'category-detail-item';
       const desc = escapeHtml(t.description || t.category || 'Movimento');
       item.innerHTML = `
-        <span class="category-icon"><i class="ti ${icon}"></i></span>
+        <span class="category-icon" style="--category-color:${getCategoryColor(category)};"><i class="ti ${icon}"></i></span>
         <div class="category-detail-item-main">
           <div class="category-detail-item-desc">${desc}</div>
           <div class="category-detail-item-date">${formatCategoryDetailDate(t.date)}</div>
@@ -5966,7 +5967,7 @@ function updateChartCategory() {
     row.title = 'Tocca per vedere i movimenti di questa categoria';
     const iconClass = getCategoryIcon(c);
     row.innerHTML = `
-      <td><div class="category-name-wrap"><span class="category-icon"><i class="ti ${iconClass}"></i></span><span class="category-name" style="font-weight:700;">${escapeHtml(c)}</span></div></td>
+      <td><div class="category-name-wrap"><span class="category-icon" style="--category-color:${getCategoryColor(c)};"><i class="ti ${iconClass}"></i></span><span class="category-name" style="font-weight:700;">${escapeHtml(c)}</span></div></td>
       <td class="text-right" style="font-weight: 700;">${fmtEUR(data[i])}</td>
       <td class="text-right" style="color: var(--text-secondary); font-weight:700;">${pct}%</td>
     `;
@@ -9612,6 +9613,7 @@ document.addEventListener('DOMContentLoaded', function() {
 })();
 </script>
 
+<script>
 // Interazioni dettaglio categoria
 document.addEventListener('DOMContentLoaded', function() {
   const closeBtn = document.getElementById('category-detail-close');
@@ -9621,6 +9623,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (e.target === overlay) closeCategoryDetail();
   });
 });
+</script>
 
 </body>
 </html>
