@@ -960,6 +960,63 @@ box-shadow: 0 0 0 4px var(--accent-light);
 overflow-x: auto;
 -webkit-overflow-scrolling: touch;
 }
+
+/* === Statistiche categorie: icone e dettaglio movimenti === */
+.category-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+  vertical-align: middle;
+  background: var(--surface-2);
+  color: var(--accent);
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.category-icon i { font-size: 17px; }
+.category-row-clickable { cursor: pointer; transition: background .18s ease, transform .12s ease; }
+.category-row-clickable:hover td { background: var(--accent-light) !important; }
+.category-row-clickable:active { transform: scale(.995); }
+.category-name-wrap { display:flex; align-items:center; min-width:0; }
+.category-name-wrap .category-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#category-detail-overlay {
+  display:none; position:fixed; inset:0; background:rgba(15,25,35,.62); backdrop-filter:blur(9px);
+  z-index:800; align-items:center; justify-content:center; padding:16px;
+}
+#category-detail-overlay.open { display:flex; }
+#category-detail-box {
+  width:100%; max-width:560px; max-height:88vh; overflow:hidden; display:flex; flex-direction:column;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-xl); animation:modalIn .22s ease;
+}
+.category-detail-head { padding:20px 20px 14px; border-bottom:1px solid var(--border); }
+.category-detail-title-row { display:flex; align-items:center; gap:12px; }
+.category-detail-title-row .category-icon { width:42px; height:42px; margin:0; }
+.category-detail-title-row .category-icon i { font-size:20px; }
+.category-detail-head h3 { margin:0; font-size:19px; font-weight:800; color:var(--text-primary); }
+.category-detail-head p { margin:3px 0 0; font-size:12px; color:var(--text-muted); font-weight:600; }
+.category-detail-total { margin-top:14px; font-size:24px; font-weight:800; color:var(--danger); }
+#category-detail-list { overflow-y:auto; padding:8px 12px 12px; }
+.category-detail-item { display:flex; align-items:center; gap:12px; padding:12px 8px; border-bottom:1px solid var(--border); }
+.category-detail-item:last-child { border-bottom:none; }
+.category-detail-item-main { flex:1; min-width:0; }
+.category-detail-item-desc { font-size:14px; font-weight:700; color:var(--text-primary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.category-detail-item-date { margin-top:3px; font-size:11px; color:var(--text-muted); font-weight:600; }
+.category-detail-item-amount { font-size:14px; font-weight:800; color:var(--danger); white-space:nowrap; }
+.category-detail-empty { text-align:center; padding:28px 12px; color:var(--text-muted); font-size:13px; font-weight:600; }
+.category-detail-footer { padding:12px; border-top:1px solid var(--border); }
+#category-detail-close { width:100%; height:44px; border:1px solid var(--border); background:var(--surface-2); color:var(--text-primary); border-radius:var(--radius-sm); font-weight:700; cursor:pointer; }
+@media (max-width:600px) {
+  #category-detail-overlay { padding:10px; align-items:flex-end; }
+  #category-detail-box { max-height:82vh; border-radius:20px 20px 14px 14px; }
+  .category-detail-head { padding:16px 16px 12px; }
+  .category-detail-total { font-size:21px; }
+  .category-detail-item { padding:11px 6px; }
+}
+
 #detail-overlay {
 display: none;
 position: fixed;
@@ -4207,6 +4264,27 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 </div>
 </main>
 </div>
+
+<!-- Dettaglio movimenti per categoria -->
+<div id="category-detail-overlay" aria-hidden="true">
+  <div id="category-detail-box">
+    <div class="category-detail-head">
+      <div class="category-detail-title-row">
+        <span class="category-icon" id="category-detail-icon"><i class="ti ti-tag"></i></span>
+        <div>
+          <h3 id="category-detail-title">Dettaglio categoria</h3>
+          <p id="category-detail-period"></p>
+        </div>
+      </div>
+      <div class="category-detail-total" id="category-detail-total">0,00 €</div>
+    </div>
+    <div id="category-detail-list"></div>
+    <div class="category-detail-footer">
+      <button id="category-detail-close">Chiudi</button>
+    </div>
+  </div>
+</div>
+
 <div id="detail-overlay">
 <div id="detail-box">
 <h3 id="detail-title">Dettaglio</h3>
@@ -5735,6 +5813,81 @@ function applyCustomRangeFilter() {
 // document.getElementById('filter-custom-toggle').addEventListener('change', ...);
 populateHomePeriodFilters();
 applyMonthYearFilter();
+
+function getCategoryIcon(category) {
+  const key = String(category || '').trim().toLowerCase();
+  const icons = {
+    'spesa': 'ti-shopping-cart',
+    'bollette': 'ti-bolt',
+    'affitto/mutuo': 'ti-home',
+    'trasporti': 'ti-car',
+    'salute': 'ti-heartbeat',
+    'svago': 'ti-device-gamepad-2',
+    'istruzione': 'ti-school',
+    'altro': 'ti-category',
+    'stipendio': 'ti-wallet',
+    'bonus': 'ti-gift',
+    'regalo': 'ti-gift'
+  };
+  return icons[key] || 'ti-tag';
+}
+
+function formatCategoryDetailDate(dateValue) {
+  if (!dateValue) return 'Data non disponibile';
+  const d = new Date(dateValue);
+  if (Number.isNaN(d.getTime())) return String(dateValue);
+  return d.toLocaleDateString('it-IT', { day:'2-digit', month:'2-digit', year:'numeric' });
+}
+
+function openCategoryDetail(category, month) {
+  const overlay = document.getElementById('category-detail-overlay');
+  const list = document.getElementById('category-detail-list');
+  if (!overlay || !list) return;
+
+  const movements = state.transactions
+    .filter(t => t.type === 'expense' && monthKey(t.date) === month && t.category === category)
+    .sort((a,b) => String(b.date || '').localeCompare(String(a.date || '')));
+
+  const monthLabel = new Date(month + '-01T12:00:00').toLocaleDateString('it-IT', { month:'long', year:'numeric' });
+  const icon = getCategoryIcon(category);
+  document.getElementById('category-detail-icon').innerHTML = '<i class="ti ' + icon + '"></i>';
+  document.getElementById('category-detail-title').textContent = category;
+  document.getElementById('category-detail-period').textContent = 'Movimenti di ' + monthLabel;
+  const total = movements.reduce((sum,t) => sum + amountValue(t.amount), 0);
+  document.getElementById('category-detail-total').textContent = fmtEUR(total);
+
+  list.innerHTML = '';
+  if (!movements.length) {
+    list.innerHTML = '<div class="category-detail-empty">Nessun movimento trovato per questa categoria.</div>';
+  } else {
+    movements.forEach(t => {
+      const item = document.createElement('div');
+      item.className = 'category-detail-item';
+      const desc = escapeHtml(t.description || t.category || 'Movimento');
+      item.innerHTML = `
+        <span class="category-icon"><i class="ti ${icon}"></i></span>
+        <div class="category-detail-item-main">
+          <div class="category-detail-item-desc">${desc}</div>
+          <div class="category-detail-item-date">${formatCategoryDetailDate(t.date)}</div>
+        </div>
+        <div class="category-detail-item-amount">${fmtEUR(amountValue(t.amount))}</div>
+      `;
+      list.appendChild(item);
+    });
+  }
+
+  overlay.classList.add('open');
+  overlay.setAttribute('aria-hidden','false');
+}
+
+function closeCategoryDetail() {
+  const overlay = document.getElementById('category-detail-overlay');
+  if (overlay) {
+    overlay.classList.remove('open');
+    overlay.setAttribute('aria-hidden','true');
+  }
+}
+
 function updateChartCategory() {
   const month = document.getElementById('chart-month').value || monthKey(todayISO());
   const mt = state.transactions.filter(t => t.type === 'expense' && monthKey(t.date) === month);
@@ -5809,11 +5962,15 @@ function updateChartCategory() {
   cats.forEach((c, i) => {
     const pct = ((data[i] / total) * 100).toFixed(1);
     const row = document.createElement('tr');
+    row.className = 'category-row-clickable';
+    row.title = 'Tocca per vedere i movimenti di questa categoria';
+    const iconClass = getCategoryIcon(c);
     row.innerHTML = `
-      <td><span style="display: inline-block; width: 14px; height: 14px; border-radius: 4px; background: ${colors[i]}; margin-right: 10px; vertical-align: middle;"></span><span style="font-weight:700;">${escapeHtml(c)}</span></td>
+      <td><div class="category-name-wrap"><span class="category-icon"><i class="ti ${iconClass}"></i></span><span class="category-name" style="font-weight:700;">${escapeHtml(c)}</span></div></td>
       <td class="text-right" style="font-weight: 700;">${fmtEUR(data[i])}</td>
       <td class="text-right" style="color: var(--text-secondary); font-weight:700;">${pct}%</td>
     `;
+    row.addEventListener('click', () => openCategoryDetail(c, month));
     tbody.appendChild(row);
   });
   
@@ -9454,5 +9611,16 @@ document.addEventListener('DOMContentLoaded', function() {
  
 })();
 </script>
+
+// Interazioni dettaglio categoria
+document.addEventListener('DOMContentLoaded', function() {
+  const closeBtn = document.getElementById('category-detail-close');
+  const overlay = document.getElementById('category-detail-overlay');
+  if (closeBtn) closeBtn.addEventListener('click', closeCategoryDetail);
+  if (overlay) overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) closeCategoryDetail();
+  });
+});
+
 </body>
 </html>
