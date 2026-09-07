@@ -1560,6 +1560,29 @@ border-radius: 50%;
 animation: spin 0.8s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+/* === SOTTOSEZIONI STATISTICHE NEL MENU LATERALE === */
+.stats-submenu {
+  display: none;
+  flex-direction: column;
+  gap: 3px;
+  margin: -4px 10px 10px 42px;
+  padding: 4px 0 4px 10px;
+  border-left: 1px solid var(--border);
+}
+.stats-submenu.open { display: flex; }
+.stats-subitem {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  min-height: 38px; padding: 8px 10px; border: 0; border-radius: 10px;
+  background: transparent; color: var(--text-secondary); font: 600 12px/1.2 inherit;
+  text-align: left; cursor: pointer; transition: .2s ease;
+}
+.stats-subitem i { font-size: 16px; flex: 0 0 16px; }
+.stats-subitem:hover { color: var(--text-primary); background: var(--surface-2); }
+.stats-subitem.active { color: var(--accent); background: var(--accent-light); font-weight: 800; }
+.nav-statistiche .nav-chevron { margin-left: auto; transition: transform .2s ease; font-size: 17px; }
+.nav-statistiche.expanded .nav-chevron { transform: rotate(180deg); }
+.stats-tab-content { display: none; }
+.stats-tab-content.active { display: block; animation: fadeIn 0.3s ease; }
 .stats-tabs {
 display: flex;
 gap: 6px;
@@ -3805,9 +3828,15 @@ Budget
   <button class="nav-item active" data-page="page-home">
     <i class="ti ti-home"></i> Home
   </button>
-  <button class="nav-item" data-page="page-grafici">
-    <i class="ti ti-chart-pie"></i> Statistiche
+  <button class="nav-item nav-statistiche" data-page="page-grafici" aria-expanded="false" aria-controls="stats-submenu">
+    <i class="ti ti-chart-pie"></i> <span>Statistiche</span><i class="ti ti-chevron-down nav-chevron"></i>
   </button>
+  <div id="stats-submenu" class="stats-submenu" aria-hidden="true">
+    <button class="stats-subitem active" data-tab="tab-categorie"><i class="ti ti-category"></i><span>Categorie</span></button>
+    <button class="stats-subitem" data-tab="tab-entrate-uscite"><i class="ti ti-arrows-up-down"></i><span>Entrate / Uscite</span></button>
+    <button class="stats-subitem" data-tab="tab-residuo"><i class="ti ti-wallet"></i><span>Residuo</span></button>
+    <button class="stats-subitem" data-tab="tab-confronto"><i class="ti ti-arrows-left-right"></i><span>Confronto</span></button>
+  </div>
   <button class="nav-item" data-page="page-import">
     <i class="ti ti-file-spreadsheet"></i> Importa Excel
   </button>
@@ -3939,12 +3968,7 @@ Budget
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:12px;">
     <h1 style="margin:0;">Statistiche</h1>
   </div>
-  <div class="stats-tabs">
-    <button class="stats-tab active" data-tab="tab-categorie">Categorie</button>
-    <button class="stats-tab" data-tab="tab-entrate-uscite">Entrate/Uscite</button>
-    <button class="stats-tab" data-tab="tab-residuo">Residuo</button>
-    <button class="stats-tab" data-tab="tab-confronto">Confronto</button>
-  </div>
+
 
   <!-- TAB CATEGORIE -->
   <div id="tab-categorie" class="stats-tab-content active">
@@ -5320,10 +5344,13 @@ closeSidebar();
 if (pageId === 'page-grafici') {
 try {
 populateCompareSelects();
-updateChartCategory();
-updateChartYear();
-updateChartResiduo();
-updateChartCompare();
+if (statsSubmenu) {
+  statsSubmenu.classList.add('open');
+  statsNav?.classList.add('expanded');
+  statsNav?.setAttribute('aria-expanded', 'true');
+  statsSubmenu.setAttribute('aria-hidden', 'false');
+}
+openStatsSection(document.querySelector('.stats-subitem.active')?.dataset.tab || 'tab-categorie');
 } catch(e) { console.error('Errore grafici:', e); }
 }
 if (pageId === 'page-bollette') {
@@ -5358,19 +5385,44 @@ console.error('Errore navigazione:', err);
 }
 }
 navItems.forEach(btn => btn.addEventListener('click', () => showPage(btn.dataset.page)));
-document.querySelectorAll('.stats-tab').forEach(tab => {
-tab.addEventListener('click', () => {
-document.querySelectorAll('.stats-tab').forEach(t => t.classList.remove('active'));
-document.querySelectorAll('.stats-tab-content').forEach(c => c.classList.remove('active'));
-tab.classList.add('active');
-document.getElementById(tab.dataset.tab).classList.add('active');
-setTimeout(() => {
-if (tab.dataset.tab === 'tab-categorie') updateChartCategory();
-else if (tab.dataset.tab === 'tab-entrate-uscite') updateChartYear();
-else if (tab.dataset.tab === 'tab-residuo') updateChartResiduo();
-else if (tab.dataset.tab === 'tab-confronto') updateChartCompare();
-}, 100);
-});
+// === NAVIGAZIONE SOTTOSEZIONI STATISTICHE ===
+const statsNav = document.querySelector('.nav-statistiche');
+const statsSubmenu = document.getElementById('stats-submenu');
+const statsSubitems = document.querySelectorAll('.stats-subitem');
+
+function openStatsSection(tabId) {
+  document.querySelectorAll('.stats-tab-content').forEach(c => c.classList.remove('active'));
+  const target = document.getElementById(tabId);
+  if (target) target.classList.add('active');
+  statsSubitems.forEach(item => item.classList.toggle('active', item.dataset.tab === tabId));
+  setTimeout(() => {
+    if (tabId === 'tab-categorie') updateChartCategory();
+    else if (tabId === 'tab-entrate-uscite') updateChartYear();
+    else if (tabId === 'tab-residuo') updateChartResiduo();
+    else if (tabId === 'tab-confronto') updateChartCompare();
+  }, 80);
+}
+
+if (statsNav && statsSubmenu) {
+  statsNav.addEventListener('click', (e) => {
+    e.preventDefault();
+    const isOpen = statsSubmenu.classList.toggle('open');
+    statsNav.classList.toggle('expanded', isOpen);
+    statsNav.setAttribute('aria-expanded', String(isOpen));
+    statsSubmenu.setAttribute('aria-hidden', String(!isOpen));
+    if (isOpen) {
+      showPage('page-grafici');
+      openStatsSection(document.querySelector('.stats-subitem.active')?.dataset.tab || 'tab-categorie');
+    }
+  });
+}
+
+statsSubitems.forEach(item => {
+  item.addEventListener('click', (e) => {
+    e.stopPropagation();
+    showPage('page-grafici');
+    openStatsSection(item.dataset.tab);
+  });
 });
 const hamburger = document.getElementById('hamburger');
 const sidebar = document.getElementById('sidebar');
@@ -8437,7 +8489,7 @@ window.addEventListener('resize', function() {
   resizeTimeout = setTimeout(function() {
     // Ricarica i grafici dopo il ridimensionamento
     if (document.getElementById('page-grafici').classList.contains('active')) {
-      const activeTab = document.querySelector('.stats-tab.active');
+      const activeTab = document.querySelector('.stats-subitem.active');
       if (activeTab) {
         const tabId = activeTab.dataset.tab;
         if (tabId === 'tab-categorie') updateChartCategory();
