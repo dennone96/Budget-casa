@@ -838,48 +838,90 @@ max-height: 320px;
 max-width: 100% !important;
 height: auto !important;
 }
-/* Grafico Residuo: layout equilibrato e realmente responsive */
+.compare-category-row .category-icon {
+  width: 30px; height: 30px; border-radius: 9px; margin-right: 8px;
+  color: var(--category-color, var(--accent));
+  border-color: var(--category-color, var(--border));
+}
+.compare-category-row .category-icon i { font-size: 14px; }
+#tab-confronto .section-header td { background: var(--surface-2); color: var(--text-secondary); border-top: 1px solid var(--border); }
+
+/* === Ottimizzazione mobile statistiche === */
+@media (max-width: 600px) {
+  #tab-entrate-uscite .panel, #tab-confronto .panel { padding: 12px; border-radius: 18px; margin-bottom: 12px; }
+  #tab-entrate-uscite .row-between, #tab-confronto .row-between { margin-bottom: 10px; }
+  #tab-entrate-uscite .row-between h2, #tab-confronto .row-between h2 { font-size: 17px; }
+  #tab-entrate-uscite .chart-wrap { height: 230px; max-height: 230px; }
+  #tab-entrate-uscite .panel h3, #tab-confronto .panel h3 { font-size: 15px; margin-bottom: 4px; }
+  #tab-entrate-uscite .data-table, #tab-confronto .data-table { font-size: 11px; margin-top: 8px; table-layout: fixed; }
+  #tab-entrate-uscite .data-table th, #tab-entrate-uscite .data-table td { padding: 8px 6px; }
+  #tab-entrate-uscite .data-table th { font-size: 9px; letter-spacing: .35px; }
+  #tab-entrate-uscite .data-table td { font-size: 11px; }
+  #tab-entrate-uscite .data-table th:first-child, #tab-entrate-uscite .data-table td:first-child { width: 22%; }
+  #tab-entrate-uscite .data-table th:not(:first-child), #tab-entrate-uscite .data-table td:not(:first-child) { width: 26%; }
+
+  #tab-confronto .row-between > div { gap: 5px !important; width: 100%; justify-content: flex-end; }
+  #tab-confronto .row-between select { min-width: 0; max-width: 112px; width: 112px; height: 38px; padding: 7px 10px; font-size: 11px; }
+  #tab-confronto .row-between span { font-size: 11px; }
+  #tab-confronto .chart-wrap { height: 225px; max-height: 225px; }
+
+  /* Confronto: tabella mobile trasformata in una griglia leggibile */
+  #tab-confronto #table-compare { display: block; width: 100%; border-collapse: separate; border-spacing: 0; }
+  #tab-confronto #table-compare thead { display: grid; grid-template-columns: minmax(0,1.35fr) minmax(72px,.8fr) minmax(72px,.8fr) minmax(72px,.8fr); }
+  #tab-confronto #table-compare tbody { display: block; }
+  #tab-confronto #table-compare tr { display: grid; grid-template-columns: minmax(0,1.35fr) minmax(72px,.8fr) minmax(72px,.8fr) minmax(72px,.8fr); align-items: center; }
+  #tab-confronto #table-compare th, #tab-confronto #table-compare td { min-width: 0; padding: 8px 5px; overflow: hidden; }
+  #tab-confronto #table-compare th { font-size: 8px; letter-spacing: .25px; white-space: nowrap; }
+  #tab-confronto #table-compare td { font-size: 10px; white-space: nowrap; text-overflow: ellipsis; }
+  #tab-confronto #table-compare .section-header { display: block; }
+  #tab-confronto #table-compare .section-header td { display: block; width: 100%; padding: 9px 8px; font-size: 9px; letter-spacing: .45px; }
+  #tab-confronto #table-compare .total-row td { font-size: 10px; font-weight: 800; }
+  #tab-confronto #table-compare .compare-cat-name { min-width: 0; }
+  #tab-confronto #table-compare .compare-category-icon { width: 26px; height: 26px; border-radius: 8px; margin-right: 6px; }
+  #tab-confronto #table-compare .compare-category-icon i { font-size: 13px; }
+}
+@media (max-width: 380px) {
+  #tab-entrate-uscite .chart-wrap { height: 210px; max-height: 210px; }
+  #tab-confronto .chart-wrap { height: 205px; max-height: 205px; }
+  #tab-confronto #table-compare { font-size: 9px; }
+  #tab-confronto #table-compare tr, #tab-confronto #table-compare thead { grid-template-columns: minmax(0,1.2fr) minmax(67px,.8fr) minmax(67px,.8fr) minmax(67px,.8fr); }
+  #tab-confronto #table-compare th, #tab-confronto #table-compare td { padding: 7px 3px; }
+}
+
+/* Grafico Residuo: contenitore realmente responsive, soprattutto su mobile */
 .residuo-chart-wrap {
   position: relative;
   width: 100%;
-  height: clamp(220px, 34vw, 330px);
-  min-height: 220px;
-  max-height: 330px;
+  height: 300px;
+  max-height: 300px;
 }
 .residuo-chart-wrap canvas {
-  display: block !important;
   width: 100% !important;
   height: 100% !important;
   max-width: 100% !important;
 }
-#tab-residuo .residuo-chart-wrap {
-  margin: 2px 0 0;
-}
 @media (max-width: 600px) {
-  #tab-residuo .panel {
-    padding: 12px;
+  .residuo-chart-wrap {
+    height: 220px;
+    max-height: 220px;
   }
-  #tab-residuo .residuo-chart-wrap {
-    height: 210px;
-    min-height: 210px;
+  #tab-residuo .panel {
+    padding: 14px;
   }
   #tab-residuo .row-between {
     gap: 8px;
-    margin-bottom: 10px;
   }
   #tab-residuo .row-between h2 {
-    font-size: 17px;
+    font-size: 18px;
   }
   #tab-residuo .row-between select {
-    max-width: 105px;
-    padding-left: 12px;
-    padding-right: 12px;
+    max-width: 110px;
   }
 }
 @media (max-width: 380px) {
-  #tab-residuo .residuo-chart-wrap {
-    height: 190px;
-    min-height: 190px;
+  .residuo-chart-wrap {
+    height: 200px;
+    max-height: 200px;
   }
 }
 
@@ -6116,9 +6158,7 @@ state.transactions.forEach(t => { if (t.date.slice(0,4) < year) runningTotal += 
 const residuoData = months.map(m => { const mt = state.transactions.filter(t => monthKey(t.date) === m); const inc = mt.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0); const exp = mt.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0); runningTotal += inc - exp; return Math.round(runningTotal * 100) / 100; });
 const colors = residuoData.map(v => v >= 0 ? '#5CB85C' : '#E74C3C');
 if (chartResiduo) chartResiduo.destroy();
-const residuoCanvas = document.getElementById('residuoChart');
-const isMobileResiduo = window.matchMedia('(max-width: 600px)').matches;
-chartResiduo = new Chart(residuoCanvas, {
+chartResiduo = new Chart(document.getElementById('residuoChart'), {
 type: 'line',
 data: {
 labels,
@@ -6126,56 +6166,39 @@ datasets: [{
 label: 'Residuo',
 data: residuoData,
 borderColor: '#4A90D9',
-backgroundColor: 'rgba(74,144,217,0.10)',
+backgroundColor: 'rgba(74,144,217,0.15)',
 pointBackgroundColor: colors,
-pointBorderColor: 'transparent',
-pointBorderWidth: 0,
-pointRadius: isMobileResiduo ? 3.5 : 4,
-pointHoverRadius: isMobileResiduo ? 6 : 7,
-tension: 0.35,
+pointBorderColor: '#fff',
+pointBorderWidth: 3,
+pointRadius: 6,
+pointHoverRadius: 8,
+tension: 0.4,
 fill: true,
-borderWidth: isMobileResiduo ? 2.5 : 3
+borderWidth: 3
 }]
 },
 options: {
 responsive: true,
-maintainAspectRatio: false,
-layout: {
-padding: { top: 8, right: isMobileResiduo ? 4 : 10, bottom: 2, left: 2 }
-},
-interaction: { mode: 'index', intersect: false },
+maintainAspectRatio: true,
+aspectRatio: 2.5,
 plugins: {
 legend: { display: false },
 tooltip: {
 backgroundColor: '#1A2B3C',
-titleFont: { family: 'Plus Jakarta Sans', size: isMobileResiduo ? 12 : 13, weight: '800' },
-bodyFont: { family: 'Plus Jakarta Sans', size: isMobileResiduo ? 12 : 13 },
-padding: isMobileResiduo ? 10 : 14,
-cornerRadius: 10,
+titleFont: { family: 'Plus Jakarta Sans', size: 13, weight: '800' },
+bodyFont: { family: 'Plus Jakarta Sans', size: 13 },
+padding: 14,
+cornerRadius: 12,
 callbacks: { label: ctx => 'Residuo: ' + fmtEUR(ctx.parsed.y) }
 }
 },
 scales: {
 y: {
-beginAtZero: false,
-border: { display: false },
-ticks: {
-callback: v => fmtEUR(v),
-font: { family: 'Plus Jakarta Sans', size: isMobileResiduo ? 9 : 11 },
-maxTicksLimit: isMobileResiduo ? 5 : 6,
-padding: isMobileResiduo ? 3 : 6
-},
-grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false }
+ticks: { callback: v => fmtEUR(v), font: { family: 'Plus Jakarta Sans', size: 11 } },
+grid: { color: 'rgba(0,0,0,0.04)' }
 },
 x: {
-border: { display: false },
-ticks: {
-font: { family: 'Plus Jakarta Sans', size: isMobileResiduo ? 9 : 11, weight: '700' },
-maxTicksLimit: isMobileResiduo ? 6 : 12,
-autoSkip: true,
-maxRotation: 0,
-padding: 4
-},
+ticks: { font: { family: 'Plus Jakarta Sans', size: 11, weight: '700' } },
 grid: { display: false }
 }
 }
@@ -6230,8 +6253,7 @@ datasets: [
 },
 options: {
 responsive: true,
-maintainAspectRatio: true,
-aspectRatio: 2,
+maintainAspectRatio: false,
 plugins: {
 legend: {
 position: 'top',
@@ -6291,15 +6313,16 @@ const allCatsInc = [...new Set([...Object.keys(catsInc1), ...Object.keys(catsInc
 if (allCatsInc.length > 0) {
 const sectionRow = document.createElement('tr');
 sectionRow.className = 'section-header';
-sectionRow.innerHTML = `<td colspan="4">Dettaglio entrate per categoria</td>`;
+sectionRow.innerHTML = `<td colspan="4"><i class="ti ti-arrow-up" style="margin-right:6px;"></i>Entrate per categoria</td>`;
 tbody.appendChild(sectionRow);
 allCatsInc.sort((a,b) => (catsInc2[b] || 0) - (catsInc2[a] || 0)).forEach(cat => {
 const val1 = catsInc1[cat] || 0;
 const val2 = catsInc2[cat] || 0;
 const diffCat = val2 - val1;
 const row = document.createElement('tr');
+row.className = 'compare-category-row';
 row.innerHTML = `
-<td style="padding-left: 28px; font-weight:600;">${escapeHtml(cat)}</td>
+<td><div class="category-name-wrap compare-cat-name"><span class="category-icon compare-category-icon" style="--category-color:${getCategoryColor(cat)};"><i class="ti ${getCategoryIcon(cat)}"></i></span><span style="font-weight:700;">${escapeHtml(cat)}</span></div></td>
 <td class="text-right text-success">${fmtEUR(val1)}</td>
 <td class="text-right text-success">${fmtEUR(val2)}</td>
 <td class="text-right" style="font-weight: 700; color: ${diffCat >= 0 ? 'var(--success)' : 'var(--danger)'}">
@@ -6327,15 +6350,16 @@ const allCatsExp = [...new Set([...Object.keys(catsExp1), ...Object.keys(catsExp
 if (allCatsExp.length > 0) {
 const sectionRow = document.createElement('tr');
 sectionRow.className = 'section-header';
-sectionRow.innerHTML = `<td colspan="4">Dettaglio uscite per categoria</td>`;
+sectionRow.innerHTML = `<td colspan="4"><i class="ti ti-arrow-down" style="margin-right:6px;"></i>Uscite per categoria</td>`;
 tbody.appendChild(sectionRow);
 allCatsExp.sort((a,b) => (catsExp2[b] || 0) - (catsExp2[a] || 0)).forEach(cat => {
 const val1 = catsExp1[cat] || 0;
 const val2 = catsExp2[cat] || 0;
 const diffCat = val2 - val1;
 const row = document.createElement('tr');
+row.className = 'compare-category-row';
 row.innerHTML = `
-<td style="padding-left: 28px; font-weight:600;">${escapeHtml(cat)}</td>
+<td><div class="category-name-wrap compare-cat-name"><span class="category-icon compare-category-icon" style="--category-color:${getCategoryColor(cat)};"><i class="ti ${getCategoryIcon(cat)}"></i></span><span style="font-weight:700;">${escapeHtml(cat)}</span></div></td>
 <td class="text-right text-danger">${fmtEUR(val1)}</td>
 <td class="text-right text-danger">${fmtEUR(val2)}</td>
 <td class="text-right" style="font-weight: 700; color: ${diffCat >= 0 ? 'var(--danger)' : 'var(--success)'}">
