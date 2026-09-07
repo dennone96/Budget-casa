@@ -838,40 +838,48 @@ max-height: 320px;
 max-width: 100% !important;
 height: auto !important;
 }
-/* Grafico Residuo: contenitore realmente responsive, soprattutto su mobile */
+/* Grafico Residuo: layout equilibrato e realmente responsive */
 .residuo-chart-wrap {
   position: relative;
   width: 100%;
-  height: 300px;
-  max-height: 300px;
+  height: clamp(220px, 34vw, 330px);
+  min-height: 220px;
+  max-height: 330px;
 }
 .residuo-chart-wrap canvas {
+  display: block !important;
   width: 100% !important;
   height: 100% !important;
   max-width: 100% !important;
 }
+#tab-residuo .residuo-chart-wrap {
+  margin: 2px 0 0;
+}
 @media (max-width: 600px) {
-  .residuo-chart-wrap {
-    height: 220px;
-    max-height: 220px;
-  }
   #tab-residuo .panel {
-    padding: 14px;
+    padding: 12px;
+  }
+  #tab-residuo .residuo-chart-wrap {
+    height: 210px;
+    min-height: 210px;
   }
   #tab-residuo .row-between {
     gap: 8px;
+    margin-bottom: 10px;
   }
   #tab-residuo .row-between h2 {
-    font-size: 18px;
+    font-size: 17px;
   }
   #tab-residuo .row-between select {
-    max-width: 110px;
+    max-width: 105px;
+    padding-left: 12px;
+    padding-right: 12px;
   }
 }
 @media (max-width: 380px) {
-  .residuo-chart-wrap {
-    height: 200px;
-    max-height: 200px;
+  #tab-residuo .residuo-chart-wrap {
+    height: 190px;
+    min-height: 190px;
   }
 }
 
@@ -6108,7 +6116,9 @@ state.transactions.forEach(t => { if (t.date.slice(0,4) < year) runningTotal += 
 const residuoData = months.map(m => { const mt = state.transactions.filter(t => monthKey(t.date) === m); const inc = mt.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0); const exp = mt.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0); runningTotal += inc - exp; return Math.round(runningTotal * 100) / 100; });
 const colors = residuoData.map(v => v >= 0 ? '#5CB85C' : '#E74C3C');
 if (chartResiduo) chartResiduo.destroy();
-chartResiduo = new Chart(document.getElementById('residuoChart'), {
+const residuoCanvas = document.getElementById('residuoChart');
+const isMobileResiduo = window.matchMedia('(max-width: 600px)').matches;
+chartResiduo = new Chart(residuoCanvas, {
 type: 'line',
 data: {
 labels,
@@ -6116,39 +6126,56 @@ datasets: [{
 label: 'Residuo',
 data: residuoData,
 borderColor: '#4A90D9',
-backgroundColor: 'rgba(74,144,217,0.15)',
+backgroundColor: 'rgba(74,144,217,0.10)',
 pointBackgroundColor: colors,
-pointBorderColor: '#fff',
-pointBorderWidth: 3,
-pointRadius: 6,
-pointHoverRadius: 8,
-tension: 0.4,
+pointBorderColor: 'transparent',
+pointBorderWidth: 0,
+pointRadius: isMobileResiduo ? 3.5 : 4,
+pointHoverRadius: isMobileResiduo ? 6 : 7,
+tension: 0.35,
 fill: true,
-borderWidth: 3
+borderWidth: isMobileResiduo ? 2.5 : 3
 }]
 },
 options: {
 responsive: true,
-maintainAspectRatio: true,
-aspectRatio: 2.5,
+maintainAspectRatio: false,
+layout: {
+padding: { top: 8, right: isMobileResiduo ? 4 : 10, bottom: 2, left: 2 }
+},
+interaction: { mode: 'index', intersect: false },
 plugins: {
 legend: { display: false },
 tooltip: {
 backgroundColor: '#1A2B3C',
-titleFont: { family: 'Plus Jakarta Sans', size: 13, weight: '800' },
-bodyFont: { family: 'Plus Jakarta Sans', size: 13 },
-padding: 14,
-cornerRadius: 12,
+titleFont: { family: 'Plus Jakarta Sans', size: isMobileResiduo ? 12 : 13, weight: '800' },
+bodyFont: { family: 'Plus Jakarta Sans', size: isMobileResiduo ? 12 : 13 },
+padding: isMobileResiduo ? 10 : 14,
+cornerRadius: 10,
 callbacks: { label: ctx => 'Residuo: ' + fmtEUR(ctx.parsed.y) }
 }
 },
 scales: {
 y: {
-ticks: { callback: v => fmtEUR(v), font: { family: 'Plus Jakarta Sans', size: 11 } },
-grid: { color: 'rgba(0,0,0,0.04)' }
+beginAtZero: false,
+border: { display: false },
+ticks: {
+callback: v => fmtEUR(v),
+font: { family: 'Plus Jakarta Sans', size: isMobileResiduo ? 9 : 11 },
+maxTicksLimit: isMobileResiduo ? 5 : 6,
+padding: isMobileResiduo ? 3 : 6
+},
+grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false }
 },
 x: {
-ticks: { font: { family: 'Plus Jakarta Sans', size: 11, weight: '700' } },
+border: { display: false },
+ticks: {
+font: { family: 'Plus Jakarta Sans', size: isMobileResiduo ? 9 : 11, weight: '700' },
+maxTicksLimit: isMobileResiduo ? 6 : 12,
+autoSkip: true,
+maxRotation: 0,
+padding: 4
+},
 grid: { display: false }
 }
 }
