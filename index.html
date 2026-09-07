@@ -838,6 +838,43 @@ max-height: 320px;
 max-width: 100% !important;
 height: auto !important;
 }
+/* Grafico Residuo: contenitore realmente responsive, soprattutto su mobile */
+.residuo-chart-wrap {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  max-height: 300px;
+}
+.residuo-chart-wrap canvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+}
+@media (max-width: 600px) {
+  .residuo-chart-wrap {
+    height: 220px;
+    max-height: 220px;
+  }
+  #tab-residuo .panel {
+    padding: 14px;
+  }
+  #tab-residuo .row-between {
+    gap: 8px;
+  }
+  #tab-residuo .row-between h2 {
+    font-size: 18px;
+  }
+  #tab-residuo .row-between select {
+    max-width: 110px;
+  }
+}
+@media (max-width: 380px) {
+  .residuo-chart-wrap {
+    height: 200px;
+    max-height: 200px;
+  }
+}
+
 .tx-row {
   display: grid;
   grid-template-columns: 30px 100px 1fr 120px 100px 90px;
@@ -3932,7 +3969,7 @@ Budget
       </div>
       <div class="panel">
         <p style="font-size:13px; color:var(--text-secondary); margin:0 0 12px; font-weight:600;">Andamento del residuo in cassa mese per mese.</p>
-        <div class="chart-wrap">
+        <div class="residuo-chart-wrap">
           <canvas id="residuoChart"></canvas>
         </div>
       </div>
@@ -3942,10 +3979,7 @@ Budget
           <thead>
             <tr>
               <th>Mese</th>
-              <th class="text-right">Entrate</th>
-              <th class="text-right">Uscite</th>
               <th class="text-right">Saldo</th>
-              <th class="text-right">Residuo</th>
             </tr>
           </thead>
           <tbody id="table-residuo-body"></tbody>
@@ -6023,8 +6057,7 @@ datasets: [
 },
 options: {
 responsive: true,
-maintainAspectRatio: true,
-aspectRatio: 2.5,
+maintainAspectRatio: false,
 plugins: {
 legend: {
 position: 'top',
@@ -6134,10 +6167,7 @@ runningTotal += saldoMese;
 const row = document.createElement('tr');
 row.innerHTML = `
 <td style="text-transform: capitalize; font-weight: 700;">${labels[i]}</td>
-<td class="text-right text-success">${fmtEUR(inc)}</td>
-<td class="text-right text-danger">${fmtEUR(exp)}</td>
-<td class="text-right" style="font-weight: 700; color: ${saldoMese >= 0 ? 'var(--success)' : 'var(--danger)'}">${fmtEUR(saldoMese)}</td>
-<td class="text-right" style="font-weight: 800; color: ${runningTotal >= 0 ? 'var(--success)' : 'var(--danger)'}">${fmtEUR(runningTotal)}</td>
+<td class="text-right" style="font-weight: 800; color: ${saldoMese >= 0 ? 'var(--success)' : 'var(--danger)'}">${fmtEUR(saldoMese)}</td>
 `;
 tbody.appendChild(row);
 });
