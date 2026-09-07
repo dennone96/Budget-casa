@@ -1000,7 +1000,9 @@ overflow-x: auto;
 .category-detail-head p { margin:3px 0 0; font-size:12px; color:var(--text-muted); font-weight:600; }
 .category-detail-total { margin-top:14px; font-size:24px; font-weight:800; color:var(--danger); }
 #category-detail-list { overflow-y:auto; padding:8px 12px 12px; }
-.category-detail-item { display:flex; align-items:center; gap:12px; padding:12px 8px; border-bottom:1px solid var(--border); }
+.category-detail-item { display:flex; align-items:center; gap:12px; padding:12px 8px; border-bottom:1px solid var(--border); cursor:pointer; border-radius:12px; transition:background .16s ease, transform .12s ease; }
+.category-detail-item:hover { background:var(--accent-light); }
+.category-detail-item:active { transform:scale(.995); }
 .category-detail-item:last-child { border-bottom:none; }
 .category-detail-item-main { flex:1; min-width:0; }
 .category-detail-item-desc { font-size:14px; font-weight:700; color:var(--text-primary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -5873,6 +5875,22 @@ function openCategoryDetail(category, month) {
         </div>
         <div class="category-detail-item-amount">${fmtEUR(amountValue(t.amount))}</div>
       `;
+      // Ogni movimento è cliccabile: apre il normale popup di dettaglio del movimento.
+      item.setAttribute('role', 'button');
+      item.setAttribute('tabindex', '0');
+      item.title = 'Tocca per vedere il dettaglio del movimento';
+      const openMovementDetail = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        // Il popup del movimento deve stare sopra quello della categoria.
+        const detailOverlay = document.getElementById('detail-overlay');
+        if (detailOverlay) detailOverlay.style.zIndex = '900';
+        openDetailModal(t.id);
+      };
+      item.addEventListener('click', openMovementDetail);
+      item.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') openMovementDetail(e);
+      });
       list.appendChild(item);
     });
   }
@@ -6507,10 +6525,10 @@ uploadArea.classList.remove('hidden');
 }
 e.target.value = '';
 });
-document.getElementById('detail-close').addEventListener('click', () => { document.getElementById('detail-overlay').classList.remove('open'); detailId = null; });
-document.getElementById('detail-overlay').addEventListener('click', (e) => { if (e.target === document.getElementById('detail-overlay')) { document.getElementById('detail-overlay').classList.remove('open'); detailId = null; } });
-document.getElementById('detail-edit').addEventListener('click', () => { const id = detailId; document.getElementById('detail-overlay').classList.remove('open'); detailId = null; openEditModal(id); });
-document.getElementById('detail-delete').addEventListener('click', async () => { if (!confirm('Eliminare questo movimento?')) return; state.transactions = state.transactions.filter(t => t.id !== detailId); document.getElementById('detail-overlay').classList.remove('open'); detailId = null; renderAll(); await saveTransactions(); });
+document.getElementById('detail-close').addEventListener('click', () => { const ov = document.getElementById('detail-overlay'); ov.classList.remove('open'); ov.style.zIndex = ''; detailId = null; });
+document.getElementById('detail-overlay').addEventListener('click', (e) => { if (e.target === document.getElementById('detail-overlay')) { const ov = document.getElementById('detail-overlay'); ov.classList.remove('open'); ov.style.zIndex = ''; detailId = null; } });
+document.getElementById('detail-edit').addEventListener('click', () => { const id = detailId; const ov = document.getElementById('detail-overlay'); ov.classList.remove('open'); ov.style.zIndex = ''; detailId = null; openEditModal(id); });
+document.getElementById('detail-delete').addEventListener('click', async () => { if (!confirm('Eliminare questo movimento?')) return; state.transactions = state.transactions.filter(t => t.id !== detailId); const ov = document.getElementById('detail-overlay'); ov.classList.remove('open'); ov.style.zIndex = ''; detailId = null; renderAll(); await saveTransactions(); });
 let editingId = null;
 function populateModalCategories(type) { const sel = document.getElementById('modal-category'); sel.innerHTML = ''; (state.categories[type] || []).forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.textContent = c; sel.appendChild(opt); }); }
 function openEditModal(id) {
@@ -9614,14 +9632,26 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <script>
-// Interazioni dettaglio categoria
+// Interazioni dettaglio categoria - listener indipendenti dallo scope delle funzioni interne
 document.addEventListener('DOMContentLoaded', function() {
   const closeBtn = document.getElementById('category-detail-close');
   const overlay = document.getElementById('category-detail-overlay');
-  if (closeBtn) closeBtn.addEventListener('click', closeCategoryDetail);
-  if (overlay) overlay.addEventListener('click', function(e) {
-    if (e.target === overlay) closeCategoryDetail();
-  });
+
+  if (closeBtn && overlay) {
+    closeBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      overlay.classList.remove('open');
+      overlay.setAttribute('aria-hidden', 'true');
+    });
+
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) {
+        overlay.classList.remove('open');
+        overlay.setAttribute('aria-hidden', 'true');
+      }
+    });
+  }
 });
 </script>
 
