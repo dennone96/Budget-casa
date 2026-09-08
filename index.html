@@ -4548,6 +4548,30 @@ button{font-family:inherit;}
 }
 </style>
 
+<style id="final-home-mobile-fixes">
+#mobile-bottom-nav{display:none!important}
+@media(max-width:900px){#main{padding-left:12px!important;padding-right:12px!important;padding-bottom:18px!important;margin-left:0!important;width:100%!important;max-width:100%!important}#page-home{margin-left:0!important;width:100%!important;max-width:100%!important;overflow-x:hidden!important}}
+#page-home .home-date-filter{margin-left:0!important;margin-right:0!important;width:100%!important;max-width:100%!important}
+#page-home .home-date-filter>.filter-row:first-of-type{display:flex!important;justify-content:flex-start!important;align-items:flex-end!important;gap:7px!important;width:max-content!important;max-width:100%!important;padding:0!important}
+#page-home .home-date-filter>.filter-row:first-of-type .home-date-field{width:94px!important;min-width:0!important}
+#page-home .home-date-filter>.filter-row:first-of-type .home-date-field select{width:94px!important;min-width:0!important;height:34px!important;padding:0 8px!important;font-size:10px!important;border-radius:10px!important;color:#17273c!important;background:#fff!important}
+#page-home .home-date-filter>.filter-row:first-of-type label{font-size:8px!important;color:#7b8da0!important;margin-bottom:2px!important}
+#page-home .home-date-filter>.toggle-row{width:max-content!important;max-width:100%!important;min-height:34px!important;height:34px!important;margin-top:6px!important;padding:4px 8px!important;border-radius:11px!important;background:#fff!important;border:1px solid #e6ecef!important;box-shadow:0 4px 12px rgba(22,39,60,.03)!important}
+#page-home .home-date-filter>.toggle-row .toggle-label-text{font-size:8px!important;color:#718197!important}
+#page-home #custom-range{width:100%!important;max-width:100%!important;padding:9px!important;gap:6px!important;border-radius:13px!important;margin-top:6px!important}
+#page-home #custom-range .home-date-field{min-width:0!important;flex:1 1 0!important}
+#page-home #custom-range .home-date-field input{min-width:0!important;width:100%!important;height:34px!important;font-size:10px!important;padding:0 8px!important}
+#page-home #custom-range #btn-apply-custom{height:34px!important;padding:0 10px!important;font-size:9px!important;border-radius:10px!important}
+#page-home #filter-label{width:max-content!important;max-width:100%!important;margin:6px 0 8px!important;font-size:10px!important;padding:4px 8px!important;border-radius:9px!important;background:#f3f6f8!important;color:#65788e!important;text-align:left!important}
+#page-home .home-v3-mini-card small,#page-home #home-income-trend,#page-home #home-expense-trend{display:none!important}
+#movimento-modal-overlay>div{width:min(420px,calc(100vw - 24px))!important;max-height:88vh!important;background:#fff!important;border-radius:24px!important}
+#movimento-modal-overlay>div>h3{font-size:22px!important;letter-spacing:-.5px!important;padding:22px 22px 5px!important}
+#movimento-modal-overlay>div>p{font-size:11px!important;margin:0 22px 16px!important}
+#movimento-modal-overlay input,#movimento-modal-overlay select{background:#f7f9fa!important;border:1px solid #e3e9ed!important;height:44px!important;border-radius:13px!important}
+#movimento-modal-overlay #modal-tab-expense,#movimento-modal-overlay #modal-tab-income{flex:1!important;height:44px!important;border-radius:13px!important;font-size:12px!important;font-weight:800!important}
+#movimento-modal-overlay #modal-movimento-save{background:#142336!important;border-radius:14px!important;height:46px!important}
+#movimento-modal-overlay #modal-movimento-cancel{background:#f1f4f6!important;border-radius:14px!important;height:46px!important}
+</style>
 </head>
 <body>
 <div id="login-screen">
@@ -4623,13 +4647,6 @@ button{font-family:inherit;}
 <button id="btn-logout">Esci</button>
 </div>
 </aside>
-<nav id="mobile-bottom-nav" aria-label="Navigazione rapida">
-  <button type="button" class="mobile-bottom-item active" onclick="showPage('page-home')"><i class="ti ti-home"></i><span>Home</span></button>
-  <button type="button" class="mobile-bottom-item" onclick="showPage('page-home'); setTimeout(() => document.getElementById('transactions-list')?.scrollIntoView({behavior:'smooth', block:'start'}), 120)"><i class="ti ti-arrows-left-right"></i><span>Movimenti</span></button>
-  <button type="button" class="mobile-bottom-item" onclick="showPage('page-grafici')"><i class="ti ti-chart-donut"></i><span>Statistiche</span></button>
-  <button type="button" class="mobile-bottom-item" onclick="showPage('page-bollette')"><i class="ti ti-file-invoice"></i><span>Bollette</span></button>
-  <button type="button" class="mobile-bottom-item" onclick="document.getElementById('hamburger')?.click()"><i class="ti ti-dots"></i><span>Altro</span></button>
-</nav>
 <main id="main">
 <div id="page-home" class="page active home-redesign-v3">
   <div class="home-v3-header">
@@ -4669,7 +4686,6 @@ button{font-family:inherit;}
       <strong id="stat-residuo">0,00 €</strong>
       <small id="home-account-label">Totale conto corrente</small>
     </div>
-    <button class="home-v3-eye" type="button" aria-label="Mostra saldo"><i class="ti ti-eye"></i></button>
   </section>
 
   <section class="home-v3-balance-card home-v3-balance-period">
@@ -4684,11 +4700,11 @@ button{font-family:inherit;}
   <section class="home-v3-mini-grid">
     <div class="home-v3-mini-card income" id="card-income" role="button" tabindex="0" aria-label="Dettaglio entrate">
       <div class="home-v3-icon home-v3-icon-green"><i class="ti ti-arrow-down"></i></div>
-      <div><span>Entrate</span><strong id="stat-income">0,00 €</strong><small id="home-income-trend">↑ + 0%</small></div>
+      <div><span>Entrate</span><strong id="stat-income">0,00 €</strong></div>
     </div>
     <div class="home-v3-mini-card expense" id="card-expense" role="button" tabindex="0" aria-label="Dettaglio uscite">
       <div class="home-v3-icon home-v3-icon-red"><i class="ti ti-arrow-up"></i></div>
-      <div><span>Uscite</span><strong id="stat-expense">0,00 €</strong><small id="home-expense-trend">↑ + 0%</small></div>
+      <div><span>Uscite</span><strong id="stat-expense">0,00 €</strong></div>
     </div>
   </section>
 
@@ -6597,11 +6613,26 @@ function populateCategorySelect() {
   }
 }
   
+function transactionDateISO(t) {
+  const v = t && t.date;
+  if (!v) return '';
+  if (typeof v === 'string') {
+    const s = v.trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+    const d = new Date(s);
+    return isNaN(d.getTime()) ? '' : d.toISOString().slice(0,10);
+  }
+  if (v && typeof v.toDate === 'function') { const d=v.toDate(); return isNaN(d.getTime())?'':d.toISOString().slice(0,10); }
+  if (v instanceof Date) return isNaN(v.getTime()) ? '' : v.toISOString().slice(0,10);
+  if (typeof v === 'number') { const d=new Date(v); return isNaN(d.getTime())?'':d.toISOString().slice(0,10); }
+  if (v && typeof v === 'object' && typeof v.seconds === 'number') { const d=new Date(v.seconds*1000); return isNaN(d.getTime())?'':d.toISOString().slice(0,10); }
+  return '';
+}
 function matchesSourceFilter(t) { return activeSourceFilter === 'all' || (t.source || 'cash') === activeSourceFilter; }
 function updateStats() {
 const from = filterFrom || todayISO().slice(0,7) + '-01';
 const to = filterTo || todayISO();
-const mt = state.transactions.filter(t => t.date >= from && t.date <= to && matchesSourceFilter(t));
+const mt = state.transactions.filter(t => { const d = transactionDateISO(t); return d && d >= from && d <= to && matchesSourceFilter(t); });
 const income = mt.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0);
 const expense = mt.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0);
 
@@ -6666,14 +6697,6 @@ function updateFilterLabel() {
 }
   
 // === GESTIONE FILTRI HOME (FIX) ===
-document.getElementById('btn-apply-range').addEventListener('click', () => { 
-  const isCustom = document.getElementById('custom-toggle-container')?.classList.contains('active') || false;
-  if (isCustom) {
-    applyCustomRangeFilter();
-  } else {
-    applyMonthYearFilter();
-  }
-});
 document.getElementById('filter-month').addEventListener('change', () => { 
   const isCustom = document.getElementById('custom-toggle-container')?.classList.contains('active') || false;
   if (!isCustom) applyMonthYearFilter(); 
@@ -6767,7 +6790,7 @@ function openCategoryDetail(category, month) {
 
   const movements = state.transactions
     .filter(t => t.type === 'expense' && monthKey(t.date) === month && t.category === category)
-    .sort((a,b) => String(b.date || '').localeCompare(String(a.date || '')));
+    .sort((a,b) => transactionDateISO(b).localeCompare(transactionDateISO(a)));
 
   const monthLabel = new Date(month + '-01T12:00:00').toLocaleDateString('it-IT', { month:'long', year:'numeric' });
   const icon = getCategoryIcon(category);
@@ -7229,7 +7252,7 @@ updateTransactionsList();
 function updateTransactionsList() {
   const from = filterFrom || todayISO().slice(0, 7) + '-01';
   const to = filterTo || todayISO();
-  let mt = state.transactions.filter(t => t.date >= from && t.date <= to && matchesSourceFilter(t));
+  let mt = state.transactions.filter(t => { const d = transactionDateISO(t); return d && d >= from && d <= to && matchesSourceFilter(t); });
   
   if (searchQuery) {
     mt = mt.filter(t =>
@@ -8005,7 +8028,7 @@ if (rSel) { const prevR = rSel.value; rSel.innerHTML = ''; uniqueYears.forEach(y
 function updateHomeModernDashboard() {
   const from = filterFrom || todayISO().slice(0,7) + '-01';
   const to = filterTo || todayISO();
-  const mt = state.transactions.filter(t => t.date >= from && t.date <= to && matchesSourceFilter(t));
+  const mt = state.transactions.filter(t => { const d = transactionDateISO(t); return d && d >= from && d <= to && matchesSourceFilter(t); });
   const periodIncome = mt.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0);
   const periodExpense = mt.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0);
   const periodBalance = periodIncome - periodExpense;
@@ -8079,7 +8102,7 @@ function renderHomeMovements(filteredTransactions) {
     const color = getCategoryColor(t.category);
     const row = document.createElement('div');
     row.className = 'home-v3-movement-row';
-    const date = t.date ? new Date(t.date + 'T00:00:00').toLocaleDateString('it-IT',{day:'2-digit',month:'short'}).replace('.','') : '';
+    const txDate = transactionDateISO(t); const date = txDate ? new Date(txDate + 'T00:00:00').toLocaleDateString('it-IT',{day:'2-digit',month:'short'}).replace('.','') : '';
     const source = t.source === 'bank' ? 'Conto corrente' : 'Cash';
     row.innerHTML = `
       <span class="home-v3-movement-icon" style="--cat-color:${color};--cat-bg:${color}22"><i class="ti ${getCategoryIcon(t.category)}"></i></span>
@@ -8163,7 +8186,7 @@ async function generateHomePDF() {
     // === HEADER: TITOLO E PERIODO ===
     const from = filterFrom || todayISO().slice(0,7) + '-01';
     const to = filterTo || todayISO();
-    const mt = state.transactions.filter(t => t.date >= from && t.date <= to && matchesSourceFilter(t));
+    const mt = state.transactions.filter(t => { const d = transactionDateISO(t); return d && d >= from && d <= to && matchesSourceFilter(t); });
     const income = mt.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0);
     const expense = mt.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0);
 
