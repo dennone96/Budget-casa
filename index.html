@@ -4660,6 +4660,42 @@ button{font-family:inherit;}
 }
 </style>
 
+
+<style id="modern-v4-menu-popup-list">
+/* Menu: hamburger nella posizione standard delle app mobile, in alto a sinistra e allineato al contenuto */
+@media(max-width:900px){
+  .mobile-appbar{
+    display:flex!important;align-items:center!important;justify-content:flex-start!important;
+    gap:10px!important;height:44px!important;margin:0 0 12px!important;padding:0!important;
+    position:relative!important;z-index:20!important;
+  }
+  #hamburger{
+    position:static!important;display:flex!important;align-items:center!important;justify-content:center!important;
+    width:42px!important;height:42px!important;flex:0 0 42px!important;margin:0!important;
+    border-radius:12px!important;background:#fff!important;border:1px solid #e1e7eb!important;
+    box-shadow:0 4px 14px rgba(17,27,38,.08)!important;color:#17273c!important;
+  }
+  #hamburger i{font-size:20px!important;}
+  .mobile-appbar-title{display:block!important;}
+  .mobile-appbar-title strong{font-size:13px!important;color:#17273c!important;font-weight:850!important;}
+  #main{padding-top:10px!important;}
+}
+
+/* Popup Entrate/Uscite: chiusura sempre cliccabile e footer sopra ogni elemento */
+#income-expense-overlay{z-index:3000!important;}
+#income-expense-box{position:relative!important;z-index:3001!important;}
+.ie-modern-footer{position:relative!important;z-index:10!important;}
+#income-expense-close{position:relative!important;z-index:20!important;pointer-events:auto!important;cursor:pointer!important;}
+
+/* Lista movimenti più ampia */
+.home-v3-movements-panel{width:100%!important;min-height:420px!important;}
+#home-movements-list{width:100%!important;max-height:none!important;min-height:360px!important;overflow:visible!important;}
+.home-v3-movement-row{width:100%!important;min-height:66px!important;}
+@media(max-width:600px){
+  .home-v3-movements-panel{min-height:520px!important;}
+  #home-movements-list{min-height:460px!important;}
+}
+</style>
 </head>
 <body>
 <div id="login-screen">
@@ -4733,7 +4769,7 @@ button{font-family:inherit;}
 </div>
 </aside>
 <main id="main">
-<div class="mobile-appbar"><button id="hamburger" aria-label="Apri menu"><i class="ti ti-menu-2"></i></button><div class="mobile-appbar-title"><strong>Bilancio Familiare</strong><span>Menu e sezioni</span></div></div>
+<div class="mobile-appbar"><button id="hamburger" aria-label="Apri menu" type="button"><i class="ti ti-menu-2"></i></button><div class="mobile-appbar-title"><strong>Bilancio Familiare</strong></div></div>
 <div id="page-home" class="page active home-redesign-v3">
   <div class="home-v3-header">
     <div class="home-v3-greeting">
@@ -9247,6 +9283,12 @@ function closeIncomeExpenseDetail() {
     console.log('✅ Popup chiuso!');
   }
 }
+
+// Listener globale robusto: funziona anche se il popup viene ricreato/clonato.
+document.addEventListener('click', function(e) {
+  const close = e.target.closest('#income-expense-close');
+  if (close) { e.preventDefault(); e.stopPropagation(); closeIncomeExpenseDetail(); }
+});
 
 // === INIZIALIZZA I LISTENER ===
 function initIncomeExpenseListeners() {
