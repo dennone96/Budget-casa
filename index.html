@@ -3977,6 +3977,223 @@ button { font-family: inherit; }
   .mobile-bottom-item i { font-size:18px; }
 }
 </style>
+
+<style id="complete-modern-redesign">
+/* =========================================================
+   COMPLETE MODERN REDESIGN
+   Layout is inspired by the approved mobile UI mockup.
+   Functional markup/IDs remain unchanged.
+   ========================================================= */
+:root{
+  --ui-bg:#f4f6f7;
+  --ui-card:#ffffff;
+  --ui-ink:#111b26;
+  --ui-muted:#7d8994;
+  --ui-line:#e8ecef;
+  --ui-green:#39c878;
+  --ui-green-soft:#eaf9f0;
+  --ui-red:#ff6267;
+  --ui-red-soft:#fff0f1;
+  --ui-blue:#4b91e8;
+  --ui-blue-soft:#edf4ff;
+  --ui-yellow:#f2c84b;
+  --ui-yellow-soft:#fff7df;
+  --ui-purple:#9b73df;
+  --ui-purple-soft:#f5efff;
+  --ui-shadow:0 8px 26px rgba(17,27,38,.055);
+  --ui-shadow-hover:0 14px 34px rgba(17,27,38,.09);
+  --ui-r:22px;
+}
+body{background:var(--ui-bg);color:var(--ui-ink);}
+#main{max-width:1280px;padding:30px 38px 56px;}
+.page{max-width:1000px;margin:0 auto;}
+.page>h1{font-size:29px;font-weight:800;letter-spacing:-1.2px;color:var(--ui-ink);margin:0 0 22px;}
+h2{font-weight:800;letter-spacing:-.55px;color:var(--ui-ink)}
+h3{font-weight:800;color:var(--ui-ink)}
+
+/* SIDEBAR */
+#sidebar{width:270px;background:rgba(255,255,255,.97);border-right:1px solid var(--ui-line);box-shadow:8px 0 32px rgba(17,27,38,.035);padding:22px 12px;}
+#sidebar-logo{padding:2px 12px 22px;margin-bottom:14px;border-bottom:1px solid var(--ui-line);font-size:17px;letter-spacing:-.45px;gap:10px;}
+#sidebar-logo .logo-icon{width:42px;height:42px;border-radius:14px;background:var(--ui-ink);box-shadow:none;}
+#sidebar nav{padding:0 4px;}
+.nav-item{min-height:48px;padding:10px 13px;border-radius:15px;gap:12px;color:#7a8792;font-size:13px;margin-bottom:4px;}
+.nav-item i{font-size:19px;}
+.nav-item:hover{background:#f5f7f8;color:var(--ui-ink);}
+.nav-item.active{background:#eef8f2;color:#1c9f5b;font-weight:800;}
+.stats-submenu{margin:0 8px 10px 39px;padding:5px 0 5px 10px;border-left:1px solid #dcefe4;gap:2px;}
+.stats-subitem{min-height:38px;padding:8px 10px;border-radius:11px;font-size:11px;gap:9px;}
+.stats-subitem i{font-size:15px;}
+.stats-subitem.active{background:#f0faf4;color:#1c9f5b;}
+#sidebar-footer{border-top:1px solid var(--ui-line);padding:14px 8px 0;}
+#sidebar-user-email{font-size:11px;color:var(--ui-muted);}
+#btn-logout{height:42px;border-radius:13px;background:#f6f7f8;border-color:var(--ui-line);font-size:12px;}
+#hamburger{width:42px;height:42px;border-radius:14px;background:#fff;border-color:var(--ui-line);box-shadow:0 8px 24px rgba(17,27,38,.08);}
+
+/* UNIVERSAL CARDS / CONTROLS */
+.panel{background:rgba(255,255,255,.96);border:1px solid var(--ui-line);border-radius:var(--ui-r);box-shadow:var(--ui-shadow);padding:20px;margin-bottom:14px;}
+input,select,textarea{background:#fff;border:1px solid var(--ui-line);border-radius:14px;color:var(--ui-ink);box-shadow:none;}
+input:focus,select:focus,textarea:focus{border-color:#b8c7d7;box-shadow:0 0 0 4px rgba(75,145,232,.09);outline:none;}
+button{font-family:inherit;}
+.btn-pdf{height:36px!important;padding:0 14px!important;border-radius:12px!important;background:#f5f7f8!important;color:#5e6a75!important;border:1px solid var(--ui-line)!important;box-shadow:none!important;}
+
+/* HOME */
+#page-home{padding:0 0 30px;overflow:visible;}
+#page-home::before{display:none;}
+#page-home .home-header{margin:0 0 18px;padding:0;}
+#page-home #filter-label{position:relative;order:-5;margin:0 0 14px;color:var(--ui-ink);font-size:28px;line-height:1.1;font-weight:800;letter-spacing:-1.2px;}
+#page-home #filter-label::before{content:'Buongiorno 👋';display:block;font-size:12px;line-height:1.3;color:var(--ui-muted);font-weight:600;letter-spacing:0;margin-bottom:5px;}
+#page-home .home-date-filter{gap:10px;}
+#page-home .home-date-filter>.filter-row:first-of-type{display:flex;align-items:flex-end;gap:8px;padding:0;background:transparent;border:0;box-shadow:none;}
+#page-home .home-date-field{gap:5px;}
+#page-home .home-date-field label{font-size:10px;color:var(--ui-muted);font-weight:700;padding-left:3px;}
+#page-home .home-date-field select,#page-home .home-date-field input{height:40px;border-radius:13px;font-size:12px;background:#fff;min-width:116px;}
+#page-home #btn-apply-range{height:40px;min-width:78px;border-radius:13px;background:var(--ui-ink);box-shadow:none;font-size:12px;}
+#page-home .home-date-filter>.toggle-row{display:flex;width:max-content;min-height:0;padding:0;background:transparent;border:0;box-shadow:none;gap:7px;}
+#page-home .toggle-container{width:36px;height:21px;border:0;background:#d8dee3;padding:0;border-radius:999px;}
+#page-home .toggle-switch{width:21px;height:21px;background:transparent;}
+#page-home .toggle-switch::after{width:15px;height:15px;top:3px;left:3px;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.18);}
+#page-home .toggle-container.active .toggle-switch::after{transform:translateX(15px);}
+#page-home .toggle-label-text{font-size:10px;color:var(--ui-muted);font-weight:700;}
+#page-home .stats-row{margin:0;gap:12px;}
+#page-home .stats-row-top{display:grid;grid-template-columns:1fr 1fr;margin-bottom:12px;}
+#page-home .stats-row-bottom{margin-bottom:12px;}
+#page-home .stat-card{position:relative;min-height:105px;padding:17px 18px;border:1px solid var(--ui-line);border-radius:20px;background:#fff;box-shadow:var(--ui-shadow);overflow:hidden;}
+#page-home .stat-card::after{content:'';position:absolute;width:100px;height:100px;right:-52px;top:-50px;border-radius:50%;background:#f8fafb;}
+#page-home .stat-card.income{border-color:#dcefe4;}
+#page-home .stat-card.expense{border-color:#f5dfe1;}
+#page-home .stat-card.balance{border-color:#dce8f8;}
+#page-home .stat-card.residuo{border-color:#eee3fa;}
+#page-home .home-stat-icon{position:relative;float:left;z-index:2;width:34px;height:34px;margin:0 9px 7px 0;border-radius:11px;font-size:17px;box-shadow:none;}
+#page-home .income-icon{background:var(--ui-green-soft);color:var(--ui-green);}
+#page-home .expense-icon{background:var(--ui-red-soft);color:var(--ui-red);}
+#page-home .balance-icon{background:var(--ui-blue-soft);color:var(--ui-blue);}
+#page-home .residuo-icon{background:var(--ui-yellow-soft);color:#d59a1e;}
+#page-home .stat-card p:first-of-type{position:relative;z-index:2;margin:1px 0 3px;color:var(--ui-muted);font-size:10px;font-weight:700;}
+#page-home .stat-card p:last-of-type{position:relative;z-index:2;clear:both;margin:4px 0 0;color:var(--ui-ink)!important;font-size:23px;font-weight:800;letter-spacing:-.9px;}
+#page-home #stat-income{color:var(--ui-green)!important;}
+#page-home #stat-expense{color:var(--ui-red)!important;}
+#page-home .stats-row-bottom .stat-card{min-height:94px;}
+#page-home .stats-row-bottom .stat-card p:last-of-type{font-size:25px;}
+#page-home> .panel[style*="text-align: center"]{background:transparent;border:0;box-shadow:none;padding:0!important;margin:3px 0 22px;}
+#page-home #btn-nuovo-movimento{height:52px!important;border-radius:17px!important;background:var(--ui-ink)!important;box-shadow:none!important;font-size:14px!important;}
+#page-home #btn-nuovo-movimento:hover{background:#263341!important;transform:translateY(-1px);}
+#page-home>div[style*="margin-bottom: 1rem"]{margin-top:18px!important;margin-bottom:10px!important;}
+#page-home>div[style*="margin-bottom: 1rem"] h2{font-size:18px;}
+#page-home .search-bar{border:1px solid var(--ui-line);background:#fff;border-radius:15px;box-shadow:var(--ui-shadow);padding:0;margin-bottom:8px;}
+#page-home .search-bar input{border:0;box-shadow:none;background:transparent;height:45px;}
+#page-home .source-filter{gap:6px;margin-bottom:12px;}
+#page-home .source-filter button{height:34px;border-radius:999px;background:#fff;border:1px solid var(--ui-line);font-size:10px;color:#6d7883;}
+#page-home .source-filter button.active{background:#eef8f2;color:#1c9f5b;border-color:#d9efe2;}
+
+/* MOVEMENTS */
+.tx-row{background:#fff;border:1px solid var(--ui-line);border-radius:18px;box-shadow:none;padding:13px 15px;margin-bottom:7px;}
+.tx-row:hover{transform:none;box-shadow:var(--ui-shadow);border-color:#dce3e8;}
+.tx-header{padding:7px 15px;color:#9aa5ae;font-size:9px;letter-spacing:.7px;}
+.tx-desc-text{font-size:13px;font-weight:750;}
+.tx-col-date{font-size:11px;color:var(--ui-muted);}
+.tx-col-amount{font-size:13px;}
+
+/* STATISTICS */
+#page-grafici>div:first-child{margin-bottom:15px!important;}
+#page-grafici>div:first-child h1{font-size:28px;}
+#page-grafici .stats-tab-content{animation:fadeIn .22s ease;}
+#page-grafici .row-between{margin-bottom:10px;}
+#page-grafici .row-between h2{font-size:18px;}
+#page-grafici .row-between select{height:38px;border-radius:13px;font-size:11px;padding:6px 12px;}
+#page-grafici .panel{padding:16px;border-radius:20px;}
+#page-grafici .chart-wrap{border-radius:15px;}
+#page-grafici .data-table{border-collapse:separate;border-spacing:0;width:100%;overflow:hidden;border:1px solid var(--ui-line);border-radius:14px;font-size:11px;}
+#page-grafici .data-table th{background:#f8fafb;color:#8b96a0;font-size:8px;letter-spacing:.5px;border-bottom:1px solid var(--ui-line);}
+#page-grafici .data-table td{padding:9px 8px;border-bottom:1px solid #f0f2f4;}
+#page-grafici .data-table tr:last-child td{border-bottom:0;}
+.category-icon,.compare-category-icon{border:0!important;box-shadow:none!important;}
+#tab-categorie .legend{gap:7px;margin-bottom:9px;}
+#tab-categorie .legend span{font-size:10px;}
+
+/* RESIDUO - balanced chart */
+#tab-residuo .residuo-chart-wrap{position:relative;width:100%;height:290px;min-height:0;max-height:none;margin:0;}
+#tab-residuo .residuo-chart-wrap canvas{display:block!important;width:100%!important;height:100%!important;max-width:100%!important;}
+#tab-residuo .panel p{font-size:11px!important;color:var(--ui-muted)!important;}
+
+/* CONFRONTO */
+#tab-confronto .row-between>div{gap:7px!important;}
+#tab-confronto .row-between select{min-width:125px;}
+#tab-confronto .chart-wrap{height:280px;max-height:none;}
+#tab-confronto #table-compare{border-radius:14px;overflow:hidden;}
+#tab-confronto #table-compare .section-header td{background:#f7f9fa!important;color:#697681!important;}
+#tab-confronto .compare-category-icon{width:28px;height:28px;border-radius:9px;}
+
+/* OTHER PAGES */
+#page-bollette>h1,#page-liste>h1,#page-eventi>h1,#page-profilo>h1,#page-categorie>h1,#page-import>h1{font-size:27px;margin-bottom:17px;}
+#page-bollette .panel,#page-liste .panel,#page-profilo .panel,#page-categorie .panel,#page-import .panel{border-radius:20px;}
+#page-bollette button[id^="btn-nuova"],#page-liste button[id^="btn-nuova"],#page-eventi button[id^="btn-nuovo"]{background:var(--ui-ink)!important;box-shadow:none!important;border-radius:16px!important;}
+#page-bollette .bolletta-table{border-collapse:separate;border-spacing:0;border:1px solid var(--ui-line);border-radius:15px;overflow:hidden;}
+#page-bollette .bolletta-table th{background:#f7f9fa;color:#7e8993;font-size:10px;}
+#page-bollette .bolletta-table td{font-size:11px;border-bottom:1px solid #f0f2f4;}
+#page-eventi>div[style*="background:var(--surface)"]{border-color:var(--ui-line)!important;box-shadow:var(--ui-shadow);}
+#page-eventi #calendario-giorni>div{border-radius:12px!important;}
+#page-profilo .profile-field label{font-size:10px;color:var(--ui-muted);font-weight:700;}
+#page-categorie .cat-item{padding:12px 5px;border-bottom-color:#eef1f3;}
+
+/* MOBILE NAV */
+#mobile-bottom-nav{background:rgba(255,255,255,.96);border:1px solid var(--ui-line);border-radius:21px;box-shadow:0 14px 34px rgba(17,27,38,.13);}
+.mobile-bottom-item{color:#99a3ad;}
+.mobile-bottom-item.active{background:#f0f3f5;color:var(--ui-ink);}
+.mobile-bottom-item i{font-size:18px;}
+
+/* MOBILE */
+@media(max-width:900px){
+  #main{padding:18px 14px 94px;}
+  .page{max-width:none;}
+  #sidebar{width:278px;}
+}
+@media(max-width:600px){
+  #main{padding:13px 11px 94px;}
+  .page>h1{font-size:23px;margin-bottom:14px;}
+  #page-home{padding-bottom:15px;}
+  #page-home #filter-label{font-size:25px;margin-bottom:10px;}
+  #page-home #filter-label::before{font-size:11px;margin-bottom:4px;}
+  #page-home .home-date-filter>.filter-row:first-of-type{display:grid;grid-template-columns:1fr 1fr 70px;gap:6px;align-items:end;}
+  #page-home .home-date-field select,#page-home .home-date-field input{height:37px;min-width:0;width:100%;font-size:11px;padding:0 9px;border-radius:12px;}
+  #page-home #btn-apply-range{height:37px;min-width:0;width:100%;font-size:10px;padding:0 7px;border-radius:12px;}
+  #page-home .stats-row{gap:8px;}
+  #page-home .stat-card{min-height:91px;padding:13px 12px;border-radius:17px;}
+  #page-home .home-stat-icon{width:29px;height:29px;border-radius:9px;font-size:15px;margin-right:7px;}
+  #page-home .stat-card p:first-of-type{font-size:9px;margin-top:0;}
+  #page-home .stat-card p:last-of-type{font-size:18px;letter-spacing:-.6px;margin-top:5px;}
+  #page-home .stats-row-bottom .stat-card{min-height:75px;}
+  #page-home .stats-row-bottom .stat-card p:last-of-type{font-size:20px;}
+  #page-home #btn-nuovo-movimento{height:48px!important;border-radius:15px!important;font-size:13px!important;}
+  #page-home>div[style*="margin-bottom: 1rem"]{margin-top:12px!important;}
+  #page-home>div[style*="margin-bottom: 1rem"] h2{font-size:16px;}
+  #page-home .search-bar input{height:40px;font-size:11px;}
+  #page-home .source-filter button{height:31px;font-size:9px;padding:0 10px;}
+  #page-grafici>div:first-child h1{font-size:23px;}
+  #page-grafici .row-between h2{font-size:15px;}
+  #page-grafici .row-between select{height:36px;font-size:10px;max-width:112px;}
+  #page-grafici .panel{padding:12px;border-radius:17px;}
+  #tab-residuo .residuo-chart-wrap{height:205px;min-height:205px;}
+  #tab-confronto .chart-wrap{height:205px;}
+  #tab-confronto .row-between select{width:105px;min-width:0;}
+  #tab-confronto #table-compare th{font-size:7px;padding:7px 3px;}
+  #tab-confronto #table-compare td{font-size:9px;padding:8px 3px;}
+  #tab-confronto .compare-category-icon{width:23px;height:23px;margin-right:5px;}
+  #page-bollette>h1,#page-liste>h1,#page-eventi>h1,#page-profilo>h1,#page-categorie>h1,#page-import>h1{font-size:23px;}
+  .panel{padding:14px;border-radius:17px;}
+  .tx-row{border-radius:15px;padding:10px 9px;margin-bottom:6px;}
+}
+@media(max-width:380px){
+  #main{padding-left:8px;padding-right:8px;}
+  #page-home #filter-label{font-size:22px;}
+  #page-home .home-date-filter>.filter-row:first-of-type{grid-template-columns:1fr 1fr;}
+  #page-home #btn-apply-range{grid-column:1/-1;}
+  #page-home .stat-card{min-height:86px;padding:11px 9px;}
+  #page-home .stat-card p:last-of-type{font-size:17px;}
+  #page-home .stats-row-bottom .stat-card p:last-of-type{font-size:19px;}
+  #tab-residuo .residuo-chart-wrap{height:190px;min-height:190px;}
+  #tab-confronto .chart-wrap{height:190px;}
+}
+</style>
 </head>
 <body>
 <div id="login-screen">
@@ -4013,7 +4230,7 @@ button { font-family: inherit; }
 <aside id="sidebar" aria-label="Menu principale">
 <div id="sidebar-logo">
 <div class="logo-icon"><i class="ti ti-wallet"></i></div>
-Budget
+<span>Bilancio Familiare</span>
 </div>
 <nav>
   <button class="nav-item active" data-page="page-home">
