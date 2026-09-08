@@ -3779,6 +3779,204 @@ border-radius: var(--radius-sm);
 }
 </style>
 
+<style>
+/* ============================================================
+   MODERN UI REDESIGN — Bilancio Familiare
+   Ispirato al layout fornito: card morbide, gerarchia chiara,
+   colori pastello, navigazione mobile e look finance premium.
+   ============================================================ */
+:root {
+  --modern-bg: #f4f6f8;
+  --modern-card: rgba(255,255,255,.94);
+  --modern-card-solid: #fff;
+  --modern-ink: #142131;
+  --modern-muted: #7d8996;
+  --modern-line: rgba(20,33,49,.08);
+  --modern-green: #43c777;
+  --modern-red: #ff5f63;
+  --modern-blue: #4a90d9;
+  --modern-yellow: #f4c94e;
+  --modern-purple: #a875e8;
+  --modern-radius: 22px;
+  --modern-shadow: 0 8px 28px rgba(20,33,49,.055);
+}
+
+body { background: var(--modern-bg); }
+#main { max-width: 1240px; padding: 28px 34px 48px; }
+.page > h1 {
+  font-size: 30px; line-height: 1.1; letter-spacing: -1.2px;
+  margin: 0 0 20px; font-weight: 800; color: var(--modern-ink);
+}
+.panel, .stat-card, .search-bar, .import-section-title + p + .import-row,
+#page-eventi > div, #page-liste > div { border-color: var(--modern-line); }
+.panel {
+  background: var(--modern-card);
+  border: 1px solid var(--modern-line);
+  border-radius: var(--modern-radius);
+  box-shadow: var(--modern-shadow);
+}
+
+/* Sidebar */
+#sidebar {
+  background: rgba(255,255,255,.96);
+  border-right: 1px solid var(--modern-line);
+  box-shadow: 8px 0 28px rgba(20,33,49,.025);
+  padding: 20px 0;
+}
+#sidebar-logo { border-bottom: 0; margin-bottom: 12px; padding: 0 20px 18px; }
+#sidebar-logo .logo-icon { width: 42px; height: 42px; border-radius: 14px; }
+.nav-item { border-radius: 14px; padding: 12px 14px; margin-bottom: 3px; }
+.nav-item.active { background: #edf7f1; color: #1f9e5b; }
+.nav-item:hover { background: #f2f5f7; }
+.stats-submenu { margin-left: 38px; border-left-color: rgba(67,199,119,.25); }
+.stats-subitem { min-height: 36px; border-radius: 11px; }
+.stats-subitem.active { background: #edf7f1; color: #1f9e5b; }
+#sidebar-footer { border-top-color: var(--modern-line); }
+
+/* Home */
+#page-home { padding-top: 0; }
+#page-home::before { background: radial-gradient(circle at 95% 0%, #eaf8f0, transparent 28%); opacity: .8; }
+#page-home .home-header {
+  margin: 0 0 18px; padding: 0; display: block;
+}
+#page-home .home-date-filter { gap: 10px; }
+#page-home #filter-label {
+  order: -5; font-size: 27px; line-height: 1.15; letter-spacing: -1px;
+  font-weight: 800; margin: 0 0 4px; color: var(--modern-ink);
+}
+#page-home #filter-label::before {
+  content: 'Buongiorno 👋'; display: block; font-size: 13px;
+  letter-spacing: 0; color: var(--modern-muted); margin-bottom: 5px; font-weight: 600;
+}
+#page-home .home-date-filter > .filter-row:first-of-type {
+  display: flex; align-items: flex-end; gap: 9px; padding: 0;
+  background: transparent; border: 0; box-shadow: none; backdrop-filter: none;
+}
+#page-home .home-date-field label { font-size: 11px; color: var(--modern-muted); }
+#page-home .home-date-field select, #page-home .home-date-field input {
+  height: 42px; border-radius: 14px; border: 1px solid var(--modern-line);
+  background: #fff; font-size: 12px; box-shadow: none;
+}
+#page-home #btn-apply-range {
+  width: auto; min-width: 86px; height: 42px; border-radius: 14px;
+  background: var(--modern-ink); box-shadow: none; font-size: 12px;
+}
+#page-home .home-date-filter > .toggle-row {
+  min-height: 0; width: fit-content; padding: 0; background: transparent;
+  border: 0; box-shadow: none; gap: 8px;
+}
+#page-home .toggle-container { width: 42px; height: 24px; padding: 0; border: 0; background: #d9e0e5; }
+#page-home .toggle-switch { width: 24px; height: 24px; background: transparent; }
+#page-home .toggle-switch::after { width: 18px; height: 18px; top: 3px; left: 3px; }
+#page-home .toggle-container.active .toggle-switch::after { transform: translateX(18px); }
+#page-home .toggle-label-text { font-size: 11px; color: var(--modern-muted); }
+
+#page-home .stats-row { margin-left: 0; margin-right: 0; gap: 12px; }
+#page-home .stats-row-top { grid-template-columns: 1fr 1fr; margin-bottom: 12px; }
+#page-home .stat-card {
+  min-height: 108px; padding: 18px; border-radius: 20px;
+  background: var(--modern-card); border: 1px solid var(--modern-line);
+  box-shadow: var(--modern-shadow);
+}
+#page-home .stat-card p:first-of-type { font-size: 11px; color: var(--modern-muted); margin: 0 0 3px 42px; font-weight: 700; }
+#page-home .stat-card p:last-of-type { font-size: 21px; letter-spacing: -.7px; margin: 0 0 0 42px; font-weight: 800; }
+#page-home .home-stat-icon {
+  width: 34px; height: 34px; border-radius: 11px; display: flex;
+  align-items: center; justify-content: center; float: left; margin-bottom: 8px;
+}
+#page-home .income-icon { background: #e5f8ed; color: #27ae68; }
+#page-home .expense-icon { background: #ffe9ea; color: #ee5358; }
+#page-home .balance-icon { background: #e8f1ff; color: #4a90d9; }
+#page-home .residuo-icon { background: #fff2d9; color: #d99a20; }
+#page-home .stats-row-bottom { margin-bottom: 12px; }
+#page-home .stats-row-bottom .stat-card { min-height: 92px; }
+#page-home .stats-row-bottom .stat-card-full { width: 100%; }
+#page-home .stats-row-bottom .stat-card p:last-of-type { font-size: 24px; }
+#page-home #btn-nuovo-movimento {
+  height: 52px !important; border-radius: 17px !important;
+  background: var(--modern-ink) !important; box-shadow: none !important;
+  font-size: 14px !important;
+}
+#page-home > .panel[style*="text-align: center"] {
+  background: transparent; border: 0; box-shadow: none; padding: 0 !important;
+  margin: 4px 0 24px;
+}
+#page-home .search-bar {
+  border-radius: 16px; background: #fff; box-shadow: var(--modern-shadow);
+}
+
+/* Statistics */
+#page-grafici > div:first-child { margin-bottom: 16px !important; }
+#page-grafici .row-between { gap: 10px; margin-bottom: 12px; }
+#page-grafici .row-between h2 { font-size: 19px; letter-spacing: -.5px; }
+#page-grafici .row-between select { height: 40px; border-radius: 14px; border-color: var(--modern-line); background:#fff; }
+#page-grafici .panel { padding: 18px; margin-bottom: 12px; }
+#page-grafici .chart-wrap { border-radius: 16px; }
+#page-grafici .data-table { font-size: 12px; }
+#page-grafici .data-table th { font-size: 9px; color: var(--modern-muted); }
+#page-grafici .data-table td { padding: 10px 7px; }
+.compare-category-icon, .category-icon { border-width: 1px !important; box-shadow: none; }
+
+/* Generic controls */
+input, select, textarea { border-color: var(--modern-line); background: #fff; border-radius: 14px; }
+button { font-family: inherit; }
+.btn-pdf { border-radius: 999px !important; font-size: 11px !important; }
+
+/* Other pages */
+#page-bollette > h1, #page-liste > h1, #page-eventi > h1, #page-profilo > h1, #page-categorie > h1, #page-import > h1 { margin-bottom: 16px; }
+#page-bollette .panel, #page-liste .panel, #page-profilo .panel, #page-categorie .panel, #page-import .panel { margin-bottom: 14px; }
+#page-bollette button[id^="btn-nuova"], #page-liste button[id^="btn-nuova"], #page-eventi button[id^="btn-nuovo"] { background: var(--modern-ink) !important; border-radius: 16px !important; box-shadow:none !important; }
+
+/* Mobile bottom navigation */
+#mobile-bottom-nav {
+  display: none; position: fixed; left: 10px; right: 10px; bottom: 10px;
+  height: 66px; z-index: 180; background: rgba(255,255,255,.94);
+  border: 1px solid rgba(20,33,49,.08); border-radius: 22px;
+  box-shadow: 0 12px 34px rgba(20,33,49,.13); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  grid-template-columns: repeat(5,1fr); padding: 5px;
+}
+.mobile-bottom-item {
+  border: 0; background: transparent; color: #8b97a2; border-radius: 17px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+  font: 700 9px/1 inherit; cursor:pointer;
+}
+.mobile-bottom-item i { font-size: 19px; font-weight:400; }
+.mobile-bottom-item.active { color: var(--modern-ink); background:#f0f3f5; }
+
+@media (max-width: 900px) {
+  #main { padding: 18px 14px 96px; }
+  .page > h1 { font-size: 25px; }
+  #page-home #filter-label { font-size: 25px; }
+  #mobile-bottom-nav { display: grid; }
+  #hamburger { top: 13px; left: 13px; width: 40px; height:40px; border-radius:13px; }
+  #page-grafici .panel { padding: 14px; }
+}
+@media (max-width: 600px) {
+  #main { padding: 16px 12px 94px; padding-top: 16px; }
+  #page-home .home-header { margin-bottom: 14px; }
+  #page-home .home-date-filter > .filter-row:first-of-type { display:grid; grid-template-columns: 1fr 1fr auto; align-items:end; }
+  #page-home #btn-apply-range { min-width: 70px; padding: 0 12px; }
+  #page-home .stats-row-top { gap: 9px; }
+  #page-home .stat-card { min-height: 94px; padding: 14px; border-radius:18px; }
+  #page-home .stat-card p:last-of-type { font-size: 18px; }
+  #page-home .stats-row-bottom .stat-card { min-height: 80px; }
+  #page-home .stats-row-bottom .stat-card p:last-of-type { font-size: 20px; }
+  #page-home .home-stat-icon { width: 30px; height:30px; border-radius:10px; }
+  #page-home .stat-card p:first-of-type, #page-home .stat-card p:last-of-type { margin-left:38px; }
+  #page-grafici > div:first-child h1 { font-size: 24px; }
+  #page-grafici .row-between h2 { font-size: 17px; }
+  #page-grafici .data-table th { padding: 7px 4px; }
+  #page-grafici .data-table td { padding: 8px 4px; }
+  .panel { border-radius: 18px; }
+}
+@media (max-width: 380px) {
+  #page-home #filter-label { font-size: 22px; }
+  #page-home .home-date-filter > .filter-row:first-of-type { grid-template-columns: 1fr 1fr; }
+  #page-home #btn-apply-range { grid-column:1/-1; width:100%; }
+  #page-home .stat-card p:last-of-type { font-size: 17px; }
+  .mobile-bottom-item i { font-size:18px; }
+}
+</style>
 </head>
 <body>
 <div id="login-screen">
@@ -3854,6 +4052,13 @@ Budget
 <button id="btn-logout">Esci</button>
 </div>
 </aside>
+<nav id="mobile-bottom-nav" aria-label="Navigazione rapida">
+  <button type="button" class="mobile-bottom-item active" onclick="showPage('page-home')"><i class="ti ti-home"></i><span>Home</span></button>
+  <button type="button" class="mobile-bottom-item" onclick="showPage('page-home'); setTimeout(() => document.getElementById('transactions-list')?.scrollIntoView({behavior:'smooth', block:'start'}), 120)"><i class="ti ti-arrows-left-right"></i><span>Movimenti</span></button>
+  <button type="button" class="mobile-bottom-item" onclick="showPage('page-grafici')"><i class="ti ti-chart-donut"></i><span>Statistiche</span></button>
+  <button type="button" class="mobile-bottom-item" onclick="showPage('page-bollette')"><i class="ti ti-file-invoice"></i><span>Bollette</span></button>
+  <button type="button" class="mobile-bottom-item" onclick="document.getElementById('hamburger')?.click()"><i class="ti ti-dots"></i><span>Altro</span></button>
+</nav>
 <main id="main">
 <div id="page-home" class="page active">
 <div class="home-header">
@@ -9793,5 +9998,22 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+<script>
+/* Modern mobile navigation state */
+(function(){
+  function syncMobileNav(pageId){
+    document.querySelectorAll('.mobile-bottom-item').forEach(function(btn){ btn.classList.remove('active'); });
+    var map = { 'page-home':0, 'page-grafici':2, 'page-bollette':3 };
+    var idx = map[pageId];
+    if (idx !== undefined) document.querySelectorAll('.mobile-bottom-item')[idx]?.classList.add('active');
+  }
+  document.querySelectorAll('.mobile-bottom-item').forEach(function(btn,idx){
+    btn.addEventListener('click', function(){
+      if(idx===1) syncMobileNav('page-home');
+      else if(idx===4) btn.classList.remove('active');
+    });
+  });
+})();
+</script>
 </body>
 </html>
