@@ -4309,6 +4309,150 @@ button{font-family:inherit;}
 }
 </style>
 
+
+<style id="home-final-refinement">
+/* =========================================================
+   HOME FINAL REFINEMENT
+   Compatti i filtri, periodo leggibile, saldi separati.
+   ========================================================= */
+#page-home .home-v3-header{padding:8px 18px 12px;}
+#page-home .home-v3-greeting h1{font-size:24px;letter-spacing:-.8px;}
+#page-home .home-v3-greeting p{font-size:11px;margin-top:4px;}
+
+#page-home .home-date-filter{
+  display:block!important;
+  margin:0 14px 12px!important;
+  padding:0!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+#page-home .home-date-filter > .filter-row:first-of-type{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  gap:7px!important;
+  align-items:end!important;
+  padding:0!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+#page-home .home-date-filter > .filter-row:first-of-type .home-date-field{
+  min-width:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  gap:3px!important;
+}
+#page-home .home-date-filter > .filter-row:first-of-type label{
+  padding-left:3px!important;
+  color:#8190a0!important;
+  font-size:9px!important;
+  font-weight:700!important;
+  line-height:1!important;
+}
+#page-home .home-date-filter > .filter-row:first-of-type select{
+  width:100%!important;
+  min-width:0!important;
+  height:36px!important;
+  padding:0 11px!important;
+  color:#17273c!important;
+  -webkit-text-fill-color:#17273c!important;
+  background:#fff!important;
+  border:1px solid #e4e9ed!important;
+  border-radius:12px!important;
+  font-size:11px!important;
+  font-weight:700!important;
+  box-shadow:0 4px 14px rgba(20,35,54,.035)!important;
+}
+#page-home .home-date-filter > .filter-row:first-of-type select option{
+  color:#17273c!important;
+  background:#fff!important;
+}
+#page-home #btn-apply-range{display:none!important;}
+#page-home .home-date-filter > .toggle-row{
+  display:flex!important;
+  width:100%!important;
+  min-height:34px!important;
+  height:34px!important;
+  margin-top:7px!important;
+  padding:0 9px!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:7px!important;
+  background:#fff!important;
+  border:1px solid #e7ecef!important;
+  border-radius:11px!important;
+  box-shadow:0 4px 14px rgba(20,35,54,.025)!important;
+}
+#page-home .home-date-filter > .toggle-row .toggle-container{
+  width:34px!important;height:20px!important;flex:0 0 34px!important;
+  background:#dce3e8!important;border-radius:999px!important;
+}
+#page-home .home-date-filter > .toggle-row .toggle-switch{width:20px!important;height:20px!important;}
+#page-home .home-date-filter > .toggle-row .toggle-switch:after{width:14px!important;height:14px!important;top:3px!important;left:3px!important;}
+#page-home .home-date-filter > .toggle-row .toggle-container.active .toggle-switch:after{transform:translateX(14px)!important;}
+#page-home .home-date-filter > .toggle-row .toggle-label-text{
+  color:#718197!important;font-size:9px!important;font-weight:700!important;margin:0!important;
+}
+#page-home .home-date-filter > #custom-range{
+  margin-top:7px!important;
+  padding:8px!important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto!important;
+  gap:6px!important;
+  border:1px solid #e7ecef!important;
+  border-radius:13px!important;
+  background:#fff!important;
+}
+#page-home .home-date-filter > #custom-range .home-date-field{min-width:0!important;display:flex!important;flex-direction:column!important;gap:3px!important;}
+#page-home .home-date-filter > #custom-range label{font-size:8px!important;color:#8190a0!important;font-weight:700!important;}
+#page-home .home-date-filter > #custom-range input{height:34px!important;min-width:0!important;width:100%!important;color:#17273c!important;background:#f7f9fa!important;border:1px solid #e4e9ed!important;border-radius:10px!important;font-size:10px!important;padding:0 7px!important;}
+#page-home #btn-apply-custom{height:34px!important;padding:0 9px!important;border-radius:10px!important;font-size:9px!important;background:#17273c!important;color:#fff!important;}
+#page-home #filter-label{
+  display:block!important;
+  width:max-content!important;
+  max-width:100%!important;
+  margin:8px auto 0!important;
+  padding:5px 11px!important;
+  color:#53677f!important;
+  background:#eef3f6!important;
+  border:1px solid #e2e8ec!important;
+  border-radius:999px!important;
+  font-size:9px!important;
+  line-height:1.2!important;
+  font-weight:800!important;
+  letter-spacing:.1px!important;
+  text-align:center!important;
+}
+#page-home #filter-label::before{content:none!important;display:none!important;}
+
+#page-home .home-v3-balance-card{
+  min-height:112px!important;
+  margin:0 14px 10px!important;
+  padding:17px!important;
+  border-radius:21px!important;
+}
+#page-home .home-v3-balance-card.home-v3-balance-period{margin-bottom:13px!important;background:linear-gradient(135deg,#f5f9ff 0%,#fff 100%)!important;border-color:#e1eaf7!important;}
+#page-home .home-v3-balance-card .home-v3-balance-copy strong{font-size:29px!important;}
+#page-home .home-v3-balance-card .home-v3-balance-copy small{font-size:10px!important;margin-top:6px!important;}
+#page-home .home-v3-balance-period .home-v3-balance-copy small{color:#718197!important;}
+
+@media(max-width:600px){
+  #page-home .home-v3-header{padding:5px 11px 10px!important;}
+  #page-home .home-v3-greeting h1{font-size:20px!important;}
+  #page-home .home-v3-greeting p{font-size:9px!important;}
+  #page-home .home-date-filter{margin:0 11px 10px!important;}
+  #page-home .home-v3-balance-card{margin-left:11px!important;margin-right:11px!important;min-height:101px!important;padding:14px!important;border-radius:18px!important;}
+  #page-home .home-v3-balance-card .home-v3-balance-copy strong{font-size:25px!important;}
+  #page-home .home-v3-balance-card .home-v3-balance-copy span{font-size:10px!important;}
+  #page-home .home-v3-balance-card .home-v3-balance-copy small{font-size:8px!important;}
+}
+@media(max-width:380px){
+  #page-home .home-date-filter > .filter-row:first-of-type select{height:34px!important;font-size:10px!important;}
+  #page-home #filter-label{font-size:8px!important;padding:4px 9px!important;}
+  #page-home .home-v3-balance-card .home-v3-balance-copy strong{font-size:23px!important;}
+}
+</style>
+
 </head>
 <body>
 <div id="login-screen">
@@ -4395,8 +4539,8 @@ button{font-family:inherit;}
 <div id="page-home" class="page active home-redesign-v3">
   <div class="home-v3-header">
     <div class="home-v3-greeting">
-      <h1>Buongiorno, <span id="home-user-name">Famiglia</span> 👋</h1>
-      <p>Ecco come stanno andando le tue finanze.</p>
+      <h1>Bilancio Familiare</h1>
+      <p>Panoramica delle tue finanze</p>
     </div>
     <button class="home-v3-avatar" id="home-profile-btn" type="button" aria-label="Profilo">
       <i class="ti ti-user"></i>
@@ -4409,7 +4553,7 @@ button{font-family:inherit;}
     <div class="filter-row">
       <div class="home-date-field"><label for="filter-month">Mese</label><select id="filter-month"></select></div>
       <div class="home-date-field"><label for="filter-year">Anno</label><select id="filter-year"></select></div>
-      <button id="btn-apply-range" type="button">Filtra</button>
+
     </div>
     <div class="filter-row toggle-row">
       <div class="toggle-container" id="custom-toggle-container"><div class="toggle-switch"></div></div>
@@ -4423,14 +4567,23 @@ button{font-family:inherit;}
     <p id="filter-label"></p>
   </div>
 
-  <section class="home-v3-balance-card">
-    <div class="home-v3-icon home-v3-icon-green"><i class="ti ti-chart-histogram"></i></div>
+  <section class="home-v3-balance-card home-v3-balance-account">
+    <div class="home-v3-icon home-v3-icon-green"><i class="ti ti-building-bank"></i></div>
     <div class="home-v3-balance-copy">
       <span>Saldo disponibile</span>
       <strong id="stat-residuo">0,00 €</strong>
-      <small id="home-monthly-delta"><i class="ti ti-arrow-up"></i> + 0,00 € questo mese</small>
+      <small id="home-account-label">Totale conto corrente</small>
     </div>
     <button class="home-v3-eye" type="button" aria-label="Mostra saldo"><i class="ti ti-eye"></i></button>
+  </section>
+
+  <section class="home-v3-balance-card home-v3-balance-period">
+    <div class="home-v3-icon home-v3-icon-blue"><i class="ti ti-calendar-stats"></i></div>
+    <div class="home-v3-balance-copy">
+      <span>Saldo periodo</span>
+      <strong id="stat-period-balance">0,00 €</strong>
+      <small id="home-period-label">Entrate meno uscite del periodo</small>
+    </div>
   </section>
 
   <section class="home-v3-mini-grid">
@@ -6356,12 +6509,21 @@ const to = filterTo || todayISO();
 const mt = state.transactions.filter(t => t.date >= from && t.date <= to && matchesSourceFilter(t));
 const income = mt.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0);
 const expense = mt.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0);
-const ti = state.transactions.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0);
-const te = state.transactions.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0);
+
+// Il "Saldo disponibile" rappresenta il saldo reale del conto corrente:
+// considera tutti i movimenti bancari, indipendentemente dal periodo selezionato.
+const bankBalance = state.transactions
+  .filter(t => (t.source || 'cash') === 'bank')
+  .reduce((s,t) => s + (t.type === 'income' ? amountValue(t.amount) : -amountValue(t.amount)), 0);
+
 document.getElementById('stat-income').textContent = fmtEUR(income);
 document.getElementById('stat-expense').textContent = fmtEUR(expense);
-const statBalanceEl = document.getElementById('stat-balance'); if (statBalanceEl) statBalanceEl.textContent = fmtEUR(income - expense);
-document.getElementById('stat-residuo').textContent = fmtEUR(ti - te);
+const statBalanceEl = document.getElementById('stat-balance');
+if (statBalanceEl) statBalanceEl.textContent = fmtEUR(income - expense);
+const accountBalanceEl = document.getElementById('stat-residuo');
+if (accountBalanceEl) accountBalanceEl.textContent = fmtEUR(bankBalance);
+const periodBalanceEl = document.getElementById('stat-period-balance');
+if (periodBalanceEl) periodBalanceEl.textContent = fmtEUR(income - expense);
 }
 function populateHomePeriodFilters() {
 const monthSel = document.getElementById('filter-month');
@@ -7745,31 +7907,40 @@ const rSel = document.getElementById('chart-residuo-year');
 if (rSel) { const prevR = rSel.value; rSel.innerHTML = ''; uniqueYears.forEach(y => { const opt = document.createElement('option'); opt.value = y; opt.textContent = y; rSel.appendChild(opt); }); if ([...rSel.options].some(o => o.value === prevR)) rSel.value = prevR; }
 }
 function updateHomeModernDashboard() {
-  const nameEl = document.getElementById('home-user-name');
-  if (nameEl) {
-    const raw = (currentUser && (currentUser.displayName || currentUser.email || '') || '').trim();
-    const first = raw.includes('@') ? raw.split('@')[0] : raw.split(/\s+/)[0];
-    nameEl.textContent = first ? first.charAt(0).toUpperCase() + first.slice(1) : 'Famiglia';
-  }
-
-  const balance = document.getElementById('stat-residuo');
-  const income = document.getElementById('stat-income');
-  const expense = document.getElementById('stat-expense');
-  const delta = document.getElementById('home-monthly-delta');
-
   const from = filterFrom || todayISO().slice(0,7) + '-01';
   const to = filterTo || todayISO();
   const mt = state.transactions.filter(t => t.date >= from && t.date <= to && matchesSourceFilter(t));
   const periodIncome = mt.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0);
   const periodExpense = mt.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0);
   const periodBalance = periodIncome - periodExpense;
-  if (balance) balance.textContent = fmtEUR(periodBalance);
+
+  // Saldo disponibile = saldo cumulativo del CONTO CORRENTE, mai filtrato per mese.
+  const accountBalance = state.transactions
+    .filter(t => (t.source || 'cash') === 'bank')
+    .reduce((s,t) => s + (t.type === 'income' ? amountValue(t.amount) : -amountValue(t.amount)), 0);
+
+  const balance = document.getElementById('stat-residuo');
+  const income = document.getElementById('stat-income');
+  const expense = document.getElementById('stat-expense');
+  const periodBalanceEl = document.getElementById('stat-period-balance');
+  const accountLabel = document.getElementById('home-account-label');
+  const periodLabelEl = document.getElementById('home-period-label');
+
+  if (balance) balance.textContent = fmtEUR(accountBalance);
   if (income) income.textContent = fmtEUR(periodIncome);
   if (expense) expense.textContent = fmtEUR(periodExpense);
-  if (delta) {
-    delta.innerHTML = `<i class="ti ti-arrow-up"></i> ${periodBalance >= 0 ? '+' : ''} ${fmtEUR(periodBalance)} nel periodo`;
-    delta.style.color = periodBalance >= 0 ? '#18a85e' : '#f04459';
+  if (periodBalanceEl) {
+    periodBalanceEl.textContent = fmtEUR(periodBalance);
+    periodBalanceEl.style.color = periodBalance >= 0 ? '#17273c' : '#f04459';
   }
+  if (accountLabel) accountLabel.textContent = 'Totale conto corrente';
+  if (periodLabelEl) {
+    periodLabelEl.textContent = filterMode === 'month'
+      ? 'Entrate meno uscite del mese selezionato'
+      : 'Entrate meno uscite del periodo selezionato';
+    periodLabelEl.style.color = periodBalance >= 0 ? '#718197' : '#f04459';
+  }
+
   const totalExp = periodExpense;
   const cats = {};
   mt.filter(t => t.type === 'expense').forEach(t => cats[t.category] = (cats[t.category] || 0) + amountValue(t.amount));
@@ -7794,7 +7965,6 @@ function updateHomeModernDashboard() {
   }
   renderHomeMovements(mt);
 }
-
 function renderHomeMovements(filteredTransactions) {
   const list = document.getElementById('home-movements-list');
   if (!list) return;
