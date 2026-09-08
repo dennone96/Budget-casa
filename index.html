@@ -4572,6 +4572,94 @@ button{font-family:inherit;}
 #movimento-modal-overlay #modal-movimento-save{background:#142336!important;border-radius:14px!important;height:46px!important}
 #movimento-modal-overlay #modal-movimento-cancel{background:#f1f4f6!important;border-radius:14px!important;height:46px!important}
 </style>
+
+<style id="modern-v3-popup-menu-list">
+/* POPUP MOVIMENTO — integrato nel nuovo linguaggio UI */
+#detail-overlay,#income-expense-overlay{background:rgba(20,35,54,.30)!important;backdrop-filter:blur(12px)!important;padding:14px!important;}
+#detail-box,#income-expense-box{width:min(430px,calc(100vw - 28px))!important;max-width:430px!important;padding:0!important;border:1px solid #e4eaee!important;border-radius:25px!important;background:#fff!important;box-shadow:0 28px 70px rgba(20,35,54,.20)!important;overflow:hidden!important;}
+.modern-detail-head,.ie-modern-head{display:flex;align-items:center;gap:12px;padding:20px 20px 12px;}
+.modern-detail-icon,.ie-modern-icon{width:46px;height:46px;flex:0 0 46px;border-radius:15px;display:flex;align-items:center;justify-content:center;background:#fff0f1;color:#f04459;font-size:21px;}
+.modern-detail-icon.income,.ie-modern-icon.income{background:#eaf9f1;color:#1aa55e;}
+.modern-detail-icon.expense,.ie-modern-icon.expense{background:#fff0f1;color:#f04459;}
+.modern-detail-heading,.ie-modern-head>div:last-child{min-width:0;}
+.modern-detail-kicker,.ie-modern-kicker{display:block;font-size:8px;line-height:1;color:#8a9aac;font-weight:850;letter-spacing:1px;margin-bottom:5px;}
+#detail-box h3,#income-expense-box h3{margin:0!important;padding:0!important;font-size:20px!important;line-height:1.1!important;color:#17273c!important;letter-spacing:-.45px!important;}
+.modern-detail-date{font-size:9px;color:#8291a2;margin-top:5px;font-weight:650;text-transform:capitalize;}
+.modern-detail-amount{padding:3px 20px 11px;font-size:29px;font-weight:900;letter-spacing:-1.2px;color:#17273c;}
+.modern-detail-amount span{color:inherit;}
+.modern-detail-chips{display:flex;gap:7px;flex-wrap:wrap;padding:0 20px 14px;}
+.modern-detail-chip{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;background:#f4f7f8;color:#667a90;font-size:9px;font-weight:800;border:1px solid #e7edf0;}
+.modern-detail-chip i{font-size:12px;}
+.modern-detail-chip.bank{background:#edf4ff;color:#3e7fc9;border-color:#dbe9f8;}
+.modern-detail-info-card{margin:0 20px 14px;padding:11px 13px;border:1px solid #e7edf0;border-radius:14px;background:#f8fafb;}
+.modern-detail-info-card span{display:block;font-size:8px;text-transform:uppercase;letter-spacing:.7px;color:#8b9aaa;font-weight:800;margin-bottom:4px;}
+.modern-detail-info-card strong{display:block;font-size:12px;color:#17273c;line-height:1.35;word-break:break-word;}
+#detail-box .attachment-section{margin:0 20px 14px!important;padding:0!important;border:0!important;}
+.modern-detail-section-title{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px;}
+.modern-detail-section-title span{font-size:11px;font-weight:850;color:#17273c;}
+.modern-detail-section-title small{font-size:8px;color:#91a0af;font-weight:650;}
+#detail-box .btn-attachment{height:38px!important;width:100%!important;border-radius:12px!important;background:#f4f7f8!important;border:1px dashed #cbd5dc!important;color:#51657c!important;font-size:10px!important;font-weight:800!important;}
+#detail-box .attachment-file-info{margin-top:8px!important;padding:9px!important;border-radius:12px!important;background:#f6f8f9!important;border:1px solid #e7edf0!important;}
+#detail-box .attachment-file-name{font-size:10px!important;color:#17273c!important;}
+#detail-box .attachment-file-size{font-size:8px!important;color:#8998a8!important;}
+#detail-box .attachment-actions button{width:34px!important;height:34px!important;border:0!important;border-radius:10px!important;}
+#detail-box .detail-actions{display:grid!important;grid-template-columns:1fr 1fr 1fr!important;gap:7px!important;padding:12px 20px 20px!important;margin:0!important;border-top:1px solid #edf1f3!important;}
+#detail-box .detail-actions button{height:40px!important;border-radius:12px!important;font-size:10px!important;font-weight:850!important;border:0!important;}
+#detail-close{background:#f1f4f6!important;color:#51657c!important;}
+#detail-edit{background:#142336!important;color:#fff!important;}
+#detail-delete{background:#fff0f1!important;color:#e33f53!important;}
+/* Popup Entrate/Uscite */
+.ie-modern-head{padding-bottom:13px;}
+.ie-modern-period{font-size:9px;color:#8291a2;margin-top:5px;font-weight:650;text-transform:capitalize;}
+#income-expense-content{padding:0 20px 6px!important;}
+#income-expense-content .ie-period{display:none!important;}
+#income-expense-content .ie-row{display:flex!important;align-items:center!important;justify-content:space-between!important;margin:0 0 8px!important;padding:11px!important;border:1px solid #e7edf0!important;border-radius:15px!important;background:#f8fafb!important;}
+#income-expense-content .ie-label{gap:9px!important;font-size:11px!important;}
+#income-expense-content .ie-icon{width:35px!important;height:35px!important;border-radius:11px!important;font-size:16px!important;}
+#income-expense-content .ie-value{font-size:13px!important;font-weight:900!important;}
+#income-expense-content .ie-value.income{color:#1aa55e!important;}
+#income-expense-content .ie-value.expense{color:#f04459!important;}
+#income-expense-content .ie-total{margin:10px 0 2px!important;padding:14px!important;border-radius:16px!important;background:#f2f7f4!important;border:1px solid #dcece2!important;}
+#income-expense-content .ie-total-label{font-size:8px!important;text-transform:uppercase!important;letter-spacing:.7px!important;color:#7c8d9d!important;font-weight:850!important;}
+#income-expense-content .ie-total-value{font-size:23px!important;font-weight:900!important;color:#17273c!important;margin-top:2px!important;}
+#income-expense-content .ie-empty{text-align:center!important;padding:25px 10px!important;border:1px dashed #dce3e8!important;border-radius:15px!important;color:#8291a2!important;font-size:11px!important;background:#f8fafb!important;}
+.ie-modern-footer{padding:12px 20px 20px;border-top:1px solid #edf1f3;}
+#income-expense-close{width:100%!important;height:40px!important;border:0!important;border-radius:12px!important;background:#142336!important;color:#fff!important;font-size:10px!important;font-weight:850!important;}
+/* Menu mobile integrato nell'appbar */
+.mobile-appbar{display:none;}
+@media(max-width:900px){
+  .mobile-appbar{display:flex;align-items:center;gap:10px;margin:-8px 0 10px;padding:0 1px;}
+  #hamburger{position:static!important;display:flex!important;width:40px!important;height:40px!important;flex:0 0 40px;border-radius:13px!important;background:#fff!important;border:1px solid #e3e9ed!important;box-shadow:0 6px 18px rgba(17,27,38,.07)!important;}
+  #hamburger i{font-size:19px!important;}
+  .mobile-appbar-title{display:flex;flex-direction:column;gap:1px;}
+  .mobile-appbar-title strong{font-size:12px;color:#17273c;letter-spacing:-.2px;}
+  .mobile-appbar-title span{font-size:8px;color:#91a0af;font-weight:650;}
+  #main{padding-top:12px!important;}
+  #sidebar{box-shadow:16px 0 45px rgba(17,27,38,.13)!important;}
+  #sidebar-logo{margin-bottom:10px!important;}
+  #sidebar nav{padding:0 2px!important;}
+  .nav-item{min-height:46px!important;border-radius:14px!important;margin-bottom:3px!important;}
+  .stats-submenu{margin-left:35px!important;margin-bottom:8px!important;}
+  #detail-box,#income-expense-box{width:calc(100vw - 24px)!important;border-radius:21px!important;}
+  .modern-detail-head,.ie-modern-head{padding:17px 16px 10px;}
+  .modern-detail-amount{padding:3px 16px 10px;font-size:27px;}
+  .modern-detail-chips{padding:0 16px 12px;}
+  .modern-detail-info-card{margin-left:16px;margin-right:16px;}
+  #detail-box .attachment-section{margin-left:16px!important;margin-right:16px!important;}
+  #detail-box .detail-actions{padding:11px 16px 16px!important;}
+  #income-expense-content{padding:0 16px 5px!important;}
+  .ie-modern-footer{padding:11px 16px 16px;}
+}
+/* Lista movimenti più ampia e leggibile */
+.home-v3-movements-panel{width:calc(100% - 28px)!important;max-width:none!important;margin-left:14px!important;margin-right:14px!important;padding-bottom:8px!important;}
+#home-movements-list{max-height:none!important;overflow:visible!important;}
+.home-v3-movement-row{min-height:56px!important;padding:11px 4px!important;}
+@media(max-width:600px){
+  .home-v3-movements-panel{width:calc(100% - 22px)!important;margin-left:11px!important;margin-right:11px!important;padding-left:10px!important;padding-right:10px!important;padding-bottom:8px!important;}
+  .home-v3-movement-row{min-height:54px!important;padding:10px 2px!important;}
+}
+</style>
+
 </head>
 <body>
 <div id="login-screen">
@@ -4601,9 +4689,6 @@ button{font-family:inherit;}
 </div>
 </div>
 <div id="shell" class="hidden">
-<button id="hamburger" aria-label="Apri menu">
-<i class="ti ti-menu-2"></i>
-</button>
 <div id="sidebar-overlay"></div>
 <aside id="sidebar" aria-label="Menu principale">
 <div id="sidebar-logo">
@@ -4648,6 +4733,7 @@ button{font-family:inherit;}
 </div>
 </aside>
 <main id="main">
+<div class="mobile-appbar"><button id="hamburger" aria-label="Apri menu"><i class="ti ti-menu-2"></i></button><div class="mobile-appbar-title"><strong>Bilancio Familiare</strong><span>Menu e sezioni</span></div></div>
 <div id="page-home" class="page active home-redesign-v3">
   <div class="home-v3-header">
     <div class="home-v3-greeting">
@@ -5170,28 +5256,34 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 
 <div id="detail-overlay">
 <div id="detail-box">
-<h3 id="detail-title">Dettaglio</h3>
-<div class="detail-field"><label>Descrizione</label><p id="detail-desc"></p></div>
-<div class="detail-field"><label>Importo</label><p id="detail-amount"></p></div>
-<div class="detail-field"><label>Categoria</label><p id="detail-category"></p></div>
-<div class="detail-field"><label>Data</label><p id="detail-date"></p></div>
-<div class="attachment-section">
-<label>Allegato</label>
-<input type="file" id="attachment-input" class="attachment-hidden-input" accept="image/*,.pdf,.doc,.docx">
-<div id="attachment-content"></div>
-<div id="attachment-upload-area">
-<button id="btn-add-attachment" class="btn-attachment"><i class="ti ti-paperclip"></i> Aggiungi allegato</button>
-</div>
-<div id="attachment-progress" class="upload-progress hidden">
-<div class="progress-bar"><div class="progress-bar-fill" id="progress-fill" style="width: 0%"></div></div>
-<div class="progress-text" id="progress-text">Caricamento... 0%</div>
-</div>
-</div>
-<div class="detail-actions">
-<button id="detail-close" style="background:var(--surface-2); border:1px solid var(--border); color:var(--text-primary);">Chiudi</button>
-<button id="detail-edit" style="background:var(--accent-gradient); color:#fff; border:none;">Modifica</button>
-<button id="detail-delete" style="background:var(--danger); color:#fff; border:none;">Elimina</button>
-</div>
+  <div class="modern-detail-head">
+    <div class="modern-detail-icon" id="detail-type-icon"><i class="ti ti-arrow-up"></i></div>
+    <div class="modern-detail-heading">
+      <span class="modern-detail-kicker">MOVIMENTO</span>
+      <h3 id="detail-title">Dettaglio</h3>
+      <div id="detail-date" class="modern-detail-date"></div>
+    </div>
+  </div>
+  <div class="modern-detail-amount" id="detail-amount">0,00 €</div>
+  <div class="modern-detail-chips">
+    <span class="modern-detail-chip" id="detail-category-chip"><i class="ti ti-tag"></i><span id="detail-category">—</span></span>
+    <span class="modern-detail-chip" id="detail-source-chip"><i class="ti ti-wallet"></i><span id="detail-source">Contanti</span></span>
+  </div>
+  <div class="modern-detail-info-card">
+    <span>Descrizione</span><strong id="detail-desc">—</strong>
+  </div>
+  <div class="attachment-section">
+    <div class="modern-detail-section-title"><span>Allegato</span><small>Documenti del movimento</small></div>
+    <input type="file" id="attachment-input" class="attachment-hidden-input" accept="image/*,.pdf,.doc,.docx">
+    <div id="attachment-content"></div>
+    <div id="attachment-upload-area"><button id="btn-add-attachment" class="btn-attachment"><i class="ti ti-paperclip"></i> Aggiungi allegato</button></div>
+    <div id="attachment-progress" class="upload-progress hidden"><div class="progress-bar"><div class="progress-bar-fill" id="progress-fill" style="width: 0%"></div></div><div class="progress-text" id="progress-text">Caricamento... 0%</div></div>
+  </div>
+  <div class="detail-actions">
+    <button id="detail-close">Chiudi</button>
+    <button id="detail-edit">Modifica</button>
+    <button id="detail-delete">Elimina</button>
+  </div>
 </div>
 </div>
 <div id="modal-overlay">
@@ -5265,17 +5357,14 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 </div>
 <div id="income-expense-overlay">
   <div id="income-expense-box">
-    <h3 id="income-expense-title">Dettaglio</h3>
-    <div id="income-expense-content"></div>
-    <div style="margin-top: 1.5rem;">
-<button id="income-expense-close" 
-        onclick="document.getElementById('income-expense-overlay').classList.remove('open')"
-        style="width: 100%; height: 46px; background: var(--surface-2); border: 1px solid var(--border); color: var(--text-primary); border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; font-family: inherit;">
-  Chiudi
-</button>
+    <div class="ie-modern-head">
+      <div class="ie-modern-icon" id="income-expense-icon"><i class="ti ti-arrows-up-down"></i></div>
+      <div><span class="ie-modern-kicker">RIEPILOGO</span><h3 id="income-expense-title">Dettaglio</h3><div id="income-expense-period" class="ie-modern-period"></div></div>
     </div>
+    <div id="income-expense-content"></div>
+    <div class="ie-modern-footer"><button id="income-expense-close">Chiudi</button></div>
   </div>
-</div>  
+</div>
 <div id="pdf-loading"><div class="spinner"></div><span>Generazione PDF...</span></div>
 
 <!-- MODALE NUOVA BOLLETTA -->
@@ -7345,10 +7434,18 @@ detailId = id;
 const isIncome = t.type === 'income';
 document.getElementById('detail-title').textContent = isIncome ? 'Entrata' : 'Uscita';
 document.getElementById('detail-desc').textContent = t.description || t.category || '—';
-document.getElementById('detail-amount').innerHTML = `<span style="font-size:22px; font-weight:800; color:${isIncome?'var(--success)':'var(--danger)'}; letter-spacing:-0.5px;">${isIncome?'+':'-'}${fmtEUR(t.amount)}</span>`;
+document.getElementById('detail-amount').innerHTML = `<span>${isIncome?'+':'-'}${fmtEUR(t.amount)}</span>`;
 document.getElementById('detail-category').textContent = t.category || '—';
-const srcLabel = (t.source === 'bank') ? ' Conto corrente' : '💵 Contanti';
-document.getElementById('detail-date').textContent = new Date(t.date).toLocaleDateString('it-IT', {weekday:'long', year:'numeric', month:'long', day:'numeric'}) + ' · ' + srcLabel;
+const isBank = (t.source === 'bank');
+const srcLabel = isBank ? 'Conto corrente' : 'Contanti';
+document.getElementById('detail-source').textContent = srcLabel;
+const txDate = transactionDateISO(t);
+const dateText = txDate ? new Date(txDate + 'T00:00:00').toLocaleDateString('it-IT', {weekday:'long', year:'numeric', month:'long', day:'numeric'}) : (t.date || 'Data non disponibile');
+document.getElementById('detail-date').textContent = dateText;
+const typeIcon = document.getElementById('detail-type-icon');
+if (typeIcon) { typeIcon.classList.toggle('income', isIncome); typeIcon.classList.toggle('expense', !isIncome); typeIcon.innerHTML = `<i class="ti ${isIncome?'ti-arrow-down':'ti-arrow-up'}"></i>`; }
+const sourceChip = document.getElementById('detail-source-chip');
+if (sourceChip) sourceChip.classList.toggle('bank', isBank);
 renderAttachment(t);
 document.getElementById('detail-overlay').classList.add('open');
 }
@@ -8097,7 +8194,7 @@ function renderHomeMovements(filteredTransactions) {
     list.innerHTML = '<div class="home-v3-movement-empty">Nessun movimento nel periodo selezionato.</div>';
     return;
   }
-  mt.slice(0, 20).forEach(t => {
+  mt.forEach(t => {
     const isIncome = t.type === 'income';
     const color = getCategoryColor(t.category);
     const row = document.createElement('div');
@@ -8112,12 +8209,7 @@ function renderHomeMovements(filteredTransactions) {
     row.addEventListener('click', () => { if (typeof openDetailModal === 'function' && t.id) openDetailModal(t.id); });
     list.appendChild(row);
   });
-  if (mt.length > 20) {
-    const more = document.createElement('div');
-    more.className = 'home-v3-movement-empty';
-    more.textContent = `Mostrati i primi 20 di ${mt.length} movimenti`;
-    list.appendChild(more);
-  }
+
 }
 
 
@@ -9067,8 +9159,8 @@ function openIncomeExpenseDetail(type) {
   const to = filterTo || todayISO();
   const mt = state.transactions.filter(t =>
     t.type === type &&
-    t.date >= from &&
-    t.date <= to &&
+    transactionDateISO(t) >= from &&
+    transactionDateISO(t) <= to &&
     matchesSourceFilter(t)
   );
   
@@ -9133,7 +9225,11 @@ function openIncomeExpenseDetail(type) {
   }
   
   const titleEl = document.getElementById('income-expense-title');
-  if (titleEl) titleEl.textContent = title;
+  if (titleEl) titleEl.textContent = isIncome ? 'Entrate' : 'Uscite';
+  const periodEl = document.getElementById('income-expense-period');
+  if (periodEl) periodEl.textContent = periodLabel;
+  const ieIcon = document.getElementById('income-expense-icon');
+  if (ieIcon) { ieIcon.classList.toggle('income', isIncome); ieIcon.classList.toggle('expense', !isIncome); ieIcon.innerHTML = `<i class="ti ${isIncome?'ti-arrow-down':'ti-arrow-up'}"></i>`; }
   
   const overlay = document.getElementById('income-expense-overlay');
   if (overlay) {
