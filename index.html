@@ -4453,6 +4453,101 @@ button{font-family:inherit;}
 }
 </style>
 
+
+<style id="home-final-polish">
+/* HOME - filtri compatti e coerenti con il nuovo layout */
+#page-home .home-date-filter > .filter-row:first-of-type{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:7px!important;
+  padding:7px 9px!important;
+  margin:0!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+#page-home .home-date-filter > .filter-row:first-of-type .home-date-field{
+  width:auto!important; min-width:0!important; flex:0 1 108px!important;
+}
+#page-home .home-date-filter > .filter-row:first-of-type label{display:none!important;}
+#page-home .home-date-filter > .filter-row:first-of-type select{
+  width:100%!important; min-width:0!important; height:34px!important;
+  padding:0 25px 0 11px!important; border-radius:11px!important;
+  border:1px solid #e2e8ec!important; background:#fff!important;
+  color:#17273c!important; -webkit-text-fill-color:#17273c!important;
+  font-size:10px!important; font-weight:750!important; box-shadow:0 4px 12px rgba(22,39,60,.035)!important;
+}
+#page-home .home-date-filter > .toggle-row{
+  min-height:0!important;height:auto!important;padding:0 2px 3px!important;
+  display:flex!important;justify-content:center!important;gap:7px!important;
+  background:transparent!important;border:0!important;box-shadow:none!important;
+}
+#page-home .home-date-filter > .toggle-row .toggle-container{
+  width:30px!important;height:18px!important;flex:0 0 30px!important;padding:0!important;
+}
+#page-home .home-date-filter > .toggle-row .toggle-switch{width:18px!important;height:18px!important;}
+#page-home .home-date-filter > .toggle-row .toggle-switch:after{width:12px!important;height:12px!important;top:3px!important;left:3px!important;}
+#page-home .home-date-filter > .toggle-row .toggle-container.active .toggle-switch:after{transform:translateX(12px)!important;}
+#page-home .home-date-filter > .toggle-row .toggle-label-text{font-size:9px!important;color:#7b8da1!important;font-weight:700!important;}
+#page-home #custom-range{max-width:100%!important;box-sizing:border-box!important;}
+#page-home #filter-label{margin:3px auto 7px!important;font-size:8px!important;padding:4px 9px!important;}
+
+/* Card Entrate/Uscite cliccabili */
+#page-home #card-income,#page-home #card-expense{cursor:pointer;transition:transform .18s ease,box-shadow .18s ease;}
+#page-home #card-income:hover,#page-home #card-expense:hover{transform:translateY(-1px);box-shadow:0 9px 24px rgba(22,39,60,.08)!important;}
+#page-home #card-income:focus,#page-home #card-expense:focus{outline:2px solid #cfe1f7;outline-offset:2px;}
+
+/* Popup Entrate/Uscite */
+#income-expense-box{max-width:410px!important;padding:0!important;overflow:hidden!important;border:1px solid #e6ecef!important;border-radius:24px!important;background:#fff!important;box-shadow:0 24px 60px rgba(20,35,54,.16)!important;}
+#income-expense-box h3{margin:0!important;padding:20px 20px 10px!important;font-size:19px!important;letter-spacing:-.4px!important;color:#17273c!important;}
+#income-expense-content{padding:0 20px 18px!important;}
+#income-expense-box .ie-period{margin:0 0 10px!important;padding:7px 10px!important;border-radius:10px!important;background:#f5f8fa!important;color:#718197!important;font-size:9px!important;text-align:center!important;}
+#income-expense-box .ie-row{padding:12px 0!important;border-bottom:1px solid #edf1f3!important;}
+#income-expense-box .ie-label{gap:10px!important;color:#17273c!important;font-size:13px!important;font-weight:750!important;}
+#income-expense-box .ie-icon{width:36px!important;height:36px!important;border-radius:12px!important;display:flex!important;align-items:center!important;justify-content:center!important;font-size:17px!important;box-shadow:none!important;}
+#income-expense-box .ie-icon.cash{background:#fff2d7!important;}
+#income-expense-box .ie-icon.bank{background:#e6f1ff!important;}
+#income-expense-box .ie-value{font-size:14px!important;font-weight:850!important;}
+#income-expense-box .ie-total{margin:12px 0 0!important;padding:14px!important;border-radius:15px!important;background:#f5faf7!important;border:1px solid #dcefe5!important;}
+#income-expense-box .ie-total-label{font-size:10px!important;color:#718197!important;font-weight:700!important;}
+#income-expense-box .ie-total-value{margin-top:3px!important;font-size:22px!important;color:#17273c!important;font-weight:850!important;}
+#income-expense-box > div:last-child{padding:0 20px 20px!important;margin-top:0!important;}
+#income-expense-close{height:42px!important;border-radius:13px!important;background:#142336!important;color:#fff!important;border:0!important;font-size:12px!important;}
+
+/* Modale nuovo movimento + modifica + dettaglio */
+#movimento-modal-overlay,#detail-overlay,#modal-overlay{background:rgba(20,35,54,.34)!important;backdrop-filter:blur(10px)!important;padding:14px!important;}
+#movimento-modal-overlay > div{max-width:420px!important;padding:0!important;border-radius:24px!important;overflow:hidden!important;border:1px solid #e7edf0!important;box-shadow:0 24px 60px rgba(20,35,54,.18)!important;}
+#movimento-modal-overlay > div > h3{margin:0!important;padding:20px 20px 4px!important;font-size:20px!important;color:#17273c!important;}
+#movimento-modal-overlay > div > p{margin:0 20px 15px!important;color:#7b8da1!important;font-size:10px!important;}
+#movimento-modal-overlay > div > div{margin-left:20px!important;margin-right:20px!important;}
+#movimento-modal-overlay label{color:#718197!important;font-size:9px!important;font-weight:800!important;text-transform:uppercase!important;letter-spacing:.4px!important;}
+#movimento-modal-overlay input,#movimento-modal-overlay select{height:42px!important;border-radius:12px!important;border:1px solid #e0e7eb!important;background:#f7f9fa!important;color:#17273c!important;font-size:13px!important;box-sizing:border-box!important;}
+#movimento-modal-overlay #modal-tab-expense,#movimento-modal-overlay #modal-tab-income{height:42px!important;padding:0!important;border-radius:12px!important;font-size:12px!important;}
+#movimento-modal-overlay > div > div:last-child{padding:0 20px 20px!important;margin:2px 0 0!important;display:flex!important;gap:8px!important;}
+#movimento-modal-overlay #modal-movimento-cancel{height:44px!important;border-radius:13px!important;background:#f3f6f8!important;border:1px solid #e0e7eb!important;color:#51657c!important;}
+#movimento-modal-overlay #modal-movimento-save{height:44px!important;border-radius:13px!important;background:#142336!important;color:#fff!important;font-size:12px!important;}
+#detail-box,#modal-box{max-width:420px!important;padding:0!important;border-radius:24px!important;overflow:hidden!important;border:1px solid #e7edf0!important;box-shadow:0 24px 60px rgba(20,35,54,.18)!important;}
+#detail-box h3,#modal-box h3{margin:0!important;padding:20px 20px 14px!important;font-size:19px!important;color:#17273c!important;}
+#detail-box .detail-field,#modal-box .modal-field{margin:0 20px 12px!important;padding:0 0 11px!important;border-bottom:1px solid #edf1f3!important;}
+#detail-box .detail-field label,#modal-box .modal-field label{font-size:9px!important;letter-spacing:.5px!important;color:#8291a2!important;}
+#detail-box .detail-field p{font-size:13px!important;font-weight:700!important;color:#17273c!important;margin:4px 0 0!important;}
+#detail-box .detail-actions,#modal-box .modal-actions{padding:14px 20px 20px!important;display:flex!important;gap:8px!important;}
+#detail-box .detail-actions button,#modal-box .modal-actions button{height:42px!important;border-radius:13px!important;font-size:11px!important;}
+#modal-box input,#modal-box select{height:42px!important;border-radius:12px!important;background:#f7f9fa!important;border:1px solid #e0e7eb!important;color:#17273c!important;}
+@media(max-width:600px){
+  #page-home .home-date-filter > .filter-row:first-of-type{gap:5px!important;padding:5px 6px!important;}
+  #page-home .home-date-filter > .filter-row:first-of-type .home-date-field{flex-basis:94px!important;}
+  #page-home .home-date-filter > .filter-row:first-of-type select{height:32px!important;font-size:9px!important;padding-left:9px!important;padding-right:20px!important;}
+  #page-home .home-date-filter > .toggle-row .toggle-label-text{font-size:8px!important;}
+  #income-expense-box{width:calc(100vw - 28px)!important;max-width:390px!important;border-radius:20px!important;}
+  #income-expense-box h3{font-size:17px!important;padding:17px 16px 8px!important;}
+  #income-expense-content{padding:0 16px 15px!important;}
+  #income-expense-box > div:last-child{padding:0 16px 16px!important;}
+  #movimento-modal-overlay > div,#detail-box,#modal-box{width:calc(100vw - 28px)!important;max-width:420px!important;border-radius:20px!important;}
+}
+</style>
+
 </head>
 <body>
 <div id="login-screen">
@@ -4587,11 +4682,11 @@ button{font-family:inherit;}
   </section>
 
   <section class="home-v3-mini-grid">
-    <div class="home-v3-mini-card income">
+    <div class="home-v3-mini-card income" id="card-income" role="button" tabindex="0" aria-label="Dettaglio entrate">
       <div class="home-v3-icon home-v3-icon-green"><i class="ti ti-arrow-down"></i></div>
       <div><span>Entrate</span><strong id="stat-income">0,00 €</strong><small id="home-income-trend">↑ + 0%</small></div>
     </div>
-    <div class="home-v3-mini-card expense">
+    <div class="home-v3-mini-card expense" id="card-expense" role="button" tabindex="0" aria-label="Dettaglio uscite">
       <div class="home-v3-icon home-v3-icon-red"><i class="ti ti-arrow-up"></i></div>
       <div><span>Uscite</span><strong id="stat-expense">0,00 €</strong><small id="home-expense-trend">↑ + 0%</small></div>
     </div>
@@ -6548,7 +6643,7 @@ function applyMonthYearFilter() {
   if (!year) return;
   if (month === 0) { filterFrom = `${year}-01-01`; filterTo = `${year}-12-31`; }
   else { filterFrom = `${year}-${String(month).padStart(2,'0')}-01`; filterTo = fmtDate(getMonthEnd(year, month)); }
-  updateFilterLabel(); updateStats(); updateTransactionsList();
+  updateFilterLabel(); updateStats(); updateTransactionsList(); updateHomeModernDashboard();
 }
 function applyCustomRangeFilter() {
   filterMode = 'custom';
@@ -6632,6 +6727,7 @@ function applyCustomRangeFilter() {
   updateFilterLabel(); 
   updateStats(); 
   updateTransactionsList();
+  updateHomeModernDashboard();
 }
 
 // Rimuovi il vecchio event listener
@@ -9127,6 +9223,10 @@ window.closeIncomeExpenseDetail = closeIncomeExpenseDetail;
 function startIncomeExpense() {
   if (document.getElementById('card-income') && document.getElementById('card-expense')) {
     initIncomeExpenseListeners();
+
+// Accesso da tastiera alle card Entrate/Uscite
+document.getElementById('card-income')?.addEventListener('keydown', e => { if(e.key==='Enter' || e.key===' ') { e.preventDefault(); openIncomeExpenseDetail('income'); }});
+document.getElementById('card-expense')?.addEventListener('keydown', e => { if(e.key==='Enter' || e.key===' ') { e.preventDefault(); openIncomeExpenseDetail('expense'); }});
   } else {
     console.log('⏳ Elementi non trovati, riprovo tra 500ms...');
     setTimeout(startIncomeExpense, 500);
