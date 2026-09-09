@@ -7680,7 +7680,7 @@ button{font-family:inherit;}
 }
 
 
-/* CLEAN-01 authoritative mobile/menu/popup rules */
+/* CLEAN-03 authoritative mobile/menu/popup rules */
 .mobile-appbar{display:none;}
 @media(max-width:900px){
 .mobile-appbar{display:flex;align-items:center;gap:10px;margin:0 0 12px;padding:0 1px;height:44px;position:relative;z-index:20;}
@@ -7691,7 +7691,7 @@ button{font-family:inherit;}
 #income-expense-box{position:relative!important;z-index:3001!important;pointer-events:auto!important;}
 .ie-modern-footer{position:relative!important;z-index:3002!important;pointer-events:auto!important;}
 #income-expense-close{position:relative!important;z-index:3003!important;display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;min-height:44px!important;height:44px!important;pointer-events:auto!important;touch-action:manipulation!important;cursor:pointer!important;}</style><style id="clean-02-mobile-fix">
-/* CLEAN-02: authoritative mobile/WebView layout. Single hamburger, full-width content. */
+/* CLEAN-03: authoritative mobile/WebView layout. Single hamburger, full-width content. */
 html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 *, *::before, *::after { box-sizing:border-box; }
 
@@ -7715,7 +7715,7 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
   #hamburger {
     display:flex !important;
     position:fixed !important;
-    top:14px !important;
+    top:52px !important;
     left:14px !important;
     width:44px !important;
     height:44px !important;
@@ -7936,6 +7936,9 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 <div><span>Uscite</span><strong id="stat-expense">0,00 €</strong></div>
 </div>
 </section>
+<div class="home-v3-new-movement">
+<button id="btn-nuovo-movimento" onclick="window.openMovimentoModal()"><i class="ti ti-plus"></i> Nuovo movimento</button>
+</div>
 <section class="home-v3-section">
 <div class="home-v3-section-title"><h2>Lista movimenti</h2></div>
 <div class="home-v3-movements-panel">
@@ -7950,9 +7953,7 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 <div id="home-movements-list"></div>
 </div>
 </section>
-<div class="home-v3-new-movement">
-<button id="btn-nuovo-movimento" onclick="window.openMovimentoModal()"><i class="ti ti-plus"></i> Nuovo movimento</button>
-</div>
+
 <!-- Contenuto movimenti originale: resta disponibile e invariato -->
 <div class="home-v3-movements-section">
 <div style="margin-bottom: 1rem; margin-top:2rem;"><h2>Movimenti</h2></div>
@@ -8466,7 +8467,7 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 <div><span class="ie-modern-kicker">RIEPILOGO</span><h3 id="income-expense-title">Dettaglio</h3><div class="ie-modern-period" id="income-expense-period"></div></div>
 </div>
 <div id="income-expense-content"></div>
-<div class="ie-modern-footer"><button id="income-expense-close" onclick="closeIncomeExpenseDetail(event); return false;" type="button">Chiudi</button></div>
+<div class="ie-modern-footer"><button id="income-expense-close" onclick="return forceCloseIncomeExpensePopup(event);" type="button">Chiudi</button></div>
 </div>
 </div>
 <div id="pdf-loading"><div class="spinner"></div><span>Generazione PDF...</span></div>
@@ -12313,6 +12314,7 @@ function openIncomeExpenseDetail(type) {
   
   const overlay = document.getElementById('income-expense-overlay');
   if (overlay) {
+    overlay.classList.remove('force-closed');
     overlay.style.display = 'flex';
     overlay.classList.add('open');
     console.log('✅ Popup aperto!');
@@ -12320,17 +12322,23 @@ function openIncomeExpenseDetail(type) {
 }
 
 // === FUNZIONE PER CHIUDERE IL DETTAGLIO ===
-function closeIncomeExpenseDetail(e) {
+function forceCloseIncomeExpensePopup(e) {
   if (e) { e.preventDefault(); e.stopPropagation(); }
   const overlay = document.getElementById('income-expense-overlay');
-  if (!overlay) return;
+  if (!overlay) return false;
   overlay.classList.remove('open');
-  overlay.style.removeProperty('display');
+  overlay.classList.add('force-closed');
+  overlay.style.display = 'none';
   overlay.setAttribute('aria-hidden','true');
+  return false;
+}
+
+function closeIncomeExpenseDetail(e) {
+  return forceCloseIncomeExpensePopup(e);
 }
 
 
-// === CLEAN-02: close handler independent from popup initialization ===
+// === CLEAN-03: close handler independent from popup initialization ===
 document.addEventListener('click', function(e) {
   const btn = e.target && e.target.closest ? e.target.closest('#income-expense-close') : null;
   if (btn) closeIncomeExpenseDetail(e);
@@ -13817,5 +13825,41 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 });
-</script></body>
+</script>
+<style id="clean-03-close-menu-fix">
+@media (pointer: coarse), (max-width: 900px) {
+  #hamburger { top:52px !important; }
+}
+#income-expense-overlay.force-closed { display:none !important; pointer-events:none !important; }
+#income-expense-close { position:relative !important; z-index:10005 !important; pointer-events:auto !important; touch-action:manipulation !important; -webkit-tap-highlight-color:transparent; }
+</style>
+<script>
+// CLEAN-03: chiusura indipendente del popup Entrate/Uscite per WebView Android.
+(function(){
+  function closeIE(e){
+    var t=e && e.target;
+    var btn=t && t.closest ? t.closest('#income-expense-close') : null;
+    if(!btn) return;
+    if(e){e.preventDefault();e.stopPropagation();}
+    var ov=document.getElementById('income-expense-overlay');
+    if(!ov) return;
+    ov.classList.remove('open');
+    ov.classList.add('force-closed');
+    ov.style.display='none';
+    ov.setAttribute('aria-hidden','true');
+  }
+  document.addEventListener('pointerdown',closeIE,true);
+  document.addEventListener('touchend',closeIE,true);
+  document.addEventListener('click',closeIE,true);
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape'){
+      var ov=document.getElementById('income-expense-overlay');
+      if(ov && ov.classList.contains('open')){
+        ov.classList.remove('open');ov.classList.add('force-closed');ov.style.display='none';ov.setAttribute('aria-hidden','true');
+      }
+    }
+  },true);
+})();
+</script>
+</body>
 </html>
