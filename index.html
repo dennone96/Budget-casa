@@ -4661,6 +4661,38 @@ button{font-family:inherit;}
 </style>
 
 
+<style id="modern-v5-floating-menu-fix">
+/* Hamburger flottante: sempre visibile durante lo scroll, stile app mobile */
+@media(max-width:900px){
+  .mobile-appbar{display:none!important;}
+  #hamburger{
+    position:fixed!important;
+    top:max(12px, env(safe-area-inset-top))!important;
+    left:12px!important;
+    width:48px!important; height:48px!important;
+    display:flex!important; align-items:center!important; justify-content:center!important;
+    z-index:5000!important;
+    margin:0!important;
+    border-radius:16px!important;
+    background:rgba(255,255,255,.96)!important;
+    border:1px solid rgba(225,231,235,.95)!important;
+    box-shadow:0 8px 24px rgba(17,27,38,.14)!important;
+    -webkit-backdrop-filter:blur(12px)!important;
+    backdrop-filter:blur(12px)!important;
+    touch-action:manipulation!important;
+  }
+  #hamburger i{font-size:22px!important;}
+  #main{padding-top:4.5rem!important;}
+}
+
+/* Chiusura popup Entrate/Uscite: il pulsante è sempre sopra il contenuto */
+#income-expense-overlay{z-index:9999!important;pointer-events:auto!important;}
+#income-expense-box{z-index:10000!important;pointer-events:auto!important;}
+#income-expense-content{position:relative!important;z-index:1!important;}
+.ie-modern-footer{position:relative!important;z-index:100!important;pointer-events:auto!important;}
+#income-expense-close{position:relative!important;z-index:101!important;pointer-events:auto!important;cursor:pointer!important;display:block!important;}
+</style>
+
 <style id="modern-v4-menu-popup-list">
 /* Menu: hamburger nella posizione standard delle app mobile, in alto a sinistra e allineato al contenuto */
 @media(max-width:900px){
@@ -5398,7 +5430,7 @@ Movimenti in contanti. Stesse colonne del conto corrente.
       <div><span class="ie-modern-kicker">RIEPILOGO</span><h3 id="income-expense-title">Dettaglio</h3><div id="income-expense-period" class="ie-modern-period"></div></div>
     </div>
     <div id="income-expense-content"></div>
-    <div class="ie-modern-footer"><button id="income-expense-close">Chiudi</button></div>
+    <div class="ie-modern-footer"><button id="income-expense-close" type="button" onclick="window.closeIncomeExpenseDetail(); return false;">Chiudi</button></div>
   </div>
 </div>
 <div id="pdf-loading"><div class="spinner"></div><span>Generazione PDF...</span></div>
@@ -9269,6 +9301,7 @@ function openIncomeExpenseDetail(type) {
   
   const overlay = document.getElementById('income-expense-overlay');
   if (overlay) {
+    overlay.style.display = 'flex';
     overlay.classList.add('open');
     console.log('✅ Popup aperto!');
   }
@@ -9280,6 +9313,7 @@ function closeIncomeExpenseDetail() {
   const overlay = document.getElementById('income-expense-overlay');
   if (overlay) {
     overlay.classList.remove('open');
+    overlay.style.display = 'none';
     console.log('✅ Popup chiuso!');
   }
 }
@@ -9357,17 +9391,12 @@ function initIncomeExpenseListeners() {
   }
   
   // === OVERLAY (clicca fuori) ===
+  // Non cloniamo più il popup: la clonazione sostituiva il bottone dopo aver
+  // collegato il listener e poteva lasciare il pulsante non funzionante.
   if (overlay) {
-    // Rimuovi listener vecchi
-    const newOverlay = overlay.cloneNode(true);
-    overlay.parentNode.replaceChild(newOverlay, overlay);
-    
-    newOverlay.addEventListener('click', function(e) {
-      if (e.target === this) {
-        console.log('🖱️ CLICK fuori dal popup');
-        closeIncomeExpenseDetail();
-      }
-    });
+    overlay.onclick = function(e) {
+      if (e.target === overlay) closeIncomeExpenseDetail();
+    };
     console.log('✅ Listener OVERLAY aggiunto');
   } else {
     console.error('❌ overlay non trovato!');
