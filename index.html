@@ -7807,7 +7807,56 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 @media (max-width:900px) {
   #main { padding-top:70px !important; }
 }
-</style></head>
+</style>
+<style id="clean-05-home-widths">
+/* CLEAN-05: stessa larghezza per intestazione, filtri e card Home */
+.home-v3-header{position:relative!important;justify-content:center!important;}
+.home-v3-greeting{width:100%!important;text-align:center!important;}
+.home-v3-greeting h1{font-size:24px!important;line-height:1.2!important;letter-spacing:-.5px!important;margin:0!important;}
+.home-v3-greeting p{display:none!important;}
+.home-v3-avatar{position:absolute!important;right:18px!important;top:50%!important;transform:translateY(-50%)!important;}
+@media (max-width:600px){
+  .home-v3-header{padding:10px 11px 14px!important;}
+  .home-v3-greeting h1{font-size:22px!important;}
+  .home-v3-avatar{right:11px!important;width:40px!important;height:40px!important;}
+  /* Identical horizontal edges to the balance cards (11px on each side). */
+  #page-home .home-date-filter{
+    width:calc(100% - 22px)!important;
+    max-width:none!important;
+    margin:0 11px 12px!important;
+    box-sizing:border-box!important;
+  }
+  #page-home .home-date-filter > .filter-row:first-of-type{
+    width:100%!important;
+    max-width:none!important;
+    box-sizing:border-box!important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+    gap:8px!important;
+  }
+  #page-home .home-date-filter > .filter-row:first-of-type .home-date-field{
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+  }
+  #page-home .home-date-filter > .filter-row:first-of-type select{
+    width:100%!important;
+    min-width:0!important;
+    box-sizing:border-box!important;
+  }
+  #page-home .home-date-filter > .toggle-row{
+    width:100%!important;
+    max-width:none!important;
+    box-sizing:border-box!important;
+  }
+  #page-home .home-date-filter > #custom-range{
+    width:100%!important;
+    max-width:none!important;
+    box-sizing:border-box!important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto!important;
+  }
+}
+</style>
+</head>
 <body><div id="login-screen">
 <h1>Budget di Famiglia</h1>
 <p class="subtitle">Gestisci le tue finanze in modo semplice</p>
@@ -7885,8 +7934,8 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 <div class="page active home-redesign-v3" id="page-home">
 <div class="home-v3-header">
 <div class="home-v3-greeting">
-<h1>Bilancio Familiare</h1>
-<p>Panoramica delle tue finanze</p>
+<h1>Home</h1>
+<p aria-hidden="true"></p>
 </div>
 <button aria-label="Profilo" class="home-v3-avatar" id="home-profile-btn" type="button">
 <i class="ti ti-user"></i>
