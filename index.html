@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Culo123</title>
+<title>Budget di Famiglia</title>
 <link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -4660,109 +4660,26 @@ button{font-family:inherit;}
 }
 </style>
 
-
-<style id="modern-v7-floating-menu-fix">
-/* === MENU MOBILE: pulsante flottante sempre visibile === */
+<style id="modern-v8-clean-menu">
+/* === V8: unico stile menu mobile, senza override concorrenti === */
+.mobile-appbar{display:none;}
 @media (max-width:900px){
-  .mobile-appbar{display:none!important;}
-  #hamburger{
-    position:fixed!important;
-    top:64px!important;
-    left:14px!important;
-    width:48px!important;
-    height:48px!important;
-    min-width:48px!important;
-    min-height:48px!important;
-    display:flex!important;
-    align-items:center!important;
-    justify-content:center!important;
-    margin:0!important;
-    padding:0!important;
-    z-index:10000!important;
-    border-radius:15px!important;
-    background:rgba(255,255,255,.97)!important;
-    border:1px solid rgba(218,226,233,.95)!important;
-    box-shadow:0 5px 20px rgba(20,35,54,.16)!important;
-    -webkit-backdrop-filter:blur(14px)!important;
-    backdrop-filter:blur(14px)!important;
-    cursor:pointer!important;
-    pointer-events:auto!important;
-    touch-action:manipulation!important;
-  }
-  #hamburger i{font-size:22px!important;line-height:1!important;pointer-events:none!important;}
-  #main{padding-top:4.5rem!important;}
-}
-
-/* === POPUP ENTRATE/USCITE: chiusura robusta === */
-#income-expense-overlay{
-  z-index:20000!important;
-  pointer-events:auto!important;
-}
-#income-expense-box{
-  position:relative!important;
-  z-index:20001!important;
-  pointer-events:auto!important;
-}
-.ie-modern-footer{
-  position:relative!important;
-  z-index:20002!important;
-  pointer-events:auto!important;
-}
-#income-expense-close{
-  position:relative!important;
-  z-index:20003!important;
-  display:flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  width:100%!important;
-  min-height:44px!important;
-  height:44px!important;
-  pointer-events:auto!important;
-  touch-action:manipulation!important;
-  cursor:pointer!important;
-}
-</style>
-
-<style id="modern-v4-menu-popup-list">
-/* Menu: hamburger nella posizione standard delle app mobile, in alto a sinistra e allineato al contenuto */
-@media(max-width:900px){
-  .mobile-appbar{
-    display:flex!important;align-items:center!important;justify-content:flex-start!important;
-    gap:10px!important;height:44px!important;margin:0 0 12px!important;padding:0!important;
-    position:relative!important;z-index:20!important;
-  }
-  #hamburger{
-    position:static!important;display:flex!important;align-items:center!important;justify-content:center!important;
-    width:42px!important;height:42px!important;flex:0 0 42px!important;margin:0!important;
-    border-radius:12px!important;background:#fff!important;border:1px solid #e1e7eb!important;
-    box-shadow:0 4px 14px rgba(17,27,38,.08)!important;color:#17273c!important;
-  }
-  #hamburger i{font-size:20px!important;}
-  .mobile-appbar-title{display:block!important;}
-  .mobile-appbar-title strong{font-size:13px!important;color:#17273c!important;font-weight:850!important;}
+  .mobile-appbar{display:flex;align-items:center;gap:10px;margin:0 0 12px;padding:0 1px;height:44px;position:relative;z-index:20;}
+  #hamburger{position:static!important;display:flex!important;align-items:center!important;justify-content:center!important;width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important;flex:0 0 42px!important;margin:0!important;padding:0!important;border-radius:12px!important;background:#fff!important;border:1px solid #e1e7eb!important;box-shadow:0 4px 14px rgba(17,27,38,.08)!important;color:#17273c!important;cursor:pointer!important;pointer-events:auto!important;touch-action:manipulation!important;}
+  #hamburger i{font-size:20px!important;pointer-events:none!important;}
   #main{padding-top:10px!important;}
 }
-
-/* Popup Entrate/Uscite: chiusura sempre cliccabile e footer sopra ogni elemento */
+/* === V8: popup Entrate/Uscite, una sola gerarchia di clic === */
 #income-expense-overlay{z-index:3000!important;}
-#income-expense-box{position:relative!important;z-index:3001!important;}
-.ie-modern-footer{position:relative!important;z-index:10!important;}
-#income-expense-close{position:relative!important;z-index:20!important;pointer-events:auto!important;cursor:pointer!important;}
-
-/* Lista movimenti più ampia */
-.home-v3-movements-panel{width:100%!important;min-height:420px!important;}
-#home-movements-list{width:100%!important;max-height:none!important;min-height:360px!important;overflow:visible!important;}
-.home-v3-movement-row{width:100%!important;min-height:66px!important;}
-@media(max-width:600px){
-  .home-v3-movements-panel{min-height:520px!important;}
-  #home-movements-list{min-height:460px!important;}
-}
+#income-expense-box{position:relative!important;z-index:3001!important;pointer-events:auto!important;}
+.ie-modern-footer{position:relative!important;z-index:3002!important;pointer-events:auto!important;}
+#income-expense-close{position:relative!important;z-index:3003!important;display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;min-height:44px!important;height:44px!important;pointer-events:auto!important;touch-action:manipulation!important;cursor:pointer!important;}
 </style>
 </head>
 <body>
 <div id="login-screen">
-<h1> di Famiglia</h1>
-<p class="subtitle">Gestisci le tue finanze in modo semplice aaaaaaaaaaaaaaaaaa</p>
+<h1>Budget di Famiglia</h1>
+<p class="subtitle">Gestisci le tue finanze in modo semplice</p>
 <form id="login-form" class="panel">
 <input type="email" id="login-email" placeholder="Email" autocomplete="email" required>
 <input type="password" id="login-password" placeholder="Password (min 6 caratteri)" autocomplete="current-password" required minlength="6">
@@ -9344,130 +9261,55 @@ function closeIncomeExpenseDetail() {
   console.log('✅ Popup chiuso!');
 }
 
-// Chiusura robusta del popup: delegazione su document + pointerup/touchend.
-// Non dipende da listener applicati al singolo bottone e sopravvive a eventuali render/cloni.
-function forceCloseIncomeExpenseDetail(e) {
-  if (e) { e.preventDefault(); e.stopPropagation(); }
-  const overlay = document.getElementById('income-expense-overlay');
-  if (!overlay) return;
-  overlay.classList.remove('open');
-  overlay.style.setProperty('display','none','important');
-  overlay.setAttribute('aria-hidden','true');
-}
-document.addEventListener('pointerup', function(e) {
-  const close = e.target && e.target.closest ? e.target.closest('#income-expense-close') : null;
-  if (close) forceCloseIncomeExpenseDetail(e);
-}, true);
-document.addEventListener('click', function(e) {
-  const close = e.target && e.target.closest ? e.target.closest('#income-expense-close') : null;
-  if (close) forceCloseIncomeExpenseDetail(e);
-}, true);
 
-// === INIZIALIZZA I LISTENER ===
+// === V8: LISTENER ENTRATE/USCITE PULITI ===
+let incomeExpenseListenersInitialized = false;
 function initIncomeExpenseListeners() {
-  console.log('🔄 Inizializzazione listener Entrate/Uscite...');
-  
+  if (incomeExpenseListenersInitialized) return;
   const cardIncome = document.getElementById('card-income');
   const cardExpense = document.getElementById('card-expense');
   const closeBtn = document.getElementById('income-expense-close');
   const overlay = document.getElementById('income-expense-overlay');
-  
-  // Verifica che gli elementi esistano
-  console.log('📊 card-income:', cardIncome ? '✅' : '❌');
-  console.log('📊 card-expense:', cardExpense ? '✅' : '❌');
-  console.log('📊 closeBtn:', closeBtn ? '✅' : '❌');
-  console.log('📊 overlay:', overlay ? '✅' : '❌');
-  
-  // === ENTRATE ===
-  if (cardIncome) {
-    // Rimuovi listener vecchi
-    const newCard = cardIncome.cloneNode(true);
-    cardIncome.parentNode.replaceChild(newCard, cardIncome);
-    
-    newCard.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      console.log('🖱️ CLICK su ENTRATE!');
-      openIncomeExpenseDetail('income');
-    });
-    console.log('✅ Listener ENTRATE aggiunto');
-  } else {
-    console.error('❌ card-income non trovato!');
-  }
-  
-  // === USCITE ===
-  if (cardExpense) {
-    const newCard = cardExpense.cloneNode(true);
-    cardExpense.parentNode.replaceChild(newCard, cardExpense);
-    
-    newCard.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      console.log('🖱️ CLICK su USCITE!');
-      openIncomeExpenseDetail('expense');
-    });
-    console.log('✅ Listener USCITE aggiunto');
-  } else {
-    console.error('❌ card-expense non trovato!');
-  }
-  
-  // === PULSANTE CHIUDI ===
-  if (closeBtn) {
-    // Il bottone NON viene più clonato: la chiusura è gestita in delegazione globale.
-    closeBtn.onclick = function(e) {
-      forceCloseIncomeExpenseDetail(e);
-    };
-    closeBtn.setAttribute('type','button');
-    console.log('✅ Listener CHIUDI aggiunto');
-  } else {
-    console.error('❌ closeBtn non trovato!');
-  }
-  
-  // === OVERLAY (clicca fuori) ===
-  // Non cloniamo più il popup: la clonazione sostituiva il bottone dopo aver
-  // collegato il listener e poteva lasciare il pulsante non funzionante.
-  if (overlay) {
-    overlay.onclick = function(e) {
-      if (e.target === overlay) closeIncomeExpenseDetail();
-    };
-    console.log('✅ Listener OVERLAY aggiunto');
-  } else {
-    console.error('❌ overlay non trovato!');
-  }
+  if (!cardIncome || !cardExpense || !closeBtn || !overlay) return false;
+
+  cardIncome.addEventListener('click', function(e){
+    e.preventDefault();
+    openIncomeExpenseDetail('income');
+  });
+  cardExpense.addEventListener('click', function(e){
+    e.preventDefault();
+    openIncomeExpenseDetail('expense');
+  });
+  cardIncome.addEventListener('keydown', function(e){
+    if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openIncomeExpenseDetail('income'); }
+  });
+  cardExpense.addEventListener('keydown', function(e){
+    if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openIncomeExpenseDetail('expense'); }
+  });
+  closeBtn.addEventListener('click', function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    closeIncomeExpenseDetail();
+  });
+  overlay.addEventListener('click', function(e){
+    if(e.target === overlay) closeIncomeExpenseDetail();
+  });
+  incomeExpenseListenersInitialized = true;
+  return true;
 }
-  
-  
-// === ESPONI LE FUNZIONI GLOBALMENTE ===
+
 window.openIncomeExpenseDetail = openIncomeExpenseDetail;
 window.closeIncomeExpenseDetail = closeIncomeExpenseDetail;
-  
 
-// === AVVIA L'INIZIALIZZAZIONE ===
 function startIncomeExpense() {
-  if (document.getElementById('card-income') && document.getElementById('card-expense')) {
-    initIncomeExpenseListeners();
-
-// Accesso da tastiera alle card Entrate/Uscite
-document.getElementById('card-income')?.addEventListener('keydown', e => { if(e.key==='Enter' || e.key===' ') { e.preventDefault(); openIncomeExpenseDetail('income'); }});
-document.getElementById('card-expense')?.addEventListener('keydown', e => { if(e.key==='Enter' || e.key===' ') { e.preventDefault(); openIncomeExpenseDetail('expense'); }});
-  } else {
-    console.log('⏳ Elementi non trovati, riprovo tra 500ms...');
-    setTimeout(startIncomeExpense, 500);
-  }
+  if (!initIncomeExpenseListeners()) setTimeout(startIncomeExpense, 500);
 }
-
-// Avvia quando il DOM è pronto
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(startIncomeExpense, 300);
-  });
+  document.addEventListener('DOMContentLoaded', function(){ setTimeout(startIncomeExpense, 300); });
 } else {
   setTimeout(startIncomeExpense, 300);
 }
 
-// Tentativo extra
-setTimeout(startIncomeExpense, 2000);
-  
 // Altri event listener...
 document.getElementById('bolletta-detail-close').addEventListener('click', closeBollettaDetail);
 document.getElementById('bolletta-detail-overlay').addEventListener('click', (e) => {
@@ -10899,22 +10741,5 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<script>
-/* Modern mobile navigation state */
-(function(){
-  function syncMobileNav(pageId){
-    document.querySelectorAll('.mobile-bottom-item').forEach(function(btn){ btn.classList.remove('active'); });
-    var map = { 'page-home':0, 'page-grafici':2, 'page-bollette':3 };
-    var idx = map[pageId];
-    if (idx !== undefined) document.querySelectorAll('.mobile-bottom-item')[idx]?.classList.add('active');
-  }
-  document.querySelectorAll('.mobile-bottom-item').forEach(function(btn,idx){
-    btn.addEventListener('click', function(){
-      if(idx===1) syncMobileNav('page-home');
-      else if(idx===4) btn.classList.remove('active');
-    });
-  });
-})();
-</script>
 </body>
 </html>
