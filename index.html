@@ -7690,11 +7690,125 @@ button{font-family:inherit;}
 #income-expense-overlay{z-index:3000!important;}
 #income-expense-box{position:relative!important;z-index:3001!important;pointer-events:auto!important;}
 .ie-modern-footer{position:relative!important;z-index:3002!important;pointer-events:auto!important;}
-#income-expense-close{position:relative!important;z-index:3003!important;display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;min-height:44px!important;height:44px!important;pointer-events:auto!important;touch-action:manipulation!important;cursor:pointer!important;}</style><meta content="CLEAN-01" name="app-version"/></head>
-<body>
-&lt;!-- CLEAN-01 rebuilt from working base; single main application script. --&gt;
+#income-expense-close{position:relative!important;z-index:3003!important;display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;min-height:44px!important;height:44px!important;pointer-events:auto!important;touch-action:manipulation!important;cursor:pointer!important;}</style><style id="clean-02-mobile-fix">
+/* CLEAN-02: authoritative mobile/WebView layout. Single hamburger, full-width content. */
+html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
+*, *::before, *::after { box-sizing:border-box; }
 
-<div id="login-screen">
+/* Desktop remains unchanged; touch/WebView devices use the mobile shell even when
+   the WebView reports a large CSS viewport. This avoids the sidebar stealing the screen. */
+@media (pointer: coarse), (max-width: 900px) {
+  #shell { display:flex !important; width:100% !important; min-width:0 !important; }
+  #sidebar {
+    width:min(280px, 86vw) !important;
+    max-width:86vw !important;
+    transform:translateX(-110%) !important;
+    left:0 !important;
+    right:auto !important;
+    z-index:5000 !important;
+    box-shadow:16px 0 45px rgba(17,27,38,.14) !important;
+  }
+  #sidebar.open { transform:translateX(0) !important; }
+  #sidebar-overlay { z-index:4999 !important; }
+
+  /* One and only one menu button: the original #hamburger. */
+  #hamburger {
+    display:flex !important;
+    position:fixed !important;
+    top:14px !important;
+    left:14px !important;
+    width:44px !important;
+    height:44px !important;
+    min-width:44px !important;
+    min-height:44px !important;
+    margin:0 !important;
+    padding:0 !important;
+    align-items:center !important;
+    justify-content:center !important;
+    z-index:6000 !important;
+    border-radius:13px !important;
+    background:#fff !important;
+    border:1px solid #e1e7eb !important;
+    box-shadow:0 5px 18px rgba(17,27,38,.10) !important;
+    pointer-events:auto !important;
+    touch-action:manipulation !important;
+  }
+  #hamburger i { font-size:21px !important; pointer-events:none !important; }
+
+  #main {
+    margin-left:0 !important;
+    width:100% !important;
+    max-width:none !important;
+    min-width:0 !important;
+    padding:70px 12px 24px !important;
+    overflow-x:hidden !important;
+  }
+  .page { width:100% !important; max-width:none !important; min-width:0 !important; }
+  #page-home { width:100% !important; max-width:none !important; margin:0 !important; }
+
+  /* Home cards and lists must use the full available width. */
+  #page-home .home-v3-header,
+  #page-home .home-date-filter,
+  #page-home .home-v3-section,
+  #page-home .home-v3-new-movement { width:100% !important; max-width:none !important; }
+  #page-home .home-v3-balance-card { width:calc(100% - 22px) !important; max-width:none !important; margin-left:11px !important; margin-right:11px !important; }
+  #page-home .home-v3-mini-grid { width:100% !important; max-width:none !important; grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important; }
+  #page-home .home-v3-mini-card { min-width:0 !important; width:100% !important; }
+  #page-home .home-v3-movements-panel { width:calc(100% - 22px) !important; max-width:none !important; margin-left:11px !important; margin-right:11px !important; }
+  #home-movements-list { width:100% !important; max-width:none !important; }
+  .home-v3-movement-row { min-width:0 !important; }
+
+  /* Compact period filters without horizontal overflow. */
+  #page-home .home-date-filter > .filter-row:first-of-type { width:100% !important; justify-content:flex-start !important; padding-left:0 !important; padding-right:0 !important; }
+  #page-home .home-date-filter > .filter-row:first-of-type .home-date-field { flex:0 1 150px !important; max-width:150px !important; }
+  #page-home .home-date-filter > .filter-row:first-of-type select { width:100% !important; }
+  #page-home .home-date-filter > .toggle-row { width:100% !important; justify-content:flex-start !important; padding-left:2px !important; }
+  #page-home #custom-range { width:100% !important; max-width:none !important; }
+
+  /* Income/expense popup always sits above everything and the close button is tappable. */
+  #income-expense-overlay {
+    position:fixed !important;
+    inset:0 !important;
+    z-index:10000 !important;
+    display:none !important;
+    align-items:center !important;
+    justify-content:center !important;
+    padding:14px !important;
+    pointer-events:auto !important;
+  }
+  #income-expense-overlay.open { display:flex !important; }
+  #income-expense-box {
+    position:relative !important;
+    z-index:10001 !important;
+    width:min(430px, calc(100vw - 28px)) !important;
+    max-width:430px !important;
+    max-height:calc(100vh - 28px) !important;
+    overflow:auto !important;
+    pointer-events:auto !important;
+  }
+  .ie-modern-footer { position:relative !important; z-index:10002 !important; pointer-events:auto !important; }
+  #income-expense-close {
+    position:relative !important;
+    z-index:10003 !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    width:100% !important;
+    min-height:44px !important;
+    height:44px !important;
+    margin:0 !important;
+    pointer-events:auto !important;
+    touch-action:manipulation !important;
+    cursor:pointer !important;
+  }
+}
+
+/* If a browser does not expose pointer:coarse, a narrow viewport still gets the same fix. */
+@media (max-width:900px) {
+  #main { padding-top:70px !important; }
+}
+</style></head>
+<body><div id="login-screen">
 <h1>Budget di Famiglia</h1>
 <p class="subtitle">Gestisci le tue finanze in modo semplice</p>
 <form class="panel" id="login-form">
@@ -7767,7 +7881,7 @@ button{font-family:inherit;}
 <button id="btn-logout">Esci</button>
 </div>
 </aside>
-<div class="mobile-appbar"><button aria-label="Apri menu" id="hamburger" type="button"><i class="ti ti-menu-2"></i></button><div class="mobile-appbar-title"><strong>Bilancio Familiare</strong></div></div><main id="main">
+<main id="main">
 <div class="page active home-redesign-v3" id="page-home">
 <div class="home-v3-header">
 <div class="home-v3-greeting">
@@ -8352,7 +8466,7 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 <div><span class="ie-modern-kicker">RIEPILOGO</span><h3 id="income-expense-title">Dettaglio</h3><div class="ie-modern-period" id="income-expense-period"></div></div>
 </div>
 <div id="income-expense-content"></div>
-<div class="ie-modern-footer"><button id="income-expense-close" type="button">Chiudi</button></div>
+<div class="ie-modern-footer"><button id="income-expense-close" onclick="closeIncomeExpenseDetail(event); return false;" type="button">Chiudi</button></div>
 </div>
 </div>
 <div id="pdf-loading"><div class="spinner"></div><span>Generazione PDF...</span></div>
@@ -8445,8 +8559,7 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 </div>
 </div>
 </div>
-<script>console.log('BUDGET-CASA CLEAN-01 LOADED');
-
+<script>
 (function(){
 const firebaseConfig = {
 apiKey: "AIzaSyBPEg2d86zKWs6mf2L15TN7QPiMkEGbixs",
@@ -12207,12 +12320,26 @@ function openIncomeExpenseDetail(type) {
 }
 
 // === FUNZIONE PER CHIUDERE IL DETTAGLIO ===
-function closeIncomeExpenseDetail() {
-  console.log('🔒 Chiusura dettaglio');
-  forceCloseIncomeExpenseDetail();
-  console.log('✅ Popup chiuso!');
+function closeIncomeExpenseDetail(e) {
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  const overlay = document.getElementById('income-expense-overlay');
+  if (!overlay) return;
+  overlay.classList.remove('open');
+  overlay.style.removeProperty('display');
+  overlay.setAttribute('aria-hidden','true');
 }
 
+
+// === CLEAN-02: close handler independent from popup initialization ===
+document.addEventListener('click', function(e) {
+  const btn = e.target && e.target.closest ? e.target.closest('#income-expense-close') : null;
+  if (btn) closeIncomeExpenseDetail(e);
+}, true);
+
+document.addEventListener('pointerup', function(e) {
+  const btn = e.target && e.target.closest ? e.target.closest('#income-expense-close') : null;
+  if (btn) closeIncomeExpenseDetail(e);
+}, true);
 
 // === V8: LISTENER ENTRATE/USCITE PULITI ===
 let incomeExpenseListenersInitialized = false;
