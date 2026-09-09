@@ -4661,36 +4661,66 @@ button{font-family:inherit;}
 </style>
 
 
-<style id="modern-v5-floating-menu-fix">
-/* Hamburger flottante: sempre visibile durante lo scroll, stile app mobile */
-@media(max-width:900px){
+<style id="modern-v7-floating-menu-fix">
+/* === MENU MOBILE: pulsante flottante sempre visibile === */
+@media (max-width:900px){
   .mobile-appbar{display:none!important;}
   #hamburger{
     position:fixed!important;
-    top:max(12px, env(safe-area-inset-top))!important;
-    left:12px!important;
-    width:48px!important; height:48px!important;
-    display:flex!important; align-items:center!important; justify-content:center!important;
-    z-index:5000!important;
+    top:64px!important;
+    left:14px!important;
+    width:48px!important;
+    height:48px!important;
+    min-width:48px!important;
+    min-height:48px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
     margin:0!important;
-    border-radius:16px!important;
-    background:rgba(255,255,255,.96)!important;
-    border:1px solid rgba(225,231,235,.95)!important;
-    box-shadow:0 8px 24px rgba(17,27,38,.14)!important;
-    -webkit-backdrop-filter:blur(12px)!important;
-    backdrop-filter:blur(12px)!important;
+    padding:0!important;
+    z-index:10000!important;
+    border-radius:15px!important;
+    background:rgba(255,255,255,.97)!important;
+    border:1px solid rgba(218,226,233,.95)!important;
+    box-shadow:0 5px 20px rgba(20,35,54,.16)!important;
+    -webkit-backdrop-filter:blur(14px)!important;
+    backdrop-filter:blur(14px)!important;
+    cursor:pointer!important;
+    pointer-events:auto!important;
     touch-action:manipulation!important;
   }
-  #hamburger i{font-size:22px!important;}
+  #hamburger i{font-size:22px!important;line-height:1!important;pointer-events:none!important;}
   #main{padding-top:4.5rem!important;}
 }
 
-/* Chiusura popup Entrate/Uscite: il pulsante è sempre sopra il contenuto */
-#income-expense-overlay{z-index:9999!important;pointer-events:auto!important;}
-#income-expense-box{z-index:10000!important;pointer-events:auto!important;}
-#income-expense-content{position:relative!important;z-index:1!important;}
-.ie-modern-footer{position:relative!important;z-index:100!important;pointer-events:auto!important;}
-#income-expense-close{position:relative!important;z-index:101!important;pointer-events:auto!important;cursor:pointer!important;display:block!important;}
+/* === POPUP ENTRATE/USCITE: chiusura robusta === */
+#income-expense-overlay{
+  z-index:20000!important;
+  pointer-events:auto!important;
+}
+#income-expense-box{
+  position:relative!important;
+  z-index:20001!important;
+  pointer-events:auto!important;
+}
+.ie-modern-footer{
+  position:relative!important;
+  z-index:20002!important;
+  pointer-events:auto!important;
+}
+#income-expense-close{
+  position:relative!important;
+  z-index:20003!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+  min-height:44px!important;
+  height:44px!important;
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+  cursor:pointer!important;
+}
 </style>
 
 <style id="modern-v4-menu-popup-list">
@@ -5430,7 +5460,7 @@ Movimenti in contanti. Stesse colonne del conto corrente.
       <div><span class="ie-modern-kicker">RIEPILOGO</span><h3 id="income-expense-title">Dettaglio</h3><div id="income-expense-period" class="ie-modern-period"></div></div>
     </div>
     <div id="income-expense-content"></div>
-    <div class="ie-modern-footer"><button id="income-expense-close" type="button" onclick="window.closeIncomeExpenseDetail(); return false;">Chiudi</button></div>
+    <div class="ie-modern-footer"><button id="income-expense-close" type="button" >Chiudi</button></div>
   </div>
 </div>
 <div id="pdf-loading"><div class="spinner"></div><span>Generazione PDF...</span></div>
@@ -9310,19 +9340,28 @@ function openIncomeExpenseDetail(type) {
 // === FUNZIONE PER CHIUDERE IL DETTAGLIO ===
 function closeIncomeExpenseDetail() {
   console.log('🔒 Chiusura dettaglio');
-  const overlay = document.getElementById('income-expense-overlay');
-  if (overlay) {
-    overlay.classList.remove('open');
-    overlay.style.display = 'none';
-    console.log('✅ Popup chiuso!');
-  }
+  forceCloseIncomeExpenseDetail();
+  console.log('✅ Popup chiuso!');
 }
 
-// Listener globale robusto: funziona anche se il popup viene ricreato/clonato.
+// Chiusura robusta del popup: delegazione su document + pointerup/touchend.
+// Non dipende da listener applicati al singolo bottone e sopravvive a eventuali render/cloni.
+function forceCloseIncomeExpenseDetail(e) {
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  const overlay = document.getElementById('income-expense-overlay');
+  if (!overlay) return;
+  overlay.classList.remove('open');
+  overlay.style.setProperty('display','none','important');
+  overlay.setAttribute('aria-hidden','true');
+}
+document.addEventListener('pointerup', function(e) {
+  const close = e.target && e.target.closest ? e.target.closest('#income-expense-close') : null;
+  if (close) forceCloseIncomeExpenseDetail(e);
+}, true);
 document.addEventListener('click', function(e) {
-  const close = e.target.closest('#income-expense-close');
-  if (close) { e.preventDefault(); e.stopPropagation(); closeIncomeExpenseDetail(); }
-});
+  const close = e.target && e.target.closest ? e.target.closest('#income-expense-close') : null;
+  if (close) forceCloseIncomeExpenseDetail(e);
+}, true);
 
 // === INIZIALIZZA I LISTENER ===
 function initIncomeExpenseListeners() {
@@ -9374,18 +9413,12 @@ function initIncomeExpenseListeners() {
   
   // === PULSANTE CHIUDI ===
   if (closeBtn) {
-    // Rimuovi listener vecchi
-    const newBtn = closeBtn.cloneNode(true);
-    closeBtn.parentNode.replaceChild(newBtn, closeBtn);
-    
-    // USA ONCLICK INVECE DI ADD EVENT LISTENER (PIÙ AFFIDABILE)
-    newBtn.onclick = function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      console.log('🖱️ CLICK su Chiudi (onclick)');
-      closeIncomeExpenseDetail();
+    // Il bottone NON viene più clonato: la chiusura è gestita in delegazione globale.
+    closeBtn.onclick = function(e) {
+      forceCloseIncomeExpenseDetail(e);
     };
-    console.log('✅ Listener CHIUDI aggiunto (onclick)');
+    closeBtn.setAttribute('type','button');
+    console.log('✅ Listener CHIUDI aggiunto');
   } else {
     console.error('❌ closeBtn non trovato!');
   }
