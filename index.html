@@ -1,19 +1,20 @@
 <!DOCTYPE html>
+
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
 <title>Budget di Famiglia</title>
-<link rel="manifest" href="manifest.json">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Budget Casa">
-<link rel="apple-touch-icon" href="icon-192.png">
-<meta name="theme-color" content="#4A90D9">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link href="manifest.json" rel="manifest"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="default" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="Budget Casa" name="apple-mobile-web-app-title"/>
+<link href="icon-192.png" rel="apple-touch-icon"/>
+<meta content="#4A90D9" name="theme-color"/>
+<link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
@@ -21,9 +22,3038 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-storage-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>  
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
+/* === TOGGLE SWITCH E FILTRI (Spostato DENTRO il tag style) === */
+.toggle-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 16px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.3s ease;
+}
+.toggle-container:hover { border-color: var(--accent); }
+.toggle-switch {
+  position: relative;
+  width: 48px;
+  height: 26px;
+  background: var(--border);
+  border-radius: 999px;
+  transition: background 0.3s ease;
+  flex-shrink: 0;
+}
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.toggle-container.active .toggle-switch { background: #5CB85C; }
+.toggle-container.active .toggle-switch::after { transform: translateX(22px); }
+.toggle-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
+}
+.toggle-container.active .toggle-label { color: #5CB85C; }
+
+.home-date-filter {
+  width: 100%;
+  flex-direction: column;
+  align-items: flex-start !important;
+  gap: 12px;
+  margin-top: 12px;
+}
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+.filter-row .home-date-field { flex: 0 1 auto; }
+.filter-row .home-date-field label { font-size: 13px; font-weight: 700; color: var(--text-secondary); }
+.filter-row .home-date-field select, .filter-row .home-date-field input { height: 40px; min-width: 120px; }
+#btn-apply-range {
+  height: 40px;
+  padding: 0 20px;
+  background: var(--accent-gradient);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+/* Riga separata per il toggle switch */
+.filter-row.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+  width: 100%;
+}
+
+/* Stile per il testo accanto al toggle */
+.toggle-label-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Quando il toggle è attivo, il testo diventa verde */
+.toggle-container.active + .toggle-label-text {
+  color: #5CB85C;
+}
+
+/* Oppure se vuoi che il testo sia sempre visibile ma cambi colore */
+.toggle-label-text.active {
+  color: #5CB85C;
+}  
+#btn-apply-range:hover { transform: translateY(-1px); box-shadow: var(--shadow-lg); }
+#custom-range {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  margin-top: 4px;
+}
+#custom-range.hidden { display: none; }
+#custom-range .home-date-field { flex: 0 1 auto; }
+#custom-range .home-date-field label { font-size: 12px; font-weight: 700; color: var(--text-muted); }
+#custom-range .home-date-field input { height: 36px; min-width: 140px; font-size: 13px; }
+
+/* === RESTO DEL CSS ORIGINALE === */
+:root {
+--bg: #F0F4F8;
+--surface: #FFFFFF;
+--surface-2: #E8F0F8;
+--text-primary: #1A2B3C;
+--text-secondary: #5A6B7C;
+--text-muted: #8A9BAC;
+--border: #D0DCE8;
+--accent: #4A90D9;
+--accent-light: #E3F0FF;
+--accent-gradient: linear-gradient(135deg, #4A90D9 0%, #2E6BB5 100%);
+--success: #5CB85C;
+--success-light: #E8F5E9;
+--danger: #E74C3C;
+--danger-light: #FDE8E8;
+--warning: #F39C12;
+--warning-light: #FFF4E0;
+--info: #3498DB;
+--info-light: #E8F4FD;
+--purple: #9B59B6;
+--purple-light: #F3E8F9;
+--radius: 24px;
+--radius-sm: 16px;
+--radius-lg: 32px;
+--sidebar-w: 260px;
+--shadow-sm: 0 2px 8px rgba(26,43,60,0.04);
+--shadow: 0 4px 16px rgba(26,43,60,0.06);
+--shadow-lg: 0 8px 32px rgba(74,144,217,0.12);
+--shadow-xl: 0 16px 48px rgba(74,144,217,0.15);
+}
+@media (prefers-color-scheme: dark) {
+:root {
+--bg: #0F1923;
+--surface: #1A2B3C;
+--surface-2: #243447;
+--text-primary: #F0F4F8;
+--text-secondary: #8A9BAC;
+--text-muted: #5A6B7C;
+--border: #2E4053;
+--accent-light: #1A2B3C;
+--success-light: #1A3A1A;
+--danger-light: #3A1A1A;
+--warning-light: #3A2E1A;
+--info-light: #1A2E3A;
+--purple-light: #2E1A3A;
+}
+}
+* { box-sizing: border-box; }
+body {
+margin: 0;
+font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+background: var(--bg);
+color: var(--text-primary);
+line-height: 1.5;
+-webkit-font-smoothing: antialiased;
+overflow-x: hidden;
+}
+#login-screen {
+max-width: 440px;
+margin: 0 auto;
+padding: 2rem 1.5rem;
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+justify-content: center;
+}
+#login-screen h1 {
+text-align: center;
+font-size: 32px;
+font-weight: 800;
+letter-spacing: -1px;
+margin-bottom: 0.5rem;
+color: var(--text-primary);
+}
+#login-screen .subtitle {
+text-align: center;
+color: var(--text-secondary);
+font-size: 15px;
+margin-bottom: 2rem;
+font-weight: 500;
+}
+#login-screen .panel {
+display: flex;
+flex-direction: column;
+gap: 14px;
+background: var(--surface);
+padding: 2rem;
+border-radius: var(--radius-lg);
+box-shadow: var(--shadow-xl);
+}
+#login-screen input {
+width: 100%;
+height: 52px;
+border-radius: var(--radius-sm);
+border: 1.5px solid var(--border);
+background: var(--surface-2);
+padding: 0 18px;
+font-size: 15px;
+font-weight: 500;
+font-family: inherit;
+transition: all 0.2s;
+}
+#login-screen input:focus {
+border-color: var(--accent);
+background: var(--surface);
+outline: none;
+box-shadow: 0 0 0 4px var(--accent-light);
+}
+#login-screen button[type="submit"] {
+width: 100%;
+height: 52px;
+background: var(--accent-gradient);
+color: #fff;
+border: none;
+border-radius: var(--radius-sm);
+font-weight: 700;
+font-size: 15px;
+font-family: inherit;
+box-shadow: var(--shadow-lg);
+transition: all 0.2s;
+}
+#login-screen button[type="submit"]:hover {
+transform: translateY(-1px);
+box-shadow: var(--shadow-xl);
+}
+#login-error { color: var(--danger); font-size: 13px; min-height: 18px; margin: 0; font-weight: 600; }
+#login-toggle {
+background: none;
+border: none;
+color: var(--accent);
+font-weight: 700;
+font-family: inherit;
+height: auto;
+padding: 0;
+width: auto;
+cursor: pointer;
+}
+#shell { display: flex; min-height: 100vh; }
+#sidebar {
+width: var(--sidebar-w);
+background: var(--surface);
+border-right: 1px solid var(--border);
+display: flex;
+flex-direction: column;
+position: fixed;
+top: 0; left: 0; bottom: 0;
+z-index: 100;
+transition: transform 0.3s ease;
+padding: 1.5rem 0;
+}
+#sidebar-logo {
+padding: 0 1.5rem 1.5rem;
+font-size: 20px;
+font-weight: 800;
+letter-spacing: -0.5px;
+border-bottom: 1px solid var(--border);
+margin-bottom: 1rem;
+display: flex;
+align-items: center;
+gap: 10px;
+}
+#sidebar-logo .logo-icon {
+width: 40px;
+height: 40px;
+background: var(--accent-gradient);
+border-radius: 14px;
+display: flex;
+align-items: center;
+justify-content: center;
+color: #fff;
+font-size: 20px;
+box-shadow: var(--shadow);
+}
+#sidebar nav { flex: 1; padding: 0 0.75rem; }
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  height: auto;
+  transition: all 0.2s;
+  border-radius: var(--radius-sm);
+  margin-bottom: 4px;
+  font-family: inherit;
+}
+
+.nav-item i {
+  font-size: 20px;
+  font-weight: 400;
+  opacity: 0.85;
+  transition: opacity 0.2s;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.nav-item:hover {
+  background: var(--surface-2);
+  color: var(--text-primary);
+}
+
+.nav-item:hover i {
+  opacity: 1;
+}
+
+.nav-item.active {
+  background: var(--accent-light);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.nav-item.active i {
+  opacity: 1;
+}
+.nav-item i[class*="ti-"]::before {
+  display: inline-block;
+  font-style: normal;
+  font-variant: normal;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+}  
+#sidebar-footer {
+padding: 1rem 1.5rem;
+border-top: 1px solid var(--border);
+margin-top: 1rem;
+}
+#sidebar-user-email {
+display: block;
+margin-bottom: 10px;
+overflow: hidden;
+text-overflow: ellipsis;
+white-space: nowrap;
+color: var(--text-secondary);
+font-size: 13px;
+font-weight: 600;
+}
+#btn-logout {
+width: 100%;
+font-size: 14px;
+height: 44px;
+background: var(--surface-2);
+border: 1px solid var(--border);
+cursor: pointer;
+border-radius: var(--radius-sm);
+font-weight: 700;
+color: var(--text-secondary);
+font-family: inherit;
+transition: all 0.2s;
+}
+#btn-logout:hover {
+background: var(--danger-light);
+color: var(--danger);
+border-color: var(--danger);
+}
+#hamburger {
+display: none;
+position: fixed;
+top: 16px; left: 16px;
+z-index: 200;
+background: var(--surface);
+border: 1px solid var(--border);
+border-radius: var(--radius-sm);
+width: 44px; height: 44px;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+padding: 0;
+box-shadow: var(--shadow);
+}
+#hamburger i {
+font-size: 22px;
+color: var(--text-primary);
+}
+#sidebar-overlay {
+display: none;
+position: fixed;
+inset: 0;
+background: rgba(15,25,35,0.5);
+backdrop-filter: blur(4px);
+z-index: 99;
+}
+#main {
+margin-left: var(--sidebar-w);
+flex: 1;
+padding: 2rem;
+max-width: 1200px;
+width: 100%;
+}
+@media (max-width: 900px) {
+  #hamburger { display: flex; }
+  #sidebar { transform: translateX(calc(-1 * var(--sidebar-w))); }
+  #sidebar.open { transform: translateX(0); }
+  #sidebar-overlay.open { display: block; }
+  #main {
+    margin-left: 0;
+    padding: 1.5rem 1rem 3rem;
+    padding-top: 4.5rem;
+    max-width: 100%;
+  }
+  .stats-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .stat-card {
+    padding: 1rem;
+  }
+  .stat-card p:first-child {
+    font-size: 11px;
+  }
+  .stat-card p:last-child {
+    font-size: 18px;
+  }
+  
+  /* === MODIFICA QUESTA PARTE === */
+  .tx-row, .tx-header {
+    font-size: 11px !important;
+    grid-template-columns: 24px 50px 1fr 50px 50px !important;
+    gap: 6px !important;
+    padding: 10px 8px !important;
+  }
+  
+  .tx-col-date {
+    font-size: 9px !important;
+    min-width: 35px !important;
+  }
+  
+  .tx-desc-text {
+    font-size: 11px !important;
+  }
+  
+  .tx-col-amount {
+    font-size: 12px !important;
+  }
+  
+  .tx-checkbox {
+    width: 14px !important;
+    height: 14px !important;
+  }
+  
+  .badge-source {
+    font-size: 8px !important;
+    padding: 2px 6px !important;
+  }
+  
+  .tx-col-type {
+    display: flex !important;
+  }
+  /* === FINE MODIFICA === */
+  
+  .ios-row {
+    padding: 0 10px;
+    min-height: 48px;
+  }
+  .ios-label {
+    font-size: 13px;
+    min-width: 80px;
+  }
+  .home-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .home-date-filter {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .home-date-field {
+    flex: 1 1 100%;
+  }
+  .home-date-field input,
+  .home-date-field select {
+    width: 100%;
+  }
+  .filter-custom-toggle {
+    width: 100%;
+    justify-content: center;
+  }
+  .custom-date-range {
+    flex-direction: column;
+    width: 100%;
+  }
+  #btn-apply-range {
+    width: 100%;
+    justify-content: center;
+  }
+  .source-filter button {
+    font-size: 12px;
+    padding: 0 12px;
+    height: 36px;
+  }
+  .stats-tabs {
+    gap: 4px;
+  }
+  .stats-tab {
+    padding: 10px 14px;
+    font-size: 12px;
+  }
+  .chart-wrap {
+    height: 250px;
+  }
+}
+@media (max-width: 480px) {
+  .tx-row, .tx-header {
+    font-size: 10px !important;
+    grid-template-columns: 20px 45px 1fr 40px 45px !important;
+    gap: 4px !important;
+    padding: 8px 4px !important;
+  }
+  .tx-col-date {
+    font-size: 8px !important;
+  }
+  .tx-desc-text {
+    font-size: 10px !important;
+  }
+  .tx-col-amount {
+    font-size: 10px !important;
+  }
+  button, input, select {
+    min-height: 36px !important;
+    font-size: 12px !important;
+  }
+}
+.stats-tabs {
+gap: 4px;
+}
+.stats-tab {
+padding: 10px 14px;
+font-size: 12px;
+}
+.chart-wrap {
+height: 250px;
+}
+.page { display: none; }
+.page.active { display: block; animation: fadeIn 0.4s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+h1 { font-size: 30px; font-weight: 800; margin: 0 0 1.5rem; letter-spacing: -1px; }
+h2 { font-size: 20px; font-weight: 700; margin: 0; letter-spacing: -0.3px; }
+h3 { font-size: 16px; font-weight: 700; margin: 0 0 1rem; }
+.home-header {
+display: flex;
+align-items: flex-start;
+justify-content: space-between;
+gap: 16px;
+margin-bottom: 2rem;
+flex-wrap: wrap;
+}
+.home-header h1 { margin: 0; }
+.home-date-filter {
+display: flex;
+align-items: center;
+gap: 12px;
+flex-wrap: wrap;
+justify-content: flex-end;
+}
+.home-date-field {
+display: flex;
+align-items: center;
+gap: 8px;
+}
+.home-date-field label {
+font-size: 13px;
+color: var(--text-secondary);
+white-space: nowrap;
+font-weight: 700;
+}
+.home-date-field input, .home-date-field select {
+height: 44px;
+border-radius: var(--radius-sm);
+border: 1.5px solid var(--border);
+background: var(--surface);
+padding: 0 14px;
+font-size: 14px;
+font-weight: 600;
+color: var(--text-primary);
+font-family: inherit;
+transition: all 0.2s;
+}
+.home-date-field input:focus, .home-date-field select:focus {
+border-color: var(--accent);
+outline: none;
+box-shadow: 0 0 0 4px var(--accent-light);
+}
+.filter-custom-toggle {
+display: inline-flex;
+align-items: center;
+gap: 8px;
+height: 44px;
+padding: 0 16px;
+border: 1.5px solid var(--border);
+border-radius: var(--radius-sm);
+background: var(--surface);
+font-size: 13px;
+color: var(--text-secondary);
+white-space: nowrap;
+cursor: pointer;
+font-weight: 700;
+font-family: inherit;
+transition: all 0.2s;
+}
+.filter-custom-toggle:hover {
+border-color: var(--accent);
+color: var(--accent);
+}
+.filter-custom-toggle input { width: 16px; height: 16px; padding: 0; margin: 0; }
+.custom-date-range { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+#btn-apply-range {
+display: inline-flex;
+align-items: center;
+gap: 8px;
+white-space: nowrap;
+cursor: pointer;
+height: 44px;
+padding: 0 20px;
+background: var(--accent-gradient);
+color: #fff;
+border: none;
+border-radius: var(--radius-sm);
+font-weight: 700;
+font-size: 14px;
+font-family: inherit;
+box-shadow: var(--shadow);
+transition: all 0.2s;
+}
+#btn-apply-range:hover {
+transform: translateY(-1px);
+box-shadow: var(--shadow-lg);
+}
+#filter-label {
+width: 100%;
+font-size: 13px;
+color: var(--text-muted);
+margin: 0;
+text-align: right;
+font-weight: 600;
+}
+.stats-row {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+gap: 18px;
+margin-bottom: 2rem;
+}
+.stat-card {
+background: var(--surface);
+border-radius: var(--radius);
+padding: 1.5rem;
+box-shadow: var(--shadow);
+border: 1px solid var(--border);
+transition: all 0.3s;
+position: relative;
+overflow: hidden;
+}
+.stat-card:hover {
+transform: translateY(-2px);
+box-shadow: var(--shadow-lg);
+}
+.stat-card.income { border-left: 4px solid var(--success); }
+.stat-card.expense { border-left: 4px solid var(--danger); }
+.stat-card.balance { border-left: 4px solid var(--accent); }
+.stat-card.residuo { border-left: 4px solid var(--purple); }
+.stat-card p:first-child {
+font-size: 13px;
+color: var(--text-secondary);
+margin: 0 0 10px;
+font-weight: 700;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+}
+.stat-card p:last-child {
+font-size: 28px;
+font-weight: 800;
+margin: 0;
+letter-spacing: -1px;
+}
+.stats-row-top {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.stats-row-bottom {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.stats-row-bottom:last-child {
+  margin-bottom: 2rem;
+}
+
+.stat-card-full {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+/* Responsive per mobile */
+@media (max-width: 600px) {
+  .stats-row-top {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .stats-row-bottom {
+    gap: 12px;
+  }
+}  
+.panel {
+background: var(--surface);
+border: 1px solid var(--border);
+border-radius: var(--radius);
+padding: 1.75rem;
+margin-bottom: 1.5rem;
+box-shadow: var(--shadow);
+}
+input, select, button {
+font-family: inherit;
+font-size: 14px;
+border-radius: var(--radius-sm);
+border: 1.5px solid var(--border);
+background: var(--surface);
+color: var(--text-primary);
+padding: 10px 16px;
+height: 44px;
+font-weight: 600;
+transition: all 0.2s;
+}
+input:focus, select:focus {
+outline: none;
+border-color: var(--accent);
+box-shadow: 0 0 0 4px var(--accent-light);
+}
+button {
+cursor: pointer;
+font-weight: 700;
+}
+button:hover {
+background: var(--surface-2);
+}
+button:active { transform: scale(0.98); }
+.tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+.tabs button {
+flex: 1;
+border-radius: 999px;
+background: var(--surface-2);
+border: none;
+font-weight: 700;
+}
+.tabs button.active {
+background: var(--accent-gradient);
+color: #fff;
+box-shadow: var(--shadow);
+}
+.row-between {
+display: flex;
+align-items: center;
+justify-content: space-between;
+margin-bottom: 1rem;
+}
+.row-between select {
+width: auto;
+border-radius: 999px;
+padding: 8px 18px;
+font-weight: 700;
+}
+.legend {
+display: flex;
+flex-wrap: wrap;
+gap: 16px;
+margin-bottom: 12px;
+font-size: 13px;
+color: var(--text-secondary);
+}
+.legend span { display: flex; align-items: center; gap: 8px; font-weight: 700; }
+.swatch { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }
+.chart-wrap {
+position: relative;
+width: 100%;
+height: 320px;
+max-height: 320px;
+}
+#categoryChart, #yearChart, #residuoChart, #compareChart {
+max-width: 100% !important;
+height: auto !important;
+}
+.tx-row {
+  display: grid;
+  grid-template-columns: 30px 100px 1fr 120px 100px 90px;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+  cursor: default;
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+  box-shadow: var(--shadow-sm);
+}
+.tx-row.selected {
+background: var(--accent-light) !important;
+border-color: var(--accent) !important;
+}
+.tx-row:hover {
+transform: translateY(-2px);
+box-shadow: var(--shadow-lg);
+border-color: var(--accent);
+}
+.tx-checkbox {
+width: 18px;
+height: 18px;
+cursor: pointer;
+accent-color: var(--accent);
+}
+.tx-col-date {
+font-size: 13px;
+color: var(--text-secondary);
+flex-shrink: 0;
+font-weight: 700;
+}
+.tx-col-desc { min-width: 0; cursor: pointer; }
+.tx-desc-text {
+font-size: 15px;
+font-weight: 700;
+overflow: hidden;
+text-overflow: ellipsis;
+white-space: nowrap;
+display: block;
+color: var(--text-primary);
+}
+.tx-col-amount {
+font-size: 16px;
+font-weight: 800;
+text-align: right;
+white-space: nowrap;
+letter-spacing: -0.5px;
+}
+.tx-col-type { display: flex; align-items: center; justify-content: center; }
+.tx-col-actions { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+.tx-header {
+display: grid;
+grid-template-columns: 30px 100px 1fr 120px 100px 90px;
+gap: 12px;
+padding: 8px 20px;
+font-size: 11px;
+font-weight: 800;
+text-transform: uppercase;
+letter-spacing: 0.8px;
+color: var(--text-muted);
+}
+.bulk-actions-bar {
+display: flex;
+align-items: center;
+gap: 12px;
+padding: 14px 20px;
+background: var(--accent-light);
+border-radius: var(--radius);
+margin-bottom: 12px;
+border: 1px solid var(--accent);
+flex-wrap: wrap;
+}
+.bulk-actions-bar .bulk-count {
+font-weight: 700;
+color: var(--accent);
+font-size: 14px;
+}
+.bulk-actions-bar button {
+height: 36px;
+padding: 0 16px;
+font-size: 13px;
+border-radius: var(--radius-sm);
+}
+.btn-bulk-delete {
+background: var(--danger);
+color: #fff;
+border: none;
+}
+.btn-bulk-delete:hover {
+background: #c0392b;
+}
+.btn-bulk-clear {
+background: var(--surface);
+color: var(--text-secondary);
+border: 1px solid var(--border);
+}
+.search-bar {
+margin-bottom: 12px;
+}
+.search-bar input {
+width: 100%;
+height: 44px;
+padding: 0 16px 0 44px;
+border-radius: var(--radius-sm);
+border: 1.5px solid var(--border);
+font-size: 14px;
+font-family: inherit;
+background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%238A9BAC' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E") 12px center no-repeat;
+}
+.search-bar input:focus {
+outline: none;
+border-color: var(--accent);
+box-shadow: 0 0 0 4px var(--accent-light);
+}
+.table-container {
+overflow-x: auto;
+-webkit-overflow-scrolling: touch;
+}
+#detail-overlay {
+display: none;
+position: fixed;
+inset: 0;
+background: rgba(15,25,35,0.6);
+backdrop-filter: blur(8px);
+z-index: 500;
+align-items: center;
+justify-content: center;
+padding: 1rem;
+pointer-events: none;
+}
+#detail-overlay.open { display: flex; pointer-events: all; }
+#detail-box {
+background: var(--surface);
+border-radius: var(--radius-lg);
+padding: 2rem;
+width: 100%;
+max-width: 500px;
+box-shadow: var(--shadow-xl);
+animation: modalIn 0.3s ease;
+max-height: 90vh;
+overflow-y: auto;
+}
+#detail-box h3 {
+margin: 0 0 1.5rem;
+font-size: 22px;
+font-weight: 800;
+letter-spacing: -0.5px;
+}
+.detail-field {
+margin-bottom: 18px;
+padding-bottom: 18px;
+border-bottom: 1px solid var(--border);
+}
+.detail-field:last-of-type { border-bottom: none; }
+.detail-field label {
+display: block;
+font-size: 11px;
+font-weight: 800;
+text-transform: uppercase;
+letter-spacing: 0.8px;
+color: var(--text-muted);
+margin-bottom: 8px;
+}
+.detail-field p {
+margin: 0;
+font-size: 17px;
+font-weight: 700;
+word-break: break-word;
+color: var(--text-primary);
+}
+.detail-actions {
+display: flex;
+gap: 10px;
+margin-top: 1.5rem;
+}
+.detail-actions button {
+flex: 1;
+height: 46px;
+font-size: 14px;
+font-weight: 700;
+border-radius: var(--radius-sm);
+}
+.btn-delete, .btn-edit-tx {
+border: none;
+background: none;
+padding: 0;
+height: 40px;
+width: 40px;
+cursor: pointer;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+border-radius: var(--radius-sm);
+transition: all 0.2s;
+}
+.btn-delete:hover, .btn-edit-tx:hover {
+transform: scale(1.08);
+}
+.btn-delete svg, .btn-edit-tx svg {
+width: 40px;
+height: 40px;
+}
+#modal-overlay {
+display: none;
+position: fixed;
+inset: 0;
+background: rgba(15,25,35,0.6);
+backdrop-filter: blur(8px);
+z-index: 500;
+align-items: center;
+justify-content: center;
+padding: 1rem;
+}
+#modal-overlay.open { display: flex; }
+#modal-box {
+background: var(--surface);
+border-radius: var(--radius-lg);
+padding: 2rem;
+width: 100%;
+max-width: 440px;
+box-shadow: var(--shadow-xl);
+animation: modalIn 0.3s ease;
+}
+@keyframes modalIn {
+from { transform: scale(0.95); opacity: 0; }
+to { transform: scale(1); opacity: 1; }
+}
+#modal-box h3 {
+margin: 0 0 1.5rem;
+font-size: 22px;
+font-weight: 800;
+letter-spacing: -0.5px;
+}
+.modal-field { margin-bottom: 16px; }
+.modal-field label {
+display: block;
+font-size: 11px;
+font-weight: 800;
+text-transform: uppercase;
+letter-spacing: 0.8px;
+color: var(--text-muted);
+margin-bottom: 8px;
+}
+.modal-field input, .modal-field select {
+width: 100%;
+height: 46px;
+font-weight: 700;
+}
+.modal-actions {
+display: flex;
+gap: 10px;
+margin-top: 1.5rem;
+}
+.modal-actions button {
+flex: 1;
+height: 46px;
+font-size: 14px;
+font-weight: 700;
+border-radius: var(--radius-sm);
+}
+.empty-msg {
+font-size: 14px;
+color: var(--text-muted);
+text-align: center;
+padding: 3rem 0;
+font-weight: 600;
+}
+#save-status {
+font-size: 13px;
+color: var(--text-muted);
+margin-top: 1.5rem;
+text-align: center;
+font-weight: 600;
+}
+.hidden { display: none !important; }
+.import-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.import-row input[type="file"] { flex: 1; min-width: 200px; height: auto; padding: 12px; }
+#import-preview-wrap-bank, #import-preview-wrap-cash { margin-top: 1rem; }
+#import-preview-wrap-bank table, #import-preview-wrap-cash table {
+width: 100%;
+border-collapse: collapse;
+font-size: 13px;
+}
+#import-preview-wrap-bank th, #import-preview-wrap-bank td,
+#import-preview-wrap-cash th, #import-preview-wrap-cash td {
+text-align: left;
+padding: 12px 14px;
+border-bottom: 1px solid var(--border);
+}
+#import-preview-wrap-bank th, #import-preview-wrap-cash th {
+color: var(--text-secondary);
+font-weight: 800;
+font-size: 11px;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+}
+.import-row-error { color: var(--danger); }
+.import-row-ok { color: var(--text-secondary); }
+#import-summary-bank, #import-summary-cash {
+font-size: 14px;
+margin: 14px 0;
+font-weight: 700;
+}
+#import-actions-bank, #import-actions-cash {
+display: flex;
+gap: 10px;
+margin-top: 14px;
+}
+.import-table-wrap {
+max-height: 320px;
+overflow-y: auto;
+border: 1px solid var(--border);
+border-radius: var(--radius);
+}
+.badge-source {
+display: inline-block;
+font-size: 11px;
+font-weight: 800;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+padding: 5px 12px;
+border-radius: 999px;
+flex-shrink: 0;
+}
+.badge-cash { background: var(--success-light); color: var(--success); }
+.badge-bank { background: var(--info-light); color: var(--info); }
+.source-filter {
+display: flex;
+gap: 8px;
+margin-bottom: 1rem;
+flex-wrap: wrap;
+}
+.source-filter button {
+height: 40px;
+font-size: 13px;
+font-weight: 700;
+border-radius: 999px;
+padding: 0 18px;
+border: 1.5px solid var(--border);
+background: var(--surface);
+color: var(--text-secondary);
+cursor: pointer;
+transition: all 0.2s;
+font-family: inherit;
+}
+.source-filter button:hover {
+border-color: var(--accent);
+color: var(--accent);
+}
+.source-filter button.active {
+background: var(--accent-gradient);
+color: #fff !important;
+border-color: var(--accent);
+box-shadow: var(--shadow);
+}
+.ios-row {
+display: flex;
+align-items: center;
+padding: 0 18px;
+min-height: 54px;
+border-bottom: 1px solid var(--border);
+gap: 12px;
+}
+.ios-label {
+font-size: 14px;
+font-weight: 700;
+color: var(--text-primary);
+flex-shrink: 0;
+min-width: 100px;
+}
+.ios-input {
+flex: 1;
+border: none !important;
+background: transparent !important;
+font-size: 15px;
+color: var(--text-primary);
+padding: 0 !important;
+height: auto !important;
+box-shadow: none !important;
+outline: none !important;
+font-weight: 700;
+font-family: inherit;
+}
+.ios-input-field {
+background: var(--surface-2) !important;
+border-radius: var(--radius-sm) !important;
+padding: 12px 16px !important;
+height: 44px !important;
+color: var(--text-primary) !important;
+border: 1.5px solid var(--border) !important;
+font-size: 14px !important;
+font-weight: 700;
+transition: all 0.2s;
+font-family: inherit;
+}
+.ios-input-field:focus {
+border-color: var(--accent) !important;
+background: var(--surface) !important;
+box-shadow: 0 0 0 4px var(--accent-light) !important;
+}
+.ios-select {
+flex: 1;
+border: none !important;
+background: transparent !important;
+font-size: 15px;
+color: var(--text-primary);
+padding: 0 !important;
+height: auto !important;
+text-align: right;
+cursor: pointer;
+outline: none !important;
+font-weight: 700;
+font-family: inherit;
+}
+.import-error-text { color: var(--danger); font-size: 13px; font-weight: 700; }
+.profile-field { margin-bottom: 1.5rem; }
+.profile-field label {
+display: block;
+font-size: 12px;
+color: var(--text-secondary);
+margin-bottom: 8px;
+font-weight: 800;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+}
+.profile-field input {
+width: 100%;
+height: 46px;
+font-weight: 700;
+}
+#profile-msg { font-size: 13px; min-height: 18px; margin-top: 10px; font-weight: 700; }
+.reminder-row {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 16px 20px;
+background: var(--surface);
+border-radius: var(--radius);
+margin-bottom: 12px;
+border: 1px solid var(--border);
+box-shadow: var(--shadow-sm);
+transition: all 0.2s;
+}
+.reminder-row:hover {
+box-shadow: var(--shadow);
+transform: translateY(-1px);
+}
+.reminder-left { min-width: 0; }
+.reminder-left p { margin: 0; }
+.reminder-left p:first-child { font-size: 15px; font-weight: 700; }
+.reminder-left p:last-child { font-size: 13px; color: var(--text-secondary); font-weight: 600; }
+.reminder-badge {
+font-size: 12px;
+font-weight: 800;
+padding: 5px 14px;
+border-radius: 999px;
+background: var(--surface-2);
+border: 1px solid var(--border);
+white-space: nowrap;
+flex-shrink: 0;
+margin: 0 14px;
+}
+.reminder-badge.overdue { background: var(--danger-light); color: var(--danger); border-color: var(--danger); }
+.reminder-badge.today { background: var(--success-light); color: var(--success); border-color: var(--success); }
+.reminder-badge.soon { background: var(--warning-light); color: #B8860B; border-color: var(--warning); }
+.reminder-form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.reminder-form input { width: 100%; height: 46px; font-weight: 700; }
+.reminder-form-note { grid-column: 1 / -1; }
+.import-section-divider {
+margin: 2rem 0 1.5rem;
+padding-top: 1.5rem;
+border-top: 1px solid var(--border);
+}
+.import-section-title {
+display: flex;
+align-items: center;
+gap: 12px;
+font-size: 20px;
+font-weight: 800;
+margin-bottom: 1rem;
+letter-spacing: -0.5px;
+}
+.import-section-title .icon-circle {
+width: 44px;
+height: 44px;
+border-radius: 14px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 20px;
+}
+.cat-list { list-style: none; padding: 0; margin: 0; }
+.cat-item {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 16px 0;
+border-bottom: 1px solid var(--border);
+}
+.cat-item:last-child { border-bottom: none; }
+.cat-item-name {
+flex: 1;
+font-size: 15px;
+font-weight: 700;
+display: flex;
+align-items: center;
+gap: 10px;
+}
+.cat-color-dot {
+width: 22px;
+height: 22px;
+border-radius: 50%;
+cursor: pointer;
+border: 2px solid var(--border);
+transition: all 0.2s;
+flex-shrink: 0;
+}
+.cat-color-dot:hover {
+transform: scale(1.2);
+border-color: var(--accent);
+box-shadow: var(--shadow);
+}
+.cat-item .cat-actions { display: flex; gap: 8px; }
+.cat-input-row { display: flex; gap: 10px; margin-top: 14px; }
+.cat-input-row input { flex: 1; height: 46px; font-weight: 700; }
+.btn-pdf {
+display: inline-flex;
+align-items: center;
+gap: 8px;
+height: 44px;
+padding: 0 20px;
+background: var(--accent-gradient);
+color: #fff !important;
+border: none;
+border-radius: var(--radius-sm);
+font-size: 14px;
+font-weight: 700;
+cursor: pointer;
+box-shadow: var(--shadow);
+transition: all 0.2s;
+font-family: inherit;
+}
+.btn-pdf:hover {
+transform: translateY(-1px);
+box-shadow: var(--shadow-lg);
+}
+.btn-pdf i { font-size: 16px; }
+#pdf-loading {
+display: none;
+position: fixed;
+top: 20px;
+right: 20px;
+background: var(--surface);
+border: 1px solid var(--border);
+border-radius: var(--radius);
+padding: 16px 22px;
+box-shadow: var(--shadow-xl);
+z-index: 10000;
+font-size: 14px;
+font-weight: 700;
+font-family: inherit;
+}
+#pdf-loading.show { display: flex; align-items: center; gap: 12px; }
+.spinner {
+width: 20px;
+height: 20px;
+border: 2.5px solid var(--border);
+border-top-color: var(--accent);
+border-radius: 50%;
+animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.stats-tabs {
+display: flex;
+gap: 6px;
+margin-bottom: 2rem;
+background: var(--surface-2);
+padding: 6px;
+border-radius: var(--radius);
+flex-wrap: wrap;
+}
+.stats-tab {
+padding: 12px 22px;
+background: transparent;
+border: none;
+border-radius: var(--radius-sm);
+cursor: pointer;
+font-size: 14px;
+font-weight: 700;
+color: var(--text-secondary);
+transition: all 0.2s;
+font-family: inherit;
+}
+.stats-tab:hover { color: var(--text-primary); }
+.stats-tab.active {
+background: var(--surface);
+color: var(--accent);
+box-shadow: var(--shadow-sm);
+font-weight: 800;
+}
+.stats-tab-content { display: none; }
+.stats-tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+.data-table {
+width: 100%;
+border-collapse: collapse;
+font-size: 14px;
+margin-top: 14px;
+}
+.data-table th {
+text-align: left;
+padding: 14px 16px;
+background: var(--surface-2);
+border-bottom: 2px solid var(--border);
+font-weight: 800;
+color: var(--text-secondary);
+font-size: 11px;
+text-transform: uppercase;
+letter-spacing: 0.8px;
+}
+.data-table th:first-child { border-radius: var(--radius-sm) 0 0 0; }
+.data-table th:last-child { border-radius: 0 var(--radius-sm) 0 0; }
+.data-table td {
+padding: 14px 16px;
+border-bottom: 1px solid var(--border);
+font-weight: 600;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--surface-2); }
+.data-table .text-right { text-align: right; }
+.data-table .text-success { color: var(--success); font-weight: 700; }
+.data-table .text-danger { color: var(--danger); font-weight: 700; }
+.data-table .total-row {
+background: var(--surface-2);
+font-weight: 800;
+}
+.data-table .total-row td { border-top: 2px solid var(--border); }
+.data-table .section-header td {
+background: var(--accent-light);
+font-weight: 800;
+color: var(--accent);
+font-size: 12px;
+text-transform: uppercase;
+letter-spacing: 0.8px;
+}
+.attachment-section {
+margin-top: 24px;
+padding-top: 24px;
+border-top: 1px solid var(--border);
+}
+.attachment-section label {
+display: block;
+font-size: 11px;
+font-weight: 800;
+text-transform: uppercase;
+letter-spacing: 0.8px;
+color: var(--text-muted);
+margin-bottom: 12px;
+}
+.btn-attachment {
+display: inline-flex;
+align-items: center;
+gap: 8px;
+height: 44px;
+padding: 0 20px;
+background: var(--surface-2);
+border: 1.5px dashed var(--border);
+border-radius: var(--radius-sm);
+font-size: 14px;
+font-weight: 700;
+color: var(--text-secondary);
+cursor: pointer;
+transition: all 0.2s;
+font-family: inherit;
+}
+.btn-attachment:hover {
+background: var(--accent-light);
+border-color: var(--accent);
+color: var(--accent);
+}
+.btn-attachment i { font-size: 16px; }
+.attachment-file-info {
+display: flex;
+align-items: center;
+gap: 14px;
+padding: 16px;
+background: var(--surface-2);
+border-radius: var(--radius);
+margin-top: 16px;
+}
+.attachment-file-details { flex: 1; min-width: 0; }
+.attachment-file-name {
+font-size: 14px;
+font-weight: 700;
+color: var(--text-primary);
+overflow: hidden;
+text-overflow: ellipsis;
+white-space: nowrap;
+}
+.attachment-file-size { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+.attachment-actions { display: flex; gap: 8px; }
+.btn-download-attachment, .btn-remove-attachment {
+width: 40px;
+height: 40px;
+border: none;
+border-radius: var(--radius-sm);
+cursor: pointer;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+transition: all 0.2s;
+padding: 0;
+box-shadow: var(--shadow-sm);
+}
+.btn-download-attachment:hover, .btn-remove-attachment:hover {
+transform: scale(1.08);
+box-shadow: var(--shadow);
+}
+.btn-download-attachment svg, .btn-remove-attachment svg {
+width: 20px;
+height: 20px;
+}
+.upload-progress { margin-top: 14px; }
+.progress-bar {
+width: 100%;
+height: 8px;
+background: var(--surface-2);
+border-radius: 999px;
+overflow: hidden;
+}
+.progress-bar-fill {
+height: 100%;
+background: var(--accent-gradient);
+transition: width 0.3s ease;
+}
+.progress-text {
+font-size: 12px;
+color: var(--text-muted);
+margin-top: 8px;
+text-align: center;
+font-weight: 700;
+}
+.attachment-hidden-input { display: none; }
+.bolletta-table-wrap {
+overflow-x: auto;
+border-radius: var(--radius-sm);
+border: 1px solid var(--border);
+}
+.bolletta-table {
+width: 100%;
+border-collapse: collapse;
+font-size: 14px;
+table-layout: fixed;
+}
+.bolletta-table th {
+background: var(--surface-2);
+padding: 14px 16px;
+text-align: center;
+font-weight: 800;
+color: var(--text-secondary);
+font-size: 12px;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+border-bottom: 2px solid var(--border);
+width: 20%;
+}
+.bolletta-table th:first-child {
+text-align: left;
+width: 20%;
+}
+.bolletta-table td {
+padding: 12px 16px;
+border-bottom: 1px solid var(--border);
+text-align: center;
+vertical-align: middle;
+width: 20%;
+}
+.bolletta-table tbody tr:last-child td {
+border-bottom: none;
+}
+.bolletta-table tbody tr:hover td {
+background: var(--surface-2);
+}
+.bolletta-table tfoot td {
+background: var(--accent-light);
+font-weight: 800;
+color: var(--accent);
+border-top: 2px solid var(--accent);
+padding: 14px 16px;
+text-align: center;
+font-size: 14px;
+}
+.bolletta-table tfoot td:first-child {
+text-align: left;
+color: var(--text-primary);
+}
+.bolletta-cell-month {
+font-weight: 700;
+color: var(--text-primary);
+text-align: left !important;
+text-transform: capitalize;
+}
+.bolletta-cell-empty {
+color: var(--text-muted);
+font-size: 12px;
+font-style: italic;
+text-align: center !important;
+}
+.bolletta-cell-attachment {
+cursor: pointer;
+padding: 10px 12px !important;
+transition: all 0.2s;
+border-radius: var(--radius-sm);
+text-align: center !important;
+}
+.bolletta-cell-attachment:hover {
+background: var(--accent-light);
+}
+.bolletta-cell-total {
+font-weight: 800;
+color: var(--accent);
+font-size: 14px;
+}
+.bolletta-attachment-card {
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 10px;
+}
+.bolletta-attachment-icon {
+width: 36px;
+height: 36px;
+background: var(--accent-gradient);
+color: #fff;
+border-radius: 10px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 16px;
+flex-shrink: 0;
+}
+.bolletta-attachment-info {
+flex: 1;
+min-width: 0;
+text-align: left;
+}
+.bolletta-attachment-name {
+font-size: 13px;
+font-weight: 700;
+color: var(--text-primary);
+overflow: hidden;
+text-overflow: ellipsis;
+white-space: nowrap;
+}
+.bolletta-attachment-meta {
+font-size: 11px;
+color: var(--text-muted);
+font-weight: 600;
+margin-top: 2px;
+}
+.bolletta-attachment-amount {
+font-size: 12px;
+font-weight: 800;
+color: var(--accent);
+margin-left: 4px;
+}
+.bolletta-multi-badge {
+display: inline-block;
+background: var(--accent);
+color: #fff;
+font-size: 10px;
+font-weight: 800;
+padding: 2px 6px;
+border-radius: 999px;
+margin-left: 6px;
+}
+#color-picker-overlay {
+display: none;
+position: fixed;
+inset: 0;
+background: rgba(15,25,35,0.6);
+backdrop-filter: blur(8px);
+z-index: 700;
+align-items: center;
+justify-content: center;
+padding: 1rem;
+}
+#color-picker-overlay.open { display: flex; }
+#color-picker-box {
+background: var(--surface);
+border-radius: var(--radius-lg);
+padding: 2rem;
+width: 100%;
+max-width: 420px;
+box-shadow: var(--shadow-xl);
+animation: modalIn 0.3s ease;
+}
+#color-picker-box h3 {
+margin: 0 0 0.5rem;
+font-size: 22px;
+font-weight: 800;
+letter-spacing: -0.5px;
+}
+.color-picker-subtitle {
+font-size: 13px;
+color: var(--text-muted);
+margin-bottom: 1.5rem;
+font-weight: 600;
+}
+.color-picker-preview {
+display: flex;
+align-items: center;
+gap: 12px;
+padding: 14px 16px;
+background: var(--surface-2);
+border-radius: var(--radius-sm);
+margin-bottom: 1.5rem;
+border: 1px solid var(--border);
+}
+.color-picker-preview-dot {
+width: 36px;
+height: 36px;
+border-radius: 50%;
+border: 3px solid #fff;
+box-shadow: var(--shadow);
+transition: background-color 0.3s;
+}
+.color-picker-preview-name {
+font-size: 15px;
+font-weight: 700;
+color: var(--text-primary);
+flex: 1;
+}
+.color-picker-preview-hex {
+font-size: 12px;
+font-weight: 700;
+color: var(--text-muted);
+font-family: monospace;
+}
+.color-picker-grid {
+display: grid;
+grid-template-columns: repeat(4, 1fr);
+gap: 10px;
+margin-bottom: 1.5rem;
+}
+.color-picker-option {
+aspect-ratio: 1;
+border-radius: var(--radius-sm);
+cursor: pointer;
+border: 3px solid transparent;
+transition: all 0.2s;
+position: relative;
+}
+.color-picker-option:hover {
+transform: scale(1.1);
+box-shadow: var(--shadow-lg);
+}
+.color-picker-option.selected {
+border-color: var(--text-primary);
+transform: scale(1.05);
+}
+.color-picker-option.selected::after {
+content: '✓';
+position: absolute;
+inset: 0;
+display: flex;
+align-items: center;
+justify-content: center;
+color: #fff;
+font-size: 20px;
+font-weight: 800;
+text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+.color-picker-actions {
+display: flex;
+gap: 10px;
+}
+.color-picker-actions button {
+flex: 1;
+height: 46px;
+font-size: 14px;
+font-weight: 700;
+border-radius: var(--radius-sm);
+}
+#income-expense-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15,25,35,0.6);
+  backdrop-filter: blur(8px);
+  z-index: 600;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+#income-expense-overlay.open { display: flex; }
+#income-expense-box {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: var(--shadow-xl);
+  animation: modalIn 0.3s ease;
+}
+#income-expense-box h3 {
+  margin: 0 0 1.5rem;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+.ie-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  margin-bottom: 10px;
+  border: 1px solid var(--border);
+}
+.ie-row:last-of-type { margin-bottom: 0; }
+.ie-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+.ie-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.ie-icon.cash { background: var(--success-light); }
+.ie-icon.bank { background: var(--info-light); }
+.ie-value {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+.ie-value.income { color: var(--success); }
+.ie-value.expense { color: var(--danger); }
+.ie-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: var(--accent-light);
+  border-radius: var(--radius-sm);
+  margin-top: 12px;
+  border: 1px solid var(--accent);
+}
+.ie-total-label {
+  font-weight: 800;
+  color: var(--accent);
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.ie-total-value {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--accent);
+  letter-spacing: -0.5px;
+}
+.ie-empty {
+  text-align: center;
+  padding: 20px;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-style: italic;
+}
+.ie-period {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+#table-category-body .total-row {
+  background: var(--accent-light) !important;
+  border-top: 2px solid var(--accent);
+  font-weight: 800;
+}
+
+#table-category-body .total-row td {
+  padding: 16px 16px;
+  border-top: 2px solid var(--accent);
+  background: var(--accent-light);
+}
+
+#table-category-body .total-row:hover td {
+  background: var(--accent-light) !important;
+}  
+ /* Impedisce lo scroll orizzontale e forza le dimensioni */
+    html, body {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        -webkit-text-size-adjust: 100%;
+    }
+
+    /* Assicura che il padding non allarghi gli elementi oltre il 100% */
+    * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Evita che grafici o tabelle escano dai bordi */
+    img, table, canvas, .chart-container {
+        max-width: 100% !important;
+    }
+
+    body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+    }  
+.ie-period {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 12px;
+}  
+
+/* === OTTIMIZZAZIONI PER ANDROID (WEBVIEW) === */
+@media only screen and (max-width: 600px) {
+  /* Riduci leggermente i font per mobile */
+  h1 { font-size: 24px !important; }
+  h2 { font-size: 18px !important; }
+  h3 { font-size: 15px !important; }
+  body { font-size: 14px !important; }
+  
+  /* Riquadri statistiche più compatti */
+  .stat-card { padding: 12px !important; }
+  .stat-card p:first-child { font-size: 11px !important; }
+  .stat-card p:last-child { font-size: 20px !important; }
+  
+  /* Grafici - dimensioni adattate al 100% del contenitore */
+  .chart-wrap { height: 250px !important; max-height: 250px !important; }
+  .chart-wrap canvas { width: 100% !important; height: auto !important; }
+  
+  /* Tabella movimenti */
+  .tx-row, .tx-header { font-size: 12px !important; }
+  .tx-desc-text { font-size: 13px !important; }
+  .tx-col-amount { font-size: 14px !important; }
+  
+  /* Riquadri delle bollette */
+  .bolletta-table { font-size: 12px !important; }
+  .bolletta-table th, .bolletta-table td { padding: 8px 10px !important; }
+  .bolletta-cell-month { font-size: 13px !important; }
+  
+  /* Legenda grafici */
+  .legend span { font-size: 12px !important; }
+  
+  /* Pulsanti */
+  button, input, select { font-size: 13px !important; height: 40px !important; }
+  
+  /* Scroll orizzontale per le tabelle su mobile */
+  .bolletta-table-wrap {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  .bolletta-table {
+    min-width: 500px !important;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  /* Dispositivi molto piccoli */
+  h1 { font-size: 20px !important; }
+  h2 { font-size: 16px !important; }
+  .stat-card p:last-child { font-size: 18px !important; }
+  .chart-wrap { height: 200px !important; max-height: 200px !important; }
+  
+  /* Layout a colonna per i riquadri */
+  .stats-row {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+}
+/* === FINE OTTIMIZZAZIONI PER ANDROID === */
+/* === OTTIMIZZAZIONI ANDROID - COMPLETE === */
+@media only screen and (max-width: 600px) {
+  /* Layout riquadri statistiche */
+  .stats-row-top {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+  .stats-row-bottom {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Form nuovo movimento */
+  .ios-label {
+    font-size: 12px !important;
+    min-width: 70px !important;
+  }
+  .ios-input-field {
+    font-size: 13px !important;
+    padding: 8px 10px !important;
+    height: 38px !important;
+  }
+  .ios-row {
+    padding: 0 10px !important;
+    min-height: 44px !important;
+    gap: 8px !important;
+  }
+  .ios-select {
+    font-size: 13px !important;
+  }
+  #btn-add {
+    height: 44px !important;
+    font-size: 14px !important;
+  }
+  
+  /* Pannelli e contenitore */
+  #main {
+    padding: 1rem 0.8rem !important;
+    padding-top: 4rem !important;
+    overflow-x: hidden !important;
+  }
+  .panel {
+    padding: 1rem 0.8rem !important;
+    border-radius: 16px !important;
+  }
+  .panel h3 {
+    font-size: 15px !important;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  /* Tab Uscita/Entrata */
+  .tabs button {
+    font-size: 12px !important;
+    padding: 4px 12px !important;
+    height: 32px !important;
+  }
+}
+
+@media only screen and (max-width: 400px) {
+  /* Schermi molto piccoli */
+  .ios-label {
+    font-size: 11px !important;
+    min-width: 60px !important;
+  }
+  .ios-input-field {
+    font-size: 12px !important;
+    padding: 6px 8px !important;
+    height: 34px !important;
+  }
+  .ios-row {
+    min-height: 38px !important;
+    gap: 6px !important;
+  }
+  .stat-card {
+    padding: 8px !important;
+  }
+  .stat-card p:first-child {
+    font-size: 9px !important;
+  }
+  .stat-card p:last-child {
+    font-size: 14px !important;
+  }
+}
+
+@media only screen and (max-width: 400px) {
+  /* Schermi molto piccoli */
+  .tx-row, .tx-header {
+    font-size: 9px !important;
+    gap: 3px !important;
+    padding: 6px 4px !important;
+    grid-template-columns: 16px 35px 1fr 32px 38px !important;
+  }
+  
+  .tx-col-date {
+    font-size: 7px !important;
+    min-width: 25px !important;
+  }
+  
+  .tx-desc-text {
+    font-size: 9px !important;
+  }
+  
+  .tx-col-amount {
+    font-size: 9px !important;
+  }
+  
+  .tx-checkbox {
+    width: 10px !important;
+    height: 10px !important;
+  }
+  
+  .badge-source {
+    font-size: 6px !important;
+    padding: 1px 3px !important;
+  }
+}
+@media screen and (max-width: 600px) {
+  body, #main, #transactions-list, .tx-row, .tx-header {
+    font-size: 12px !important;
+  }
+  
+  .tx-row, .tx-header {
+    font-size: 11px !important;
+    padding: 8px 6px !important;
+    grid-template-columns: 20px 50px 1fr 60px 0px 0px !important;
+    gap: 4px !important;
+  }
+  
+  .tx-col-date {
+    font-size: 9px !important;
+    min-width: 40px !important;
+  }
+  
+  .tx-desc-text {
+    font-size: 11px !important;
+  }
+  
+  .tx-col-amount {
+    font-size: 12px !important;
+  }
+  
+  .tx-checkbox {
+    width: 14px !important;
+    height: 14px !important;
+  }
+}
+@media screen and (max-width: 600px) {
+  /* Assicura che la descrizione del movimento sia cliccabile */
+  .tx-col-desc {
+    cursor: pointer !important;
+    pointer-events: auto !important;
+    z-index: 10 !important;
+    position: relative !important;
+  }
+  
+  /* Assicura che tutta la riga non blocchi i click */
+  .tx-row {
+    pointer-events: auto !important;
+    cursor: default !important;
+  }
+  
+  /* Assicura che i pulsanti nelle azioni siano cliccabili */
+  .tx-col-actions button {
+    pointer-events: auto !important;
+    z-index: 20 !important;
+    position: relative !important;
+  }
+  
+  /* Rimuovi eventuali overlay che bloccano i click */
+  #transactions-list {
+    pointer-events: auto !important;
+  }
+  
+  /* Assicura che il testo della descrizione sia cliccabile */
+  .tx-desc-text {
+    pointer-events: auto !important;
+    cursor: pointer !important;
+  }
+}  
+.tx-row {
+  cursor: default !important;
+  pointer-events: auto !important;
+  touch-action: manipulation !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* L'area della descrizione deve essere cliccabile */
+.tx-col-desc {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  touch-action: manipulation !important;
+  position: relative !important;
+  z-index: 5 !important;
+}
+
+.tx-desc-text {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  touch-action: manipulation !important;
+}
+
+/* I pulsanti delle azioni devono essere cliccabili */
+.tx-col-actions button {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  touch-action: manipulation !important;
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+/* Assicura che il contenitore non blocchi i click */
+#transactions-list {
+  pointer-events: auto !important;
+  touch-action: manipulation !important;
+  overflow: visible !important;
+}
+
+/* Rimuovi qualsiasi proprietà che potrebbe bloccare i click */
+.tx-row * {
+  pointer-events: auto !important;
+  touch-action: manipulation !important;
+}
+
+/* Evita che il checkbox blocchi il click sulla riga */
+.tx-checkbox {
+  pointer-events: auto !important;
+  z-index: 15 !important;
+  position: relative !important;
+}  
+
+/* === STILE PER I MEMBRI DELLA FAMIGLIA === */
+.member-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  border: 1px solid var(--border);
+}
+.member-item:last-child { margin-bottom: 0; }
+.member-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.member-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--accent-gradient);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.member-details {
+  flex: 1;
+}
+.member-name {
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+.member-email {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.member-role {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--accent-light);
+  color: var(--accent);
+}
+.member-role.admin {
+  background: var(--warning-light);
+  color: var(--warning);
+}
+.member-actions {
+  display: flex;
+  gap: 6px;
+}
+.btn-remove-member {
+  background: var(--danger);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-remove-member:hover {
+  background: #c0392b;
+}
+/* === STILE PER LA PAGINA LISTE SPESA === */
+.lista-card-principale {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px 18px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-sm);
+}
+.lista-card-principale:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow);
+  transform: translateX(4px);
+}
+.lista-card-principale.completata {
+  opacity: 0.6;
+}
+.lista-card-principale .lista-info-principale {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+  min-width: 0;
+}
+.lista-card-principale .lista-checkbox-principale {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--accent);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.lista-card-principale .lista-dettagli-principale {
+  flex: 1;
+  min-width: 0;
+}
+.lista-card-principale .lista-nome-principale {
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text-primary);
+}
+.lista-card-principale .lista-nome-principale.completato {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+.lista-card-principale .lista-meta-principale {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-top: 2px;
+}
+.lista-card-principale .lista-actions-principale {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.lista-card-principale .lista-arrow-principale {
+  font-size: 20px;
+  color: var(--text-muted);
+}
+.lista-card-principale .lista-delete-principale {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 18px;
+  padding: 4px 8px;
+  transition: all 0.2s;
+  border-radius: var(--radius-sm);
+}
+.lista-card-principale .lista-delete-principale:hover {
+  color: var(--danger);
+  background: var(--danger-light);
+}
+
+/* Dettaglio lista */
+.lista-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.lista-detail-header .lista-titolo {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+}
+.lista-detail-header .lista-titolo.completato {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+.lista-detail-header .lista-conteggio {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.lista-detail-header .lista-actions {
+  display: flex;
+  gap: 8px;
+}
+.btn-back-liste-principale {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0 0 12px 0;
+  transition: all 0.2s;
+}
+.btn-back-liste-principale:hover {
+  color: var(--accent);
+}
+.btn-delete-lista-principale {
+  background: var(--danger);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 8px 16px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-delete-lista-principale:hover {
+  background: #c0392b;
+  transform: scale(1.05);
+}
+
+/* Elementi della lista */
+.item-row-principale {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  transition: all 0.2s;
+}
+.item-row-principale:hover {
+  border-color: var(--accent);
+}
+.item-row-principale .item-checkbox-principale {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--accent);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.item-row-principale .item-nome-principale {
+  flex: 1;
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--text-primary);
+}
+.item-row-principale .item-nome-principale.completato {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+.item-row-principale .item-delete-principale {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px 8px;
+  transition: all 0.2s;
+  border-radius: var(--radius-sm);
+}
+.item-row-principale .item-delete-principale:hover {
+  color: var(--danger);
+  background: var(--danger-light);
+}
+
+/* Barra aggiungi elemento */
+.lista-add-bar {
+  background: var(--surface-2);
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  margin-top: 0 !important;
+  margin-bottom: 16px !important;
+}
+.lista-add-bar input {
+  flex: 1;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  padding: 0 14px;
+  font-size: 14px;
+  font-weight: 600;
+  background: var(--surface-2);
+  color: var(--text-primary);
+  outline: none;
+  transition: all 0.2s;
+}
+.lista-add-bar input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-light);
+}
+.lista-add-bar .btn-add-item-principale {
+  height: 44px;
+  padding: 0 24px;
+  background: var(--accent-gradient);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.lista-add-bar .btn-add-item-principale:hover {
+  transform: scale(1.02);
+  box-shadow: var(--shadow);
+}
+
+/* Modale per creare lista */
+.lista-modal-principale {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,25,35,0.6);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.lista-modal-principale.open {
+  display: flex;
+}
+.lista-modal-box {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: var(--shadow-xl);
+  animation: modalIn 0.3s ease;
+}
+.lista-modal-box h3 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 800;
+}
+.lista-modal-box p {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.lista-modal-box input {
+  width: 100%;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  padding: 0 16px;
+  font-size: 16px;
+  font-weight: 600;
+  background: var(--surface-2);
+  color: var(--text-primary);
+  outline: none;
+  transition: all 0.2s;
+}
+.lista-modal-box input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-light);
+}
+.lista-modal-box .modal-actions-principale {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+.lista-modal-box .modal-actions-principale button {
+  flex: 1;
+  height: 46px;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.lista-modal-box .btn-cancel-principale {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+.lista-modal-box .btn-cancel-principale:hover {
+  background: var(--border);
+}
+.lista-modal-box .btn-create-principale {
+  background: var(--accent-gradient);
+  color: #fff;
+  border: none;
+  flex: 2;
+}
+.lista-modal-box .btn-create-principale:hover {
+  transform: scale(1.02);
+  box-shadow: var(--shadow);
+}
+/* === STILE PER GLI EVENTI === */
+.giorno-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-primary);
+  transition: all 0.2s;
+  position: relative;
+  background: var(--surface-2);
+}
+.giorno-cell:hover {
+  background: var(--accent-light);
+  transform: scale(1.05);
+}
+.giorno-cell.altro-mese {
+  color: var(--text-muted);
+  opacity: 0.4;
+}
+.giorno-cell.oggi {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 800;
+}
+.giorno-cell.selezionato {
+  border: 2px solid var(--accent);
+  background: var(--accent-light);
+}
+.giorno-cell.has-event::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.giorno-cell.oggi.has-event::after {
+  background: #fff;
+}
+
+/* Evento card */
+.evento-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  border-left: 4px solid var(--accent);
+  transition: all 0.2s;
+}
+.evento-card:hover {
+  background: var(--accent-light);
+  transform: translateX(4px);
+}
+.evento-card .evento-ora {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 60px;
+}
+.evento-card .evento-titolo {
+  flex: 1;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+.evento-card .evento-delete {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px 8px;
+  transition: all 0.2s;
+  border-radius: var(--radius-sm);
+}
+.evento-card .evento-delete:hover {
+  color: var(--danger);
+  background: var(--danger-light);
+}
+
+/* Modale evento */
+.evento-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,25,35,0.6);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.evento-modal-overlay.open {
+  display: flex;
+}
+.evento-modal {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: var(--shadow-xl);
+  animation: modalIn 0.3s ease;
+}
+.evento-modal h3 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 800;
+}
+.evento-modal p {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.evento-modal .campo {
+  margin-bottom: 14px;
+}
+.evento-modal .campo label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+.evento-modal .campo input,
+.evento-modal .campo select,
+.evento-modal .campo textarea {
+  width: 100%;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  padding: 0 14px;
+  font-size: 14px;
+  font-weight: 600;
+  background: var(--surface-2);
+  color: var(--text-primary);
+  outline: none;
+  transition: all 0.2s;
+}
+.evento-modal .campo textarea {
+  height: 80px;
+  padding: 10px 14px;
+  resize: vertical;
+}
+.evento-modal .campo input:focus,
+.evento-modal .campo select:focus,
+.evento-modal .campo textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-light);
+}
+.evento-modal .modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+.evento-modal .modal-actions button {
+  flex: 1;
+  height: 46px;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.evento-modal .btn-cancel {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+.evento-modal .btn-cancel:hover {
+  background: var(--border);
+}
+.evento-modal .btn-create {
+  background: var(--accent-gradient);
+  color: #fff;
+  border: none;
+  flex: 2;
+}
+.evento-modal .btn-create:hover {
+  transform: scale(1.02);
+  box-shadow: var(--shadow);
+}  
+
+/* === LAYOUT MOVIMENTI - DESKTOP (5 COLONNE) === */
+@media screen and (min-width: 601px) {
+  /* Header desktop */
+  .tx-header.desktop-only {
+    display: grid !important;
+    grid-template-columns: 100px 1fr 100px 80px 110px !important;
+    gap: 12px !important;
+    padding: 8px 18px !important;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 8px;
+  }
+
+  #transactions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+  }
+
+  .tx-row.mobile-card {
+    display: grid !important;
+    grid-template-columns: 100px 1fr 100px 80px 110px !important;
+    gap: 12px !important;
+    align-items: center !important;
+    padding: 12px 18px !important;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s;
+    cursor: pointer;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .tx-row.mobile-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent);
+  }
+
+  /* Colonna Data */
+  .tx-row.mobile-card .desktop-date {
+    grid-column: 1;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    white-space: nowrap;
+  }
+
+  /* Colonna Movimento (descrizione) */
+  .tx-row.mobile-card .desktop-desc {
+    grid-column: 2;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Colonna Categoria */
+  .tx-row.mobile-card .desktop-category {
+    grid-column: 3;
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Colonna Tipo */
+  .tx-row.mobile-card .desktop-badge {
+    grid-column: 4;
+    justify-self: center;
+    font-size: 11px !important;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 4px 12px !important;
+    border-radius: 999px;
+    white-space: nowrap;
+    display: inline-block !important;
+  }
+
+  /* Colonna Importo */
+  .tx-row.mobile-card .desktop-amount {
+    grid-column: 5;
+    justify-self: end;
+    font-size: 15px !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.5px;
+    white-space: nowrap;
+  }
+
+  /* NASCONDI LA CARD MOBILE SU DESKTOP */
+  .tx-row.mobile-card .mobile-card-content {
+    display: none !important;
+  }
+}
+
+/* === MOBILE (max 600px) === */
+@media screen and (max-width: 600px) {
+  /* Nasconde l'header */
+  .tx-header.desktop-only {
+    display: none !important;
+  }
+
+  /* Lista: rimuovi gap e usa solo i margini delle card */
+  #transactions-list {
+    gap: 0 !important;
+    padding: 0 !important;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Ogni card con margine inferiore per separarle */
+  .tx-row.mobile-card {
+    display: block !important;
+    width: 100% !important;
+    padding: 14px 16px !important;
+    margin: 0 0 14px 0 !important;  /* margine inferiore per separare */
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    cursor: pointer;
+    box-sizing: border-box !important;
+  }
+
+  /* NASCONDI TUTTI GLI ELEMENTI DESKTOP SU MOBILE */
+  .tx-row.mobile-card .desktop-date,
+  .tx-row.mobile-card .desktop-desc,
+  .tx-row.mobile-card .desktop-category,
+  .tx-row.mobile-card .desktop-badge,
+  .tx-row.mobile-card .desktop-amount {
+    display: none !important;
+  }
+
+  /* MOSTRA LA CARD MOBILE */
+  .tx-row.mobile-card .mobile-card-content {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  /* HEADER CARD: data a sinistra, importo a destra */
+  .tx-row.mobile-card .mobile-card-header {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tx-row.mobile-card .mobile-date {
+    display: inline !important;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-secondary);
+  }
+
+  .tx-row.mobile-card .mobile-amount {
+    display: inline !important;
+    font-size: 18px !important;
+    font-weight: 800 !important;
+  }
+
+  /* BODY CARD */
+  .tx-row.mobile-card .mobile-card-body {
+    display: flex !important;
+    flex-direction: column;
+    gap: 2px;
+    padding-top: 4px;
+  }
+
+  .tx-row.mobile-card .mobile-desc {
+    display: inline !important;
+    font-size: 15px !important;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .tx-row.mobile-card .mobile-category {
+    display: inline !important;
+    font-size: 12px !important;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+
+  .tx-row.mobile-card .mobile-type-badge {
+    display: inline-block !important;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 999px;
+    margin-top: 6px;
+    align-self: flex-start;
+  }
+
+  .tx-row.mobile-card .mobile-type-badge.badge-cash {
+    background: var(--success-light);
+    color: var(--success);
+  }
+
+  .tx-row.mobile-card .mobile-type-badge.badge-bank {
+    background: var(--info-light);
+    color: var(--info);
+  }
+}
+
+
+
+</style>
+<style id="clean-01-modern-styles">
 /* === TOGGLE SWITCH E FILTRI (Spostato DENTRO il tag style) === */
 .toggle-container {
   display: flex;
@@ -3645,9 +6675,8 @@ border-radius: var(--radius-sm);
  .home-v3-new-movement{margin:0 11px 10px}.home-v3-new-movement button{height:48px;border-radius:16px;font-size:13px}.home-v3-new-movement button i{font-size:19px}
 }
 @media(max-width:380px){.home-v3-greeting h1{font-size:21px}.home-v3-greeting p{font-size:10px}.home-v3-balance-copy strong{font-size:23px}.home-v3-mini-card strong{font-size:16px}.home-v3-expense-row{padding:7px 0}.home-v3-tip-card p,.home-v3-goal-card p{font-size:8.5px}}
-</style>
 
-<style id="home-mobile-compact-fix">
+
 /* =========================================================
    HOME MOBILE - VERSIONE COMPATTA
    Tutto il riepilogo deve stare nello schermo senza scroll
@@ -3831,9 +6860,8 @@ border-radius: var(--radius-sm);
   #page-home > .panel { padding: 7px !important; }
   #page-home #btn-nuovo-movimento { height: 42px !important; min-height: 42px !important; font-size: 13px !important; }
 }
-</style>
 
-<style>
+
 /* ============================================================
    MODERN UI REDESIGN — Bilancio Familiare
    Ispirato al layout fornito: card morbide, gerarchia chiara,
@@ -4030,9 +7058,8 @@ button { font-family: inherit; }
   #page-home .stat-card p:last-of-type { font-size: 17px; }
   .mobile-bottom-item i { font-size:18px; }
 }
-</style>
 
-<style id="complete-modern-redesign">
+
 /* =========================================================
    COMPLETE MODERN REDESIGN
    Layout is inspired by the approved mobile UI mockup.
@@ -4247,9 +7274,8 @@ button{font-family:inherit;}
   #tab-residuo .residuo-chart-wrap{height:190px;min-height:190px;}
   #tab-confronto .chart-wrap{height:190px;}
 }
-</style>
 
-<style id="home-modern-filters-and-movements">
+
 /* HOME - filtri periodo e lista movimenti */
 .home-redesign-v3 .home-date-filter{display:block!important;margin:0 14px 14px!important;}
 .home-redesign-v3 .home-date-filter > #btn-pdf-home{display:none!important;}
@@ -4307,10 +7333,8 @@ button{font-family:inherit;}
  .home-v3-movement-side strong{font-size:11px;}
  .home-v3-movement-side small{font-size:7px;padding:2px 5px;}
 }
-</style>
 
 
-<style id="home-final-refinement">
 /* =========================================================
    HOME FINAL REFINEMENT
    Compatti i filtri, periodo leggibile, saldi separati.
@@ -4451,10 +7475,8 @@ button{font-family:inherit;}
   #page-home #filter-label{font-size:8px!important;padding:4px 9px!important;}
   #page-home .home-v3-balance-card .home-v3-balance-copy strong{font-size:23px!important;}
 }
-</style>
 
 
-<style id="home-final-polish">
 /* HOME - filtri compatti e coerenti con il nuovo layout */
 #page-home .home-date-filter > .filter-row:first-of-type{
   display:flex!important;
@@ -4546,9 +7568,8 @@ button{font-family:inherit;}
   #income-expense-box > div:last-child{padding:0 16px 16px!important;}
   #movimento-modal-overlay > div,#detail-box,#modal-box{width:calc(100vw - 28px)!important;max-width:420px!important;border-radius:20px!important;}
 }
-</style>
 
-<style id="final-home-mobile-fixes">
+
 #mobile-bottom-nav{display:none!important}
 @media(max-width:900px){#main{padding-left:12px!important;padding-right:12px!important;padding-bottom:18px!important;margin-left:0!important;width:100%!important;max-width:100%!important}#page-home{margin-left:0!important;width:100%!important;max-width:100%!important;overflow-x:hidden!important}}
 #page-home .home-date-filter{margin-left:0!important;margin-right:0!important;width:100%!important;max-width:100%!important}
@@ -4571,9 +7592,8 @@ button{font-family:inherit;}
 #movimento-modal-overlay #modal-tab-expense,#movimento-modal-overlay #modal-tab-income{flex:1!important;height:44px!important;border-radius:13px!important;font-size:12px!important;font-weight:800!important}
 #movimento-modal-overlay #modal-movimento-save{background:#142336!important;border-radius:14px!important;height:46px!important}
 #movimento-modal-overlay #modal-movimento-cancel{background:#f1f4f6!important;border-radius:14px!important;height:46px!important}
-</style>
 
-<style id="modern-v3-popup-menu-list">
+
 /* POPUP MOVIMENTO — integrato nel nuovo linguaggio UI */
 #detail-overlay,#income-expense-overlay{background:rgba(20,35,54,.30)!important;backdrop-filter:blur(12px)!important;padding:14px!important;}
 #detail-box,#income-expense-box{width:min(430px,calc(100vw - 28px))!important;max-width:430px!important;padding:0!important;border:1px solid #e4eaee!important;border-radius:25px!important;background:#fff!important;box-shadow:0 28px 70px rgba(20,35,54,.20)!important;overflow:hidden!important;}
@@ -4658,88 +7678,88 @@ button{font-family:inherit;}
   .home-v3-movements-panel{width:calc(100% - 22px)!important;margin-left:11px!important;margin-right:11px!important;padding-left:10px!important;padding-right:10px!important;padding-bottom:8px!important;}
   .home-v3-movement-row{min-height:54px!important;padding:10px 2px!important;}
 }
-</style>
 
-<style id="modern-v8-clean-menu">
-/* === V8: unico stile menu mobile, senza override concorrenti === */
+
+/* CLEAN-01 authoritative mobile/menu/popup rules */
 .mobile-appbar{display:none;}
-@media (max-width:900px){
-  .mobile-appbar{display:flex;align-items:center;gap:10px;margin:0 0 12px;padding:0 1px;height:44px;position:relative;z-index:20;}
-  #hamburger{position:static!important;display:flex!important;align-items:center!important;justify-content:center!important;width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important;flex:0 0 42px!important;margin:0!important;padding:0!important;border-radius:12px!important;background:#fff!important;border:1px solid #e1e7eb!important;box-shadow:0 4px 14px rgba(17,27,38,.08)!important;color:#17273c!important;cursor:pointer!important;pointer-events:auto!important;touch-action:manipulation!important;}
-  #hamburger i{font-size:20px!important;pointer-events:none!important;}
-  #main{padding-top:10px!important;}
-}
-/* === V8: popup Entrate/Uscite, una sola gerarchia di clic === */
+@media(max-width:900px){
+.mobile-appbar{display:flex;align-items:center;gap:10px;margin:0 0 12px;padding:0 1px;height:44px;position:relative;z-index:20;}
+#hamburger{position:static!important;display:flex!important;align-items:center!important;justify-content:center!important;width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important;flex:0 0 42px!important;margin:0!important;padding:0!important;border-radius:12px!important;background:#fff!important;border:1px solid #e1e7eb!important;box-shadow:0 4px 14px rgba(17,27,38,.08)!important;color:#17273c!important;cursor:pointer!important;pointer-events:auto!important;touch-action:manipulation!important;}
+#hamburger i{font-size:20px!important;pointer-events:none!important;}
+#main{padding-top:10px!important;} }
 #income-expense-overlay{z-index:3000!important;}
 #income-expense-box{position:relative!important;z-index:3001!important;pointer-events:auto!important;}
 .ie-modern-footer{position:relative!important;z-index:3002!important;pointer-events:auto!important;}
-#income-expense-close{position:relative!important;z-index:3003!important;display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;min-height:44px!important;height:44px!important;pointer-events:auto!important;touch-action:manipulation!important;cursor:pointer!important;}
-</style>
-</head>
+#income-expense-close{position:relative!important;z-index:3003!important;display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;min-height:44px!important;height:44px!important;pointer-events:auto!important;touch-action:manipulation!important;cursor:pointer!important;}</style><meta content="CLEAN-01" name="app-version"/></head>
 <body>
+&lt;!-- CLEAN-01 rebuilt from working base; single main application script. --&gt;
+
 <div id="login-screen">
 <h1>Budget di Famiglia</h1>
 <p class="subtitle">Gestisci le tue finanze in modo semplice</p>
-<form id="login-form" class="panel">
-<input type="email" id="login-email" placeholder="Email" autocomplete="email" required>
-<input type="password" id="login-password" placeholder="Password (min 6 caratteri)" autocomplete="current-password" required minlength="6">
+<form class="panel" id="login-form">
+<input autocomplete="email" id="login-email" placeholder="Email" required="" type="email"/>
+<input autocomplete="current-password" id="login-password" minlength="6" placeholder="Password (min 6 caratteri)" required="" type="password"/>
 <p id="login-error"></p>
-<button type="submit" id="login-submit">Accedi</button>
+<button id="login-submit" type="submit">Accedi</button>
 <p style="text-align:center; font-size:14px; margin:0; color: var(--text-secondary);">
 <span id="login-toggle-label">Non hai un account?</span>
-<button type="button" id="login-toggle">Registrati</button>
+<button id="login-toggle" type="button">Registrati</button>
 </p>
 </form>
 <!-- === CODICE 3: MESSAGGIO PER UTENTI INVITATI === -->
 <div style="margin-top:16px; padding:16px; background:var(--surface-2); border-radius:var(--radius-sm); border:1px solid var(--border); text-align:center;">
-  <p style="margin:0; font-size:13px; color:var(--text-secondary);">
-    💌 <strong>Sei stato invitato?</strong><br>
-    <span style="font-size:12px; color:var(--text-muted);">
+<p style="margin:0; font-size:13px; color:var(--text-secondary);">
+    💌 <strong>Sei stato invitato?</strong><br/>
+<span style="font-size:12px; color:var(--text-muted);">
       Registrati con l'email che hai ricevuto per accedere al budget familiare.
     </span>
-  </p>
-  <p style="margin:8px 0 0; font-size:12px; color:var(--text-muted);">
+</p>
+<p style="margin:8px 0 0; font-size:12px; color:var(--text-muted);">
     👉 <span style="font-weight:700; color:var(--accent);">Non hai ricevuto un invito?</span> Clicca su "Registrati" e crea il tuo budget personale.
   </p>
 </div>
 </div>
-<div id="shell" class="hidden">
+<div class="hidden" id="shell">
+<button aria-label="Apri menu" id="hamburger">
+<i class="ti ti-menu-2"></i>
+</button>
 <div id="sidebar-overlay"></div>
-<aside id="sidebar" aria-label="Menu principale">
+<aside aria-label="Menu principale" id="sidebar">
 <div id="sidebar-logo">
 <div class="logo-icon"><i class="ti ti-wallet"></i></div>
 <span>Bilancio Familiare</span>
 </div>
 <nav>
-  <button class="nav-item active" data-page="page-home">
-    <i class="ti ti-home"></i> Home
+<button class="nav-item active" data-page="page-home">
+<i class="ti ti-home"></i> Home
   </button>
-  <button class="nav-item nav-statistiche" data-page="page-grafici" aria-expanded="false" aria-controls="stats-submenu">
-    <i class="ti ti-chart-pie"></i> <span>Statistiche</span><i class="ti ti-chevron-down nav-chevron"></i>
+<button aria-controls="stats-submenu" aria-expanded="false" class="nav-item nav-statistiche" data-page="page-grafici">
+<i class="ti ti-chart-pie"></i> <span>Statistiche</span><i class="ti ti-chevron-down nav-chevron"></i>
+</button>
+<div aria-hidden="true" class="stats-submenu" id="stats-submenu">
+<button class="stats-subitem active" data-tab="tab-categorie"><i class="ti ti-category"></i><span>Categorie</span></button>
+<button class="stats-subitem" data-tab="tab-entrate-uscite"><i class="ti ti-arrows-up-down"></i><span>Entrate / Uscite</span></button>
+<button class="stats-subitem" data-tab="tab-residuo"><i class="ti ti-wallet"></i><span>Residuo</span></button>
+<button class="stats-subitem" data-tab="tab-confronto"><i class="ti ti-arrows-left-right"></i><span>Confronto</span></button>
+</div>
+<button class="nav-item" data-page="page-import">
+<i class="ti ti-file-spreadsheet"></i> Importa Excel
   </button>
-  <div id="stats-submenu" class="stats-submenu" aria-hidden="true">
-    <button class="stats-subitem active" data-tab="tab-categorie"><i class="ti ti-category"></i><span>Categorie</span></button>
-    <button class="stats-subitem" data-tab="tab-entrate-uscite"><i class="ti ti-arrows-up-down"></i><span>Entrate / Uscite</span></button>
-    <button class="stats-subitem" data-tab="tab-residuo"><i class="ti ti-wallet"></i><span>Residuo</span></button>
-    <button class="stats-subitem" data-tab="tab-confronto"><i class="ti ti-arrows-left-right"></i><span>Confronto</span></button>
-  </div>
-  <button class="nav-item" data-page="page-import">
-    <i class="ti ti-file-spreadsheet"></i> Importa Excel
+<button class="nav-item" data-page="page-bollette">
+<i class="ti ti-file-invoice"></i> Libreria Bollette
   </button>
-  <button class="nav-item" data-page="page-bollette">
-    <i class="ti ti-file-invoice"></i> Libreria Bollette
+<button class="nav-item" data-page="page-liste">
+<i class="ti ti-shopping-cart"></i> Liste spesa
   </button>
-  <button class="nav-item" data-page="page-liste">
-    <i class="ti ti-shopping-cart"></i> Liste spesa
+<button class="nav-item" data-page="page-eventi"> <!-- ← AGGIUNGI -->
+<i class="ti ti-calendar-event"></i> Promemoria eventi
   </button>
-  <button class="nav-item" data-page="page-eventi">  <!-- ← AGGIUNGI -->
-    <i class="ti ti-calendar-event"></i> Promemoria eventi
+<button class="nav-item" data-page="page-profilo">
+<i class="ti ti-user-circle"></i> Profilo
   </button>
-  <button class="nav-item" data-page="page-profilo">
-    <i class="ti ti-user-circle"></i> Profilo
-  </button>
-  <button class="nav-item" data-page="page-categorie">
-    <i class="ti ti-category-2"></i> Categorie
+<button class="nav-item" data-page="page-categorie">
+<i class="ti ti-category-2"></i> Categorie
   </button>
 </nav>
 <div id="sidebar-footer">
@@ -4747,236 +7767,231 @@ button{font-family:inherit;}
 <button id="btn-logout">Esci</button>
 </div>
 </aside>
-<main id="main">
-<div class="mobile-appbar"><button id="hamburger" aria-label="Apri menu" type="button"><i class="ti ti-menu-2"></i></button><div class="mobile-appbar-title"><strong>Bilancio Familiare</strong></div></div>
-<div id="page-home" class="page active home-redesign-v3">
-  <div class="home-v3-header">
-    <div class="home-v3-greeting">
-      <h1>Bilancio Familiare</h1>
-      <p>Panoramica delle tue finanze</p>
-    </div>
-    <button class="home-v3-avatar" id="home-profile-btn" type="button" aria-label="Profilo">
-      <i class="ti ti-user"></i>
-    </button>
-  </div>
-
-  <!-- Filtri legacy: mantenuti per la logica esistente, nascosti nel nuovo layout -->
-  <div class="home-date-filter" aria-label="Filtro periodo">
-    <button id="btn-pdf-home" class="btn-pdf" type="button"><i class="ti ti-file-type-pdf"></i> PDF</button>
-    <div class="filter-row">
-      <div class="home-date-field"><label for="filter-month">Mese</label><select id="filter-month"></select></div>
-      <div class="home-date-field"><label for="filter-year">Anno</label><select id="filter-year"></select></div>
-
-    </div>
-    <div class="filter-row toggle-row">
-      <div class="toggle-container" id="custom-toggle-container"><div class="toggle-switch"></div></div>
-      <span class="toggle-label-text" id="toggle-label-text">Periodo personalizzato</span>
-    </div>
-    <div id="custom-range" class="hidden">
-      <div class="home-date-field"><label for="filter-from">Dal</label><input type="date" id="filter-from"></div>
-      <div class="home-date-field"><label for="filter-to">Al</label><input type="date" id="filter-to"></div>
-      <button id="btn-apply-custom" type="button">Applica</button>
-    </div>
-    <p id="filter-label"></p>
-  </div>
-
-  <section class="home-v3-balance-card home-v3-balance-account">
-    <div class="home-v3-icon home-v3-icon-green"><i class="ti ti-building-bank"></i></div>
-    <div class="home-v3-balance-copy">
-      <span>Saldo disponibile</span>
-      <strong id="stat-residuo">0,00 €</strong>
-      <small id="home-account-label">Totale conto corrente</small>
-    </div>
-  </section>
-
-  <section class="home-v3-balance-card home-v3-balance-period">
-    <div class="home-v3-icon home-v3-icon-blue"><i class="ti ti-calendar-stats"></i></div>
-    <div class="home-v3-balance-copy">
-      <span>Saldo periodo</span>
-      <strong id="stat-period-balance">0,00 €</strong>
-      <small id="home-period-label">Entrate meno uscite del periodo</small>
-    </div>
-  </section>
-
-  <section class="home-v3-mini-grid">
-    <div class="home-v3-mini-card income" id="card-income" role="button" tabindex="0" aria-label="Dettaglio entrate">
-      <div class="home-v3-icon home-v3-icon-green"><i class="ti ti-arrow-down"></i></div>
-      <div><span>Entrate</span><strong id="stat-income">0,00 €</strong></div>
-    </div>
-    <div class="home-v3-mini-card expense" id="card-expense" role="button" tabindex="0" aria-label="Dettaglio uscite">
-      <div class="home-v3-icon home-v3-icon-red"><i class="ti ti-arrow-up"></i></div>
-      <div><span>Uscite</span><strong id="stat-expense">0,00 €</strong></div>
-    </div>
-  </section>
-
-  <section class="home-v3-section">
-    <div class="home-v3-section-title"><h2>Lista movimenti</h2></div>
-    <div class="home-v3-movements-panel">
-      <div class="home-v3-movements-toolbar">
-        <span style="font-size:10px;color:#8a9aac;font-weight:600;">Movimenti del periodo selezionato</span>
-        <div class="home-v3-source-filter" id="home-source-filter" role="group" aria-label="Filtra movimenti">
-          <button type="button" class="active" data-home-source="all">Tutti</button>
-          <button type="button" data-home-source="bank">Conto corrente</button>
-          <button type="button" data-home-source="cash">Cash</button>
-        </div>
-      </div>
-      <div id="home-movements-list"></div>
-    </div>
-  </section>
-
-  <div class="home-v3-new-movement">
-    <button id="btn-nuovo-movimento" onclick="window.openMovimentoModal()"><i class="ti ti-plus"></i> Nuovo movimento</button>
-  </div>
-
-  <!-- Contenuto movimenti originale: resta disponibile e invariato -->
-  <div class="home-v3-movements-section">
-    <div style="margin-bottom: 1rem; margin-top:2rem;"><h2>Movimenti</h2></div>
-    <div class="search-bar"><input type="text" id="search-transactions" placeholder="Cerca movimenti per nome o categoria..."></div>
-    <div class="source-filter"><button class="active" data-source="all">Tutti</button><button data-source="cash">💵 Contanti</button><button data-source="bank">🏦 Conto corrente</button></div>
-    <div class="tx-header desktop-only"><span>Data</span><span>Movimento</span><span>Categoria</span><span style="text-align:center;">Tipo</span><span style="text-align:right;">Importo</span></div>
-    <div id="transactions-list"></div>
-    <p id="save-status">I dati sono sincronizzati con il tuo account.</p>
-  </div>
+<div class="mobile-appbar"><button aria-label="Apri menu" id="hamburger" type="button"><i class="ti ti-menu-2"></i></button><div class="mobile-appbar-title"><strong>Bilancio Familiare</strong></div></div><main id="main">
+<div class="page active home-redesign-v3" id="page-home">
+<div class="home-v3-header">
+<div class="home-v3-greeting">
+<h1>Bilancio Familiare</h1>
+<p>Panoramica delle tue finanze</p>
 </div>
-<div id="page-grafici" class="page">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:12px;">
-    <h1 style="margin:0;">Statistiche</h1>
-  </div>
-
-
-  <!-- TAB CATEGORIE -->
-  <div id="tab-categorie" class="stats-tab-content active">
-    <div id="screenshot-categorie">
-      <div class="row-between">
-        <h2>Spese per categoria</h2>
-        <select id="chart-month"></select>
-      </div>
-      <div class="panel">
-        <div class="legend" id="legend-categories"></div>
-        <div class="chart-wrap" style="height:320px; display:flex; align-items:center; justify-content:center;">
-          <canvas id="categoryChart"></canvas>
-        </div>
-      </div>
-      <div class="panel">
-        <h3>Dati dettagliati</h3>
-        <table class="data-table" id="table-category">
-          <thead>
-            <tr>
-              <th>Categoria</th>
-              <th class="text-right">Importo</th>
-              <th class="text-right">%</th>
-            </tr>
-          </thead>
-          <tbody id="table-category-body"></tbody>
-        </table>
-      </div>
-    </div>
-    <div style="margin-top:12px; text-align:right;">
-      <button id="btn-pdf-categorie" class="btn-pdf"><i class="ti ti-file-type-pdf"></i> PDF</button>
-    </div>
-  </div>
-
-  <!-- TAB ENTRATE/USCITE -->
-  <div id="tab-entrate-uscite" class="stats-tab-content">
-    <div id="screenshot-entrate-uscite">
-      <div class="row-between">
-        <h2>Entrate vs Uscite</h2>
-        <select id="chart-year"></select>
-      </div>
-      <div class="panel">
-        <div class="chart-wrap">
-          <canvas id="yearChart"></canvas>
-        </div>
-      </div>
-      <div class="panel">
-        <h3>Dati dettagliati</h3>
-        <table class="data-table" id="table-year">
-          <thead>
-            <tr>
-              <th>Mese</th>
-              <th class="text-right">Entrate</th>
-              <th class="text-right">Uscite</th>
-              <th class="text-right">Saldo</th>
-            </tr>
-          </thead>
-          <tbody id="table-year-body"></tbody>
-        </table>
-      </div>
-    </div>
-    <div style="margin-top:12px; text-align:right;">
-      <button id="btn-pdf-entrate-uscite" class="btn-pdf"><i class="ti ti-file-type-pdf"></i> PDF</button>
-    </div>
-  </div>
-
-  <!-- TAB RESIDUO -->
-  <div id="tab-residuo" class="stats-tab-content">
-    <div id="screenshot-residuo">
-      <div class="row-between">
-        <h2>Residuo mensile</h2>
-        <select id="chart-residuo-year"></select>
-      </div>
-      <div class="panel">
-        <p style="font-size:13px; color:var(--text-secondary); margin:0 0 12px; font-weight:600;">Andamento del residuo in cassa mese per mese.</p>
-        <div class="residuo-chart-wrap">
-          <canvas id="residuoChart"></canvas>
-        </div>
-      </div>
-      <div class="panel">
-        <h3>Andamento residuo</h3>
-        <table class="data-table" id="table-residuo">
-          <thead>
-            <tr>
-              <th>Mese</th>
-              <th class="text-right">Saldo</th>
-            </tr>
-          </thead>
-          <tbody id="table-residuo-body"></tbody>
-        </table>
-      </div>
-    </div>
-    <div style="margin-top:12px; text-align:right;">
-      <button id="btn-pdf-residuo" class="btn-pdf"><i class="ti ti-file-type-pdf"></i> PDF</button>
-    </div>
-  </div>
-
-  <!-- TAB CONFRONTO -->
-  <div id="tab-confronto" class="stats-tab-content">
-    <div id="screenshot-confronto">
-      <div class="row-between" style="margin-top: 1rem;">
-        <h2>Confronto mesi</h2>
-        <div style="display:flex; gap:10px; align-items:center;">
-          <select id="compare-month-1"></select>
-          <span style="font-weight:800; color:var(--text-muted);">vs</span>
-          <select id="compare-month-2"></select>
-        </div>
-      </div>
-      <div class="panel">
-        <p style="font-size:13px; color:var(--text-secondary); margin:0 0 12px; font-weight:600;">Confronto entrate e uscite tra due mesi.</p>
-        <div class="chart-wrap">
-          <canvas id="compareChart"></canvas>
-        </div>
-      </div>
-      <div class="panel">
-        <h3>Dati dettagliati</h3>
-        <table class="data-table" id="table-compare">
-          <thead>
-            <tr>
-              <th></th>
-              <th class="text-right" id="compare-header-1">Mese 1</th>
-              <th class="text-right" id="compare-header-2">Mese 2</th>
-              <th class="text-right">Differenza</th>
-            </tr>
-          </thead>
-          <tbody id="table-compare-body"></tbody>
-        </table>
-      </div>
-    </div>
-    <div style="margin-top:12px; text-align:right;">
-      <button id="btn-pdf-confronto" class="btn-pdf"><i class="ti ti-file-type-pdf"></i> PDF</button>
-    </div>
-  </div>
+<button aria-label="Profilo" class="home-v3-avatar" id="home-profile-btn" type="button">
+<i class="ti ti-user"></i>
+</button>
 </div>
-<div id="page-import" class="page">
+<!-- Filtri legacy: mantenuti per la logica esistente, nascosti nel nuovo layout -->
+<div aria-label="Filtro periodo" class="home-date-filter">
+<button class="btn-pdf" id="btn-pdf-home" type="button"><i class="ti ti-file-type-pdf"></i> PDF</button>
+<div class="filter-row">
+<div class="home-date-field"><label for="filter-month">Mese</label><select id="filter-month"></select></div>
+<div class="home-date-field"><label for="filter-year">Anno</label><select id="filter-year"></select></div>
+</div>
+<div class="filter-row toggle-row">
+<div class="toggle-container" id="custom-toggle-container"><div class="toggle-switch"></div></div>
+<span class="toggle-label-text" id="toggle-label-text">Periodo personalizzato</span>
+</div>
+<div class="hidden" id="custom-range">
+<div class="home-date-field"><label for="filter-from">Dal</label><input id="filter-from" type="date"/></div>
+<div class="home-date-field"><label for="filter-to">Al</label><input id="filter-to" type="date"/></div>
+<button id="btn-apply-custom" type="button">Applica</button>
+</div>
+<p id="filter-label"></p>
+</div>
+<section class="home-v3-balance-card home-v3-balance-account">
+<div class="home-v3-icon home-v3-icon-green"><i class="ti ti-building-bank"></i></div>
+<div class="home-v3-balance-copy">
+<span>Saldo disponibile</span>
+<strong id="stat-residuo">0,00 €</strong>
+<small id="home-account-label">Totale conto corrente</small>
+</div>
+</section>
+<section class="home-v3-balance-card home-v3-balance-period">
+<div class="home-v3-icon home-v3-icon-blue"><i class="ti ti-calendar-stats"></i></div>
+<div class="home-v3-balance-copy">
+<span>Saldo periodo</span>
+<strong id="stat-period-balance">0,00 €</strong>
+<small id="home-period-label">Entrate meno uscite del periodo</small>
+</div>
+</section>
+<section class="home-v3-mini-grid">
+<div aria-label="Dettaglio entrate" class="home-v3-mini-card income" id="card-income" role="button" tabindex="0">
+<div class="home-v3-icon home-v3-icon-green"><i class="ti ti-arrow-down"></i></div>
+<div><span>Entrate</span><strong id="stat-income">0,00 €</strong></div>
+</div>
+<div aria-label="Dettaglio uscite" class="home-v3-mini-card expense" id="card-expense" role="button" tabindex="0">
+<div class="home-v3-icon home-v3-icon-red"><i class="ti ti-arrow-up"></i></div>
+<div><span>Uscite</span><strong id="stat-expense">0,00 €</strong></div>
+</div>
+</section>
+<section class="home-v3-section">
+<div class="home-v3-section-title"><h2>Lista movimenti</h2></div>
+<div class="home-v3-movements-panel">
+<div class="home-v3-movements-toolbar">
+<span style="font-size:10px;color:#8a9aac;font-weight:600;">Movimenti del periodo selezionato</span>
+<div aria-label="Filtra movimenti" class="home-v3-source-filter" id="home-source-filter" role="group">
+<button class="active" data-home-source="all" type="button">Tutti</button>
+<button data-home-source="bank" type="button">Conto corrente</button>
+<button data-home-source="cash" type="button">Cash</button>
+</div>
+</div>
+<div id="home-movements-list"></div>
+</div>
+</section>
+<div class="home-v3-new-movement">
+<button id="btn-nuovo-movimento" onclick="window.openMovimentoModal()"><i class="ti ti-plus"></i> Nuovo movimento</button>
+</div>
+<!-- Contenuto movimenti originale: resta disponibile e invariato -->
+<div class="home-v3-movements-section">
+<div style="margin-bottom: 1rem; margin-top:2rem;"><h2>Movimenti</h2></div>
+<div class="search-bar"><input id="search-transactions" placeholder="Cerca movimenti per nome o categoria..." type="text"/></div>
+<div class="source-filter"><button class="active" data-source="all">Tutti</button><button data-source="cash">💵 Contanti</button><button data-source="bank">🏦 Conto corrente</button></div>
+<div class="tx-header desktop-only"><span>Data</span><span>Movimento</span><span>Categoria</span><span style="text-align:center;">Tipo</span><span style="text-align:right;">Importo</span></div>
+<div id="transactions-list"></div>
+<p id="save-status">I dati sono sincronizzati con il tuo account.</p>
+</div>
+</div>
+<div class="page" id="page-grafici">
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:12px;">
+<h1 style="margin:0;">Statistiche</h1>
+</div>
+<div class="stats-tabs">
+<button class="stats-tab active" data-tab="tab-categorie">Categorie</button>
+<button class="stats-tab" data-tab="tab-entrate-uscite">Entrate/Uscite</button>
+<button class="stats-tab" data-tab="tab-residuo">Residuo</button>
+<button class="stats-tab" data-tab="tab-confronto">Confronto</button>
+</div>
+<!-- TAB CATEGORIE -->
+<div class="stats-tab-content active" id="tab-categorie">
+<div id="screenshot-categorie">
+<div class="row-between">
+<h2>Spese per categoria</h2>
+<select id="chart-month"></select>
+</div>
+<div class="panel">
+<div class="legend" id="legend-categories"></div>
+<div class="chart-wrap" style="height:320px; display:flex; align-items:center; justify-content:center;">
+<canvas id="categoryChart"></canvas>
+</div>
+</div>
+<div class="panel">
+<h3>Dati dettagliati</h3>
+<table class="data-table" id="table-category">
+<thead>
+<tr>
+<th>Categoria</th>
+<th class="text-right">Importo</th>
+<th class="text-right">%</th>
+</tr>
+</thead>
+<tbody id="table-category-body"></tbody>
+</table>
+</div>
+</div>
+<div style="margin-top:12px; text-align:right;">
+<button class="btn-pdf" id="btn-pdf-categorie"><i class="ti ti-file-type-pdf"></i> PDF</button>
+</div>
+</div>
+<!-- TAB ENTRATE/USCITE -->
+<div class="stats-tab-content" id="tab-entrate-uscite">
+<div id="screenshot-entrate-uscite">
+<div class="row-between">
+<h2>Entrate vs Uscite</h2>
+<select id="chart-year"></select>
+</div>
+<div class="panel">
+<div class="chart-wrap">
+<canvas id="yearChart"></canvas>
+</div>
+</div>
+<div class="panel">
+<h3>Dati dettagliati</h3>
+<table class="data-table" id="table-year">
+<thead>
+<tr>
+<th>Mese</th>
+<th class="text-right">Entrate</th>
+<th class="text-right">Uscite</th>
+<th class="text-right">Saldo</th>
+</tr>
+</thead>
+<tbody id="table-year-body"></tbody>
+</table>
+</div>
+</div>
+<div style="margin-top:12px; text-align:right;">
+<button class="btn-pdf" id="btn-pdf-entrate-uscite"><i class="ti ti-file-type-pdf"></i> PDF</button>
+</div>
+</div>
+<!-- TAB RESIDUO -->
+<div class="stats-tab-content" id="tab-residuo">
+<div id="screenshot-residuo">
+<div class="row-between">
+<h2>Residuo mensile</h2>
+<select id="chart-residuo-year"></select>
+</div>
+<div class="panel">
+<p style="font-size:13px; color:var(--text-secondary); margin:0 0 12px; font-weight:600;">Andamento del residuo in cassa mese per mese.</p>
+<div class="chart-wrap">
+<canvas id="residuoChart"></canvas>
+</div>
+</div>
+<div class="panel">
+<h3>Andamento residuo</h3>
+<table class="data-table" id="table-residuo">
+<thead>
+<tr>
+<th>Mese</th>
+<th class="text-right">Entrate</th>
+<th class="text-right">Uscite</th>
+<th class="text-right">Saldo</th>
+<th class="text-right">Residuo</th>
+</tr>
+</thead>
+<tbody id="table-residuo-body"></tbody>
+</table>
+</div>
+</div>
+<div style="margin-top:12px; text-align:right;">
+<button class="btn-pdf" id="btn-pdf-residuo"><i class="ti ti-file-type-pdf"></i> PDF</button>
+</div>
+</div>
+<!-- TAB CONFRONTO -->
+<div class="stats-tab-content" id="tab-confronto">
+<div id="screenshot-confronto">
+<div class="row-between" style="margin-top: 1rem;">
+<h2>Confronto mesi</h2>
+<div style="display:flex; gap:10px; align-items:center;">
+<select id="compare-month-1"></select>
+<span style="font-weight:800; color:var(--text-muted);">vs</span>
+<select id="compare-month-2"></select>
+</div>
+</div>
+<div class="panel">
+<p style="font-size:13px; color:var(--text-secondary); margin:0 0 12px; font-weight:600;">Confronto entrate e uscite tra due mesi.</p>
+<div class="chart-wrap">
+<canvas id="compareChart"></canvas>
+</div>
+</div>
+<div class="panel">
+<h3>Dati dettagliati</h3>
+<table class="data-table" id="table-compare">
+<thead>
+<tr>
+<th></th>
+<th class="text-right" id="compare-header-1">Mese 1</th>
+<th class="text-right" id="compare-header-2">Mese 2</th>
+<th class="text-right">Differenza</th>
+</tr>
+</thead>
+<tbody id="table-compare-body"></tbody>
+</table>
+</div>
+</div>
+<div style="margin-top:12px; text-align:right;">
+<button class="btn-pdf" id="btn-pdf-confronto"><i class="ti ti-file-type-pdf"></i> PDF</button>
+</div>
+</div>
+</div>
+<div class="page" id="page-import">
 <h1>Importa da Excel</h1>
 <div class="panel">
 <div class="import-section-title">
@@ -4987,11 +8002,11 @@ button{font-family:inherit;}
 Movimenti bancari. Colonne: Mese, Anno, Data Contabile, Descrizione, Importo, Categoria.
 </p>
 <div class="import-row">
-<input type="file" id="import-file-bank" accept=".xlsx,.xls,.csv">
+<input accept=".xlsx,.xls,.csv" id="import-file-bank" type="file"/>
 <button id="btn-download-template-bank" onclick="downloadTemplate('bank')" style="border-radius:999px; padding:0 20px; font-weight:700;">Scarica modello</button>
 </div>
-<p id="import-error-text-bank" class="import-error-text"></p>
-<div id="import-preview-wrap-bank" class="hidden">
+<p class="import-error-text" id="import-error-text-bank"></p>
+<div class="hidden" id="import-preview-wrap-bank">
 <p id="import-summary-bank"></p>
 <div class="import-table-wrap">
 <table>
@@ -5017,11 +8032,11 @@ Movimenti bancari. Colonne: Mese, Anno, Data Contabile, Descrizione, Importo, Ca
 Movimenti in contanti. Stesse colonne del conto corrente.
 </p>
 <div class="import-row">
-<input type="file" id="import-file-cash" accept=".xlsx,.xls,.csv">
+<input accept=".xlsx,.xls,.csv" id="import-file-cash" type="file"/>
 <button id="btn-download-template-cash" onclick="downloadTemplate('cash')" style="border-radius:999px; padding:0 20px; font-weight:700;">Scarica modello</button>
 </div>
-<p id="import-error-text-cash" class="import-error-text"></p>
-<div id="import-preview-wrap-cash" class="hidden">
+<p class="import-error-text" id="import-error-text-cash"></p>
+<div class="hidden" id="import-preview-wrap-cash">
 <p id="import-summary-cash"></p>
 <div class="import-table-wrap">
 <table>
@@ -5038,47 +8053,42 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 </div>
 </div>
 </div>
-<div id="page-bollette" class="page">
-  <h1>Libreria Bollette</h1>
-  
-<button id="btn-nuova-bolletta" 
-        onclick="window.openBollettaModal()"
-        style="width: 100%; height: 50px; background: var(--accent-gradient); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: var(--shadow); transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px;">
-  <i class="ti ti-plus" style="font-size:20px;"></i> Nuova bolletta
+<div class="page" id="page-bollette">
+<h1>Libreria Bollette</h1>
+<button id="btn-nuova-bolletta" onclick="window.openBollettaModal()" style="width: 100%; height: 50px; background: var(--accent-gradient); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: var(--shadow); transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px;">
+<i class="ti ti-plus" style="font-size:20px;"></i> Nuova bolletta
 </button>
-  
-  <!-- Tabella riepilogo bollette -->
-  <div class="panel">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:12px;">
-      <h3 style="margin:0;">📊 Riepilogo bollette</h3>
-      <div style="display:flex; align-items:center; gap:10px;">
-        <label style="font-size:13px; font-weight:700; color:var(--text-secondary);">Anno:</label>
-        <select id="bolletta-year-filter" style="width:120px; height:40px; font-weight:700;"></select>
-      </div>
-    </div>
-    <div class="bolletta-table-wrap">
-      <table class="bolletta-table">
-        <thead>
-          <tr>
-            <th>Mese</th>
-            <th>🔥 Gas</th>
-            <th>⚡ Luce</th>
-            <th>💧 Acqua</th>
-            <th>💰 Totale</th>
-          </tr>
-        </thead>
-        <tbody id="bolletta-table-body"></tbody>
-        <tfoot id="bolletta-table-foot"></tfoot>
-      </table>
-    </div>
-  </div>
+<!-- Tabella riepilogo bollette -->
+<div class="panel">
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:12px;">
+<h3 style="margin:0;">📊 Riepilogo bollette</h3>
+<div style="display:flex; align-items:center; gap:10px;">
+<label style="font-size:13px; font-weight:700; color:var(--text-secondary);">Anno:</label>
+<select id="bolletta-year-filter" style="width:120px; height:40px; font-weight:700;"></select>
 </div>
-<div id="page-liste" class="page">
-  <h1>📋 Liste della spesa</h1>
-  
-  <!-- Pulsante per nuova lista -->
-  <div style="margin-bottom:20px;">
-    <button id="btn-nuova-lista-principale" style="
+</div>
+<div class="bolletta-table-wrap">
+<table class="bolletta-table">
+<thead>
+<tr>
+<th>Mese</th>
+<th>🔥 Gas</th>
+<th>⚡ Luce</th>
+<th>💧 Acqua</th>
+<th>💰 Totale</th>
+</tr>
+</thead>
+<tbody id="bolletta-table-body"></tbody>
+<tfoot id="bolletta-table-foot"></tfoot>
+</table>
+</div>
+</div>
+</div>
+<div class="page" id="page-liste">
+<h1>📋 Liste della spesa</h1>
+<!-- Pulsante per nuova lista -->
+<div style="margin-bottom:20px;">
+<button id="btn-nuova-lista-principale" style="
       width: 100%;
       height: 50px;
       background: var(--accent-gradient);
@@ -5095,220 +8105,189 @@ Movimenti in contanti. Stesse colonne del conto corrente.
       justify-content: center;
       gap: 10px;
     ">
-      <i class="ti ti-plus" style="font-size:20px;"></i> Nuova lista
+<i class="ti ti-plus" style="font-size:20px;"></i> Nuova lista
     </button>
-  </div>
-  
-  <!-- Contenitore liste -->
-  <div id="liste-container-principale" style="min-height:200px;">
-    <div style="text-align:center; padding:40px 20px; color:var(--text-muted);">
-      <div style="font-size:48px; margin-bottom:12px;">⏳</div>
-      <p style="font-size:16px; font-weight:600;">Caricamento liste...</p>
-    </div>
-  </div>
 </div>
-<div id="page-eventi" class="page">
-  <h1>📅 Promemoria eventi</h1>
-  
-  <!-- Mese corrente -->
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-    <button id="btn-mese-prec" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--text-secondary); padding:8px 16px; border-radius:var(--radius-sm); transition:all 0.2s;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">‹</button>
-    <h2 id="mese-titolo" style="margin:0; font-size:20px; font-weight:800;">Agosto 2026</h2>
-    <button id="btn-mese-succ" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--text-secondary); padding:8px 16px; border-radius:var(--radius-sm); transition:all 0.2s;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">›</button>
-  </div>
-  
-  <!-- Calendario -->
-  <div style="background:var(--surface); border-radius:var(--radius); padding:16px; border:1px solid var(--border); margin-bottom:20px;">
-    <div style="display:grid; grid-template-columns:repeat(7, 1fr); gap:4px; text-align:center; font-weight:700; font-size:12px; color:var(--text-muted); margin-bottom:8px;">
-      <div>L</div><div>M</div><div>M</div><div>G</div><div>V</div><div>S</div><div>D</div>
-    </div>
-    <div id="calendario-giorni" style="display:grid; grid-template-columns:repeat(7, 1fr); gap:4px;">
-      <!-- Generato da JavaScript -->
-    </div>
-  </div>
-  
-  <!-- Eventi del giorno selezionato -->
-  <div style="background:var(--surface); border-radius:var(--radius); padding:16px; border:1px solid var(--border);">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-      <h3 id="giorno-selezionato-titolo" style="margin:0; font-size:16px; font-weight:700;">Oggi - Lunedì 10 Agosto</h3>
-      <button id="btn-nuovo-evento" style="background:var(--accent-gradient); color:#fff; border:none; border-radius:999px; padding:8px 18px; font-weight:700; font-size:13px; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+<!-- Contenitore liste -->
+<div id="liste-container-principale" style="min-height:200px;">
+<div style="text-align:center; padding:40px 20px; color:var(--text-muted);">
+<div style="font-size:48px; margin-bottom:12px;">⏳</div>
+<p style="font-size:16px; font-weight:600;">Caricamento liste...</p>
+</div>
+</div>
+</div>
+<div class="page" id="page-eventi">
+<h1>📅 Promemoria eventi</h1>
+<!-- Mese corrente -->
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+<button id="btn-mese-prec" onmouseout="this.style.background='transparent'" onmouseover="this.style.background='var(--surface-2)'" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--text-secondary); padding:8px 16px; border-radius:var(--radius-sm); transition:all 0.2s;">‹</button>
+<h2 id="mese-titolo" style="margin:0; font-size:20px; font-weight:800;">Agosto 2026</h2>
+<button id="btn-mese-succ" onmouseout="this.style.background='transparent'" onmouseover="this.style.background='var(--surface-2)'" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--text-secondary); padding:8px 16px; border-radius:var(--radius-sm); transition:all 0.2s;">›</button>
+</div>
+<!-- Calendario -->
+<div style="background:var(--surface); border-radius:var(--radius); padding:16px; border:1px solid var(--border); margin-bottom:20px;">
+<div style="display:grid; grid-template-columns:repeat(7, 1fr); gap:4px; text-align:center; font-weight:700; font-size:12px; color:var(--text-muted); margin-bottom:8px;">
+<div>L</div><div>M</div><div>M</div><div>G</div><div>V</div><div>S</div><div>D</div>
+</div>
+<div id="calendario-giorni" style="display:grid; grid-template-columns:repeat(7, 1fr); gap:4px;">
+<!-- Generato da JavaScript -->
+</div>
+</div>
+<!-- Eventi del giorno selezionato -->
+<div style="background:var(--surface); border-radius:var(--radius); padding:16px; border:1px solid var(--border);">
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+<h3 id="giorno-selezionato-titolo" style="margin:0; font-size:16px; font-weight:700;">Oggi - Lunedì 10 Agosto</h3>
+<button id="btn-nuovo-evento" onmouseout="this.style.transform='scale(1)'" onmouseover="this.style.transform='scale(1.05)'" style="background:var(--accent-gradient); color:#fff; border:none; border-radius:999px; padding:8px 18px; font-weight:700; font-size:13px; cursor:pointer; transition:all 0.2s;">
         + Nuovo evento
       </button>
-    </div>
-    <div id="eventi-del-giorno">
-      <div style="text-align:center; padding:20px; color:var(--text-muted);">
-        <p style="font-size:14px;">Niente programmato</p>
-        <p style="font-size:12px;">Clicca su "+ Nuovo evento" per aggiungere un evento</p>
-      </div>
-    </div>
-  </div>
 </div>
-<div id="page-profilo" class="page">
-  <h1>Profilo</h1>
-  
-  <!-- Info account esistente -->
-  <div class="panel">
-    <h3>Informazioni account</h3>
-    <div class="profile-field">
-      <label>Email</label>
-      <input type="text" id="profile-email-display" readonly style="background: var(--surface-2); color: var(--text-secondary);">
-    </div>
-    <div class="profile-field">
-      <label>Account creato il</label>
-      <input type="text" id="profile-created" readonly style="background: var(--surface-2); color: var(--text-secondary);">
-    </div>
-  </div>
-
-  <!-- NUOVA SEZIONE: GESTIONE PROFILI -->
-  <div class="panel">
-    <h3>👥 Gestione profili familiari</h3>
-    <p style="font-size:13px; color:var(--text-secondary); margin-bottom:1rem; font-weight:600;">
+<div id="eventi-del-giorno">
+<div style="text-align:center; padding:20px; color:var(--text-muted);">
+<p style="font-size:14px;">Niente programmato</p>
+<p style="font-size:12px;">Clicca su "+ Nuovo evento" per aggiungere un evento</p>
+</div>
+</div>
+</div>
+</div>
+<div class="page" id="page-profilo">
+<h1>Profilo</h1>
+<!-- Info account esistente -->
+<div class="panel">
+<h3>Informazioni account</h3>
+<div class="profile-field">
+<label>Email</label>
+<input id="profile-email-display" readonly="" style="background: var(--surface-2); color: var(--text-secondary);" type="text"/>
+</div>
+<div class="profile-field">
+<label>Account creato il</label>
+<input id="profile-created" readonly="" style="background: var(--surface-2); color: var(--text-secondary);" type="text"/>
+</div>
+</div>
+<!-- NUOVA SEZIONE: GESTIONE PROFILI -->
+<div class="panel">
+<h3>👥 Gestione profili familiari</h3>
+<p style="font-size:13px; color:var(--text-secondary); margin-bottom:1rem; font-weight:600;">
       Aggiungi membri della famiglia per condividere il budget.
     </p>
-    
-    <div id="family-members-list" style="margin-bottom:1rem;"></div>
-    
-    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-      <div>
-        <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">Email del membro</label>
-        <input type="email" id="invite-email" placeholder="email@esempio.it" style="width:100%; height:40px;">
-      </div>
-      <div>
-        <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">Nome</label>
-        <input type="text" id="invite-name" placeholder="Nome del membro" style="width:100%; height:40px;">
-      </div>
-    </div>
-    <button id="btn-invite-member" style="margin-top:10px; width:100%; height:44px; background:var(--accent-gradient); color:#fff; border:none; border-radius:var(--radius-sm); font-weight:700; cursor:pointer;">
-      <i class="ti ti-user-plus" style="margin-right:8px;"></i> Aggiungi membro
+<div id="family-members-list" style="margin-bottom:1rem;"></div>
+<div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+<div>
+<label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">Email del membro</label>
+<input id="invite-email" placeholder="email@esempio.it" style="width:100%; height:40px;" type="email"/>
+</div>
+<div>
+<label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">Nome</label>
+<input id="invite-name" placeholder="Nome del membro" style="width:100%; height:40px;" type="text"/>
+</div>
+</div>
+<button id="btn-invite-member" style="margin-top:10px; width:100%; height:44px; background:var(--accent-gradient); color:#fff; border:none; border-radius:var(--radius-sm); font-weight:700; cursor:pointer;">
+<i class="ti ti-user-plus" style="margin-right:8px;"></i> Aggiungi membro
     </button>
-    <p id="invite-status" style="font-size:13px; margin-top:10px; min-height:20px;"></p>
-  </div>
-    <div class="panel">
-    <h3>🔧 Manutenzione</h3>
-    <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">
+<p id="invite-status" style="font-size:13px; margin-top:10px; min-height:20px;"></p>
+</div>
+<div class="panel">
+<h3>🔧 Manutenzione</h3>
+<p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">
       Se i dati non vengono visualizzati correttamente, clicca su "Correggi collegamento famiglia".
     </p>
-    <button id="btn-fix-family" style="width:100%; height:40px; background:var(--warning); color:#fff; border:none; border-radius:var(--radius-sm); font-weight:700; cursor:pointer;">
+<button id="btn-fix-family" style="width:100%; height:40px; background:var(--warning); color:#fff; border:none; border-radius:var(--radius-sm); font-weight:700; cursor:pointer;">
       🔄 Correggi collegamento famiglia
     </button>
-    <p id="fix-status" style="font-size:12px; color:var(--text-muted); margin-top:8px; min-height:20px;"></p>
-  </div>
-
-  <!-- Cambia password -->
-  <div class="panel">
-    <h3>Cambia password</h3>
-    <p style="font-size:14px; color:var(--text-secondary); margin-top:0; line-height:1.6; font-weight:600;">
+<p id="fix-status" style="font-size:12px; color:var(--text-muted); margin-top:8px; min-height:20px;"></p>
+</div>
+<!-- Cambia password -->
+<div class="panel">
+<h3>Cambia password</h3>
+<p style="font-size:14px; color:var(--text-secondary); margin-top:0; line-height:1.6; font-weight:600;">
       Riceverai un'email con le istruzioni per scegliere una nuova password.
     </p>
-    <button id="btn-reset-password" style="width:100%; height:46px; border-radius:var(--radius-sm); font-weight:700;">
+<button id="btn-reset-password" style="width:100%; height:46px; border-radius:var(--radius-sm); font-weight:700;">
       Invia email di reset
     </button>
-    <p id="profile-msg" style="font-size:13px; margin-top:12px;"></p>
-  </div>
-
-  <!-- Statistiche -->
-  <div class="panel">
-    <h3>Statistiche</h3>
-    <div class="stats-row">
-      <div class="stat-card">
-        <p>Movimenti</p>
-        <p id="profile-tx-count">0</p>
-      </div>
-      <div class="stat-card">
-        <p>Primo movimento</p>
-        <p id="profile-first-tx" style="font-size:14px;">—</p>
-      </div>
-      <div class="stat-card">
-        <p>Promemoria</p>
-        <p id="profile-rem-count">0</p>
-      </div>
-    </div>
-  </div>
+<p id="profile-msg" style="font-size:13px; margin-top:12px;"></p>
 </div>
-<div id="page-categorie" class="page">
+<!-- Statistiche -->
+<div class="panel">
+<h3>Statistiche</h3>
+<div class="stats-row">
+<div class="stat-card">
+<p>Movimenti</p>
+<p id="profile-tx-count">0</p>
+</div>
+<div class="stat-card">
+<p>Primo movimento</p>
+<p id="profile-first-tx" style="font-size:14px;">—</p>
+</div>
+<div class="stat-card">
+<p>Promemoria</p>
+<p id="profile-rem-count">0</p>
+</div>
+</div>
+</div>
+</div>
+<div class="page" id="page-categorie">
 <h1>Categorie</h1>
 <div class="panel">
 <h3>📤 Uscite</h3>
 <p style="font-size:12px; color:var(--text-muted); margin:-8px 0 12px; font-weight:600;">💡 Clicca sul pallino colorato per cambiare il colore della categoria</p>
-<ul id="cat-list-expense" class="cat-list"></ul>
+<ul class="cat-list" id="cat-list-expense"></ul>
 <div class="cat-input-row">
-<input type="text" id="new-cat-expense" placeholder="Nuova categoria">
+<input id="new-cat-expense" placeholder="Nuova categoria" type="text"/>
 <button id="btn-add-cat-expense" style="border-radius:999px; padding:0 22px; background:var(--accent-gradient); color:#fff; border:none; font-weight:700; box-shadow:var(--shadow);">Aggiungi</button>
 </div>
 </div>
 <div class="panel">
 <h3>📥 Entrate</h3>
 <p style="font-size:12px; color:var(--text-muted); margin:-8px 0 12px; font-weight:600;"> Clicca sul pallino colorato per cambiare il colore della categoria</p>
-<ul id="cat-list-income" class="cat-list"></ul>
+<ul class="cat-list" id="cat-list-income"></ul>
 <div class="cat-input-row">
-<input type="text" id="new-cat-income" placeholder="Nuova categoria">
+<input id="new-cat-income" placeholder="Nuova categoria" type="text"/>
 <button id="btn-add-cat-income" style="border-radius:999px; padding:0 22px; background:var(--accent-gradient); color:#fff; border:none; font-weight:700; box-shadow:var(--shadow);">Aggiungi</button>
 </div>
 </div>
 </div>
 </main>
 </div>
-
-<!-- Dettaglio movimenti per categoria -->
-<div id="category-detail-overlay" aria-hidden="true">
-  <div id="category-detail-box">
-    <div class="category-detail-head">
-      <div class="category-detail-title-row">
-        <span class="category-icon" id="category-detail-icon"><i class="ti ti-tag"></i></span>
-        <div>
-          <h3 id="category-detail-title">Dettaglio categoria</h3>
-          <p id="category-detail-period"></p>
-        </div>
-      </div>
-      <div class="category-detail-total" id="category-detail-total">0,00 €</div>
-    </div>
-    <div id="category-detail-list"></div>
-    <div class="category-detail-footer">
-      <button id="category-detail-close">Chiudi</button>
-    </div>
-  </div>
-</div>
-
 <div id="detail-overlay">
 <div id="detail-box">
-  <div class="modern-detail-head">
-    <div class="modern-detail-icon" id="detail-type-icon"><i class="ti ti-arrow-up"></i></div>
-    <div class="modern-detail-heading">
-      <span class="modern-detail-kicker">MOVIMENTO</span>
-      <h3 id="detail-title">Dettaglio</h3>
-      <div id="detail-date" class="modern-detail-date"></div>
-    </div>
-  </div>
-  <div class="modern-detail-amount" id="detail-amount">0,00 €</div>
-  <div class="modern-detail-chips">
-    <span class="modern-detail-chip" id="detail-category-chip"><i class="ti ti-tag"></i><span id="detail-category">—</span></span>
-    <span class="modern-detail-chip" id="detail-source-chip"><i class="ti ti-wallet"></i><span id="detail-source">Contanti</span></span>
-  </div>
-  <div class="modern-detail-info-card">
-    <span>Descrizione</span><strong id="detail-desc">—</strong>
-  </div>
-  <div class="attachment-section">
-    <div class="modern-detail-section-title"><span>Allegato</span><small>Documenti del movimento</small></div>
-    <input type="file" id="attachment-input" class="attachment-hidden-input" accept="image/*,.pdf,.doc,.docx">
-    <div id="attachment-content"></div>
-    <div id="attachment-upload-area"><button id="btn-add-attachment" class="btn-attachment"><i class="ti ti-paperclip"></i> Aggiungi allegato</button></div>
-    <div id="attachment-progress" class="upload-progress hidden"><div class="progress-bar"><div class="progress-bar-fill" id="progress-fill" style="width: 0%"></div></div><div class="progress-text" id="progress-text">Caricamento... 0%</div></div>
-  </div>
-  <div class="detail-actions">
-    <button id="detail-close">Chiudi</button>
-    <button id="detail-edit">Modifica</button>
-    <button id="detail-delete">Elimina</button>
-  </div>
+<div class="modern-detail-head">
+<div class="modern-detail-icon" id="detail-type-icon"><i class="ti ti-arrow-up"></i></div>
+<div class="modern-detail-heading">
+<span class="modern-detail-kicker">MOVIMENTO</span>
+<h3 id="detail-title">Dettaglio</h3>
+<div class="modern-detail-date" id="detail-date"></div>
+</div>
+</div>
+<div class="modern-detail-amount" id="detail-amount">0,00 €</div>
+<div class="modern-detail-chips">
+<span class="modern-detail-chip" id="detail-category-chip"><i class="ti ti-tag"></i><span id="detail-category">—</span></span>
+<span class="modern-detail-chip" id="detail-source-chip"><i class="ti ti-wallet"></i><span id="detail-source">Contanti</span></span>
+</div>
+<div class="modern-detail-info-card">
+<span>Descrizione</span><strong id="detail-desc">—</strong>
+</div>
+<div class="attachment-section">
+<div class="modern-detail-section-title"><span>Allegato</span><small>Documenti del movimento</small></div>
+<input accept="image/*,.pdf,.doc,.docx" class="attachment-hidden-input" id="attachment-input" type="file"/>
+<div id="attachment-content"></div>
+<div id="attachment-upload-area"><button class="btn-attachment" id="btn-add-attachment"><i class="ti ti-paperclip"></i> Aggiungi allegato</button></div>
+<div class="upload-progress hidden" id="attachment-progress"><div class="progress-bar"><div class="progress-bar-fill" id="progress-fill" style="width: 0%"></div></div><div class="progress-text" id="progress-text">Caricamento... 0%</div></div>
+</div>
+<div class="detail-actions">
+<button id="detail-close">Chiudi</button>
+<button id="detail-edit">Modifica</button>
+<button id="detail-delete">Elimina</button>
+</div>
 </div>
 </div>
 <div id="modal-overlay">
 <div id="modal-box">
 <h3>Modifica movimento</h3>
 <div class="modal-field"><label>Tipo</label><select id="modal-type"><option value="expense">Uscita</option><option value="income">Entrata</option></select></div>
-<div class="modal-field"><label>Descrizione</label><input type="text" id="modal-desc" placeholder="Descrizione"></div>
-<div class="modal-field"><label>Importo €</label><input type="number" id="modal-amount" min="0" step="0.01"></div>
+<div class="modal-field"><label>Descrizione</label><input id="modal-desc" placeholder="Descrizione" type="text"/></div>
+<div class="modal-field"><label>Importo €</label><input id="modal-amount" min="0" step="0.01" type="number"/></div>
 <div class="modal-field"><label>Categoria</label><select id="modal-category"></select></div>
-<div class="modal-field"><label>Data</label><input type="date" id="modal-date"></div>
+<div class="modal-field"><label>Data</label><input id="modal-date" type="date"/></div>
 <div class="modal-actions">
 <button id="modal-cancel" style="background:var(--surface-2); border:1px solid var(--border); color:var(--text-primary);">Annulla</button>
 <button id="modal-save" style="background:var(--accent-gradient); color:#fff; border:none;">Salva</button>
@@ -5318,7 +8297,7 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 <div id="cat-edit-modal" style="display:none; position:fixed; inset:0; background:rgba(15,25,35,0.6); backdrop-filter:blur(8px); z-index:600; align-items:center; justify-content:center; padding:1rem;">
 <div style="background:var(--surface); border-radius:var(--radius-lg); padding:2rem; width:100%; max-width:440px; box-shadow:var(--shadow-xl);">
 <h3 style="margin:0 0 1.5rem; font-size:22px; font-weight:800; letter-spacing:-0.5px;">Modifica categoria</h3>
-<div class="modal-field"><label>Nuovo nome</label><input type="text" id="cat-edit-input" style="height:46px;"></div>
+<div class="modal-field"><label>Nuovo nome</label><input id="cat-edit-input" style="height:46px;" type="text"/></div>
 <div class="modal-actions">
 <button id="cat-edit-cancel" style="background:var(--surface-2); border:1px solid var(--border); color:var(--text-primary);">Annulla</button>
 <button id="cat-edit-save" style="background:var(--accent-gradient); color:#fff; border:none;">Salva</button>
@@ -5333,23 +8312,19 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 <div class="detail-field"><label>Importo</label><p id="bolletta-detail-importo"></p></div>
 <div class="detail-field"><label>Data caricamento</label><p id="bolletta-detail-date"></p></div>
 <div style="display:flex; gap:10px; margin-top:1.5rem;">
-<button id="bolletta-detail-close" 
-        onclick="document.getElementById('bolletta-detail-overlay').style.display = 'none'; bollettaDetailData = null;"
-        style="flex:1; height:46px; background:var(--surface-2); border:1px solid var(--border); color:var(--text-primary); border-radius:var(--radius-sm); font-weight:700; cursor:pointer; font-family:inherit;">
+<button id="bolletta-detail-close" onclick="document.getElementById('bolletta-detail-overlay').style.display = 'none'; bollettaDetailData = null;" style="flex:1; height:46px; background:var(--surface-2); border:1px solid var(--border); color:var(--text-primary); border-radius:var(--radius-sm); font-weight:700; cursor:pointer; font-family:inherit;">
   Chiudi
 </button>
 <button id="bolletta-detail-download" style="flex:1; height:46px; background:var(--accent); color:#fff; border:none; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; font-family:inherit;">
 <i class="ti ti-download" style="font-size:18px;"></i> Scarica
 </button>
-<button id="bolletta-detail-delete" 
-        onclick="window.deleteBollettaFromDetail()"
-        style="width:46px; height:46px; background:var(--danger); color:#fff; border:none; border-radius:var(--radius-sm); cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 512 512">
-    <defs><linearGradient id="trashGrad" x1="96" y1="72" x2="416" y2="440" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#F04438"/><stop offset="1" stop-color="#B42318"/></linearGradient></defs>
-    <rect x="72" y="72" width="368" height="368" rx="92" fill="url(#trashGrad)"/>
-    <path d="M202 154c0-17.7 14.3-32 32-32h44c17.7 0 32 14.3 32 32v14h52c11 0 20 9 20 20s-9 20-20 20H150c-11 0-20-9-20-20s9-20 20-20h52v-14Zm40 14h28v-6c0-3.3-2.7-6-6-6h-16c-3.3 0-6 2.7-6 6v6Z" fill="#FFFFFF"/>
-    <path d="M170 238c-1.1-13.8 9.8-25.6 23.6-25.6h124.8c13.8 0 24.7 11.8 23.6 25.6l-12.2 144.9c-1.5 17.5-16.1 31.1-33.7 31.1h-80.2c-17.6 0-32.2-13.6-33.7-31.1L170 238Z" fill="#FFFFFF"/>
-  </svg>
+<button id="bolletta-detail-delete" onclick="window.deleteBollettaFromDetail()" style="width:46px; height:46px; background:var(--danger); color:#fff; border:none; border-radius:var(--radius-sm); cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+<svg height="20" viewbox="0 0 512 512" width="20" xmlns="http://www.w3.org/2000/svg">
+<defs><lineargradient gradientunits="userSpaceOnUse" id="trashGrad" x1="96" x2="416" y1="72" y2="440"><stop offset="0" stop-color="#F04438"></stop><stop offset="1" stop-color="#B42318"></stop></lineargradient></defs>
+<rect fill="url(#trashGrad)" height="368" rx="92" width="368" x="72" y="72"></rect>
+<path d="M202 154c0-17.7 14.3-32 32-32h44c17.7 0 32 14.3 32 32v14h52c11 0 20 9 20 20s-9 20-20 20H150c-11 0-20-9-20-20s9-20 20-20h52v-14Zm40 14h28v-6c0-3.3-2.7-6-6-6h-16c-3.3 0-6 2.7-6 6v6Z" fill="#FFFFFF"></path>
+<path d="M170 238c-1.1-13.8 9.8-25.6 23.6-25.6h124.8c13.8 0 24.7 11.8 23.6 25.6l-12.2 144.9c-1.5 17.5-16.1 31.1-33.7 31.1h-80.2c-17.6 0-32.2-13.6-33.7-31.1L170 238Z" fill="#FFFFFF"></path>
+</svg>
 </button>
 </div>
 </div>
@@ -5371,130 +8346,107 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 </div>
 </div>
 <div id="income-expense-overlay">
-  <div id="income-expense-box">
-    <div class="ie-modern-head">
-      <div class="ie-modern-icon" id="income-expense-icon"><i class="ti ti-arrows-up-down"></i></div>
-      <div><span class="ie-modern-kicker">RIEPILOGO</span><h3 id="income-expense-title">Dettaglio</h3><div id="income-expense-period" class="ie-modern-period"></div></div>
-    </div>
-    <div id="income-expense-content"></div>
-    <div class="ie-modern-footer"><button id="income-expense-close" type="button" >Chiudi</button></div>
-  </div>
+<div id="income-expense-box">
+<div class="ie-modern-head">
+<div class="ie-modern-icon" id="income-expense-icon"><i class="ti ti-arrows-up-down"></i></div>
+<div><span class="ie-modern-kicker">RIEPILOGO</span><h3 id="income-expense-title">Dettaglio</h3><div class="ie-modern-period" id="income-expense-period"></div></div>
+</div>
+<div id="income-expense-content"></div>
+<div class="ie-modern-footer"><button id="income-expense-close" type="button">Chiudi</button></div>
+</div>
 </div>
 <div id="pdf-loading"><div class="spinner"></div><span>Generazione PDF...</span></div>
-
 <!-- MODALE NUOVA BOLLETTA -->
 <div id="bolletta-modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(15,25,35,0.6); backdrop-filter:blur(8px); z-index:1000; align-items:center; justify-content:center; padding:20px;">
-  <div style="background:var(--surface); border-radius:var(--radius-lg); padding:28px; width:100%; max-width:500px; box-shadow:var(--shadow-xl); animation:modalIn 0.3s ease;">
-    <h3 style="margin:0 0 8px; font-size:20px; font-weight:800;">📄 Nuova bolletta</h3>
-    <p style="margin:0 0 16px; font-size:13px; color:var(--text-muted); font-weight:600;">Inserisci i dati della bolletta</p>
-    
-    <div style="margin-bottom:14px;">
-      <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:4px;">Tipo bolletta *</label>
-      <select id="bolletta-modal-tipo" style="width:100%; height:44px; border-radius:var(--radius-sm); border:1.5px solid var(--border); padding:0 14px; font-size:14px; font-weight:600; background:var(--surface-2); color:var(--text-primary);">
-        <option value="gas">🔥 Gas</option>
-        <option value="luce">⚡ Luce</option>
-        <option value="acqua">💧 Acqua</option>
-      </select>
-    </div>
-    
-    <div style="margin-bottom:14px;">
-      <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:4px;">Nome fornitore *</label>
-      <input type="text" id="bolletta-modal-fornitore" placeholder="es. Enel, Eni, Hera..." style="width:100%; height:44px; border-radius:var(--radius-sm); border:1.5px solid var(--border); padding:0 14px; font-size:14px; font-weight:600; background:var(--surface-2); color:var(--text-primary);">
-    </div>
-    
-    <div style="margin-bottom:14px;">
-      <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:4px;">Importo (€) *</label>
-      <input type="number" id="bolletta-modal-importo" placeholder="0,00" min="0" step="0.01" style="width:100%; height:44px; border-radius:var(--radius-sm); border:1.5px solid var(--border); padding:0 14px; font-size:14px; font-weight:600; background:var(--surface-2); color:var(--text-primary); text-align:right;">
-    </div>
-    
-    <div style="margin-bottom:14px;">
-      <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:4px;">Mese di riferimento *</label>
-      <select id="bolletta-modal-mese" style="width:100%; height:44px; border-radius:var(--radius-sm); border:1.5px solid var(--border); padding:0 14px; font-size:14px; font-weight:600; background:var(--surface-2); color:var(--text-primary);"></select>
-    </div>
-    
-    <div style="margin-bottom:14px;">
-      <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:4px;">File PDF *</label>
-      <input type="file" id="bolletta-modal-file" accept=".pdf" style="width:100%; height:44px; border-radius:var(--radius-sm); border:1.5px solid var(--border); padding:8px; font-size:14px; font-weight:600; background:var(--surface-2); color:var(--text-primary);">
-    </div>
-    
-    <div id="bolletta-modal-progress" style="display:none; margin-top:12px;">
-      <div class="progress-bar"><div class="progress-bar-fill" id="bolletta-modal-progress-fill" style="width:0%"></div></div>
-      <div class="progress-text" id="bolletta-modal-progress-text">Caricamento... 0%</div>
-    </div>
-    
-    <div style="display:flex; gap:10px; margin-top:16px;">
-  <!-- Annulla -->
-<button id="bolletta-modal-cancel" 
-        onclick="window.closeBollettaModal()"
-        style="flex:1; height:46px; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; background:var(--surface-2); border:1px solid var(--border); color:var(--text-secondary);">
+<div style="background:var(--surface); border-radius:var(--radius-lg); padding:28px; width:100%; max-width:500px; box-shadow:var(--shadow-xl); animation:modalIn 0.3s ease;">
+<h3 style="margin:0 0 8px; font-size:20px; font-weight:800;">📄 Nuova bolletta</h3>
+<p style="margin:0 0 16px; font-size:13px; color:var(--text-muted); font-weight:600;">Inserisci i dati della bolletta</p>
+<div style="margin-bottom:14px;">
+<label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:4px;">Tipo bolletta *</label>
+<select id="bolletta-modal-tipo" style="width:100%; height:44px; border-radius:var(--radius-sm); border:1.5px solid var(--border); padding:0 14px; font-size:14px; font-weight:600; background:var(--surface-2); color:var(--text-primary);">
+<option value="gas">🔥 Gas</option>
+<option value="luce">⚡ Luce</option>
+<option value="acqua">💧 Acqua</option>
+</select>
+</div>
+<div style="margin-bottom:14px;">
+<label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:4px;">Nome fornitore *</label>
+<input id="bolletta-modal-fornitore" placeholder="es. Enel, Eni, Hera..." style="width:100%; height:44px; border-radius:var(--radius-sm); border:1.5px solid var(--border); padding:0 14px; font-size:14px; font-weight:600; background:var(--surface-2); color:var(--text-primary);" type="text"/>
+</div>
+<div style="margin-bottom:14px;">
+<label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:4px;">Importo (€) *</label>
+<input id="bolletta-modal-importo" min="0" placeholder="0,00" step="0.01" style="width:100%; height:44px; border-radius:var(--radius-sm); border:1.5px solid var(--border); padding:0 14px; font-size:14px; font-weight:600; background:var(--surface-2); color:var(--text-primary); text-align:right;" type="number"/>
+</div>
+<div style="margin-bottom:14px;">
+<label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:4px;">Mese di riferimento *</label>
+<select id="bolletta-modal-mese" style="width:100%; height:44px; border-radius:var(--radius-sm); border:1.5px solid var(--border); padding:0 14px; font-size:14px; font-weight:600; background:var(--surface-2); color:var(--text-primary);"></select>
+</div>
+<div style="margin-bottom:14px;">
+<label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:4px;">File PDF *</label>
+<input accept=".pdf" id="bolletta-modal-file" style="width:100%; height:44px; border-radius:var(--radius-sm); border:1.5px solid var(--border); padding:8px; font-size:14px; font-weight:600; background:var(--surface-2); color:var(--text-primary);" type="file"/>
+</div>
+<div id="bolletta-modal-progress" style="display:none; margin-top:12px;">
+<div class="progress-bar"><div class="progress-bar-fill" id="bolletta-modal-progress-fill" style="width:0%"></div></div>
+<div class="progress-text" id="bolletta-modal-progress-text">Caricamento... 0%</div>
+</div>
+<div style="display:flex; gap:10px; margin-top:16px;">
+<!-- Annulla -->
+<button id="bolletta-modal-cancel" onclick="window.closeBollettaModal()" style="flex:1; height:46px; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; background:var(--surface-2); border:1px solid var(--border); color:var(--text-secondary);">
   Annulla
 </button>
-
 <!-- Salva -->
-<button id="bolletta-modal-save" 
-        onclick="window.saveBollettaFromModal()"
-        style="flex:2; height:46px; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; background:var(--accent-gradient); color:#fff; border:none;">
+<button id="bolletta-modal-save" onclick="window.saveBollettaFromModal()" style="flex:2; height:46px; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; background:var(--accent-gradient); color:#fff; border:none;">
   Salva bolletta
 </button>
-    </div>
-  </div>
 </div>
-
+</div>
+</div>
 <!-- MODALE NUOVO MOVIMENTO -->
 <div id="movimento-modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(15,25,35,0.6); backdrop-filter:blur(8px); z-index:1000; align-items:center; justify-content:center; padding:20px;">
-  <div style="background:var(--surface); border-radius:var(--radius-lg); padding:28px; width:100%; max-width:500px; box-shadow:var(--shadow-xl); animation:modalIn 0.3s ease;">
-    <h3 style="margin:0 0 8px; font-size:20px; font-weight:800;">💰 Nuovo movimento</h3>
-    <p style="margin:0 0 16px; font-size:13px; color:var(--text-muted); font-weight:600;">Inserisci i dettagli del movimento</p>
-    
-    <!-- Tipo -->
-    <div style="margin-bottom:14px;">
-      <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:4px;">Tipo *</label>
-      <div style="display:flex; gap:10px;">
-        <button id="modal-tab-expense" style="flex:1; padding:10px; border-radius:var(--radius-sm); border:2px solid var(--border); background:var(--surface); font-weight:700; cursor:pointer; transition:all 0.2s; font-family:inherit; color:var(--text-primary);">Uscita</button>
-        <button id="modal-tab-income" style="flex:1; padding:10px; border-radius:var(--radius-sm); border:2px solid var(--border); background:var(--surface); font-weight:700; cursor:pointer; transition:all 0.2s; font-family:inherit; color:var(--text-primary);">Entrata</button>
-      </div>
-    </div>
-    
-    <!-- Descrizione -->
-    <div style="margin-bottom:14px;">
-      <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:4px;">Descrizione *</label>
-      <input type="text" id="modal-movimento-desc" placeholder="es. Spesa Esselunga" style="width:100%; height:44px; border-radius:var(--radius-sm); border:1.5px solid var(--border); padding:0 14px; font-size:14px; font-weight:600; background:var(--surface-2); color:var(--text-primary);">
-    </div>
-    
-    <!-- Importo -->
-    <div style="margin-bottom:14px;">
-      <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:4px;">Importo (€) *</label>
-      <input type="number" id="modal-movimento-importo" placeholder="0,00" min="0" step="0.01" style="width:100%; height:44px; border-radius:var(--radius-sm); border:1.5px solid var(--border); padding:0 14px; font-size:14px; font-weight:600; background:var(--surface-2); color:var(--text-primary); text-align:right;">
-    </div>
-    
-    <!-- Categoria -->
-    <div style="margin-bottom:14px;">
-      <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:4px;">Categoria *</label>
-      <select id="modal-movimento-categoria" style="width:100%; height:44px; border-radius:var(--radius-sm); border:1.5px solid var(--border); padding:0 14px; font-size:14px; font-weight:600; background:var(--surface-2); color:var(--text-primary);"></select>
-    </div>
-    
-    <!-- Data -->
-    <div style="margin-bottom:14px;">
-      <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:4px;">Data</label>
-      <input type="date" id="modal-movimento-data" style="width:100%; height:44px; border-radius:var(--radius-sm); border:1.5px solid var(--border); padding:0 14px; font-size:14px; font-weight:600; background:var(--surface-2); color:var(--text-primary);">
-    </div>
-    
-    <!-- Pulsanti -->
-    <div style="display:flex; gap:10px; margin-top:16px;">
-      <button id="modal-movimento-cancel" 
-              onclick="window.closeMovimentoModal()"
-              style="flex:1; height:46px; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; background:var(--surface-2); border:1px solid var(--border); color:var(--text-secondary);">
+<div style="background:var(--surface); border-radius:var(--radius-lg); padding:28px; width:100%; max-width:500px; box-shadow:var(--shadow-xl); animation:modalIn 0.3s ease;">
+<h3 style="margin:0 0 8px; font-size:20px; font-weight:800;">💰 Nuovo movimento</h3>
+<p style="margin:0 0 16px; font-size:13px; color:var(--text-muted); font-weight:600;">Inserisci i dettagli del movimento</p>
+<!-- Tipo -->
+<div style="margin-bottom:14px;">
+<label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:4px;">Tipo *</label>
+<div style="display:flex; gap:10px;">
+<button id="modal-tab-expense" style="flex:1; padding:10px; border-radius:var(--radius-sm); border:2px solid var(--border); background:var(--surface); font-weight:700; cursor:pointer; transition:all 0.2s; font-family:inherit; color:var(--text-primary);">Uscita</button>
+<button id="modal-tab-income" style="flex:1; padding:10px; border-radius:var(--radius-sm); border:2px solid var(--border); background:var(--surface); font-weight:700; cursor:pointer; transition:all 0.2s; font-family:inherit; color:var(--text-primary);">Entrata</button>
+</div>
+</div>
+<!-- Descrizione -->
+<div style="margin-bottom:14px;">
+<label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:4px;">Descrizione *</label>
+<input id="modal-movimento-desc" placeholder="es. Spesa Esselunga" style="width:100%; height:44px; border-radius:var(--radius-sm); border:1.5px solid var(--border); padding:0 14px; font-size:14px; font-weight:600; background:var(--surface-2); color:var(--text-primary);" type="text"/>
+</div>
+<!-- Importo -->
+<div style="margin-bottom:14px;">
+<label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:4px;">Importo (€) *</label>
+<input id="modal-movimento-importo" min="0" placeholder="0,00" step="0.01" style="width:100%; height:44px; border-radius:var(--radius-sm); border:1.5px solid var(--border); padding:0 14px; font-size:14px; font-weight:600; background:var(--surface-2); color:var(--text-primary); text-align:right;" type="number"/>
+</div>
+<!-- Categoria -->
+<div style="margin-bottom:14px;">
+<label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:4px;">Categoria *</label>
+<select id="modal-movimento-categoria" style="width:100%; height:44px; border-radius:var(--radius-sm); border:1.5px solid var(--border); padding:0 14px; font-size:14px; font-weight:600; background:var(--surface-2); color:var(--text-primary);"></select>
+</div>
+<!-- Data -->
+<div style="margin-bottom:14px;">
+<label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:4px;">Data</label>
+<input id="modal-movimento-data" style="width:100%; height:44px; border-radius:var(--radius-sm); border:1.5px solid var(--border); padding:0 14px; font-size:14px; font-weight:600; background:var(--surface-2); color:var(--text-primary);" type="date"/>
+</div>
+<!-- Pulsanti -->
+<div style="display:flex; gap:10px; margin-top:16px;">
+<button id="modal-movimento-cancel" onclick="window.closeMovimentoModal()" style="flex:1; height:46px; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; background:var(--surface-2); border:1px solid var(--border); color:var(--text-secondary);">
         Annulla
       </button>
-      <button id="modal-movimento-save" 
-              onclick="window.saveMovimentoFromModal()"
-              style="flex:2; height:46px; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; background:var(--accent-gradient); color:#fff; border:none;">
+<button id="modal-movimento-save" onclick="window.saveMovimentoFromModal()" style="flex:2; height:46px; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; background:var(--accent-gradient); color:#fff; border:none;">
         Aggiungi movimento
       </button>
-    </div>
-  </div>
-</div>  
-<script>
+</div>
+</div>
+</div>
+<script>console.log('BUDGET-CASA CLEAN-01 LOADED');
+
 (function(){
 const firebaseConfig = {
 apiKey: "AIzaSyBPEg2d86zKWs6mf2L15TN7QPiMkEGbixs",
@@ -10716,7 +13668,6 @@ document.addEventListener('DOMContentLoaded', function() {
  
 })();
 </script>
-
 <script>
 // Interazioni dettaglio categoria - listener indipendenti dallo scope delle funzioni interne
 document.addEventListener('DOMContentLoaded', function() {
@@ -10739,7 +13690,5 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 });
-</script>
-
-</body>
+</script></body>
 </html>
