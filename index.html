@@ -7943,7 +7943,6 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
   .stats-overview-icon { width:42px; height:42px; min-width:42px; }
 }
 </style>
-
 <style id="clean-08-statistiche-categorie">
 /* === STATISTICHE: intestazione e sottosezioni === */
 #page-grafici .stats-main-header{position:relative;display:flex;align-items:center;justify-content:center;min-height:46px;margin:0 0 14px;}
@@ -7994,7 +7993,6 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
  #tab-categorie .categories-chart-head h3,#tab-categorie .categories-detail-head h3{font-size:15px;}
 }
 </style>
-
 <style id="clean-09-categorie-table-popup">
 /* CLEAN-09: tabella categorie completamente ripulita dallo stile precedente */
 #tab-categorie .categories-detail-card {
@@ -8218,7 +8216,40 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 }
 </style>
 
-</head>
+<style id="modern-eu-v10">
+#tab-entrate-uscite .stats-detail-header{position:relative;display:flex;align-items:center;justify-content:center;min-height:52px;margin-bottom:10px;}
+#tab-entrate-uscite .stats-detail-header h2{margin:0;text-align:center;font-size:22px;font-weight:800;letter-spacing:-.4px;color:#17273c;}
+#tab-entrate-uscite .stats-detail-back{position:absolute;left:0;top:50%;transform:translateY(-50%);width:42px;height:42px;border-radius:13px;border:1px solid #e1e7eb;background:#fff;box-shadow:0 4px 14px rgba(17,27,38,.07);display:flex;align-items:center;justify-content:center;color:#17273c;}
+#tab-entrate-uscite .eu-chart-toolbar{display:flex;justify-content:flex-end;align-items:center;margin:2px 0 10px;}
+#tab-entrate-uscite #chart-year{height:42px;border-radius:13px;border:1px solid #e1e7eb;background:#fff;padding:0 38px 0 14px;font-weight:700;color:#17273c;box-shadow:0 4px 14px rgba(17,27,38,.06);}
+#tab-entrate-uscite .eu-chart-card,#tab-entrate-uscite .eu-table-card{background:#fff;border:1px solid #e4e9ed;border-radius:24px;box-shadow:0 8px 28px rgba(22,39,58,.07);overflow:hidden;}
+#tab-entrate-uscite .eu-chart-card{padding:16px 16px 12px;}
+#tab-entrate-uscite .eu-chart-summary{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+#tab-entrate-uscite .eu-summary-item{display:flex;align-items:center;gap:10px;padding:12px;border-radius:17px;background:#f8fafb;}
+#tab-entrate-uscite .eu-summary-icon{width:38px;height:38px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:19px;flex:0 0 38px;}
+#tab-entrate-uscite .eu-summary-income .eu-summary-icon{background:#e5f8ed;color:#27ae68;}
+#tab-entrate-uscite .eu-summary-expense .eu-summary-icon{background:#ffe8eb;color:#e74c5b;}
+#tab-entrate-uscite .eu-summary-item span{display:block;font-size:11px;font-weight:700;color:#8997a7;margin-bottom:2px;}
+#tab-entrate-uscite .eu-summary-item strong{display:block;font-size:16px;line-height:1.1;color:#17273c;font-weight:800;}
+#tab-entrate-uscite .eu-summary-income strong{color:#27ae68;}#tab-entrate-uscite .eu-summary-expense strong{color:#e74c5b;}
+#tab-entrate-uscite .eu-chart-wrap{position:relative;width:100%;height:290px;}
+#tab-entrate-uscite .eu-chart-wrap canvas{width:100%!important;height:100%!important;}
+#tab-entrate-uscite .eu-legend{display:flex;justify-content:center;gap:24px;padding-top:4px;font-size:11px;font-weight:700;color:#728194;}
+#tab-entrate-uscite .eu-legend span{display:flex;align-items:center;gap:6px;}
+#tab-entrate-uscite .eu-dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+#tab-entrate-uscite .eu-dot.income{background:#5cb85c;}#tab-entrate-uscite .eu-dot.expense{background:#e74c3c;}
+#tab-entrate-uscite .eu-table-card{margin-top:14px;padding:17px 16px 8px;}
+#tab-entrate-uscite .eu-table-card h3{margin:0 0 12px;font-size:16px;font-weight:800;color:#17273c;}
+#tab-entrate-uscite .eu-data-table{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;}
+#tab-entrate-uscite .eu-data-table thead th{background:#f5f7f9;color:#7b8999;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;padding:10px 7px;border-bottom:1px solid #e7ecef;}
+#tab-entrate-uscite .eu-data-table thead th:first-child{border-radius:11px 0 0 11px;text-align:left;}#tab-entrate-uscite .eu-data-table thead th:last-child{border-radius:0 11px 11px 0;}
+#tab-entrate-uscite .eu-data-table tbody td{padding:11px 7px;border-bottom:1px solid #edf0f2;font-size:11px;color:#34465a;background:#fff;}
+#tab-entrate-uscite .eu-data-table tbody tr:last-child td{border-bottom:0;}
+#tab-entrate-uscite .eu-data-table tbody td:first-child{font-weight:800;text-transform:capitalize;color:#17273c;}
+#tab-entrate-uscite .eu-data-table tbody td.text-success{color:#27ae68;font-weight:800;}#tab-entrate-uscite .eu-data-table tbody td.text-danger{color:#e74c5b;font-weight:800;}
+#tab-entrate-uscite .eu-data-table tbody td:last-child{font-weight:800;}
+@media(max-width:600px){#tab-entrate-uscite .stats-detail-header{min-height:48px;}#tab-entrate-uscite .stats-detail-header h2{font-size:20px;}#tab-entrate-uscite .eu-chart-card{border-radius:21px;padding:13px 12px 10px;}#tab-entrate-uscite .eu-summary-item{padding:10px 9px;}#tab-entrate-uscite .eu-summary-icon{width:34px;height:34px;flex-basis:34px;border-radius:11px;}#tab-entrate-uscite .eu-summary-item strong{font-size:14px;}#tab-entrate-uscite .eu-chart-wrap{height:245px;}#tab-entrate-uscite .eu-table-card{border-radius:21px;padding:14px 11px 6px;}#tab-entrate-uscite .eu-data-table thead th{padding:9px 4px;font-size:9px;}#tab-entrate-uscite .eu-data-table tbody td{padding:10px 4px;font-size:10px;}}
+</style></head>
 <body><div id="login-screen">
 <h1>Budget di Famiglia</h1>
 <p class="subtitle">Gestisci le tue finanze in modo semplice</p>
@@ -8358,7 +8389,6 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 <div id="home-movements-list"></div>
 </div>
 </section>
-
 <!-- Contenuto movimenti originale: resta disponibile e invariato -->
 <div class="home-v3-movements-section">
 <div style="margin-bottom: 1rem; margin-top:2rem;"><h2>Movimenti</h2></div>
@@ -8372,28 +8402,28 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 <div class="page" id="page-grafici">
 <div class="stats-main-header"><h1>Statistiche</h1></div>
 <div class="stats-overview" id="stats-overview">
-  <div class="stats-overview-card" data-stats-target="tab-categorie" tabindex="0" role="button">
-    <div class="stats-overview-icon stats-icon-blue"><i class="ti ti-chart-donut-4"></i></div>
-    <div class="stats-overview-copy"><strong>Categorie</strong><span>Come è suddivisa la tua spesa</span></div>
-    <i class="ti ti-chevron-right stats-overview-arrow"></i>
-  </div>
-  <div class="stats-overview-card" data-stats-target="tab-entrate-uscite" tabindex="0" role="button">
-    <div class="stats-overview-icon stats-icon-green"><i class="ti ti-chart-bar"></i></div>
-    <div class="stats-overview-copy"><strong>Entrate / Uscite</strong><span>Andamento nel tempo</span></div>
-    <i class="ti ti-chevron-right stats-overview-arrow"></i>
-  </div>
-  <div class="stats-overview-card" data-stats-target="tab-residuo" tabindex="0" role="button">
-    <div class="stats-overview-icon stats-icon-yellow"><i class="ti ti-wallet"></i></div>
-    <div class="stats-overview-copy"><strong>Residuo</strong><span>Quanto ti resta disponibile</span></div>
-    <i class="ti ti-chevron-right stats-overview-arrow"></i>
-  </div>
-  <div class="stats-overview-card" data-stats-target="tab-confronto" tabindex="0" role="button">
-    <div class="stats-overview-icon stats-icon-purple"><i class="ti ti-arrows-left-right"></i></div>
-    <div class="stats-overview-copy"><strong>Confronto</strong><span>Confronta i tuoi mesi</span></div>
-    <i class="ti ti-chevron-right stats-overview-arrow"></i>
-  </div>
+<div class="stats-overview-card" data-stats-target="tab-categorie" role="button" tabindex="0">
+<div class="stats-overview-icon stats-icon-blue"><i class="ti ti-chart-donut-4"></i></div>
+<div class="stats-overview-copy"><strong>Categorie</strong><span>Come è suddivisa la tua spesa</span></div>
+<i class="ti ti-chevron-right stats-overview-arrow"></i>
 </div>
-<div class="stats-tabs" aria-hidden="true">
+<div class="stats-overview-card" data-stats-target="tab-entrate-uscite" role="button" tabindex="0">
+<div class="stats-overview-icon stats-icon-green"><i class="ti ti-chart-bar"></i></div>
+<div class="stats-overview-copy"><strong>Entrate / Uscite</strong><span>Andamento nel tempo</span></div>
+<i class="ti ti-chevron-right stats-overview-arrow"></i>
+</div>
+<div class="stats-overview-card" data-stats-target="tab-residuo" role="button" tabindex="0">
+<div class="stats-overview-icon stats-icon-yellow"><i class="ti ti-wallet"></i></div>
+<div class="stats-overview-copy"><strong>Residuo</strong><span>Quanto ti resta disponibile</span></div>
+<i class="ti ti-chevron-right stats-overview-arrow"></i>
+</div>
+<div class="stats-overview-card" data-stats-target="tab-confronto" role="button" tabindex="0">
+<div class="stats-overview-icon stats-icon-purple"><i class="ti ti-arrows-left-right"></i></div>
+<div class="stats-overview-copy"><strong>Confronto</strong><span>Confronta i tuoi mesi</span></div>
+<i class="ti ti-chevron-right stats-overview-arrow"></i>
+</div>
+</div>
+<div aria-hidden="true" class="stats-tabs">
 <button class="stats-tab active" data-tab="tab-categorie">Categorie</button>
 <button class="stats-tab" data-tab="tab-entrate-uscite">Entrate/Uscite</button>
 <button class="stats-tab" data-tab="tab-residuo">Residuo</button>
@@ -8401,56 +8431,59 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 </div>
 <!-- TAB CATEGORIE -->
 <div class="stats-tab-content active" id="tab-categorie">
-  <div class="stats-detail-header"><button type="button" class="stats-detail-back" aria-label="Torna a Statistiche"><i class="ti ti-chevron-left"></i></button><h2>Categorie</h2></div>
-  <div id="screenshot-categorie" class="categories-screen">
-    <div class="categories-period-row">
-      <span class="categories-period-label">Periodo</span>
-      <select id="chart-month" aria-label="Seleziona mese"></select>
-    </div>
-    <div class="categories-chart-card">
-      <div class="categories-chart-head">
-        <div>
-          <span class="categories-eyebrow">Riepilogo spese</span>
-          <h3>Spese per categoria</h3>
-        </div>
-        <div class="categories-chart-icon"><i class="ti ti-chart-donut-4"></i></div>
-      </div>
-      <div class="chart-wrap categories-donut-wrap">
-        <canvas id="categoryChart"></canvas>
-      </div>
-      <div class="legend categories-legend" id="legend-categories"></div>
-    </div>
-    <div class="categories-detail-card">
-      <div class="categories-detail-head">
-        <div><span class="categories-eyebrow">Dettaglio</span><h3>Spese per categoria</h3></div>
-        <span class="categories-detail-badge"><i class="ti ti-list-details"></i></span>
-      </div>
-      <div class="categories-table-wrap">
-        <table class="data-table categories-table" id="table-category">
-          <thead><tr><th>Categoria</th><th class="text-right">Importo</th><th class="text-right">%</th></tr></thead>
-          <tbody id="table-category-body"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-  <div class="categories-pdf-row"><button class="btn-pdf" id="btn-pdf-categorie"><i class="ti ti-file-type-pdf"></i> PDF</button></div>
+<div class="stats-detail-header"><button aria-label="Torna a Statistiche" class="stats-detail-back" type="button"><i class="ti ti-chevron-left"></i></button><h2>Categorie</h2></div>
+<div class="categories-screen" id="screenshot-categorie">
+<div class="categories-period-row">
+<span class="categories-period-label">Periodo</span>
+<select aria-label="Seleziona mese" id="chart-month"></select>
+</div>
+<div class="categories-chart-card">
+<div class="categories-chart-head">
+<div>
+<span class="categories-eyebrow">Riepilogo spese</span>
+<h3>Spese per categoria</h3>
+</div>
+<div class="categories-chart-icon"><i class="ti ti-chart-donut-4"></i></div>
+</div>
+<div class="chart-wrap categories-donut-wrap">
+<canvas id="categoryChart"></canvas>
+</div>
+<div class="legend categories-legend" id="legend-categories"></div>
+</div>
+<div class="categories-detail-card">
+<div class="categories-detail-head">
+<div><span class="categories-eyebrow">Dettaglio</span><h3>Spese per categoria</h3></div>
+<span class="categories-detail-badge"><i class="ti ti-list-details"></i></span>
+</div>
+<div class="categories-table-wrap">
+<table class="data-table categories-table" id="table-category">
+<thead><tr><th>Categoria</th><th class="text-right">Importo</th><th class="text-right">%</th></tr></thead>
+<tbody id="table-category-body"></tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="categories-pdf-row"><button class="btn-pdf" id="btn-pdf-categorie"><i class="ti ti-file-type-pdf"></i> PDF</button></div>
 </div>
 <!-- TAB ENTRATE/USCITE -->
 <div class="stats-tab-content" id="tab-entrate-uscite">
-<div class="stats-detail-header"><button type="button" class="stats-detail-back" aria-label="Torna a Statistiche"><i class="ti ti-chevron-left"></i></button><h2>Entrate / Uscite</h2></div>
+<div class="stats-detail-header"><button aria-label="Torna a Statistiche" class="stats-detail-back" type="button"><i class="ti ti-chevron-left"></i></button><h2>Entrate / Uscite</h2></div>
 <div id="screenshot-entrate-uscite">
-<div class="row-between">
-<h2>Entrate vs Uscite</h2>
+<div class="eu-chart-toolbar">
+
 <select id="chart-year"></select>
 </div>
-<div class="panel">
-<div class="chart-wrap">
-<canvas id="yearChart"></canvas>
+<div class="eu-chart-card">
+<div class="eu-chart-summary">
+<div class="eu-summary-item eu-summary-income"><div class="eu-summary-icon"><i class="ti ti-arrow-down"></i></div><div><span>Entrate</span><strong id="eu-total-income">0,00 €</strong></div></div>
+<div class="eu-summary-item eu-summary-expense"><div class="eu-summary-icon"><i class="ti ti-arrow-up"></i></div><div><span>Uscite</span><strong id="eu-total-expense">0,00 €</strong></div></div>
 </div>
+<div class="eu-chart-wrap"><canvas id="yearChart"></canvas></div>
+<div class="eu-legend"><span><i class="eu-dot income"></i> Entrate</span><span><i class="eu-dot expense"></i> Uscite</span></div>
 </div>
-<div class="panel">
-<h3>Dati dettagliati</h3>
-<table class="data-table" id="table-year">
+<div class="eu-table-card">
+<h3>Riepilogo mensile</h3>
+<table class="eu-data-table" id="table-year">
 <thead>
 <tr>
 <th>Mese</th>
@@ -8469,7 +8502,7 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 </div>
 <!-- TAB RESIDUO -->
 <div class="stats-tab-content" id="tab-residuo">
-<div class="stats-detail-header"><button type="button" class="stats-detail-back" aria-label="Torna a Statistiche"><i class="ti ti-chevron-left"></i></button><h2>Residuo</h2></div>
+<div class="stats-detail-header"><button aria-label="Torna a Statistiche" class="stats-detail-back" type="button"><i class="ti ti-chevron-left"></i></button><h2>Residuo</h2></div>
 <div id="screenshot-residuo">
 <div class="row-between">
 <h2>Residuo mensile</h2>
@@ -8503,7 +8536,7 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 </div>
 <!-- TAB CONFRONTO -->
 <div class="stats-tab-content" id="tab-confronto">
-<div class="stats-detail-header"><button type="button" class="stats-detail-back" aria-label="Torna a Statistiche"><i class="ti ti-chevron-left"></i></button><h2>Confronto</h2></div>
+<div class="stats-detail-header"><button aria-label="Torna a Statistiche" class="stats-detail-back" type="button"><i class="ti ti-chevron-left"></i></button><h2>Confronto</h2></div>
 <div id="screenshot-confronto">
 <div class="row-between" style="margin-top: 1rem;">
 <h2>Confronto mesi</h2>
@@ -10561,6 +10594,10 @@ const months = Array.from({length:12}, (_,i) => `${year}-${String(i+1).padStart(
 const incomes = months.map(m => state.transactions.filter(t => t.type==='income' && monthKey(t.date)===m).reduce((s,t)=>s+amountValue(t.amount),0));
 const expenses = months.map(m => state.transactions.filter(t => t.type==='expense' && monthKey(t.date)===m).reduce((s,t)=>s+amountValue(t.amount),0));
 const labels = months.map(m => new Date(+year, +m.split('-')[1]-1, 1).toLocaleDateString('it-IT',{month:'short'}));
+const totalIncomeYear = incomes.reduce((s,v)=>s+v,0);
+const totalExpenseYear = expenses.reduce((s,v)=>s+v,0);
+const euIncomeEl = document.getElementById('eu-total-income'); if (euIncomeEl) euIncomeEl.textContent = fmtEUR(totalIncomeYear);
+const euExpenseEl = document.getElementById('eu-total-expense'); if (euExpenseEl) euExpenseEl.textContent = fmtEUR(totalExpenseYear);
 if (chartYear) chartYear.destroy();
 chartYear = new Chart(document.getElementById('yearChart'), {
 type: 'bar',
@@ -10575,10 +10612,7 @@ options: {
 responsive: true,
 maintainAspectRatio: false,
 plugins: {
-legend: {
-position: 'top',
-labels: { font: { family: 'Plus Jakarta Sans', size: 12, weight: '700' }, usePointStyle: true, pointStyle: 'circle', padding: 20 }
-},
+legend: { display: false },
 tooltip: {
 backgroundColor: '#1A2B3C',
 titleFont: { family: 'Plus Jakarta Sans', size: 13, weight: '800' },
@@ -14333,28 +14367,25 @@ document.addEventListener('DOMContentLoaded', function() {
   },true);
 })();
 </script>
-
 <!-- CLEAN-09: popup dettaglio movimenti per categoria -->
-<div id="category-detail-overlay" aria-hidden="true">
-  <div id="category-detail-box" role="dialog" aria-modal="true" aria-labelledby="category-detail-title">
-    <div class="category-detail-head">
-      <div class="category-detail-title-row">
-        <span id="category-detail-icon" class="category-icon"><i class="ti ti-tag"></i></span>
-        <div>
-          <h3 id="category-detail-title">Categoria</h3>
-          <p id="category-detail-period">Movimenti del periodo</p>
-        </div>
-      </div>
-      <div class="category-detail-total" id="category-detail-total">0,00 €</div>
-    </div>
-    <div id="category-detail-list"></div>
-    <div class="category-detail-footer">
-      <button type="button" id="category-detail-close">Chiudi</button>
-    </div>
-  </div>
+<div aria-hidden="true" id="category-detail-overlay">
+<div aria-labelledby="category-detail-title" aria-modal="true" id="category-detail-box" role="dialog">
+<div class="category-detail-head">
+<div class="category-detail-title-row">
+<span class="category-icon" id="category-detail-icon"><i class="ti ti-tag"></i></span>
+<div>
+<h3 id="category-detail-title">Categoria</h3>
+<p id="category-detail-period">Movimenti del periodo</p>
 </div>
-
-
+</div>
+<div class="category-detail-total" id="category-detail-total">0,00 €</div>
+</div>
+<div id="category-detail-list"></div>
+<div class="category-detail-footer">
+<button id="category-detail-close" type="button">Chiudi</button>
+</div>
+</div>
+</div>
 <script id="clean-09-category-popup-fallback">
 (function(){
   function closeCategoryPopup(e){
@@ -14376,10 +14407,8 @@ document.addEventListener('DOMContentLoaded', function() {
   }, true);
 })();
 </script>
-
 </body>
 </html>
-
 <style id="clean-04-home-alignment-pagination">
 /* CLEAN-04: all Home cards align to the same horizontal edges as the balance cards. */
 @media (max-width: 900px) {
