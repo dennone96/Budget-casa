@@ -8254,7 +8254,7 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 #tab-entrate-uscite .eu-data-table tbody td.text-success{color:#27ae68;font-weight:800;}#tab-entrate-uscite .eu-data-table tbody td.text-danger{color:#e74c5b;font-weight:800;}
 #tab-entrate-uscite .eu-data-table tbody td:last-child{font-weight:800;}
 @media(max-width:600px){#tab-entrate-uscite .stats-detail-header{min-height:48px;}#tab-entrate-uscite .stats-detail-header h2{font-size:20px;}#tab-entrate-uscite .eu-chart-card{border-radius:21px;padding:13px 12px 10px;}#tab-entrate-uscite .eu-summary-item{padding:10px 9px;}#tab-entrate-uscite .eu-summary-icon{width:34px;height:34px;flex-basis:34px;border-radius:11px;}#tab-entrate-uscite .eu-summary-item strong{font-size:14px;}#tab-entrate-uscite .eu-chart-wrap{height:245px;}#tab-entrate-uscite .eu-table-card{border-radius:21px;padding:14px 11px 6px;}#tab-entrate-uscite .eu-data-table thead th{padding:9px 4px;font-size:9px;}#tab-entrate-uscite .eu-data-table tbody td{padding:10px 4px;font-size:10px;}}
-</style><style id="clean-12-residuo-styles">
+</style><style id="clean-13-residuo-styles">
 /* ===== RESIDUO - modern redesign ===== */
 #tab-residuo .stats-detail-header{position:relative;display:flex;align-items:center;justify-content:center;min-height:48px;margin-bottom:14px;}
 #tab-residuo .stats-detail-header h2{margin:0;font-size:21px;font-weight:850;letter-spacing:-.3px;text-align:center;}
@@ -8268,8 +8268,8 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 #tab-residuo .chart-wrap{height:290px!important;max-height:none;position:relative;}
 #tab-residuo #table-residuo{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;}
 #tab-residuo #table-residuo th{background:#f7f9fb;color:#7b8b9c;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.45px;padding:11px 12px;border-bottom:1px solid #e8edf1;}
-#tab-residuo #table-residuo th:first-child,#tab-residuo #table-residuo td:first-child{width:45%;text-align:left;}
-#tab-residuo #table-residuo th:last-child,#tab-residuo #table-residuo td:last-child{width:55%;text-align:right;}
+#tab-residuo #table-residuo th:first-child,#tab-residuo #table-residuo td:first-child{width:34%;text-align:left;}
+#tab-residuo #table-residuo th:nth-child(2),#tab-residuo #table-residuo td:nth-child(2),#tab-residuo #table-residuo th:nth-child(3),#tab-residuo #table-residuo td:nth-child(3){width:33%;text-align:right;}
 #tab-residuo #table-residuo td{padding:13px 12px;border-bottom:1px solid #edf1f4;background:#fff;font-size:13px;color:#27384b;}
 #tab-residuo #table-residuo tbody tr:last-child td{border-bottom:0;}
 #tab-residuo #table-residuo tbody tr{transition:background .18s ease;}
@@ -8281,7 +8281,7 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
  #tab-residuo .row-between select{height:38px;min-width:105px;font-size:12px;}
  #tab-residuo .panel{padding:12px;border-radius:16px;}
  #tab-residuo .chart-wrap{height:220px!important;max-height:none;}
- #tab-residuo #table-residuo th,#tab-residuo #table-residuo td{padding:11px 9px;}
+ #tab-residuo #table-residuo th,#tab-residuo #table-residuo td{padding:11px 7px;font-size:11px;}
 }
 @media(max-width:380px){#tab-residuo .chart-wrap{height:200px!important;max-height:none;}}
 </style>
@@ -8557,6 +8557,7 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 <tr>
 <th>Mese</th>
 <th class="text-right">Residuo</th>
+<th class="text-right">Differenza</th>
 </tr>
 </thead>
 <tbody id="table-residuo-body"></tbody>
@@ -10749,19 +10750,25 @@ const tbody = document.getElementById('table-residuo-body');
 tbody.innerHTML = '';
 runningTotal = 0;
 state.transactions.forEach(t => { if (t.date.slice(0,4) < year) runningTotal += t.type === 'income' ? amountValue(t.amount) : -amountValue(t.amount); });
+let previousResiduo = runningTotal;
 months.forEach((m, i) => {
 const mt = state.transactions.filter(t => monthKey(t.date) === m);
 const inc = mt.filter(t => t.type === 'income').reduce((s,t) => s + amountValue(t.amount), 0);
 const exp = mt.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue(t.amount), 0);
 const saldoMese = inc - exp;
 runningTotal += saldoMese;
+const differenza = Math.round((runningTotal - previousResiduo) * 100) / 100;
 const row = document.createElement('tr');
 const residuoColore = runningTotal >= 0 ? 'var(--success)' : 'var(--danger)';
+const differenzaColore = differenza > 0 ? 'var(--success)' : (differenza < 0 ? 'var(--danger)' : 'var(--text-secondary)');
+const differenzaSegno = differenza > 0 ? '+' : '';
 row.innerHTML = `
 <td style="text-transform: capitalize; font-weight: 750;">${labels[i]}</td>
 <td class="text-right" style="font-weight: 850; color: ${residuoColore};">${fmtEUR(runningTotal)}</td>
+<td class="text-right" style="font-weight: 850; color: ${differenzaColore};">${differenzaSegno}${fmtEUR(differenza)}</td>
 `;
 tbody.appendChild(row);
+previousResiduo = runningTotal;
 });
 }
 function populateCompareSelects() {
