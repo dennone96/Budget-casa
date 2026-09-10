@@ -7900,6 +7900,49 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
   }
 }
 </style>
+<style id="stats-overview-redesign">
+/* STATISTICHE - schermata principale in stile mockup */
+#page-grafici > div:first-child { margin-bottom: 14px !important; }
+#page-grafici .stats-tabs { display:none !important; }
+#page-grafici .stats-overview {
+  display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:0 0 16px;
+}
+#page-grafici .stats-overview-card {
+  min-height:94px; display:flex; align-items:center; gap:13px; padding:16px 14px;
+  background:rgba(255,255,255,.96); border:1px solid rgba(20,33,49,.07); border-radius:20px;
+  box-shadow:0 8px 24px rgba(20,33,49,.06); cursor:pointer; transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+#page-grafici .stats-overview-card:hover { transform:translateY(-1px); box-shadow:0 12px 28px rgba(20,33,49,.09); }
+#page-grafici .stats-overview-card:active { transform:scale(.985); }
+#page-grafici .stats-overview-card.selected { border-color:rgba(74,144,217,.22); }
+.stats-overview-icon { width:48px; height:48px; min-width:48px; border-radius:16px; display:flex; align-items:center; justify-content:center; }
+.stats-overview-icon i { font-size:23px; }
+.stats-icon-blue { background:#e8f2ff; color:#3d8be8; }
+.stats-icon-green { background:#e5f8ed; color:#28aa69; }
+.stats-icon-yellow { background:#fff3dc; color:#e0a126; }
+.stats-icon-purple { background:#f4eafa; color:#9a5bc8; }
+.stats-overview-copy { min-width:0; flex:1; display:flex; flex-direction:column; gap:4px; }
+.stats-overview-copy strong { font-size:14px; line-height:1.2; color:var(--modern-ink); font-weight:800; }
+.stats-overview-copy span { font-size:10px; line-height:1.35; color:var(--modern-muted); font-weight:600; }
+.stats-overview-arrow { font-size:18px; color:#9aa6af; flex:0 0 auto; }
+#page-grafici .stats-detail-header { display:flex; align-items:center; gap:12px; margin:0 0 12px; min-height:38px; }
+#page-grafici .stats-detail-header h2 { margin:0; font-size:18px; color:var(--modern-ink); letter-spacing:-.4px; }
+#page-grafici .stats-detail-back { display:inline-flex; align-items:center; gap:4px; height:36px; padding:0 10px 0 7px; border:0; border-radius:12px; background:#f4f7f8; color:var(--modern-ink); font:800 11px/1 inherit; cursor:pointer; }
+#page-grafici .stats-detail-back i { font-size:16px; }
+@media(max-width:700px){
+  #page-grafici .stats-overview { grid-template-columns:1fr; gap:10px; }
+  #page-grafici .stats-overview-card { min-height:76px; padding:13px 12px; border-radius:18px; }
+  .stats-overview-icon { width:44px; height:44px; min-width:44px; border-radius:14px; }
+  .stats-overview-icon i { font-size:21px; }
+  .stats-overview-copy strong { font-size:13px; }
+  .stats-overview-copy span { font-size:10px; }
+  #page-grafici .stats-detail-header h2 { font-size:17px; }
+}
+@media(max-width:380px){
+  #page-grafici .stats-overview-card { min-height:72px; }
+  .stats-overview-icon { width:42px; height:42px; min-width:42px; }
+}
+</style>
 </head>
 <body><div id="login-screen">
 <h1>Budget di Famiglia</h1>
@@ -7941,15 +7984,9 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 <button class="nav-item active" data-page="page-home">
 <i class="ti ti-home"></i> Home
   </button>
-<button aria-controls="stats-submenu" aria-expanded="false" class="nav-item nav-statistiche" data-page="page-grafici">
-<i class="ti ti-chart-pie"></i> <span>Statistiche</span><i class="ti ti-chevron-down nav-chevron"></i>
+<button class="nav-item nav-statistiche" data-page="page-grafici">
+<i class="ti ti-chart-pie"></i> <span>Statistiche</span>
 </button>
-<div aria-hidden="true" class="stats-submenu" id="stats-submenu">
-<button class="stats-subitem active" data-tab="tab-categorie"><i class="ti ti-category"></i><span>Categorie</span></button>
-<button class="stats-subitem" data-tab="tab-entrate-uscite"><i class="ti ti-arrows-up-down"></i><span>Entrate / Uscite</span></button>
-<button class="stats-subitem" data-tab="tab-residuo"><i class="ti ti-wallet"></i><span>Residuo</span></button>
-<button class="stats-subitem" data-tab="tab-confronto"><i class="ti ti-arrows-left-right"></i><span>Confronto</span></button>
-</div>
 <button class="nav-item" data-page="page-import">
 <i class="ti ti-file-spreadsheet"></i> Importa Excel
   </button>
@@ -8061,7 +8098,29 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:12px;">
 <h1 style="margin:0;">Statistiche</h1>
 </div>
-<div class="stats-tabs">
+<div class="stats-overview" id="stats-overview">
+  <div class="stats-overview-card" data-stats-target="tab-categorie" tabindex="0" role="button">
+    <div class="stats-overview-icon stats-icon-blue"><i class="ti ti-chart-donut-4"></i></div>
+    <div class="stats-overview-copy"><strong>Categorie</strong><span>Come è suddivisa la tua spesa</span></div>
+    <i class="ti ti-chevron-right stats-overview-arrow"></i>
+  </div>
+  <div class="stats-overview-card" data-stats-target="tab-entrate-uscite" tabindex="0" role="button">
+    <div class="stats-overview-icon stats-icon-green"><i class="ti ti-chart-bar"></i></div>
+    <div class="stats-overview-copy"><strong>Entrate / Uscite</strong><span>Andamento nel tempo</span></div>
+    <i class="ti ti-chevron-right stats-overview-arrow"></i>
+  </div>
+  <div class="stats-overview-card" data-stats-target="tab-residuo" tabindex="0" role="button">
+    <div class="stats-overview-icon stats-icon-yellow"><i class="ti ti-wallet"></i></div>
+    <div class="stats-overview-copy"><strong>Residuo</strong><span>Quanto ti resta disponibile</span></div>
+    <i class="ti ti-chevron-right stats-overview-arrow"></i>
+  </div>
+  <div class="stats-overview-card" data-stats-target="tab-confronto" tabindex="0" role="button">
+    <div class="stats-overview-icon stats-icon-purple"><i class="ti ti-arrows-left-right"></i></div>
+    <div class="stats-overview-copy"><strong>Confronto</strong><span>Confronta i tuoi mesi</span></div>
+    <i class="ti ti-chevron-right stats-overview-arrow"></i>
+  </div>
+</div>
+<div class="stats-tabs" aria-hidden="true">
 <button class="stats-tab active" data-tab="tab-categorie">Categorie</button>
 <button class="stats-tab" data-tab="tab-entrate-uscite">Entrate/Uscite</button>
 <button class="stats-tab" data-tab="tab-residuo">Residuo</button>
@@ -8069,6 +8128,7 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 </div>
 <!-- TAB CATEGORIE -->
 <div class="stats-tab-content active" id="tab-categorie">
+<div class="stats-detail-header"><button type="button" class="stats-detail-back"><i class="ti ti-chevron-left"></i><span>Statistiche</span></button><h2>Categorie</h2></div>
 <div id="screenshot-categorie">
 <div class="row-between">
 <h2>Spese per categoria</h2>
@@ -8100,6 +8160,7 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 </div>
 <!-- TAB ENTRATE/USCITE -->
 <div class="stats-tab-content" id="tab-entrate-uscite">
+<div class="stats-detail-header"><button type="button" class="stats-detail-back"><i class="ti ti-chevron-left"></i><span>Statistiche</span></button><h2>Entrate / Uscite</h2></div>
 <div id="screenshot-entrate-uscite">
 <div class="row-between">
 <h2>Entrate vs Uscite</h2>
@@ -8131,6 +8192,7 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 </div>
 <!-- TAB RESIDUO -->
 <div class="stats-tab-content" id="tab-residuo">
+<div class="stats-detail-header"><button type="button" class="stats-detail-back"><i class="ti ti-chevron-left"></i><span>Statistiche</span></button><h2>Residuo</h2></div>
 <div id="screenshot-residuo">
 <div class="row-between">
 <h2>Residuo mensile</h2>
@@ -8164,6 +8226,7 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 </div>
 <!-- TAB CONFRONTO -->
 <div class="stats-tab-content" id="tab-confronto">
+<div class="stats-detail-header"><button type="button" class="stats-detail-back"><i class="ti ti-chevron-left"></i><span>Statistiche</span></button><h2>Confronto</h2></div>
 <div id="screenshot-confronto">
 <div class="row-between" style="margin-top: 1rem;">
 <h2>Confronto mesi</h2>
@@ -9382,13 +9445,7 @@ closeSidebar();
 if (pageId === 'page-grafici') {
 try {
 populateCompareSelects();
-if (statsSubmenu) {
-  statsSubmenu.classList.add('open');
-  statsNav?.classList.add('expanded');
-  statsNav?.setAttribute('aria-expanded', 'true');
-  statsSubmenu.setAttribute('aria-hidden', 'false');
-}
-openStatsSection(document.querySelector('.stats-subitem.active')?.dataset.tab || 'tab-categorie');
+showStatsOverview();
 } catch(e) { console.error('Errore grafici:', e); }
 }
 if (pageId === 'page-bollette') {
@@ -9427,16 +9484,12 @@ navItems.forEach(btn => {
     btn.addEventListener('click', () => showPage(btn.dataset.page));
   }
 });
-// === NAVIGAZIONE SOTTOSEZIONI STATISTICHE ===
+// === NAVIGAZIONE STATISTICHE - PAGINA PRINCIPALE + 4 SEZIONI ===
 const statsNav = document.querySelector('.nav-statistiche');
-const statsSubmenu = document.getElementById('stats-submenu');
-const statsSubitems = document.querySelectorAll('.stats-subitem');
+const statsOverview = document.getElementById('stats-overview');
+const statsOverviewCards = document.querySelectorAll('.stats-overview-card');
 
-function openStatsSection(tabId) {
-  document.querySelectorAll('.stats-tab-content').forEach(c => c.classList.remove('active'));
-  const target = document.getElementById(tabId);
-  if (target) target.classList.add('active');
-  statsSubitems.forEach(item => item.classList.toggle('active', item.dataset.tab === tabId));
+function refreshStatsSection(tabId) {
   setTimeout(() => {
     if (tabId === 'tab-categorie') updateChartCategory();
     else if (tabId === 'tab-entrate-uscite') updateChartYear();
@@ -9445,35 +9498,45 @@ function openStatsSection(tabId) {
   }, 80);
 }
 
-if (statsNav && statsSubmenu) {
+function showStatsOverview() {
+  if (statsOverview) statsOverview.style.display = 'grid';
+  document.querySelectorAll('.stats-tab-content').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.stats-overview-card').forEach(c => c.classList.remove('selected'));
+  const tabs = document.querySelector('.stats-tabs');
+  if (tabs) tabs.style.display = 'none';
+}
+
+function openStatsSection(tabId) {
+  if (statsOverview) statsOverview.style.display = 'none';
+  const tabs = document.querySelector('.stats-tabs');
+  if (tabs) tabs.style.display = 'none';
+  document.querySelectorAll('.stats-tab-content').forEach(c => c.classList.remove('active'));
+  const target = document.getElementById(tabId);
+  if (target) target.classList.add('active');
+  document.querySelectorAll('.stats-overview-card').forEach(c => c.classList.toggle('selected', c.dataset.statsTarget === tabId));
+  refreshStatsSection(tabId);
+}
+
+if (statsNav) {
   statsNav.addEventListener('click', (e) => {
     e.preventDefault();
-    const isOpen = statsSubmenu.classList.toggle('open');
-    statsNav.classList.toggle('expanded', isOpen);
-    statsNav.setAttribute('aria-expanded', String(isOpen));
-    statsSubmenu.setAttribute('aria-hidden', String(!isOpen));
-    if (isOpen) {
-      // Apri solo il sotto-menu: la sezione viene scelta dall'utente.
-      pages.forEach(p => p.classList.toggle('active', p.id === 'page-grafici'));
-      navItems.forEach(n => n.classList.toggle('active', n === statsNav));
-    }
+    showPage('page-grafici');
+    setTimeout(showStatsOverview, 0);
   });
 }
 
-statsSubitems.forEach(item => {
-  item.addEventListener('click', (e) => {
-    e.stopPropagation();
-    // Seleziona la sottosezione senza richiudere il menu laterale.
-    pages.forEach(p => p.classList.toggle('active', p.id === 'page-grafici'));
-    navItems.forEach(n => n.classList.toggle('active', n === statsNav));
-    statsSubmenu.classList.add('open');
-    statsNav.classList.add('expanded');
-    statsNav.setAttribute('aria-expanded', 'true');
-    statsSubmenu.setAttribute('aria-hidden', 'false');
-    if (item.dataset.tab === 'tab-confronto') populateCompareSelects();
-    openStatsSection(item.dataset.tab);
+statsOverviewCards.forEach(card => {
+  const activate = () => openStatsSection(card.dataset.statsTarget);
+  card.addEventListener('click', activate);
+  card.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); }
   });
 });
+
+document.querySelectorAll('.stats-detail-back').forEach(btn => {
+  btn.addEventListener('click', showStatsOverview);
+});
+
 const hamburger = document.getElementById('hamburger');
 const sidebar = document.getElementById('sidebar');
 const overlay = document.getElementById('sidebar-overlay');
@@ -12661,9 +12724,9 @@ window.addEventListener('resize', function() {
   resizeTimeout = setTimeout(function() {
     // Ricarica i grafici dopo il ridimensionamento
     if (document.getElementById('page-grafici').classList.contains('active')) {
-      const activeTab = document.querySelector('.stats-subitem.active');
+      const activeTab = document.querySelector('.stats-tab-content.active');
       if (activeTab) {
-        const tabId = activeTab.dataset.tab;
+        const tabId = activeTab.id;
         if (tabId === 'tab-categorie') updateChartCategory();
         else if (tabId === 'tab-entrate-uscite') updateChartYear();
         else if (tabId === 'tab-residuo') updateChartResiduo();
