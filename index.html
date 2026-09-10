@@ -7943,6 +7943,57 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
   .stats-overview-icon { width:42px; height:42px; min-width:42px; }
 }
 </style>
+
+<style id="clean-08-statistiche-categorie">
+/* === STATISTICHE: intestazione e sottosezioni === */
+#page-grafici .stats-main-header{position:relative;display:flex;align-items:center;justify-content:center;min-height:46px;margin:0 0 14px;}
+#page-grafici .stats-main-header h1{margin:0!important;text-align:center;font-size:22px!important;line-height:1.2;font-weight:850;color:var(--modern-ink);letter-spacing:-.5px;}
+#page-grafici .stats-detail-header{position:relative;display:flex;align-items:center;justify-content:center;min-height:46px;margin:0 0 14px!important;}
+#page-grafici .stats-detail-header h2{margin:0!important;text-align:center;font-size:20px!important;font-weight:850;color:var(--modern-ink);letter-spacing:-.5px;}
+#page-grafici .stats-detail-back{position:absolute!important;left:0;top:50%;transform:translateY(-50%);width:40px;height:40px!important;padding:0!important;border:1px solid rgba(20,33,49,.07)!important;border-radius:13px!important;background:#fff!important;color:var(--modern-ink)!important;display:flex!important;align-items:center;justify-content:center;box-shadow:0 5px 16px rgba(20,33,49,.07);z-index:3;}
+#page-grafici .stats-detail-back i{font-size:19px!important;}
+/* === CATEGORIE: stile ispirato al mockup === */
+#tab-categorie .categories-screen{display:flex;flex-direction:column;gap:12px;}
+#tab-categorie .categories-period-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff;border:1px solid rgba(20,33,49,.07);border-radius:16px;padding:8px 10px 8px 14px;box-shadow:0 6px 18px rgba(20,33,49,.05);}
+#tab-categorie .categories-period-label{font-size:11px;font-weight:800;color:var(--modern-muted);text-transform:uppercase;letter-spacing:.5px;}
+#tab-categorie #chart-month{height:38px!important;min-width:150px;padding:0 34px 0 12px;border:0!important;border-radius:12px!important;background:#f5f7f8;color:var(--modern-ink);font-size:12px!important;font-weight:800;outline:none;}
+#tab-categorie .categories-chart-card,#tab-categorie .categories-detail-card{background:rgba(255,255,255,.98);border:1px solid rgba(20,33,49,.07);border-radius:22px;box-shadow:0 9px 28px rgba(20,33,49,.06);padding:16px;}
+#tab-categorie .categories-chart-head,#tab-categorie .categories-detail-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:4px;}
+#tab-categorie .categories-eyebrow{display:block;font-size:9px;font-weight:800;color:#9aa6af;text-transform:uppercase;letter-spacing:.75px;margin-bottom:3px;}
+#tab-categorie .categories-chart-head h3,#tab-categorie .categories-detail-head h3{margin:0;color:var(--modern-ink);font-size:16px;font-weight:850;letter-spacing:-.25px;}
+#tab-categorie .categories-chart-icon,#tab-categorie .categories-detail-badge{width:38px;height:38px;min-width:38px;border-radius:13px;display:flex;align-items:center;justify-content:center;background:#e8f2ff;color:#3d8be8;}
+#tab-categorie .categories-chart-icon i{font-size:19px;}
+#tab-categorie .categories-detail-badge{background:#e5f8ed;color:#28aa69;}
+#tab-categorie .categories-detail-badge i{font-size:17px;}
+#tab-categorie .categories-donut-wrap{height:270px!important;display:flex;align-items:center;justify-content:center;margin:2px 0 0;}
+#tab-categorie .categories-donut-wrap canvas{max-width:100%!important;max-height:100%!important;}
+#tab-categorie .categories-legend{display:flex;flex-wrap:wrap;gap:7px;margin:0!important;padding-top:8px;border-top:1px solid #f0f2f4;}
+#tab-categorie .categories-legend>span{display:inline-flex;align-items:center;gap:6px;padding:7px 9px;background:#f7f9fa;border-radius:10px;font-size:9px!important;font-weight:750;color:#5e6c78;}
+#tab-categorie .categories-legend .swatch{width:8px;height:8px;border-radius:50%;display:inline-block;}
+#tab-categorie .categories-detail-head{margin-bottom:10px;}
+#tab-categorie .categories-table-wrap{overflow:hidden;border:1px solid #edf0f2;border-radius:15px;}
+#tab-categorie .categories-table{margin:0!important;border:0!important;border-radius:0!important;font-size:11px!important;}
+#tab-categorie .categories-table th{padding:10px 11px!important;background:#f7f9fa!important;border-bottom:1px solid #edf0f2!important;font-size:8px!important;letter-spacing:.55px;}
+#tab-categorie .categories-table td{padding:10px 11px!important;border-bottom:1px solid #f0f2f4!important;font-size:11px!important;}
+#tab-categorie .categories-table tr:last-child td{border-bottom:0!important;}
+#tab-categorie .categories-table .category-icon{width:30px!important;height:30px!important;border-radius:10px!important;margin-right:8px!important;background:var(--surface-2)!important;}
+#tab-categorie .categories-table .category-icon i{font-size:15px!important;}
+#tab-categorie .categories-table .category-name{font-size:11px!important;font-weight:800!important;}
+#tab-categorie .categories-table .total-row td{background:#f7fbf9!important;border-top:1px solid #dcefe4!important;padding:12px 11px!important;}
+#tab-categorie .categories-pdf-row{margin-top:10px;text-align:right;}
+@media(max-width:600px){
+ #page-grafici .stats-main-header{min-height:44px;margin-bottom:10px;}
+ #page-grafici .stats-main-header h1{font-size:20px!important;}
+ #page-grafici .stats-detail-header{min-height:44px;margin-bottom:10px!important;}
+ #page-grafici .stats-detail-header h2{font-size:19px!important;}
+ #page-grafici .stats-detail-back{width:38px;height:38px!important;border-radius:12px!important;}
+ #tab-categorie .categories-period-row{padding-left:12px;}
+ #tab-categorie #chart-month{min-width:145px;}
+ #tab-categorie .categories-chart-card,#tab-categorie .categories-detail-card{padding:13px;border-radius:20px;}
+ #tab-categorie .categories-donut-wrap{height:235px!important;}
+ #tab-categorie .categories-chart-head h3,#tab-categorie .categories-detail-head h3{font-size:15px;}
+}
+</style>
 </head>
 <body><div id="login-screen">
 <h1>Budget di Famiglia</h1>
@@ -8095,9 +8146,7 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 </div>
 </div>
 <div class="page" id="page-grafici">
-<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:12px;">
-<h1 style="margin:0;">Statistiche</h1>
-</div>
+<div class="stats-main-header"><h1>Statistiche</h1></div>
 <div class="stats-overview" id="stats-overview">
   <div class="stats-overview-card" data-stats-target="tab-categorie" tabindex="0" role="button">
     <div class="stats-overview-icon stats-icon-blue"><i class="ti ti-chart-donut-4"></i></div>
@@ -8128,39 +8177,43 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 </div>
 <!-- TAB CATEGORIE -->
 <div class="stats-tab-content active" id="tab-categorie">
-<div class="stats-detail-header"><button type="button" class="stats-detail-back"><i class="ti ti-chevron-left"></i><span>Statistiche</span></button><h2>Categorie</h2></div>
-<div id="screenshot-categorie">
-<div class="row-between">
-<h2>Spese per categoria</h2>
-<select id="chart-month"></select>
-</div>
-<div class="panel">
-<div class="legend" id="legend-categories"></div>
-<div class="chart-wrap" style="height:320px; display:flex; align-items:center; justify-content:center;">
-<canvas id="categoryChart"></canvas>
-</div>
-</div>
-<div class="panel">
-<h3>Dati dettagliati</h3>
-<table class="data-table" id="table-category">
-<thead>
-<tr>
-<th>Categoria</th>
-<th class="text-right">Importo</th>
-<th class="text-right">%</th>
-</tr>
-</thead>
-<tbody id="table-category-body"></tbody>
-</table>
-</div>
-</div>
-<div style="margin-top:12px; text-align:right;">
-<button class="btn-pdf" id="btn-pdf-categorie"><i class="ti ti-file-type-pdf"></i> PDF</button>
-</div>
+  <div class="stats-detail-header"><button type="button" class="stats-detail-back" aria-label="Torna a Statistiche"><i class="ti ti-chevron-left"></i></button><h2>Categorie</h2></div>
+  <div id="screenshot-categorie" class="categories-screen">
+    <div class="categories-period-row">
+      <span class="categories-period-label">Periodo</span>
+      <select id="chart-month" aria-label="Seleziona mese"></select>
+    </div>
+    <div class="categories-chart-card">
+      <div class="categories-chart-head">
+        <div>
+          <span class="categories-eyebrow">Riepilogo spese</span>
+          <h3>Spese per categoria</h3>
+        </div>
+        <div class="categories-chart-icon"><i class="ti ti-chart-donut-4"></i></div>
+      </div>
+      <div class="chart-wrap categories-donut-wrap">
+        <canvas id="categoryChart"></canvas>
+      </div>
+      <div class="legend categories-legend" id="legend-categories"></div>
+    </div>
+    <div class="categories-detail-card">
+      <div class="categories-detail-head">
+        <div><span class="categories-eyebrow">Dettaglio</span><h3>Spese per categoria</h3></div>
+        <span class="categories-detail-badge"><i class="ti ti-list-details"></i></span>
+      </div>
+      <div class="categories-table-wrap">
+        <table class="data-table categories-table" id="table-category">
+          <thead><tr><th>Categoria</th><th class="text-right">Importo</th><th class="text-right">%</th></tr></thead>
+          <tbody id="table-category-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="categories-pdf-row"><button class="btn-pdf" id="btn-pdf-categorie"><i class="ti ti-file-type-pdf"></i> PDF</button></div>
 </div>
 <!-- TAB ENTRATE/USCITE -->
 <div class="stats-tab-content" id="tab-entrate-uscite">
-<div class="stats-detail-header"><button type="button" class="stats-detail-back"><i class="ti ti-chevron-left"></i><span>Statistiche</span></button><h2>Entrate / Uscite</h2></div>
+<div class="stats-detail-header"><button type="button" class="stats-detail-back" aria-label="Torna a Statistiche"><i class="ti ti-chevron-left"></i></button><h2>Entrate / Uscite</h2></div>
 <div id="screenshot-entrate-uscite">
 <div class="row-between">
 <h2>Entrate vs Uscite</h2>
@@ -8192,7 +8245,7 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 </div>
 <!-- TAB RESIDUO -->
 <div class="stats-tab-content" id="tab-residuo">
-<div class="stats-detail-header"><button type="button" class="stats-detail-back"><i class="ti ti-chevron-left"></i><span>Statistiche</span></button><h2>Residuo</h2></div>
+<div class="stats-detail-header"><button type="button" class="stats-detail-back" aria-label="Torna a Statistiche"><i class="ti ti-chevron-left"></i></button><h2>Residuo</h2></div>
 <div id="screenshot-residuo">
 <div class="row-between">
 <h2>Residuo mensile</h2>
@@ -8226,7 +8279,7 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 </div>
 <!-- TAB CONFRONTO -->
 <div class="stats-tab-content" id="tab-confronto">
-<div class="stats-detail-header"><button type="button" class="stats-detail-back"><i class="ti ti-chevron-left"></i><span>Statistiche</span></button><h2>Confronto</h2></div>
+<div class="stats-detail-header"><button type="button" class="stats-detail-back" aria-label="Torna a Statistiche"><i class="ti ti-chevron-left"></i></button><h2>Confronto</h2></div>
 <div id="screenshot-confronto">
 <div class="row-between" style="margin-top: 1rem;">
 <h2>Confronto mesi</h2>
@@ -10224,8 +10277,7 @@ function updateChartCategory() {
     },
     options: {
       responsive: true,
-      maintainAspectRatio: true,
-      aspectRatio: 2,
+      maintainAspectRatio: false,
       plugins: {
         legend: { display: false },
         tooltip: {
