@@ -8254,7 +8254,38 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 #tab-entrate-uscite .eu-data-table tbody td.text-success{color:#27ae68;font-weight:800;}#tab-entrate-uscite .eu-data-table tbody td.text-danger{color:#e74c5b;font-weight:800;}
 #tab-entrate-uscite .eu-data-table tbody td:last-child{font-weight:800;}
 @media(max-width:600px){#tab-entrate-uscite .stats-detail-header{min-height:48px;}#tab-entrate-uscite .stats-detail-header h2{font-size:20px;}#tab-entrate-uscite .eu-chart-card{border-radius:21px;padding:13px 12px 10px;}#tab-entrate-uscite .eu-summary-item{padding:10px 9px;}#tab-entrate-uscite .eu-summary-icon{width:34px;height:34px;flex-basis:34px;border-radius:11px;}#tab-entrate-uscite .eu-summary-item strong{font-size:14px;}#tab-entrate-uscite .eu-chart-wrap{height:245px;}#tab-entrate-uscite .eu-table-card{border-radius:21px;padding:14px 11px 6px;}#tab-entrate-uscite .eu-data-table thead th{padding:9px 4px;font-size:9px;}#tab-entrate-uscite .eu-data-table tbody td{padding:10px 4px;font-size:10px;}}
-</style></head>
+</style><style id="clean-12-residuo-styles">
+/* ===== RESIDUO - modern redesign ===== */
+#tab-residuo .stats-detail-header{position:relative;display:flex;align-items:center;justify-content:center;min-height:48px;margin-bottom:14px;}
+#tab-residuo .stats-detail-header h2{margin:0;font-size:21px;font-weight:850;letter-spacing:-.3px;text-align:center;}
+#tab-residuo .stats-detail-header .stats-detail-back{position:absolute;left:0;top:50%;transform:translateY(-50%);}
+#tab-residuo .residuo-section-spacer{display:block;height:1px;}
+#tab-residuo .row-between{display:flex;align-items:center;justify-content:flex-end;margin:0 0 12px;}
+#tab-residuo .row-between select{min-width:120px;height:40px;border-radius:12px;border:1px solid #e1e7eb;background:#fff;padding:0 14px;font-weight:750;color:#17273c;box-shadow:0 4px 14px rgba(17,27,38,.06);}
+#tab-residuo .panel{background:#fff;border:1px solid #e7edf1;border-radius:18px;box-shadow:0 8px 24px rgba(17,27,38,.055);padding:16px;margin-bottom:14px;overflow:hidden;}
+#tab-residuo .panel>p{margin:0 0 12px!important;font-size:12px!important;color:#8a9aac!important;font-weight:650!important;}
+#tab-residuo .panel h3{margin:0 0 12px;font-size:15px;font-weight:850;color:#17273c;}
+#tab-residuo .chart-wrap{height:290px!important;max-height:none;position:relative;}
+#tab-residuo #table-residuo{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;}
+#tab-residuo #table-residuo th{background:#f7f9fb;color:#7b8b9c;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.45px;padding:11px 12px;border-bottom:1px solid #e8edf1;}
+#tab-residuo #table-residuo th:first-child,#tab-residuo #table-residuo td:first-child{width:45%;text-align:left;}
+#tab-residuo #table-residuo th:last-child,#tab-residuo #table-residuo td:last-child{width:55%;text-align:right;}
+#tab-residuo #table-residuo td{padding:13px 12px;border-bottom:1px solid #edf1f4;background:#fff;font-size:13px;color:#27384b;}
+#tab-residuo #table-residuo tbody tr:last-child td{border-bottom:0;}
+#tab-residuo #table-residuo tbody tr{transition:background .18s ease;}
+#tab-residuo #table-residuo tbody tr:hover td{background:#f8fbfd;}
+@media(max-width:600px){
+ #tab-residuo .stats-detail-header{margin-bottom:10px;}
+ #tab-residuo .stats-detail-header h2{font-size:19px;}
+ #tab-residuo .row-between{margin-bottom:10px;}
+ #tab-residuo .row-between select{height:38px;min-width:105px;font-size:12px;}
+ #tab-residuo .panel{padding:12px;border-radius:16px;}
+ #tab-residuo .chart-wrap{height:220px!important;max-height:none;}
+ #tab-residuo #table-residuo th,#tab-residuo #table-residuo td{padding:11px 9px;}
+}
+@media(max-width:380px){#tab-residuo .chart-wrap{height:200px!important;max-height:none;}}
+</style>
+</head>
 <body><div id="login-screen">
 <h1>Budget di Famiglia</h1>
 <p class="subtitle">Gestisci le tue finanze in modo semplice</p>
@@ -8510,7 +8541,7 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 <div class="stats-detail-header"><button aria-label="Torna a Statistiche" class="stats-detail-back" type="button"><i class="ti ti-chevron-left"></i></button><h2>Residuo</h2></div>
 <div id="screenshot-residuo">
 <div class="row-between">
-<h2>Residuo mensile</h2>
+<span class="residuo-section-spacer" aria-hidden="true"></span>
 <select id="chart-residuo-year"></select>
 </div>
 <div class="panel">
@@ -8525,9 +8556,6 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 <thead>
 <tr>
 <th>Mese</th>
-<th class="text-right">Entrate</th>
-<th class="text-right">Uscite</th>
-<th class="text-right">Saldo</th>
 <th class="text-right">Residuo</th>
 </tr>
 </thead>
@@ -10728,9 +10756,10 @@ const exp = mt.filter(t => t.type === 'expense').reduce((s,t) => s + amountValue
 const saldoMese = inc - exp;
 runningTotal += saldoMese;
 const row = document.createElement('tr');
+const residuoColore = runningTotal >= 0 ? 'var(--success)' : 'var(--danger)';
 row.innerHTML = `
-<td style="text-transform: capitalize; font-weight: 700;">${labels[i]}</td>
-<td class="text-right" style="font-weight: 800; color: ${saldoMese >= 0 ? 'var(--success)' : 'var(--danger)'}">${fmtEUR(saldoMese)}</td>
+<td style="text-transform: capitalize; font-weight: 750;">${labels[i]}</td>
+<td class="text-right" style="font-weight: 850; color: ${residuoColore};">${fmtEUR(runningTotal)}</td>
 `;
 tbody.appendChild(row);
 });
