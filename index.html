@@ -14596,6 +14596,26 @@ document.addEventListener('DOMContentLoaded', function() {
   #tab-confronto #table-compare .compare-category-icon{flex-basis:25px!important;width:25px!important;height:25px!important;border-radius:8px!important;}
   #tab-confronto #table-compare .compare-category-icon i{font-size:12px!important;}
 }
+
+/* CLEAN 16 - CONFRONTO MOBILE SENZA SCORRIMENTO ORIZZONTALE */
+@media (max-width:600px){
+#tab-confronto #table-compare{width:100%!important;min-width:0!important;table-layout:fixed!important;overflow:visible!important;}
+#tab-confronto #table-compare th,#tab-confronto #table-compare td{white-space:normal!important;word-break:break-word!important;overflow-wrap:anywhere!important;}
+#tab-confronto #table-compare th:first-child,#tab-confronto #table-compare td:first-child{width:30%!important;}
+#tab-confronto #table-compare th:nth-child(2),#tab-confronto #table-compare td:nth-child(2),#tab-confronto #table-compare th:nth-child(3),#tab-confronto #table-compare td:nth-child(3),#tab-confronto #table-compare th:nth-child(4),#tab-confronto #table-compare td:nth-child(4){width:23.333%!important;}
+#tab-confronto #table-compare th,#tab-confronto #table-compare td{padding:10px 4px!important;}
+#tab-confronto #table-compare th{font-size:8px!important;letter-spacing:.15px!important;line-height:1.2!important;}
+#tab-confronto #table-compare td{font-size:10px!important;line-height:1.25!important;}
+#tab-confronto #table-compare td:first-child{font-size:10px!important;font-weight:800!important;}
+#tab-confronto .panel{overflow:hidden!important;}
+#tab-confronto .compare-month-filters{width:100%!important;grid-template-columns:minmax(0,1fr) 24px minmax(0,1fr)!important;}
+#tab-confronto .compare-month-field{min-width:0!important;}
+}
+@media (max-width:380px){
+#tab-confronto #table-compare th,#tab-confronto #table-compare td{padding:9px 3px!important;}
+#tab-confronto #table-compare th{font-size:7px!important;}
+#tab-confronto #table-compare td,#tab-confronto #table-compare td:first-child{font-size:9px!important;}
+}
 </style>
 <script>
 /* CLEAN 15 marker */
