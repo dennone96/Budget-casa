@@ -8317,6 +8317,72 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 }
 @media(max-width:380px){#tab-residuo .chart-wrap{height:200px!important;max-height:none;}}
 </style>
+
+<style id="clean-19-final-fixes">
+/* CLEAN 19: every main page is a sibling, not nested inside Statistics */
+
+/* Confronto: mobile table must remain entirely inside the panel. */
+#tab-confronto .compare-table-scroll{
+  width:100%!important;
+  max-width:100%!important;
+  overflow:hidden!important;
+  box-sizing:border-box!important;
+}
+#tab-confronto .compare-table-panel{
+  width:100%!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+}
+#tab-confronto #table-compare{
+  display:table!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  table-layout:fixed!important;
+  border-collapse:separate!important;
+  border-spacing:0!important;
+}
+#tab-confronto #table-compare thead{display:table-header-group!important;}
+#tab-confronto #table-compare tbody{display:table-row-group!important;}
+#tab-confronto #table-compare tr{display:table-row!important;}
+#tab-confronto #table-compare th,
+#tab-confronto #table-compare td{
+  display:table-cell!important;
+  box-sizing:border-box!important;
+  min-width:0!important;
+  max-width:none!important;
+  overflow:hidden!important;
+  text-overflow:clip!important;
+  vertical-align:middle!important;
+}
+#tab-confronto #table-compare th:first-child,
+#tab-confronto #table-compare td:first-child{width:29%!important;text-align:left!important;}
+#tab-confronto #table-compare th:nth-child(2),
+#tab-confronto #table-compare td:nth-child(2),
+#tab-confronto #table-compare th:nth-child(3),
+#tab-confronto #table-compare td:nth-child(3),
+#tab-confronto #table-compare th:nth-child(4),
+#tab-confronto #table-compare td:nth-child(4){width:23.666%!important;text-align:right!important;}
+
+@media(max-width:600px){
+  #tab-confronto .compare-table-panel{margin-left:0!important;margin-right:0!important;}
+  #tab-confronto #table-compare th{padding:9px 4px!important;font-size:8px!important;line-height:1.2!important;white-space:normal!important;}
+  #tab-confronto #table-compare td{padding:10px 4px!important;font-size:10px!important;line-height:1.2!important;white-space:normal!important;}
+  #tab-confronto #table-compare td:nth-child(2),
+  #tab-confronto #table-compare td:nth-child(3),
+  #tab-confronto #table-compare td:nth-child(4){white-space:nowrap!important;font-variant-numeric:tabular-nums!important;}
+  #tab-confronto #table-compare .section-header td{width:100%!important;text-align:left!important;}
+  #tab-confronto #table-compare .category-name-wrap{gap:5px!important;}
+  #tab-confronto #table-compare .compare-category-icon{width:22px!important;height:22px!important;flex-basis:22px!important;border-radius:7px!important;}
+  #tab-confronto #table-compare .compare-category-icon i{font-size:11px!important;}
+  #tab-confronto #table-compare .compare-cat-name>span:last-child{font-size:9px!important;}
+}
+@media(max-width:350px){
+  #tab-confronto #table-compare th{padding:8px 3px!important;font-size:7px!important;}
+  #tab-confronto #table-compare td{padding:9px 3px!important;font-size:9px!important;}
+}
+</style>
 </head>
 <body><div id="login-screen">
 <h1>Budget di Famiglia</h1>
@@ -8639,6 +8705,7 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 </div>
 <div style="margin-top:12px; text-align:right;">
 <button class="btn-pdf" id="btn-pdf-confronto"><i class="ti ti-file-type-pdf"></i> PDF</button>
+</div>
 </div>
 </div>
 </div>
