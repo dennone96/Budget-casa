@@ -3084,6 +3084,12 @@ border-radius: var(--radius-sm);
   #tab-confronto #table-compare td{font-size:8.5px!important;}
 }
 
+
+/* CLEAN 20: the statistics tab system is isolated from the main page navigator.
+   Main pages use only the .page.active rule; no inline display is injected by
+   the navigation layer. */
+#main > .page:not(#page-grafici) .stats-tab-content{display:block;}
+
 </style>
 <style id="clean-01-modern-styles">
 /* === TOGGLE SWITCH E FILTRI (Spostato DENTRO il tag style) === */
@@ -8319,7 +8325,7 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 </style>
 
 <style id="clean-19-final-fixes">
-/* CLEAN 19: every main page is a sibling, not nested inside Statistics */
+/* CLEAN 20: every main page is a sibling, not nested inside Statistics */
 
 /* Confronto: mobile table must remain entirely inside the panel. */
 #tab-confronto .compare-table-scroll{
@@ -9932,36 +9938,6 @@ navItems.forEach(btn => {
   }
 });
 
-// Navigazione di sicurezza: evita che un listener di una sezione interrompa l'apertura delle pagine successive.
-document.addEventListener('click', function(e) {
-  const btn = e.target.closest && e.target.closest('#sidebar .nav-item:not(.nav-statistiche)');
-  if (!btn) return;
-  const pageId = btn.getAttribute('data-page');
-  if (!pageId) return;
-  e.preventDefault();
-  document.querySelectorAll('.page').forEach(p => {
-    const active = p.id === pageId;
-    p.classList.toggle('active', active);
-    if (active) {
-      p.style.display = 'block';
-      p.style.visibility = 'visible';
-      p.style.opacity = '1';
-      p.style.height = 'auto';
-      p.style.maxHeight = 'none';
-    } else {
-      p.style.display = 'none';
-    }
-  });
-  document.querySelectorAll('#sidebar .nav-item').forEach(n => n.classList.toggle('active', n === btn));
-  closeSidebar();
-  try {
-    if (pageId === 'page-bollette') { populateBollettaMeseSelect(); renderBolletteList(); }
-    else if (pageId === 'page-liste') { initListPage(); }
-    else if (pageId === 'page-eventi') { initEventPage(); }
-    else if (pageId === 'page-profilo') { updateProfilePage(); }
-    else if (pageId === 'page-categorie') { renderCategories(); }
-  } catch(err) { console.error('Errore apertura pagina '+pageId, err); }
-}, true);
 // === NAVIGAZIONE STATISTICHE - PAGINA PRINCIPALE + 4 SEZIONI ===
 const statsNav = document.querySelector('.nav-statistiche');
 const statsOverview = document.getElementById('stats-overview');
