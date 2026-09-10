@@ -7994,6 +7994,230 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
  #tab-categorie .categories-chart-head h3,#tab-categorie .categories-detail-head h3{font-size:15px;}
 }
 </style>
+
+<style id="clean-09-categorie-table-popup">
+/* CLEAN-09: tabella categorie completamente ripulita dallo stile precedente */
+#tab-categorie .categories-detail-card {
+  background:#fff !important;
+  border:1px solid #e7ecef !important;
+  box-shadow:0 8px 24px rgba(18,32,48,.055) !important;
+}
+#tab-categorie .categories-table-wrap {
+  background:#fff !important;
+  border:1px solid #e7ecef !important;
+  border-radius:16px !important;
+  overflow:hidden !important;
+}
+#tab-categorie table.categories-table,
+#tab-categorie table.categories-table thead,
+#tab-categorie table.categories-table tbody {
+  background:#fff !important;
+}
+#tab-categorie .categories-table {
+  width:100% !important;
+  border:0 !important;
+  border-collapse:separate !important;
+  border-spacing:0 !important;
+  color:#17273c !important;
+}
+#tab-categorie .categories-table th {
+  background:#f7f9fa !important;
+  color:#87939d !important;
+  border:0 !important;
+  border-bottom:1px solid #e9eef1 !important;
+  padding:11px 12px !important;
+  font-size:9px !important;
+  font-weight:800 !important;
+  letter-spacing:.55px !important;
+  text-transform:uppercase !important;
+}
+#tab-categorie .categories-table td {
+  background:#fff !important;
+  color:#17273c !important;
+  border:0 !important;
+  border-bottom:1px solid #edf1f3 !important;
+  padding:10px 12px !important;
+  font-size:12px !important;
+  vertical-align:middle !important;
+}
+#tab-categorie .categories-table tbody tr.category-row-clickable:hover td {
+  background:#f8fbfd !important;
+}
+#tab-categorie .categories-table tbody tr.category-row-clickable:active td {
+  background:#f1f6f9 !important;
+}
+#tab-categorie .categories-table tbody tr:last-child td { border-bottom:0 !important; }
+#tab-categorie .categories-table .category-icon {
+  width:34px !important;
+  height:34px !important;
+  min-width:34px !important;
+  margin-right:9px !important;
+  border:0 !important;
+  border-radius:11px !important;
+  background:color-mix(in srgb, var(--category-color, #4A90D9) 13%, white) !important;
+  color:var(--category-color, #4A90D9) !important;
+}
+#tab-categorie .categories-table .category-icon i { font-size:16px !important; }
+#tab-categorie .categories-table .category-name {
+  color:#17273c !important;
+  font-size:12px !important;
+  font-weight:800 !important;
+}
+#tab-categorie .categories-table .total-row td {
+  background:#f2faf6 !important;
+  color:#17273c !important;
+  border-top:1px solid #dcefe4 !important;
+  border-bottom:0 !important;
+  padding:12px !important;
+}
+
+/* CLEAN-09: popup movimenti della categoria, coerente con la Home */
+#category-detail-overlay {
+  display:none !important;
+  position:fixed !important;
+  inset:0 !important;
+  z-index:3200 !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:18px !important;
+  background:rgba(13,25,38,.42) !important;
+  -webkit-backdrop-filter:blur(8px) !important;
+  backdrop-filter:blur(8px) !important;
+}
+#category-detail-overlay.open { display:flex !important; }
+#category-detail-box {
+  width:min(560px,100%) !important;
+  max-height:min(82vh,680px) !important;
+  display:flex !important;
+  flex-direction:column !important;
+  overflow:hidden !important;
+  background:#fff !important;
+  border:1px solid #e5ebee !important;
+  border-radius:24px !important;
+  box-shadow:0 24px 70px rgba(12,27,42,.20) !important;
+  animation:modalIn .2s ease !important;
+}
+#category-detail-box .category-detail-head {
+  padding:18px 18px 15px !important;
+  background:#fff !important;
+  border-bottom:1px solid #edf1f3 !important;
+}
+#category-detail-box .category-detail-title-row {
+  display:flex !important;
+  align-items:center !important;
+  gap:12px !important;
+}
+#category-detail-box #category-detail-icon {
+  width:46px !important;
+  height:46px !important;
+  min-width:46px !important;
+  margin:0 !important;
+  border:0 !important;
+  border-radius:15px !important;
+  background:color-mix(in srgb, var(--category-color, #4A90D9) 13%, white) !important;
+  color:var(--category-color, #4A90D9) !important;
+}
+#category-detail-box #category-detail-icon i { font-size:21px !important; }
+#category-detail-box .category-detail-head h3 {
+  margin:0 !important;
+  color:#17273c !important;
+  font-size:19px !important;
+  font-weight:850 !important;
+  letter-spacing:-.3px !important;
+}
+#category-detail-box .category-detail-head p {
+  margin:3px 0 0 !important;
+  color:#8b97a1 !important;
+  font-size:11px !important;
+  font-weight:700 !important;
+}
+#category-detail-box .category-detail-total {
+  margin-top:14px !important;
+  color:#e55b64 !important;
+  font-size:25px !important;
+  font-weight:850 !important;
+  letter-spacing:-.4px !important;
+}
+#category-detail-list {
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow-y:auto !important;
+  padding:7px 12px 10px !important;
+  background:#fff !important;
+}
+#category-detail-list .category-detail-item {
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  min-height:58px !important;
+  padding:9px 7px !important;
+  margin:0 !important;
+  background:#fff !important;
+  border:0 !important;
+  border-bottom:1px solid #edf1f3 !important;
+  border-radius:12px !important;
+}
+#category-detail-list .category-detail-item:hover { background:#f8fbfd !important; }
+#category-detail-list .category-detail-item:last-child { border-bottom:0 !important; }
+#category-detail-list .category-icon {
+  width:36px !important;
+  height:36px !important;
+  min-width:36px !important;
+  margin:0 !important;
+  border:0 !important;
+  border-radius:12px !important;
+  background:color-mix(in srgb, var(--category-color, #4A90D9) 13%, white) !important;
+  color:var(--category-color, #4A90D9) !important;
+}
+#category-detail-list .category-icon i { font-size:17px !important; }
+#category-detail-list .category-detail-item-main { min-width:0 !important; flex:1 !important; }
+#category-detail-list .category-detail-item-desc {
+  color:#17273c !important;
+  font-size:12px !important;
+  font-weight:800 !important;
+}
+#category-detail-list .category-detail-item-date {
+  margin-top:3px !important;
+  color:#98a3ac !important;
+  font-size:10px !important;
+  font-weight:650 !important;
+}
+#category-detail-list .category-detail-item-amount {
+  color:#e55b64 !important;
+  font-size:12px !important;
+  font-weight:850 !important;
+}
+#category-detail-list .category-detail-empty {
+  padding:38px 15px !important;
+  color:#8d99a3 !important;
+  font-size:12px !important;
+}
+#category-detail-box .category-detail-footer {
+  padding:12px !important;
+  background:#fff !important;
+  border-top:1px solid #edf1f3 !important;
+}
+#category-detail-close {
+  width:100% !important;
+  height:44px !important;
+  border:0 !important;
+  border-radius:14px !important;
+  background:#132331 !important;
+  color:#fff !important;
+  font-size:13px !important;
+  font-weight:800 !important;
+  box-shadow:none !important;
+}
+#category-detail-close:active { transform:scale(.99); }
+@media(max-width:600px){
+  #category-detail-overlay { padding:14px 10px 72px !important; align-items:flex-end !important; }
+  #category-detail-box { max-height:76vh !important; border-radius:24px 24px 20px 20px !important; }
+  #category-detail-box .category-detail-head { padding:16px 16px 13px !important; }
+  #category-detail-box .category-detail-total { font-size:23px !important; }
+  #category-detail-list { padding:6px 10px 8px !important; }
+}
+</style>
+
 </head>
 <body><div id="login-screen">
 <h1>Budget di Famiglia</h1>
@@ -10162,7 +10386,8 @@ function getCategoryIcon(category) {
 
 function formatCategoryDetailDate(dateValue) {
   if (!dateValue) return 'Data non disponibile';
-  const d = new Date(dateValue);
+  const iso = (typeof transactionDateISO === 'function') ? transactionDateISO({date: dateValue}) : '';
+  const d = new Date(iso || dateValue);
   if (Number.isNaN(d.getTime())) return String(dateValue);
   return d.toLocaleDateString('it-IT', { day:'2-digit', month:'2-digit', year:'numeric' });
 }
@@ -14108,6 +14333,50 @@ document.addEventListener('DOMContentLoaded', function() {
   },true);
 })();
 </script>
+
+<!-- CLEAN-09: popup dettaglio movimenti per categoria -->
+<div id="category-detail-overlay" aria-hidden="true">
+  <div id="category-detail-box" role="dialog" aria-modal="true" aria-labelledby="category-detail-title">
+    <div class="category-detail-head">
+      <div class="category-detail-title-row">
+        <span id="category-detail-icon" class="category-icon"><i class="ti ti-tag"></i></span>
+        <div>
+          <h3 id="category-detail-title">Categoria</h3>
+          <p id="category-detail-period">Movimenti del periodo</p>
+        </div>
+      </div>
+      <div class="category-detail-total" id="category-detail-total">0,00 €</div>
+    </div>
+    <div id="category-detail-list"></div>
+    <div class="category-detail-footer">
+      <button type="button" id="category-detail-close">Chiudi</button>
+    </div>
+  </div>
+</div>
+
+
+<script id="clean-09-category-popup-fallback">
+(function(){
+  function closeCategoryPopup(e){
+    var target=e && e.target;
+    var btn=target && target.closest ? target.closest('#category-detail-close') : null;
+    if(!btn) return;
+    if(e){ e.preventDefault(); e.stopPropagation(); }
+    var ov=document.getElementById('category-detail-overlay');
+    if(ov){ ov.classList.remove('open'); ov.setAttribute('aria-hidden','true'); }
+  }
+  document.addEventListener('pointerup', closeCategoryPopup, true);
+  document.addEventListener('touchend', closeCategoryPopup, true);
+  document.addEventListener('click', closeCategoryPopup, true);
+  document.addEventListener('keydown', function(e){
+    if(e.key==='Escape'){
+      var ov=document.getElementById('category-detail-overlay');
+      if(ov && ov.classList.contains('open')){ ov.classList.remove('open'); ov.setAttribute('aria-hidden','true'); }
+    }
+  }, true);
+})();
+</script>
+
 </body>
 </html>
 
