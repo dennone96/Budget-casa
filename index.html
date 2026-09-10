@@ -8241,6 +8241,11 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 #tab-entrate-uscite .eu-table-card{margin-top:14px;padding:17px 16px 8px;}
 #tab-entrate-uscite .eu-table-card h3{margin:0 0 12px;font-size:16px;font-weight:800;color:#17273c;}
 #tab-entrate-uscite .eu-data-table{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;}
+#tab-entrate-uscite .eu-data-table th:first-child,#tab-entrate-uscite .eu-data-table td:first-child{width:36%;text-align:left;}
+#tab-entrate-uscite .eu-data-table th:nth-child(2),#tab-entrate-uscite .eu-data-table td:nth-child(2),#tab-entrate-uscite .eu-data-table th:nth-child(3),#tab-entrate-uscite .eu-data-table td:nth-child(3),#tab-entrate-uscite .eu-data-table th:nth-child(4),#tab-entrate-uscite .eu-data-table td:nth-child(4){width:21.333%;text-align:right;}
+#tab-entrate-uscite .eu-data-table .eu-total-row td{background:#f7faf9;border-top:2px solid #e5ece8;border-bottom:0;padding-top:13px;padding-bottom:13px;}
+#tab-entrate-uscite .eu-data-table .eu-total-row td:first-child{border-radius:10px 0 0 10px;}
+#tab-entrate-uscite .eu-data-table .eu-total-row td:last-child{border-radius:0 10px 10px 0;}
 #tab-entrate-uscite .eu-data-table thead th{background:#f5f7f9;color:#7b8999;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;padding:10px 7px;border-bottom:1px solid #e7ecef;}
 #tab-entrate-uscite .eu-data-table thead th:first-child{border-radius:11px 0 0 11px;text-align:left;}#tab-entrate-uscite .eu-data-table thead th:last-child{border-radius:0 11px 11px 0;}
 #tab-entrate-uscite .eu-data-table tbody td{padding:11px 7px;border-bottom:1px solid #edf0f2;font-size:11px;color:#34465a;background:#fff;}
@@ -10641,13 +10646,25 @@ months.forEach((m, i) => {
 const bal = incomes[i] - expenses[i];
 const row = document.createElement('tr');
 row.innerHTML = `
-<td style="text-transform: capitalize; font-weight: 700;">${labels[i]}</td>
-<td class="text-right text-success">${fmtEUR(incomes[i])}</td>
-<td class="text-right text-danger">${fmtEUR(expenses[i])}</td>
-<td class="text-right" style="font-weight: 800; color: ${bal >= 0 ? 'var(--success)' : 'var(--danger)'}">${fmtEUR(bal)}</td>
+<td style="text-transform: capitalize; font-weight: 700; text-align:left;">${labels[i]}</td>
+<td class="text-right text-success" style="text-align:right;">${fmtEUR(incomes[i])}</td>
+<td class="text-right text-danger" style="text-align:right;">${fmtEUR(expenses[i])}</td>
+<td class="text-right" style="font-weight: 800; text-align:right; color: ${bal >= 0 ? 'var(--success)' : 'var(--danger)'}">${fmtEUR(bal)}</td>
 `;
 tbody.appendChild(row);
 });
+
+// Totali finali delle tre colonne numeriche.
+const totalRow = document.createElement('tr');
+totalRow.className = 'eu-total-row';
+const finalBalance = totalIncomeYear - totalExpenseYear;
+totalRow.innerHTML = `
+<td style="text-align:left; font-weight:900;">Totale</td>
+<td style="text-align:right; font-weight:900; color:var(--success);">${fmtEUR(totalIncomeYear)}</td>
+<td style="text-align:right; font-weight:900; color:var(--danger);">${fmtEUR(totalExpenseYear)}</td>
+<td style="text-align:right; font-weight:900; color:${finalBalance >= 0 ? 'var(--success)' : 'var(--danger)'};">${fmtEUR(finalBalance)}</td>
+`;
+tbody.appendChild(totalRow);
 }
 function updateChartResiduo() {
 const year = document.getElementById('chart-residuo-year')?.value || String(new Date().getFullYear());
