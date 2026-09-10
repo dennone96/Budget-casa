@@ -3057,6 +3057,33 @@ border-radius: var(--radius-sm);
 #tab-confronto #table-compare{width:100% !important;max-width:100% !important;box-sizing:border-box !important;margin:0 !important;}
 #tab-confronto #table-compare th,#tab-confronto #table-compare td{box-sizing:border-box !important;}
 @media(max-width:600px){#tab-confronto .panel{width:100% !important;max-width:100% !important;box-sizing:border-box !important;padding-left:10px !important;padding-right:10px !important;overflow:hidden !important;}#tab-confronto #table-compare{width:100% !important;max-width:100% !important;margin:0 !important;} }
+
+/* === CLEAN 18 - NAVIGAZIONE ROBUSTA + CONFRONTO MOBILE === */
+/* Il contenuto della pagina selezionata deve sempre tornare visibile. */
+.page.active{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:none!important;overflow:visible;}
+.page:not(.active){display:none!important;}
+
+/* La tabella Confronto resta dentro i bordi del pannello anche su mobile. */
+#tab-confronto .compare-table-scroll{width:100%!important;max-width:100%!important;overflow-x:hidden!important;box-sizing:border-box!important;}
+#tab-confronto .compare-table-panel{width:100%!important;max-width:100%!important;box-sizing:border-box!important;overflow:hidden!important;}
+#tab-confronto #table-compare{width:100%!important;min-width:0!important;max-width:100%!important;box-sizing:border-box!important;table-layout:fixed!important;}
+#tab-confronto #table-compare th,#tab-confronto #table-compare td{box-sizing:border-box!important;overflow-wrap:anywhere!important;word-break:normal!important;}
+@media(max-width:600px){
+  #tab-confronto .compare-table-panel{border-radius:16px!important;}
+  #tab-confronto .compare-table-title{padding:13px 12px 10px!important;}
+  #tab-confronto #table-compare th,#tab-confronto #table-compare td{padding-left:4px!important;padding-right:4px!important;}
+  #tab-confronto #table-compare th:first-child,#tab-confronto #table-compare td:first-child{width:29%!important;}
+  #tab-confronto #table-compare th:nth-child(2),#tab-confronto #table-compare td:nth-child(2),#tab-confronto #table-compare th:nth-child(3),#tab-confronto #table-compare td:nth-child(3),#tab-confronto #table-compare th:nth-child(4),#tab-confronto #table-compare td:nth-child(4){width:23.666%!important;}
+  #tab-confronto #table-compare th{font-size:7px!important;line-height:1.15!important;white-space:normal!important;}
+  #tab-confronto #table-compare td{font-size:9px!important;line-height:1.2!important;white-space:normal!important;}
+  #tab-confronto #table-compare td:nth-child(2),#tab-confronto #table-compare td:nth-child(3),#tab-confronto #table-compare td:nth-child(4){white-space:nowrap!important;}
+}
+@media(max-width:380px){
+  #tab-confronto #table-compare th,#tab-confronto #table-compare td{padding-left:3px!important;padding-right:3px!important;}
+  #tab-confronto #table-compare th{font-size:6.5px!important;}
+  #tab-confronto #table-compare td{font-size:8.5px!important;}
+}
+
 </style>
 <style id="clean-01-modern-styles">
 /* === TOGGLE SWITCH E FILTRI (Spostato DENTRO il tag style) === */
@@ -9837,6 +9864,37 @@ navItems.forEach(btn => {
     btn.addEventListener('click', () => showPage(btn.dataset.page));
   }
 });
+
+// Navigazione di sicurezza: evita che un listener di una sezione interrompa l'apertura delle pagine successive.
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest && e.target.closest('#sidebar .nav-item:not(.nav-statistiche)');
+  if (!btn) return;
+  const pageId = btn.getAttribute('data-page');
+  if (!pageId) return;
+  e.preventDefault();
+  document.querySelectorAll('.page').forEach(p => {
+    const active = p.id === pageId;
+    p.classList.toggle('active', active);
+    if (active) {
+      p.style.display = 'block';
+      p.style.visibility = 'visible';
+      p.style.opacity = '1';
+      p.style.height = 'auto';
+      p.style.maxHeight = 'none';
+    } else {
+      p.style.display = 'none';
+    }
+  });
+  document.querySelectorAll('#sidebar .nav-item').forEach(n => n.classList.toggle('active', n === btn));
+  closeSidebar();
+  try {
+    if (pageId === 'page-bollette') { populateBollettaMeseSelect(); renderBolletteList(); }
+    else if (pageId === 'page-liste') { initListPage(); }
+    else if (pageId === 'page-eventi') { initEventPage(); }
+    else if (pageId === 'page-profilo') { updateProfilePage(); }
+    else if (pageId === 'page-categorie') { renderCategories(); }
+  } catch(err) { console.error('Errore apertura pagina '+pageId, err); }
+}, true);
 // === NAVIGAZIONE STATISTICHE - PAGINA PRINCIPALE + 4 SEZIONI ===
 const statsNav = document.querySelector('.nav-statistiche');
 const statsOverview = document.getElementById('stats-overview');
