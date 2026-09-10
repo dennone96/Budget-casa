@@ -3052,6 +3052,11 @@ border-radius: var(--radius-sm);
 
 
 
+
+/* === CLEAN 17 - CONFRONTO: BORDI E LARGHEZZA MOBILE === */
+#tab-confronto #table-compare{width:100% !important;max-width:100% !important;box-sizing:border-box !important;margin:0 !important;}
+#tab-confronto #table-compare th,#tab-confronto #table-compare td{box-sizing:border-box !important;}
+@media(max-width:600px){#tab-confronto .panel{width:100% !important;max-width:100% !important;box-sizing:border-box !important;padding-left:10px !important;padding-right:10px !important;overflow:hidden !important;}#tab-confronto #table-compare{width:100% !important;max-width:100% !important;margin:0 !important;} }
 </style>
 <style id="clean-01-modern-styles">
 /* === TOGGLE SWITCH E FILTRI (Spostato DENTRO il tag style) === */
@@ -14597,7 +14602,7 @@ document.addEventListener('DOMContentLoaded', function() {
   #tab-confronto #table-compare .compare-category-icon i{font-size:12px!important;}
 }
 
-/* CLEAN 16 - CONFRONTO MOBILE SENZA SCORRIMENTO ORIZZONTALE */
+/* CLEAN 17 - CONFRONTO MOBILE SENZA SCORRIMENTO ORIZZONTALE */
 @media (max-width:600px){
 #tab-confronto #table-compare{width:100%!important;min-width:0!important;table-layout:fixed!important;overflow:visible!important;}
 #tab-confronto #table-compare th,#tab-confronto #table-compare td{white-space:normal!important;word-break:break-word!important;overflow-wrap:anywhere!important;}
