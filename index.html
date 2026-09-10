@@ -8589,8 +8589,9 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 <canvas id="compareChart"></canvas>
 </div>
 </div>
-<div class="panel">
-<h3>Dati dettagliati</h3>
+<div class="compare-table-panel">
+<h3 class="compare-table-title">Dati dettagliati</h3>
+<div class="compare-table-scroll">
 <table class="data-table" id="table-compare">
 <thead>
 <tr>
@@ -14555,3 +14556,47 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 @media(max-width:380px){#tab-confronto .chart-wrap{height:200px!important;max-height:none;}#tab-confronto #table-compare th,#tab-confronto #table-compare td{padding-left:6px;padding-right:6px;font-size:10px;}}
 </style>
+<style>
+/* === CLEAN 15 - CONFRONTO: TABLE REDESIGN === */
+#tab-confronto .compare-table-panel{padding:0!important;overflow:hidden!important;background:#fff!important;border:1px solid #e7edf1!important;border-radius:18px!important;box-shadow:0 8px 24px rgba(17,27,38,.055)!important;}
+#tab-confronto .compare-table-title{padding:16px 16px 12px;margin:0!important;font-size:15px!important;font-weight:850!important;color:#17273c!important;}
+#tab-confronto .compare-table-scroll{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+#tab-confronto #table-compare{display:table!important;width:100%!important;min-width:520px!important;table-layout:fixed!important;border:0!important;border-radius:0!important;border-collapse:separate!important;border-spacing:0!important;overflow:visible!important;font-size:12px!important;}
+#tab-confronto #table-compare thead{display:table-header-group!important;}
+#tab-confronto #table-compare tbody{display:table-row-group!important;}
+#tab-confronto #table-compare tr{display:table-row!important;}
+#tab-confronto #table-compare th,#tab-confronto #table-compare td{display:table-cell!important;box-sizing:border-box!important;min-width:0!important;overflow:visible!important;text-overflow:clip!important;white-space:normal!important;vertical-align:middle!important;}
+#tab-confronto #table-compare thead tr{height:46px!important;}
+#tab-confronto #table-compare th{padding:9px 12px!important;background:#f7f9fb!important;border-bottom:1px solid #e7edf1!important;color:#7b8b9c!important;font-size:10px!important;font-weight:850!important;text-transform:uppercase!important;letter-spacing:.35px!important;white-space:nowrap!important;}
+#tab-confronto #table-compare th:first-child{width:38%!important;text-align:left!important;}
+#tab-confronto #table-compare th:nth-child(2),#tab-confronto #table-compare th:nth-child(3),#tab-confronto #table-compare th:nth-child(4){width:20.666%!important;text-align:right!important;}
+#tab-confronto #table-compare td{padding:11px 12px!important;background:#fff!important;border-bottom:1px solid #edf1f4!important;color:#27384b!important;font-size:12px!important;line-height:1.25!important;}
+#tab-confronto #table-compare td:first-child{text-align:left!important;}
+#tab-confronto #table-compare td:nth-child(2),#tab-confronto #table-compare td:nth-child(3),#tab-confronto #table-compare td:nth-child(4){text-align:right!important;white-space:nowrap!important;font-variant-numeric:tabular-nums!important;}
+#tab-confronto #table-compare .section-header{display:table-row!important;}
+#tab-confronto #table-compare .section-header td{display:table-cell!important;width:auto!important;padding:9px 12px!important;background:#f2f6f9!important;border-bottom:1px solid #e3eaf0!important;color:#536577!important;font-size:10px!important;font-weight:850!important;text-transform:uppercase!important;letter-spacing:.45px!important;text-align:left!important;}
+#tab-confronto #table-compare .total-row td{background:#fff!important;font-weight:800!important;}
+#tab-confronto #table-compare .total-row:first-child td{background:#f8fbfd!important;}
+#tab-confronto #table-compare .total-row:last-child td{border-bottom:0!important;background:#f8fbfd!important;}
+#tab-confronto #table-compare .compare-category-row td:first-child{padding-top:10px!important;padding-bottom:10px!important;}
+#tab-confronto #table-compare .category-name-wrap{display:flex!important;align-items:center!important;gap:8px!important;min-width:0!important;}
+#tab-confronto #table-compare .compare-category-icon{flex:0 0 28px!important;width:28px!important;height:28px!important;margin:0!important;border-radius:9px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;background:color-mix(in srgb,var(--category-color) 13%,#fff)!important;color:var(--category-color)!important;box-shadow:none!important;border:0!important;}
+#tab-confronto #table-compare .compare-category-icon i{font-size:14px!important;}
+#tab-confronto #table-compare .compare-cat-name>span:last-child{min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;font-weight:750!important;color:#27384b!important;}
+#tab-confronto #table-compare tbody tr:not(.section-header):not(.total-row):hover td{background:#f9fbfc!important;}
+#tab-confronto #table-compare .text-success{color:var(--success)!important;}
+#tab-confronto #table-compare .text-danger{color:var(--danger)!important;}
+#tab-confronto #table-compare .total-row td:first-child{font-size:12px!important;}
+@media(max-width:600px){
+  #tab-confronto .compare-table-title{padding:14px 13px 10px;font-size:14px!important;}
+  #tab-confronto #table-compare{min-width:500px!important;font-size:11px!important;}
+  #tab-confronto #table-compare th{padding:9px 9px!important;font-size:9px!important;}
+  #tab-confronto #table-compare td{padding:10px 9px!important;font-size:11px!important;}
+  #tab-confronto #table-compare .section-header td{padding:8px 9px!important;font-size:9px!important;}
+  #tab-confronto #table-compare .compare-category-icon{flex-basis:25px!important;width:25px!important;height:25px!important;border-radius:8px!important;}
+  #tab-confronto #table-compare .compare-category-icon i{font-size:12px!important;}
+}
+</style>
+<script>
+/* CLEAN 15 marker */
+</script>
