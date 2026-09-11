@@ -8597,6 +8597,134 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 }
 </style>
 
+
+<style id="bollette-table-popup-final-style">
+/* ===== LIBRERIA BOLLETTE — RIGHE CONTINUE + TOTALI + POPUP MODERNO ===== */
+#page-bollette .bolletta-table-wrap{overflow-x:auto!important;overflow-y:hidden!important;border:0!important;border-radius:0!important;background:transparent!important;}
+#page-bollette .bolletta-table{
+  width:100%!important; min-width:500px!important; table-layout:fixed!important;
+  border-collapse:collapse!important; border-spacing:0!important; border:0!important;
+  background:#fff!important; overflow:hidden!important;
+}
+#page-bollette .bolletta-table thead th{
+  background:#f7f9fb!important; border:0!important; border-bottom:1px solid #e2e8ed!important;
+  padding:11px 10px!important; color:#7d8b99!important; font-size:9px!important;
+  font-weight:850!important; letter-spacing:.55px!important; text-transform:uppercase!important;
+}
+#page-bollette .bolletta-table thead th:first-child{text-align:left!important;width:22%!important;border-radius:12px 0 0 0!important;}
+#page-bollette .bolletta-table thead th:not(:first-child){text-align:right!important;width:19.5%!important;}
+#page-bollette .bolletta-table thead th:last-child{border-radius:0 12px 0 0!important;}
+#page-bollette .bolletta-table tbody td{
+  height:48px!important; box-sizing:border-box!important; padding:10px 10px!important;
+  background:#fff!important; border:0!important; border-bottom:1px solid #e8edf1!important;
+  color:#27384b!important; font-size:11px!important; font-weight:700!important;
+  text-align:right!important; vertical-align:middle!important; transition:background .15s ease!important;
+}
+#page-bollette .bolletta-table tbody tr:last-child td{border-bottom:1px solid #e8edf1!important;}
+#page-bollette .bolletta-table tbody tr:hover td{background:#fafcfd!important;box-shadow:none!important;transform:none!important;}
+#page-bollette .bolletta-table tbody td:first-child{
+  text-align:left!important;color:#17273c!important;font-size:12px!important;font-weight:800!important;
+  border-left:0!important;border-radius:0!important;
+}
+#page-bollette .bolletta-table tbody td:last-child{border-right:0!important;border-radius:0!important;}
+#page-bollette .bolletta-cell-month{color:#17273c!important;font-weight:800!important;}
+/* Importi: niente pillole o rigonfiamenti. La cella rimane identica sia vuota sia valorizzata. */
+#page-bollette .bolletta-cell-attachment{cursor:pointer!important;color:#27384b!important;}
+#page-bollette .bolletta-cell-attachment > span:first-child{
+  display:inline!important; min-width:0!important; margin:0!important; padding:0!important;
+  border-radius:0!important; background:transparent!important; color:#27384b!important;
+  font-size:11px!important; font-weight:800!important; line-height:inherit!important;
+}
+#page-bollette .bolletta-cell-attachment:hover > span:first-child{background:transparent!important;color:#17273c!important;}
+#page-bollette .bolletta-multi-badge{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  min-width:18px!important;height:18px!important;margin-left:5px!important;padding:0 5px!important;
+  border-radius:999px!important;background:#eef2f5!important;color:#667687!important;
+  font-size:8px!important;font-weight:850!important;vertical-align:middle!important;
+}
+#page-bollette .bolletta-cell-empty{color:#a8b2bc!important;font-size:11px!important;font-weight:650!important;font-style:normal!important;}
+/* Totali mensili: colonna visivamente distinta, senza alterare l'altezza della riga. */
+#page-bollette .bolletta-cell-total{
+  color:#087443!important;font-size:12px!important;font-weight:900!important;white-space:nowrap!important;
+  background:#f1faf5!important;border-left:1px solid #e0f0e7!important;
+}
+#page-bollette .bolletta-table tbody tr:hover .bolletta-cell-total{background:#edf8f2!important;}
+#page-bollette .bolletta-table tfoot td{
+  height:50px!important;box-sizing:border-box!important;padding:11px 10px!important;
+  background:#eaf7f0!important;border:0!important;border-top:2px solid #cfe9da!important;
+  color:#16804e!important;font-size:11px!important;font-weight:850!important;text-align:right!important;
+  white-space:nowrap!important;
+}
+#page-bollette .bolletta-table tfoot td:first-child{text-align:left!important;color:#17273c!important;font-size:10px!important;}
+#page-bollette .bolletta-table tfoot td:last-child{color:#086d40!important;background:#dff3e8!important;font-weight:950!important;}
+/* Popup dettaglio: stesso linguaggio visivo delle nuove schermate statistiche */
+#bolletta-detail-overlay{
+  background:rgba(20,32,45,.42)!important;backdrop-filter:blur(10px)!important;-webkit-backdrop-filter:blur(10px)!important;
+  padding:18px!important;
+}
+#bolletta-detail-overlay > div{
+  width:min(100%,430px)!important;max-width:430px!important;box-sizing:border-box!important;
+  padding:0!important;background:#fff!important;border:1px solid #e6edf1!important;
+  border-radius:24px!important;box-shadow:0 24px 70px rgba(15,30,45,.18)!important;overflow:hidden!important;
+  animation:modalIn .24s ease!important;
+}
+#bolletta-detail-overlay > div > h3{
+  margin:0!important;padding:20px 22px 16px!important;border-bottom:1px solid #edf1f4!important;
+  font-size:19px!important;font-weight:850!important;letter-spacing:-.35px!important;color:#17273c!important;
+}
+#bolletta-detail-overlay .detail-field{
+  margin:0 18px!important;padding:13px 4px!important;border-bottom:1px solid #edf1f4!important;
+}
+#bolletta-detail-overlay .detail-field label{
+  display:block!important;margin:0 0 5px!important;color:#8998a6!important;font-size:10px!important;
+  font-weight:800!important;text-transform:uppercase!important;letter-spacing:.45px!important;
+}
+#bolletta-detail-overlay .detail-field p{
+  margin:0!important;color:#17273c!important;font-size:14px!important;font-weight:750!important;line-height:1.35!important;
+  word-break:break-word!important;
+}
+#bolletta-detail-overlay #bolletta-detail-importo{
+  display:flex!important;align-items:center!important;min-height:32px!important;
+}
+#bolletta-detail-overlay #bolletta-detail-importo span{
+  font-size:23px!important;font-weight:900!important;color:#087443!important;letter-spacing:-.4px!important;
+}
+#bolletta-detail-overlay > div > div:last-child{
+  display:grid!important;grid-template-columns:1fr 1fr 48px!important;gap:9px!important;
+  margin:0!important;padding:16px 18px 18px!important;
+}
+#bolletta-detail-close,#bolletta-detail-download,#bolletta-detail-delete{
+  height:46px!important;box-sizing:border-box!important;border-radius:14px!important;font-family:inherit!important;
+  font-weight:800!important;cursor:pointer!important;transition:transform .15s ease,background .15s ease!important;
+}
+#bolletta-detail-close{
+  background:#f5f7f9!important;border:1px solid #e0e7ec!important;color:#27384b!important;
+}
+#bolletta-detail-download{
+  background:#17273c!important;border:0!important;color:#fff!important;box-shadow:0 6px 16px rgba(23,39,60,.14)!important;
+}
+#bolletta-detail-delete{
+  width:48px!important;background:#fff1f1!important;border:1px solid #ffd5d5!important;color:#d92d20!important;
+}
+#bolletta-detail-close:hover,#bolletta-detail-download:hover,#bolletta-detail-delete:hover{transform:translateY(-1px)!important;}
+#bolletta-detail-delete svg{width:20px!important;height:20px!important;}
+@media(max-width:600px){
+  #page-bollette .bolletta-table{min-width:500px!important;}
+  #page-bollette .bolletta-table thead th{padding:10px 8px!important;font-size:8px!important;}
+  #page-bollette .bolletta-table tbody td{height:46px!important;padding:9px 8px!important;font-size:10px!important;}
+  #page-bollette .bolletta-table tbody td:first-child{font-size:11px!important;}
+  #page-bollette .bolletta-cell-attachment > span:first-child{font-size:10px!important;padding:0!important;}
+  #page-bollette .bolletta-table tfoot td{height:47px!important;padding:10px 8px!important;font-size:9px!important;}
+  #bolletta-detail-overlay{padding:14px!important;}
+  #bolletta-detail-overlay > div{border-radius:22px!important;}
+  #bolletta-detail-overlay > div > h3{padding:18px 18px 14px!important;font-size:18px!important;}
+  #bolletta-detail-overlay .detail-field{margin:0 14px!important;padding:12px 4px!important;}
+  #bolletta-detail-overlay > div > div:last-child{padding:14px!important;grid-template-columns:1fr 1fr 46px!important;gap:7px!important;}
+  #bolletta-detail-close,#bolletta-detail-download{font-size:12px!important;}
+  #bolletta-detail-delete{width:46px!important;}
+}
+</style>
+
 </head>
 <body><div id="login-screen">
 <h1>Budget di Famiglia</h1>
