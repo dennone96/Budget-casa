@@ -15062,3 +15062,515 @@ document.addEventListener('DOMContentLoaded', function() {
 <script>
 /* CLEAN 15 marker */
 </script>
+
+<style id="calendar-modern-overrides">
+/* =========================================================
+   CALENDARIO EVENTI — RESTYLING MODERNO
+   Solo stile: struttura e logica eventi invariate.
+   ========================================================= */
+#page-eventi {
+  padding-bottom: 28px;
+}
+
+#page-eventi > h1 {
+  margin: 0 0 18px !important;
+  font-size: 25px !important;
+  line-height: 1.15;
+  font-weight: 850 !important;
+  letter-spacing: -0.45px;
+  color: var(--ui-ink, #17273c) !important;
+}
+
+/* Header mese */
+#page-eventi > div:first-of-type {
+  background: #fff !important;
+  border: 1px solid var(--ui-line, #e6edf2) !important;
+  border-radius: 18px !important;
+  min-height: 58px;
+  padding: 8px 10px !important;
+  margin-bottom: 12px !important;
+  box-shadow: 0 7px 22px rgba(23,39,60,.055);
+}
+
+#page-eventi #mese-titolo {
+  font-size: 17px !important;
+  font-weight: 850 !important;
+  color: var(--ui-ink, #17273c) !important;
+  letter-spacing: -.15px;
+}
+
+#page-eventi #btn-mese-prec,
+#page-eventi #btn-mese-succ {
+  width: 40px !important;
+  height: 40px !important;
+  padding: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f6f9fb !important;
+  color: #587089 !important;
+  border: 1px solid #e5ecf1 !important;
+  border-radius: 12px !important;
+  font-size: 25px !important;
+  line-height: 1;
+  box-shadow: none !important;
+}
+
+#page-eventi #btn-mese-prec:hover,
+#page-eventi #btn-mese-succ:hover {
+  background: #edf5fb !important;
+  color: #2563a6 !important;
+}
+
+/* Card calendario */
+#page-eventi > div:nth-of-type(2) {
+  background: #fff !important;
+  border: 1px solid var(--ui-line, #e6edf2) !important;
+  border-radius: 20px !important;
+  padding: 15px !important;
+  margin-bottom: 12px !important;
+  box-shadow: 0 8px 25px rgba(23,39,60,.055);
+}
+
+#page-eventi > div:nth-of-type(2) > div:first-child {
+  color: #8a9aac !important;
+  font-size: 10px !important;
+  font-weight: 850 !important;
+  letter-spacing: .55px;
+  text-transform: uppercase;
+  margin-bottom: 9px !important;
+}
+
+#page-eventi #calendario-giorni {
+  gap: 5px !important;
+}
+
+#page-eventi .giorno-cell {
+  min-width: 0;
+  aspect-ratio: 1 / 1;
+  border: 1px solid transparent;
+  border-radius: 12px !important;
+  background: #f7f9fb !important;
+  color: #31465c !important;
+  font-size: 13px !important;
+  font-weight: 750 !important;
+  box-sizing: border-box;
+  box-shadow: none !important;
+  transform: none !important;
+  transition: background .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+
+#page-eventi .giorno-cell:hover {
+  background: #eef6fc !important;
+  border-color: #c9dff2 !important;
+  transform: none !important;
+}
+
+#page-eventi .giorno-cell.altro-mese {
+  background: #fafbfc !important;
+  color: #aab5c0 !important;
+  border-color: transparent !important;
+  opacity: .65;
+}
+
+/* Oggi: blu pulito */
+#page-eventi .giorno-cell.oggi {
+  background: #eaf4ff !important;
+  color: #145a94 !important;
+  border: 1.5px solid #5ba4df !important;
+  font-weight: 850 !important;
+}
+
+/* Giorno selezionato */
+#page-eventi .giorno-cell.selezionato {
+  background: #f2f8fd !important;
+  color: #173d61 !important;
+  border: 2px solid #2f80c8 !important;
+  box-shadow: 0 0 0 3px rgba(47,128,200,.10) !important;
+}
+
+/* Giorno con evento: AZZURRO CHIARO + BORDO BLU */
+#page-eventi .giorno-cell.has-event,
+#page-eventi .giorno-cell.has-event.oggi,
+#page-eventi .giorno-cell.has-event.selezionato {
+  background: #e9f5ff !important;
+  color: #174d78 !important;
+  border: 1.5px solid #3b82c4 !important;
+  box-shadow: inset 0 0 0 1px rgba(59,130,196,.08) !important;
+  font-weight: 850 !important;
+}
+
+#page-eventi .giorno-cell.has-event::after,
+#page-eventi .giorno-cell.oggi.has-event::after {
+  width: 5px !important;
+  height: 5px !important;
+  bottom: 4px !important;
+  background: #2f80c8 !important;
+  box-shadow: none !important;
+}
+
+/* Card eventi del giorno */
+#page-eventi > div:nth-of-type(3) {
+  background: #fff !important;
+  border: 1px solid var(--ui-line, #e6edf2) !important;
+  border-radius: 20px !important;
+  padding: 16px !important;
+  box-shadow: 0 8px 25px rgba(23,39,60,.055);
+}
+
+#page-eventi #giorno-selezionato-titolo {
+  color: var(--ui-ink, #17273c) !important;
+  font-size: 15px !important;
+  font-weight: 850 !important;
+  letter-spacing: -.1px;
+}
+
+#page-eventi #btn-nuovo-evento {
+  min-height: 40px;
+  padding: 0 16px !important;
+  background: var(--ui-ink, #17273c) !important;
+  color: #fff !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  letter-spacing: -.05px;
+}
+
+#page-eventi #btn-nuovo-evento:hover {
+  transform: none !important;
+  background: #223b55 !important;
+}
+
+#page-eventi #eventi-del-giorno > div:not(.evento-card) {
+  padding: 28px 16px !important;
+  border: 1px dashed #dbe5ec;
+  border-radius: 15px;
+  background: #fafcfd;
+}
+
+#page-eventi #eventi-del-giorno > div:not(.evento-card) p:first-child {
+  margin: 0 0 5px !important;
+  color: #536a80 !important;
+  font-weight: 800 !important;
+}
+
+#page-eventi #eventi-del-giorno > div:not(.evento-card) p:last-child {
+  margin: 0 !important;
+  color: #95a4b3 !important;
+}
+
+/* Singolo evento */
+#page-eventi .evento-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 62px;
+  margin-bottom: 9px;
+  padding: 11px 12px !important;
+  background: #fff !important;
+  border: 1px solid #e5edf3 !important;
+  border-left: 4px solid #4d98d0 !important;
+  border-radius: 15px !important;
+  box-shadow: 0 4px 14px rgba(23,39,60,.045);
+  transform: none !important;
+}
+
+#page-eventi .evento-card:hover {
+  background: #f8fbfe !important;
+  border-color: #d7e5ef !important;
+  transform: none !important;
+}
+
+#page-eventi .evento-card .evento-ora {
+  min-width: 72px;
+  color: #2874aa !important;
+  font-size: 11px !important;
+  font-weight: 850 !important;
+  padding: 7px 8px;
+  background: #eef7ff;
+  border-radius: 9px;
+  text-align: center;
+}
+
+#page-eventi .evento-card .evento-titolo {
+  color: #21364c !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  line-height: 1.3;
+}
+
+#page-eventi .evento-card .evento-edit,
+#page-eventi .evento-card .evento-delete {
+  width: 34px;
+  height: 34px;
+  padding: 0 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e3ebf1 !important;
+  border-radius: 10px !important;
+  background: #f8fafc !important;
+  font-size: 15px !important;
+  color: #71859a !important;
+}
+
+#page-eventi .evento-card .evento-edit:hover {
+  color: #2874aa !important;
+  background: #edf7ff !important;
+  border-color: #cfe4f4 !important;
+}
+
+#page-eventi .evento-card .evento-delete:hover {
+  color: #d94b57 !important;
+  background: #fff1f2 !important;
+  border-color: #f3d3d7 !important;
+}
+
+/* =========================================================
+   POPUP CREAZIONE / MODIFICA EVENTO
+   ========================================================= */
+.evento-modal-overlay {
+  background: rgba(20,34,49,.48) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  padding: 16px !important;
+}
+
+.evento-modal {
+  position: relative;
+  width: min(100%, 440px) !important;
+  max-width: 440px !important;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  padding: 22px !important;
+  background: #fff !important;
+  border: 1px solid #e4ebf1 !important;
+  border-radius: 22px !important;
+  box-shadow: 0 24px 70px rgba(19,36,53,.20) !important;
+  animation: calendarModalIn .22s ease-out !important;
+}
+
+@keyframes calendarModalIn {
+  from { opacity: 0; transform: translateY(10px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.evento-modal h3 {
+  margin: 0 0 5px !important;
+  color: #172b40 !important;
+  font-size: 20px !important;
+  font-weight: 850 !important;
+  letter-spacing: -.35px;
+}
+
+.evento-modal > p {
+  margin: 0 0 20px !important;
+  color: #8798a8 !important;
+  font-size: 12px !important;
+  line-height: 1.5;
+  font-weight: 650 !important;
+}
+
+.evento-modal .campo {
+  margin-bottom: 15px !important;
+}
+
+.evento-modal .campo label {
+  margin-bottom: 7px !important;
+  color: #5d7185 !important;
+  font-size: 11px !important;
+  font-weight: 850 !important;
+  letter-spacing: .2px;
+}
+
+.evento-modal .campo input,
+.evento-modal .campo select,
+.evento-modal .campo textarea {
+  box-sizing: border-box;
+  width: 100% !important;
+  min-height: 46px;
+  height: 46px !important;
+  background: #f8fafc !important;
+  border: 1px solid #dfe8ef !important;
+  border-radius: 13px !important;
+  color: #24394e !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  box-shadow: none !important;
+}
+
+.evento-modal .campo textarea {
+  height: 88px !important;
+  min-height: 88px;
+  padding: 12px 13px !important;
+  line-height: 1.45;
+}
+
+.evento-modal .campo input::placeholder,
+.evento-modal .campo textarea::placeholder {
+  color: #a1afbc !important;
+  font-weight: 600;
+}
+
+.evento-modal .campo input:focus,
+.evento-modal .campo select:focus,
+.evento-modal .campo textarea:focus {
+  background: #fff !important;
+  border-color: #4b96cf !important;
+  box-shadow: 0 0 0 3px rgba(75,150,207,.11) !important;
+}
+
+/* Tutto il giorno */
+.evento-modal .evento-all-day-toggle {
+  min-height: 54px;
+  box-sizing: border-box;
+  margin: 3px 0 16px !important;
+  padding: 10px 12px !important;
+  background: #f6f9fb !important;
+  border: 1px solid #e5edf2 !important;
+  border-radius: 14px !important;
+}
+
+.evento-modal .evento-all-day-toggle > div:first-child > div:first-child {
+  color: #294057 !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+}
+
+.evento-modal .evento-all-day-toggle > div:first-child > div:last-child {
+  color: #93a2b0 !important;
+  font-size: 11px !important;
+}
+
+.evento-modal .evento-switch {
+  width: 44px !important;
+  height: 25px !important;
+}
+
+.evento-modal .evento-slider {
+  background: #cbd5df !important;
+  border-radius: 999px !important;
+}
+
+.evento-modal .evento-slider:before {
+  width: 19px !important;
+  height: 19px !important;
+  left: 3px !important;
+  top: 3px !important;
+  box-shadow: 0 2px 5px rgba(24,44,61,.20) !important;
+}
+
+.evento-modal .evento-switch input:checked + .evento-slider {
+  background: #4b96cf !important;
+}
+
+.evento-modal .evento-switch input:checked + .evento-slider:before {
+  transform: translateX(19px) !important;
+}
+
+/* Pulsanti popup */
+.evento-modal .modal-actions {
+  gap: 9px !important;
+  margin-top: 20px !important;
+}
+
+.evento-modal .modal-actions button {
+  min-height: 46px;
+  height: 46px !important;
+  border-radius: 13px !important;
+  font-size: 12px !important;
+  font-weight: 850 !important;
+  box-shadow: none !important;
+}
+
+.evento-modal .btn-cancel {
+  background: #f7f9fb !important;
+  border: 1px solid #dfe7ed !important;
+  color: #62778a !important;
+}
+
+.evento-modal .btn-cancel:hover {
+  background: #eef3f6 !important;
+  transform: none !important;
+}
+
+.evento-modal .btn-create {
+  background: #172b40 !important;
+  border: none !important;
+  color: #fff !important;
+  box-shadow: 0 7px 16px rgba(23,43,64,.14) !important;
+}
+
+.evento-modal .btn-create:hover {
+  background: #223d58 !important;
+  transform: none !important;
+  box-shadow: 0 9px 20px rgba(23,43,64,.18) !important;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  #page-eventi > h1 {
+    font-size: 22px !important;
+    margin-bottom: 14px !important;
+  }
+
+  #page-eventi > div:nth-of-type(2),
+  #page-eventi > div:nth-of-type(3) {
+    padding: 13px !important;
+    border-radius: 18px !important;
+  }
+
+  #page-eventi #calendario-giorni {
+    gap: 4px !important;
+  }
+
+  #page-eventi .giorno-cell {
+    border-radius: 10px !important;
+    font-size: 12px !important;
+  }
+
+  #page-eventi .evento-card {
+    gap: 8px;
+    min-height: 58px;
+    padding: 9px !important;
+  }
+
+  #page-eventi .evento-card .evento-ora {
+    min-width: 62px;
+    padding: 6px 5px;
+    font-size: 10px !important;
+  }
+
+  #page-eventi .evento-card .evento-titolo {
+    font-size: 13px !important;
+  }
+
+  #page-eventi .evento-card .evento-edit,
+  #page-eventi .evento-card .evento-delete {
+    width: 31px;
+    height: 31px;
+    font-size: 14px !important;
+  }
+
+  #page-eventi #btn-nuovo-evento {
+    min-height: 38px;
+    padding: 0 12px !important;
+    font-size: 11px !important;
+  }
+
+  .evento-modal-overlay {
+    align-items: flex-end !important;
+    padding: 10px !important;
+  }
+
+  .evento-modal {
+    width: 100% !important;
+    max-width: none !important;
+    max-height: calc(100vh - 20px);
+    padding: 19px !important;
+    border-radius: 22px 22px 18px 18px !important;
+  }
+}
+</style>
