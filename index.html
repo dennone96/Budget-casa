@@ -15600,3 +15600,86 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 }
 </style>
+<style id="calendar-event-popup-keyboard-fix">
+/* Popup creazione/modifica calendario: centrato anche con tastiera aperta */
+#evento-modal-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  min-height: 0 !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  padding: 0 12px !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+#evento-modal-overlay .evento-modal {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: min(500px, calc(100vw - 24px)) !important;
+  max-width: 500px !important;
+  max-height: calc(100vh - 24px) !important;
+  overflow-y: auto !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+}
+@media (max-width: 600px) {
+  #evento-modal-overlay {
+    padding: 0 10px !important;
+  }
+  #evento-modal-overlay .evento-modal {
+    width: calc(100vw - 20px) !important;
+    max-width: none !important;
+    max-height: calc(100vh - 20px) !important;
+  }
+}
+</style>
+<script id="calendar-event-popup-keyboard-fix-js">
+(function () {
+  function positionCalendarEventPopup() {
+    const overlay = document.getElementById('evento-modal-overlay');
+    if (!overlay) return;
+    const modal = overlay.querySelector('.evento-modal');
+    if (!modal) return;
+
+    const vv = window.visualViewport;
+    if (vv) {
+      const top = vv.offsetTop + vv.height / 2;
+      modal.style.top = top + 'px';
+      modal.style.maxHeight = Math.max(180, vv.height - 20) + 'px';
+    } else {
+      modal.style.top = '50%';
+      modal.style.maxHeight = 'calc(100vh - 20px)';
+    }
+  }
+
+  function watchCalendarEventPopup() {
+    const overlay = document.getElementById('evento-modal-overlay');
+    if (!overlay) return;
+    positionCalendarEventPopup();
+    if (window.visualViewport && !overlay.dataset.vvWatching) {
+      overlay.dataset.vvWatching = '1';
+      window.visualViewport.addEventListener('resize', positionCalendarEventPopup);
+      window.visualViewport.addEventListener('scroll', positionCalendarEventPopup);
+    }
+  }
+
+  const observer = new MutationObserver(function () {
+    if (document.getElementById('evento-modal-overlay')) {
+      requestAnimationFrame(watchCalendarEventPopup);
+    }
+  });
+  observer.observe(document.body, { childList: true });
+  window.addEventListener('resize', positionCalendarEventPopup);
+  document.addEventListener('focusin', function (e) {
+    if (e.target && e.target.closest && e.target.closest('#evento-modal-overlay')) {
+      setTimeout(positionCalendarEventPopup, 120);
+      setTimeout(positionCalendarEventPopup, 350);
+    }
+  });
+})();
+</script>
