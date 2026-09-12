@@ -9125,6 +9125,274 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
   #page-liste .lista-modal-box { padding: 20px !important; border-radius: 22px !important; }
 }
 </style>
+
+<style id="shopping-lists-complete-redesign">
+/* =========================================================
+   LISTE DELLA SPESA — REDESIGN COMPLETO
+   Grafica isolata: nessuna modifica alla persistenza o ai listener.
+   ========================================================= */
+#page-liste{
+  --shop-navy:#102f50;
+  --shop-navy-2:#173c60;
+  --shop-blue:#2f80d9;
+  --shop-blue-soft:#eaf5ff;
+  --shop-line:#e4edf5;
+  --shop-muted:#7892aa;
+  --shop-green:#1fa774;
+  --shop-green-soft:#e7f8f1;
+  background:transparent !important;
+  padding-bottom:28px !important;
+}
+#page-liste > h1{
+  margin:6px 0 20px !important;
+  text-align:center !important;
+  color:var(--shop-navy) !important;
+  font-size:29px !important;
+  line-height:1.1 !important;
+  font-weight:900 !important;
+  letter-spacing:-.9px !important;
+}
+#page-liste > div:first-of-type{margin-bottom:16px !important;}
+#page-liste #btn-nuova-lista-principale{
+  height:56px !important;
+  min-height:56px !important;
+  width:100% !important;
+  border-radius:18px !important;
+  background:var(--shop-navy) !important;
+  color:#fff !important;
+  box-shadow:0 10px 26px rgba(16,47,80,.16) !important;
+  font-size:16px !important;
+  font-weight:850 !important;
+  letter-spacing:.05px !important;
+  gap:10px !important;
+  border:0 !important;
+}
+#page-liste #btn-nuova-lista-principale:hover{transform:translateY(-1px) !important;background:var(--shop-navy-2) !important;}
+#page-liste #btn-nuova-lista-principale:active{transform:scale(.985) !important;}
+.shopping-add-icon{font-size:28px;line-height:1;font-weight:300;margin-top:-2px;}
+.shopping-lists-toolbar{
+  display:flex;align-items:center;justify-content:space-between;
+  margin:20px 2px 10px;
+  color:var(--shop-navy);
+}
+.shopping-lists-caption{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:850;}
+.shopping-caption-dot{width:8px;height:8px;border-radius:50%;background:#4da0e5;box-shadow:0 0 0 4px #eaf5ff;}
+.shopping-lists-count{font-size:12px;font-weight:800;color:var(--shop-muted);}
+#liste-container-principale{min-height:0 !important;}
+
+/* Cards delle liste */
+#page-liste .lista-card-principale{
+  position:relative !important;
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  min-height:108px !important;
+  box-sizing:border-box !important;
+  padding:16px 13px 15px 13px !important;
+  margin:0 0 12px !important;
+  overflow:hidden !important;
+  border:1px solid #e2ebf3 !important;
+  border-radius:22px !important;
+  background:#fff !important;
+  color:var(--shop-navy) !important;
+  box-shadow:0 8px 25px rgba(30,70,105,.075) !important;
+  transform:none !important;
+  opacity:1 !important;
+}
+#page-liste .lista-card-principale::before{
+  content:"" !important;
+  position:absolute !important;
+  left:0 !important;top:14px !important;bottom:14px !important;
+  width:4px !important;border-radius:0 8px 8px 0 !important;
+  background:#6db2eb !important;
+}
+#page-liste .lista-card-principale.completata{
+  background:#f9fcfb !important;
+  border-color:#dfeee8 !important;
+}
+#page-liste .lista-card-principale.completata::before{background:#58bd92 !important;}
+#page-liste .lista-info-principale{
+  display:grid !important;
+  grid-template-columns:24px 48px minmax(0,1fr) !important;
+  align-items:center !important;
+  gap:11px !important;
+  min-width:0 !important;
+  padding-left:5px !important;
+  flex:1 !important;
+}
+#page-liste .lista-checkbox-principale,
+#page-liste .item-checkbox-principale{
+  appearance:none !important;-webkit-appearance:none !important;
+  width:23px !important;height:23px !important;min-width:23px !important;
+  margin:0 !important;border:2px solid #9ab1c5 !important;
+  border-radius:8px !important;background:#fff !important;
+  position:relative !important;box-shadow:none !important;cursor:pointer !important;
+}
+#page-liste .lista-checkbox-principale:checked,
+#page-liste .item-checkbox-principale:checked{background:#3188dc !important;border-color:#3188dc !important;}
+#page-liste .lista-checkbox-principale:checked::after,
+#page-liste .item-checkbox-principale:checked::after{
+  content:'✓' !important;position:absolute !important;inset:0 !important;
+  display:grid !important;place-items:center !important;color:#fff !important;
+  font-size:14px !important;font-weight:900 !important;
+}
+.shopping-list-icon,.shopping-detail-icon{
+  display:grid !important;place-items:center !important;
+  width:48px !important;height:48px !important;min-width:48px !important;
+  border-radius:16px !important;
+  background:#e8f4ff !important;
+  color:#2f80d9 !important;
+  font-size:25px !important;
+  box-shadow:inset 0 0 0 1px rgba(47,128,217,.07) !important;
+}
+#page-liste .lista-dettagli-principale{min-width:0 !important;}
+#page-liste .lista-nome-principale{
+  color:var(--shop-navy) !important;font-size:17px !important;font-weight:850 !important;
+  line-height:1.15 !important;letter-spacing:-.25px !important;
+  white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;
+}
+#page-liste .lista-nome-principale.completato{color:#8da1b1 !important;text-decoration:line-through !important;}
+#page-liste .lista-meta-principale{margin-top:6px !important;color:#7591a9 !important;font-size:12px !important;font-weight:700 !important;}
+#page-liste .lista-meta-principale strong{color:#2f80d9 !important;font-weight:900 !important;}
+#page-liste .lista-progress-principale{
+  width:100% !important;max-width:210px !important;height:6px !important;
+  margin-top:9px !important;background:#edf3f8 !important;border-radius:999px !important;overflow:hidden !important;
+}
+#page-liste .lista-progress-principale span{height:100% !important;background:#4a9be2 !important;border-radius:999px !important;}
+#page-liste .lista-card-principale.completata .lista-progress-principale span{background:#58bd92 !important;}
+#page-liste .lista-actions-principale{display:flex !important;align-items:center !important;gap:2px !important;flex-shrink:0 !important;}
+#page-liste .lista-arrow-principale{color:#7193af !important;font-size:32px !important;font-weight:300 !important;line-height:1 !important;}
+#page-liste .lista-delete-principale{
+  width:34px !important;height:34px !important;padding:0 !important;
+  display:grid !important;place-items:center !important;border:0 !important;
+  border-radius:11px !important;background:transparent !important;
+  color:#9cafbf !important;font-size:19px !important;
+}
+#page-liste .lista-delete-principale:hover{background:#fff0f2 !important;color:#d94d5b !important;}
+
+/* Dettaglio lista */
+#page-liste .btn-back-liste-principale{
+  display:flex !important;align-items:center !important;gap:7px !important;
+  margin:0 0 12px 2px !important;padding:5px 0 !important;
+  color:#6d89a0 !important;font-size:13px !important;font-weight:850 !important;
+}
+#page-liste .lista-detail-header{
+  display:flex !important;align-items:center !important;justify-content:space-between !important;
+  gap:12px !important;margin:0 0 13px !important;padding:16px !important;
+  border:1px solid #e2ebf3 !important;border-radius:22px !important;background:#fff !important;
+  box-shadow:0 8px 25px rgba(30,70,105,.07) !important;
+}
+.shopping-detail-main{display:flex;align-items:center;gap:12px;min-width:0;flex:1;}
+.shopping-detail-copy{min-width:0;}
+#page-liste .lista-detail-header .lista-titolo{
+  color:var(--shop-navy) !important;font-size:21px !important;font-weight:900 !important;
+  line-height:1.15 !important;margin:0 0 4px !important;
+}
+#page-liste .lista-detail-header .lista-conteggio{color:#718ca4 !important;font-size:12px !important;font-weight:750 !important;}
+#page-liste .lista-detail-progress{height:6px !important;width:180px !important;max-width:100% !important;margin-top:9px !important;background:#edf3f8 !important;border-radius:999px !important;overflow:hidden !important;}
+#page-liste .lista-detail-progress span{display:block;height:100%;background:#4a9be2 !important;border-radius:999px !important;}
+#page-liste .lista-actions{flex-shrink:0 !important;}
+#page-liste .btn-delete-lista-principale{
+  width:40px !important;height:40px !important;padding:0 !important;
+  display:grid !important;place-items:center !important;
+  font-size:0 !important;background:#fff1f3 !important;color:#d84d5c !important;
+  border:1px solid #ffdce1 !important;border-radius:12px !important;box-shadow:none !important;
+}
+#page-liste .btn-delete-lista-principale::after{content:'🗑' !important;font-size:16px !important;}
+#page-liste .btn-delete-lista-principale:hover{background:#ffe7eb !important;transform:none !important;}
+
+/* Inserimento */
+#page-liste .lista-add-bar{
+  display:flex !important;align-items:center !important;gap:8px !important;
+  padding:8px !important;margin:0 0 14px !important;
+  background:#fff !important;border:1px solid #e1ebf3 !important;border-radius:19px !important;
+  box-shadow:0 7px 20px rgba(30,70,105,.06) !important;
+}
+#page-liste .lista-add-bar::before{content:'+';width:38px;height:38px;display:grid;place-items:center;border-radius:12px;background:#eaf5ff;color:#2f80d9;font-size:24px;font-weight:400;flex-shrink:0;}
+#page-liste .lista-add-bar input{
+  flex:1 !important;min-width:0 !important;height:42px !important;
+  padding:0 10px !important;border:0 !important;outline:0 !important;
+  background:transparent !important;color:var(--shop-navy) !important;
+  font-size:14px !important;font-weight:700 !important;box-shadow:none !important;
+}
+#page-liste .lista-add-bar input::placeholder{color:#91a6b8 !important;font-weight:650 !important;}
+#page-liste .lista-add-bar input:focus{box-shadow:none !important;background:transparent !important;border:0 !important;}
+#page-liste .lista-add-bar .btn-add-item-principale{
+  height:42px !important;padding:0 15px !important;border:0 !important;border-radius:12px !important;
+  background:var(--shop-navy) !important;color:#fff !important;font-size:12px !important;font-weight:850 !important;
+}
+.shopping-items-heading{display:flex;justify-content:space-between;align-items:center;margin:4px 3px 9px;color:var(--shop-navy);font-size:13px;font-weight:900;}
+.shopping-items-heading span:last-child{color:#8aa0b3;font-size:11px;font-weight:750;}
+/* Articoli: lista pulita, non una serie di card pesanti */
+#page-liste .item-row-principale{
+  display:flex !important;align-items:center !important;gap:11px !important;
+  min-height:56px !important;padding:8px 7px !important;margin:0 !important;
+  background:#fff !important;border:0 !important;border-bottom:1px solid #e8eff5 !important;
+  border-radius:0 !important;box-shadow:none !important;
+}
+#page-liste .item-row-principale:last-child{border-bottom:0 !important;}
+#page-liste .item-row-principale:hover{background:#f8fbfe !important;border-color:#e8eff5 !important;}
+#page-liste .item-checkbox-principale{width:22px !important;height:22px !important;min-width:22px !important;}
+#page-liste .item-nome-principale{color:var(--shop-navy) !important;font-size:14px !important;font-weight:750 !important;}
+#page-liste .item-nome-principale.completato{color:#9aabb9 !important;text-decoration:line-through !important;}
+#page-liste .item-delete-principale{width:32px !important;height:32px !important;padding:0 !important;border-radius:10px !important;color:#a0b1bf !important;font-size:17px !important;}
+#page-liste .item-delete-principale:hover{background:#fff0f2 !important;color:#d84d5c !important;}
+
+/* Empty state */
+#page-liste #liste-container-principale > div[style*="text-align:center"]{
+  box-sizing:border-box !important;margin-top:4px !important;padding:48px 24px !important;
+  background:#fff !important;border:1px dashed #cbddea !important;border-radius:22px !important;
+  box-shadow:0 7px 20px rgba(30,70,105,.04) !important;
+}
+#page-liste #liste-container-principale > div[style*="text-align:center"] > div:first-child{width:64px;height:64px;margin:0 auto 14px !important;display:grid;place-items:center;border-radius:20px;background:#eaf5ff;font-size:30px !important;}
+#page-liste #liste-container-principale > div[style*="text-align:center"] p{color:#7892aa !important;}
+#page-liste #liste-container-principale > div[style*="text-align:center"] p:first-of-type{color:var(--shop-navy) !important;}
+
+/* Popup */
+#page-liste .lista-modal-principale{
+  background:rgba(12,32,51,.48) !important;backdrop-filter:blur(10px) !important;-webkit-backdrop-filter:blur(10px) !important;
+  padding:16px !important;
+}
+#page-liste .lista-modal-box{
+  width:100% !important;max-width:430px !important;padding:24px !important;
+  border:1px solid rgba(255,255,255,.8) !important;border-radius:24px !important;
+  background:#fff !important;box-shadow:0 24px 70px rgba(10,31,51,.25) !important;
+}
+#page-liste .lista-modal-box h3{color:var(--shop-navy) !important;font-size:21px !important;font-weight:900 !important;}
+#page-liste .lista-modal-box p{color:#7892aa !important;}
+#page-liste .lista-modal-box input{height:50px !important;border:1px solid #dce7ef !important;border-radius:14px !important;background:#f6f9fb !important;color:var(--shop-navy) !important;box-shadow:none !important;}
+#page-liste .lista-modal-box input:focus{background:#fff !important;border-color:#77b2e4 !important;box-shadow:0 0 0 4px rgba(47,128,217,.10) !important;}
+#page-liste .lista-modal-box .modal-actions-principale{gap:9px !important;margin-top:18px !important;}
+#page-liste .lista-modal-box .modal-actions-principale button{height:46px !important;border-radius:13px !important;font-weight:850 !important;}
+#page-liste .lista-modal-box .btn-cancel-principale{background:#f4f7fa !important;border:1px solid #dce6ee !important;color:#637a8e !important;}
+#page-liste .lista-modal-box .btn-create-principale{background:var(--shop-navy) !important;color:#fff !important;border:0 !important;}
+
+@media(max-width:600px){
+  #page-liste > h1{font-size:25px !important;margin:4px 0 17px !important;}
+  #page-liste #btn-nuova-lista-principale{height:55px !important;min-height:55px !important;border-radius:18px !important;}
+  .shopping-lists-toolbar{margin-top:18px;}
+  #page-liste .lista-card-principale{min-height:101px !important;border-radius:20px !important;padding:14px 9px 14px 10px !important;}
+  #page-liste .lista-info-principale{grid-template-columns:22px 43px minmax(0,1fr) !important;gap:9px !important;}
+  .shopping-list-icon{width:43px !important;height:43px !important;min-width:43px !important;border-radius:14px !important;font-size:22px !important;}
+  #page-liste .lista-nome-principale{font-size:16px !important;}
+  #page-liste .lista-meta-principale{font-size:11px !important;}
+  #page-liste .lista-progress-principale{max-width:170px !important;height:5px !important;}
+  #page-liste .lista-arrow-principale{font-size:29px !important;}
+  #page-liste .lista-delete-principale{width:31px !important;height:31px !important;font-size:17px !important;}
+  #page-liste .lista-detail-header{align-items:flex-start !important;padding:14px !important;border-radius:20px !important;}
+  .shopping-detail-icon{width:44px !important;height:44px !important;min-width:44px !important;font-size:22px !important;border-radius:14px !important;}
+  #page-liste .lista-detail-header .lista-titolo{font-size:19px !important;}
+  #page-liste .lista-actions{margin-left:auto !important;}
+  #page-liste .btn-delete-lista-principale{width:38px !important;height:38px !important;}
+  #page-liste .lista-add-bar{border-radius:17px !important;padding:7px !important;}
+  #page-liste .lista-add-bar::before{width:35px;height:35px;font-size:21px;border-radius:11px;}
+  #page-liste .lista-add-bar input{height:40px !important;font-size:13px !important;}
+  #page-liste .lista-add-bar .btn-add-item-principale{height:40px !important;padding:0 12px !important;font-size:11px !important;}
+  #page-liste .item-row-principale{min-height:53px !important;padding:7px 4px !important;}
+  #page-liste .item-nome-principale{font-size:14px !important;}
+  #page-liste .lista-modal-box{padding:20px !important;border-radius:22px !important;}
+}
+</style>
 </head>
 <body><div id="login-screen">
 <h1>Budget di Famiglia</h1>
@@ -9545,7 +9813,7 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 </div>
 </div>
 <div class="page" id="page-liste">
-<h1>📋 Liste della spesa</h1>
+<h1>Lista della spesa</h1>
 <!-- Pulsante per nuova lista -->
 <div style="margin-bottom:20px;">
 <button id="btn-nuova-lista-principale" style="
@@ -9565,10 +9833,14 @@ Movimenti in contanti. Stesse colonne del conto corrente.
       justify-content: center;
       gap: 10px;
     ">
-<i class="ti ti-plus" style="font-size:20px;"></i> Nuova lista
+<span class="shopping-add-icon">+</span><span>Nuova lista</span>
     </button>
 </div>
 <!-- Contenitore liste -->
+<div class="shopping-lists-toolbar">
+  <div class="shopping-lists-caption"><span class="shopping-caption-dot"></span><span>Le tue liste</span></div>
+  <div class="shopping-lists-count" id="shopping-lists-count">0 liste</div>
+</div>
 <div id="liste-container-principale" style="min-height:200px;">
 <div style="text-align:center; padding:40px 20px; color:var(--text-muted);">
 <div style="font-size:48px; margin-bottom:12px;">⏳</div>
@@ -14545,6 +14817,8 @@ function renderShoppingLists() {
   }
   
   const listKeys = Object.keys(shoppingLists);
+  const countEl = document.getElementById('shopping-lists-count');
+  if (countEl) countEl.textContent = `${listKeys.length} ${listKeys.length === 1 ? 'lista' : 'liste'}`;
   
   if (listKeys.length === 0) {
     container.innerHTML = `
@@ -14574,9 +14848,10 @@ function renderShoppingLists() {
       <div class="lista-card-principale ${isCompletata ? 'completata' : ''}" data-id="${key}">
         <div class="lista-info-principale">
           <input type="checkbox" class="lista-checkbox-principale" data-id="${key}" ${isCompletata ? 'checked' : ''}>
+          <div class="shopping-list-icon" aria-hidden="true">🛒</div>
           <div class="lista-dettagli-principale">
             <div class="lista-nome-principale ${isCompletata ? 'completato' : ''}">${escapeHtml(lista.nome)}</div>
-            <div class="lista-meta-principale">${completati}/${itemsCount} elementi</div>
+            <div class="lista-meta-principale"><strong>${completati}</strong> di ${itemsCount} ${itemsCount === 1 ? 'elemento' : 'elementi'} acquistati</div>
             <div class="lista-progress-principale"><span style="width:${itemsCount ? Math.round((completati / itemsCount) * 100) : 0}%"></span></div>
           </div>
         </div>
@@ -14644,10 +14919,13 @@ function openListDetail(listId) {
     <button class="btn-back-liste-principale" id="btn-back-liste">← Torna alle liste</button>
     
     <div class="lista-detail-header">
-      <div>
+      <div class="shopping-detail-main">
+        <div class="shopping-detail-icon">🛒</div>
+        <div class="shopping-detail-copy">
         <div class="lista-titolo ${lista.completata ? 'completato' : ''}">${escapeHtml(lista.nome)}</div>
         <div class="lista-conteggio">${completati}/${items.length} elementi</div>
         <div class="lista-detail-progress"><span style="width:${items.length ? Math.round((completati / items.length) * 100) : 0}%"></span></div>
+        </div>
       </div>
       <div class="lista-actions">
         <button class="btn-delete-lista-principale" id="btn-delete-lista">🗑️ Elimina lista</button>
@@ -14660,6 +14938,7 @@ function openListDetail(listId) {
       <button class="btn-add-item-principale" id="btn-add-item">Aggiungi</button>
     </div>
     
+    <div class="shopping-items-heading"><span>Articoli</span><span>${items.length} ${items.length === 1 ? 'voce' : 'voci'}</span></div>
     <div id="items-container-principale">
   `;
   
