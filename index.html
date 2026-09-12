@@ -9484,6 +9484,19 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 }
 </style>
 
+
+<style id="bollette-mobile-file-fix">
+.bolletta-file-picker{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center;padding:8px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface-2);}
+.bolletta-file-input{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important;}
+.bolletta-file-button{height:42px;padding:0 14px;border:0;border-radius:10px;background:var(--accent-gradient);color:#fff;font:700 13px/1 inherit;display:flex;align-items:center;gap:7px;cursor:pointer;white-space:nowrap;}
+.bolletta-file-button i{font-size:18px;}
+.bolletta-file-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;font-weight:600;color:var(--text-secondary);padding:0 4px;}
+@media(max-width:600px){
+  .bolletta-file-picker{grid-template-columns:1fr;gap:6px;}
+  .bolletta-file-button{width:100%;justify-content:center;height:44px;}
+  .bolletta-file-name{text-align:center;padding:2px 6px 3px;}
+}
+</style>
 </head>
 <body><div id="login-screen">
 <h1>Budget di Famiglia</h1>
@@ -10206,7 +10219,13 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 </div>
 <div style="margin-bottom:14px;">
 <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:4px;">File PDF *</label>
-<input accept=".pdf" id="bolletta-modal-file" style="width:100%; height:44px; border-radius:var(--radius-sm); border:1.5px solid var(--border); padding:8px; font-size:14px; font-weight:600; background:var(--surface-2); color:var(--text-primary);" type="file"/>
+<div class="bolletta-file-picker">
+  <input accept="application/pdf,.pdf" id="bolletta-modal-file" type="file" class="bolletta-file-input"/>
+  <button type="button" id="bolletta-modal-file-button" class="bolletta-file-button">
+    <i class="ti ti-file-type-pdf"></i><span>Seleziona PDF</span>
+  </button>
+  <div id="bolletta-modal-file-name" class="bolletta-file-name">Nessun file selezionato</div>
+</div>
 </div>
 <div id="bolletta-modal-progress" style="display:none; margin-top:12px;">
 <div class="progress-bar"><div class="progress-bar-fill" id="bolletta-modal-progress-fill" style="width:0%"></div></div>
@@ -15777,6 +15796,89 @@ document.addEventListener('DOMContentLoaded', function() {
     if(e.target && e.target.closest && e.target.closest('#evento-modal-overlay')) bindCalendarPopupKeyboard();
   });
   setTimeout(bindCalendarPopupKeyboard, 300);
+})();
+</script>
+
+<script id="bollette-mobile-file-fix-js">
+(function(){
+  function getSelectedBolletta(){
+    if(!bollettaDetailData) return null;
+    const {tipo,meseKey,index}=bollettaDetailData;
+    return bolletteData?.[tipo]?.[meseKey]?.[index] || null;
+  }
+
+  async function downloadBollettaMobile(){
+    const bolletta=getSelectedBolletta();
+    if(!bolletta || !bolletta.url){
+      alert('Bolletta non trovata');
+      return;
+    }
+    const url=bolletta.url;
+    const filename=bolletta.nome || 'bolletta.pdf';
+    try{
+      // Primo tentativo: download reale tramite Blob, più affidabile su browser mobile.
+      const response=await fetch(url,{mode:'cors'});
+      if(!response.ok) throw new Error('Impossibile recuperare il file');
+      const blob=await response.blob();
+      const blobUrl=URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      a.href=blobUrl;
+      a.download=filename;
+      a.style.display='none';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(blobUrl);},1000);
+      return;
+    }catch(err){
+      console.warn('Download Blob non disponibile, uso apertura PDF:',err);
+    }
+    // Fallback compatibile con Android/iOS: apre il PDF nel visualizzatore del dispositivo.
+    // Da lì il sistema permette Salva/Scarica anche quando la WebView non gestisce l'attributo download.
+    try{
+      const w=window.open(url,'_blank');
+      if(!w) window.location.href=url;
+    }catch(e){
+      window.location.href=url;
+    }
+  }
+
+  function initBolletteMobileFileFix(){
+    const input=document.getElementById('bolletta-modal-file');
+    const button=document.getElementById('bolletta-modal-file-button');
+    const name=document.getElementById('bolletta-modal-file-name');
+    if(input && button){
+      button.addEventListener('click',function(e){
+        e.preventDefault();
+        input.click();
+      });
+      input.addEventListener('change',function(){
+        if(name) name.textContent=this.files && this.files[0] ? this.files[0].name : 'Nessun file selezionato';
+      });
+    }
+    const download=document.getElementById('bolletta-detail-download');
+    if(download){
+      // Sostituisce tutti i listener precedenti senza toccare il resto dell'app.
+      const clean=download.cloneNode(true);
+      download.parentNode.replaceChild(clean,download);
+      clean.addEventListener('click',function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        downloadBollettaMobile();
+      });
+    }
+  }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initBolletteMobileFileFix);
+  else initBolletteMobileFileFix();
+
+  // Il popup viene aperto dinamicamente; quando viene usato il campo file, assicuriamoci che il listener sia presente.
+  const originalOpen=window.openBollettaModal;
+  if(typeof originalOpen==='function'){
+    window.openBollettaModal=function(){
+      originalOpen.apply(this,arguments);
+      setTimeout(initBolletteMobileFileFix,0);
+    };
+  }
 })();
 </script>
 </body>
