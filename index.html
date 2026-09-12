@@ -9393,6 +9393,97 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
   #page-liste .lista-modal-box{padding:20px !important;border-radius:22px !important;}
 }
 </style>
+
+<style id="shopping-lists-final-sizing-modal">
+/* =========================================================
+   LISTE DELLA SPESA — DIMENSIONI PIÙ COMPATTE + POPUP MODERNO
+   ========================================================= */
+#page-liste > h1{font-size:27px !important;letter-spacing:-.55px !important;margin-bottom:16px !important;}
+#page-liste #btn-nuova-lista-principale{height:52px !important;min-height:52px !important;font-size:15px !important;border-radius:17px !important;}
+#page-liste .shopping-add-icon{font-size:24px !important;}
+#page-liste .shopping-lists-toolbar{margin:17px 2px 9px !important;}
+#page-liste .shopping-lists-caption{font-size:13px !important;gap:7px !important;}
+#page-liste .shopping-lists-count{font-size:11px !important;}
+#page-liste .lista-card-principale{min-height:94px !important;padding:13px 11px !important;border-radius:19px !important;margin-bottom:10px !important;}
+#page-liste .lista-info-principale{grid-template-columns:21px 43px minmax(0,1fr) !important;gap:9px !important;}
+#page-liste .lista-checkbox-principale{width:21px !important;height:21px !important;min-width:21px !important;border-radius:7px !important;}
+#page-liste .lista-checkbox-principale:checked::after{font-size:13px !important;}
+#page-liste .shopping-list-icon{width:43px !important;height:43px !important;min-width:43px !important;border-radius:14px !important;font-size:21px !important;}
+#page-liste .lista-nome-principale{font-size:15px !important;}
+#page-liste .lista-meta-principale{font-size:11px !important;margin-top:4px !important;}
+#page-liste .lista-progress-principale{height:4px !important;margin-top:6px !important;max-width:165px !important;}
+#page-liste .lista-arrow-principale{font-size:25px !important;}
+#page-liste .lista-delete-principale{width:31px !important;height:31px !important;font-size:15px !important;}
+#page-liste .lista-detail-header{padding:15px !important;border-radius:19px !important;}
+#page-liste .shopping-detail-icon{width:42px !important;height:42px !important;min-width:42px !important;font-size:21px !important;border-radius:13px !important;}
+#page-liste .lista-detail-header .lista-titolo{font-size:18px !important;}
+#page-liste .lista-detail-header .lista-conteggio{font-size:11px !important;}
+#page-liste .lista-detail-progress{height:5px !important;margin-top:8px !important;}
+#page-liste .lista-add-bar{border-radius:17px !important;padding:7px !important;gap:7px !important;}
+#page-liste .lista-add-bar input{height:40px !important;font-size:13px !important;}
+#page-liste .lista-add-bar .btn-add-item-principale{height:40px !important;padding:0 13px !important;font-size:11px !important;}
+#page-liste .item-row-principale{min-height:49px !important;padding:8px 8px !important;border-radius:14px !important;margin-bottom:6px !important;}
+#page-liste .item-checkbox-principale{width:20px !important;height:20px !important;min-width:20px !important;border-radius:7px !important;}
+#page-liste .item-nome-principale{font-size:13px !important;}
+
+/* Popup creazione lista: nuovo layout */
+#lista-modal-overlay.lista-modal-principale{
+  position:fixed !important;inset:0 !important;display:flex !important;align-items:center !important;justify-content:center !important;
+  padding:18px !important;background:rgba(8,27,45,.46) !important;backdrop-filter:blur(12px) !important;-webkit-backdrop-filter:blur(12px) !important;
+  z-index:2000 !important;box-sizing:border-box !important;
+}
+#lista-modal-overlay .lista-modal-box{
+  position:relative !important;width:min(100%,390px) !important;max-width:390px !important;box-sizing:border-box !important;
+  padding:22px !important;border-radius:24px !important;background:#fff !important;border:1px solid #e2edf5 !important;
+  box-shadow:0 24px 70px rgba(10,35,58,.25) !important;animation:shoppingModalIn .22s ease-out !important;
+}
+#lista-modal-overlay .shopping-modal-head{display:flex !important;align-items:center !important;justify-content:space-between !important;margin-bottom:13px !important;}
+#lista-modal-overlay .shopping-modal-icon{
+  width:48px !important;height:48px !important;display:grid !important;place-items:center !important;border-radius:15px !important;
+  background:#eaf5ff !important;color:#2f80d9 !important;font-size:23px !important;
+}
+#lista-modal-overlay .shopping-modal-close{
+  width:34px !important;height:34px !important;border:0 !important;border-radius:11px !important;background:#f3f7fa !important;
+  color:#6d879d !important;font-size:25px !important;line-height:1 !important;cursor:pointer !important;display:grid !important;place-items:center !important;
+}
+#lista-modal-overlay .shopping-modal-close:hover{background:#eaf1f6 !important;color:#163957 !important;}
+#lista-modal-overlay .shopping-modal-title{color:#102f50 !important;font-size:20px !important;font-weight:850 !important;line-height:1.2 !important;margin-bottom:5px !important;}
+#lista-modal-overlay .shopping-modal-subtitle{margin:0 0 17px !important;color:#7892aa !important;font-size:12px !important;font-weight:600 !important;line-height:1.45 !important;}
+#lista-modal-overlay .shopping-modal-label{display:block !important;margin:0 0 7px !important;color:#294965 !important;font-size:11px !important;font-weight:800 !important;text-transform:uppercase !important;letter-spacing:.35px !important;}
+#lista-modal-overlay .shopping-modal-input-wrap{
+  display:flex !important;align-items:center !important;gap:9px !important;height:48px !important;box-sizing:border-box !important;
+  padding:0 12px !important;border:1px solid #dce7ef !important;border-radius:14px !important;background:#f6f9fb !important;
+  transition:border-color .18s,box-shadow .18s,background .18s !important;
+}
+#lista-modal-overlay .shopping-modal-input-wrap > span{font-size:15px !important;color:#75a5c9 !important;}
+#lista-modal-overlay .shopping-modal-input-wrap:focus-within{background:#fff !important;border-color:#72afe0 !important;box-shadow:0 0 0 4px rgba(47,128,217,.10) !important;}
+#lista-modal-overlay .shopping-modal-input-wrap input{
+  flex:1 !important;min-width:0 !important;width:auto !important;height:46px !important;padding:0 !important;border:0 !important;
+  outline:0 !important;background:transparent !important;box-shadow:none !important;color:#102f50 !important;font-size:14px !important;font-weight:650 !important;
+}
+#lista-modal-overlay .shopping-modal-input-wrap input::placeholder{color:#9aafbf !important;font-weight:550 !important;}
+#lista-modal-overlay .modal-actions-principale{display:grid !important;grid-template-columns:1fr 1.25fr !important;gap:9px !important;margin-top:17px !important;}
+#lista-modal-overlay .modal-actions-principale button{height:44px !important;border-radius:13px !important;font-size:12px !important;font-weight:800 !important;cursor:pointer !important;}
+#lista-modal-overlay .btn-cancel-principale{background:#f3f7fa !important;border:1px solid #dce6ee !important;color:#647c91 !important;}
+#lista-modal-overlay .btn-create-principale{display:flex !important;align-items:center !important;justify-content:center !important;gap:6px !important;background:#102f50 !important;color:#fff !important;border:0 !important;box-shadow:0 7px 16px rgba(16,47,80,.16) !important;}
+#lista-modal-overlay .btn-create-principale span{font-size:18px !important;font-weight:400 !important;line-height:1 !important;}
+@keyframes shoppingModalIn{from{opacity:0;transform:translateY(8px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:600px){
+  #page-liste > h1{font-size:24px !important;}
+  #page-liste .lista-card-principale{min-height:90px !important;}
+  #page-liste .lista-info-principale{grid-template-columns:20px 40px minmax(0,1fr) !important;gap:8px !important;}
+  #page-liste .shopping-list-icon{width:40px !important;height:40px !important;min-width:40px !important;font-size:20px !important;border-radius:13px !important;}
+  #page-liste .lista-nome-principale{font-size:14px !important;}
+  #page-liste .lista-meta-principale{font-size:10px !important;}
+  #page-liste .lista-arrow-principale{font-size:23px !important;}
+  #page-liste .lista-delete-principale{width:29px !important;height:29px !important;font-size:14px !important;}
+  #lista-modal-overlay.lista-modal-principale{padding:14px !important;align-items:center !important;}
+  #lista-modal-overlay .lista-modal-box{width:100% !important;max-width:360px !important;padding:20px !important;border-radius:22px !important;}
+  #lista-modal-overlay .shopping-modal-icon{width:44px !important;height:44px !important;font-size:21px !important;border-radius:14px !important;}
+  #lista-modal-overlay .shopping-modal-title{font-size:19px !important;}
+}
+</style>
+
 </head>
 <body><div id="login-screen">
 <h1>Budget di Famiglia</h1>
@@ -15055,12 +15146,20 @@ function showCreateListModal() {
   overlay.id = 'lista-modal-overlay';
   overlay.innerHTML = `
     <div class="lista-modal-box">
-      <h3>📋 Nuova lista</h3>
-      <p>Inserisci il nome della lista della spesa</p>
-      <input type="text" id="new-lista-input" placeholder="es. Spesa settimanale" autofocus>
+      <div class="shopping-modal-head">
+        <div class="shopping-modal-icon">🛒</div>
+        <button type="button" class="shopping-modal-close" id="modal-close-lista" aria-label="Chiudi">×</button>
+      </div>
+      <div class="shopping-modal-title">Nuova lista</div>
+      <p class="shopping-modal-subtitle">Crea una nuova lista per organizzare i tuoi acquisti.</p>
+      <label class="shopping-modal-label" for="new-lista-input">Nome della lista</label>
+      <div class="shopping-modal-input-wrap">
+        <span>✎</span>
+        <input type="text" id="new-lista-input" placeholder="Es. Spesa settimanale" autocomplete="off" autofocus>
+      </div>
       <div class="modal-actions-principale">
         <button class="btn-cancel-principale" id="modal-cancel-lista">Annulla</button>
-        <button class="btn-create-principale" id="modal-create-lista">Crea lista</button>
+        <button class="btn-create-principale" id="modal-create-lista"><span>+</span> Crea lista</button>
       </div>
     </div>
   `;
@@ -15073,13 +15172,14 @@ function showCreateListModal() {
     if (input) input.focus();
   }, 100);
   
-  // Event listener: Annulla
+  // Event listener: Annulla / Chiudi
+  const closeModal = () => {
+    overlay.remove();
+  };
   const cancelBtn = document.getElementById('modal-cancel-lista');
-  if (cancelBtn) {
-    cancelBtn.addEventListener('click', function() {
-      overlay.remove();
-    });
-  }
+  const closeBtn = document.getElementById('modal-close-lista');
+  if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+  if (closeBtn) closeBtn.addEventListener('click', closeModal);
   
   // Event listener: Crea lista
   const createBtn = document.getElementById('modal-create-lista');
