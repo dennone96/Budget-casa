@@ -9497,6 +9497,164 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
   .bolletta-file-name{text-align:center;padding:2px 6px 3px;}
 }
 </style>
+
+<style id="force-light-import-categorie-final">
+/* ==========================================================
+   TEMA CHIARO FORZATO - IMPORTA EXCEL + CATEGORIE
+   Queste due sezioni restano chiare anche con dark mode di Android.
+   ========================================================== */
+#page-import,
+#page-categorie {
+  background: #F0F4F8 !important;
+  color: #1A2B3C !important;
+}
+
+/* Pannelli principali */
+#page-import > .panel,
+#page-categorie > .panel {
+  background: #FFFFFF !important;
+  color: #1A2B3C !important;
+  border-color: #D0DCE8 !important;
+  box-shadow: 0 8px 24px rgba(26,43,60,.07) !important;
+}
+
+/* Titoli e testi */
+#page-import h1,
+#page-import h2,
+#page-import h3,
+#page-import .import-section-title,
+#page-categorie h1,
+#page-categorie h2,
+#page-categorie h3 {
+  color: #1A2B3C !important;
+}
+#page-import p,
+#page-categorie p,
+#page-import label,
+#page-categorie label {
+  color: #5A6B7C !important;
+}
+
+/* Riquadri di caricamento Excel */
+#page-import .import-row {
+  background: #F7FAFD !important;
+  border: 1px solid #D0DCE8 !important;
+  color: #1A2B3C !important;
+}
+#page-import .import-row input[type="file"] {
+  background: #FFFFFF !important;
+  color: #1A2B3C !important;
+  border-color: #C9D6E2 !important;
+}
+#page-import .import-row button {
+  background: #FFFFFF !important;
+  color: #1A2B3C !important;
+  border-color: #C9D6E2 !important;
+}
+#page-import .import-row button:hover {
+  background: #EAF4FF !important;
+  color: #2E6BB5 !important;
+  border-color: #4A90D9 !important;
+}
+
+/* Box riepilogo e anteprima */
+#page-import [id^="import-summary-"] {
+  background: #EAF4FF !important;
+  color: #1A2B3C !important;
+  border: 1px solid #D0E4F7 !important;
+}
+#page-import [id^="import-preview-wrap-"] {
+  border-top-color: #D0DCE8 !important;
+}
+#page-import .import-table-wrap {
+  background: #FFFFFF !important;
+  border-color: #D0DCE8 !important;
+}
+#page-import .import-table-wrap table {
+  background: #FFFFFF !important;
+  color: #1A2B3C !important;
+}
+#page-import .import-table-wrap th {
+  background: #F1F6FA !important;
+  color: #5A6B7C !important;
+}
+#page-import .import-table-wrap td {
+  background: #FFFFFF !important;
+  color: #1A2B3C !important;
+  border-bottom-color: #E2E8EE !important;
+}
+#page-import .import-section-divider {
+  background: #D0DCE8 !important;
+}
+
+/* Icone delle due sezioni */
+#page-import .import-section-title .icon-circle {
+  background: #EAF4FF !important;
+  color: #3498DB !important;
+}
+#page-import > .panel:nth-of-type(2) .import-section-title .icon-circle {
+  background: #E8F5E9 !important;
+  color: #27AE60 !important;
+}
+
+/* CATEGORIE: righe e campi */
+#page-categorie > .panel > p {
+  background: #F1F6FA !important;
+  color: #6B7C8D !important;
+  border: 1px solid #E0E7ED !important;
+}
+#page-categorie .cat-list,
+#page-categorie .cat-list > li {
+  background: transparent !important;
+}
+#page-categorie .cat-list > li {
+  background: #FFFFFF !important;
+  color: #1A2B3C !important;
+  border-color: #D0DCE8 !important;
+}
+#page-categorie .cat-list > li * {
+  color: #1A2B3C;
+}
+#page-categorie .cat-input-row {
+  border-top-color: #D0DCE8 !important;
+}
+#page-categorie .cat-input-row input {
+  background: #FFFFFF !important;
+  color: #1A2B3C !important;
+  border-color: #C9D6E2 !important;
+}
+#page-categorie .cat-input-row input::placeholder {
+  color: #8A9BAC !important;
+}
+#page-categorie .cat-input-row button {
+  color: #FFFFFF !important;
+  background: linear-gradient(135deg,#4A90D9 0%,#2E6BB5 100%) !important;
+  border: none !important;
+}
+
+/* Anche eventuali elementi con variabili dark vengono forzati chiari */
+#page-import .panel,
+#page-import .import-row,
+#page-import .import-table-wrap,
+#page-import .import-table-wrap table,
+#page-categorie .panel,
+#page-categorie .cat-list > li {
+  -webkit-color-scheme: light !important;
+  color-scheme: light !important;
+}
+
+@media (max-width:600px) {
+  #page-import > .panel,
+  #page-categorie > .panel {
+    background: #FFFFFF !important;
+  }
+  #page-import .import-row,
+  #page-categorie .cat-input-row {
+    background: #F7FAFD !important;
+  }
+}
+</style>
+
 </head>
 <body><div id="login-screen">
 <h1>Budget di Famiglia</h1>
@@ -15881,22 +16039,6 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 })();
 </script>
-
-<style id="light-theme-import-categorie-final">
-/* Tema chiaro forzato SOLO per Importa Excel e Categorie */
-#page-import, #page-categorie { background:#F0F4F8 !important; color:#1A2B3C !important; }
-#page-import .panel, #page-categorie .panel, #page-import .card, #page-categorie .card, #page-import .section-card, #page-categorie .section-card { background:#FFFFFF !important; color:#1A2B3C !important; border-color:#D0DCE8 !important; }
-#page-import h1,#page-import h2,#page-import h3,#page-import h4,#page-import p,#page-import label,#page-import span,#page-import strong,#page-categorie h1,#page-categorie h2,#page-categorie h3,#page-categorie h4,#page-categorie p,#page-categorie label,#page-categorie span,#page-categorie strong { color:#1A2B3C !important; }
-#page-import .muted,#page-import .text-muted,#page-import small,#page-categorie .muted,#page-categorie .text-muted,#page-categorie small { color:#5A6B7C !important; }
-#page-import input,#page-import select,#page-import textarea,#page-categorie input,#page-categorie select,#page-categorie textarea { background:#FFFFFF !important; color:#1A2B3C !important; border-color:#D0DCE8 !important; }
-#page-import input::placeholder,#page-import textarea::placeholder,#page-categorie input::placeholder,#page-categorie textarea::placeholder { color:#8A9BAC !important; }
-#page-import table,#page-categorie table { background:#FFFFFF !important; color:#1A2B3C !important; }
-#page-import th,#page-import td,#page-categorie th,#page-categorie td { color:#1A2B3C !important; border-color:#E5EBF1 !important; background:#FFFFFF !important; }
-#page-import .import-row,#page-categorie .cat-input-row,#page-import .drop-zone,#page-import .upload-area { background:#F7FAFD !important; color:#1A2B3C !important; border-color:#C9D9E8 !important; }
-#page-categorie li,#page-categorie .category-item,#page-categorie .category-row,#page-categorie .cat-list > li { background:#FFFFFF !important; color:#1A2B3C !important; border-color:#E1E8EF !important; }
-#page-import button:not(.btn-primary),#page-categorie button:not(.btn-primary) { color:#1A2B3C !important; background:#FFFFFF !important; border-color:#D0DCE8 !important; }
-#page-import .btn-primary,#page-import button[class*="primary"],#page-categorie .btn-primary,#page-categorie button[class*="primary"] { color:#FFFFFF !important; }
-</style>
 </body>
 </html>
 <style id="clean-04-home-alignment-pagination">
