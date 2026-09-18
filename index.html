@@ -9655,6 +9655,324 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 }
 </style>
 
+
+<style id="categorie-import-complete-light-redesign">
+/* ============================================================
+   IMPORTA EXCEL + CATEGORIE — LAYOUT LIGHT COMPLETAMENTE NUOVO
+   Solo grafica: nessuna modifica alla logica/ID/JavaScript.
+   ============================================================ */
+
+/* ---------- BASE COMUNE ---------- */
+#page-import,
+#page-categorie {
+  background:#f4f7fb !important;
+  color:#172b3f !important;
+  -webkit-color-scheme:light !important;
+  color-scheme:light !important;
+}
+#page-import > h1,
+#page-categorie > h1 {
+  color:#172b3f !important;
+  font-size:26px !important;
+  font-weight:850 !important;
+  text-align:center !important;
+  letter-spacing:-.7px !important;
+  margin:4px 0 22px !important;
+}
+
+/* ---------- IMPORTA EXCEL ---------- */
+#page-import > .panel {
+  background:#ffffff !important;
+  color:#172b3f !important;
+  border:1px solid #e3eaf2 !important;
+  border-radius:24px !important;
+  box-shadow:0 8px 24px rgba(23,43,63,.07) !important;
+  padding:20px !important;
+  margin:0 0 16px !important;
+}
+#page-import > .import-section-divider {
+  height:10px !important;
+  margin:2px 12px 16px !important;
+  border:0 !important;
+  border-radius:999px !important;
+  background:#e8eef5 !important;
+}
+#page-import > .panel .import-section-title {
+  display:flex !important;
+  align-items:center !important;
+  gap:11px !important;
+  margin:0 0 10px !important;
+  color:#172b3f !important;
+  font-size:19px !important;
+  line-height:1.2 !important;
+  font-weight:850 !important;
+}
+#page-import > .panel .import-section-title .icon-circle {
+  width:42px !important;
+  height:42px !important;
+  min-width:42px !important;
+  border-radius:13px !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  background:#eaf4ff !important;
+  color:#2878c7 !important;
+  font-size:20px !important;
+}
+#page-import > .panel:nth-of-type(2) .import-section-title .icon-circle {
+  background:#eaf8ef !important;
+  color:#229653 !important;
+}
+#page-import > .panel > p {
+  color:#647589 !important;
+  font-size:13px !important;
+  line-height:1.55 !important;
+  font-weight:600 !important;
+  margin:0 0 16px !important;
+}
+#page-import .import-row {
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:stretch !important;
+  gap:9px !important;
+  padding:10px !important;
+  background:#f7faff !important;
+  border:1px solid #dce7f1 !important;
+  border-radius:17px !important;
+}
+#page-import .import-row input[type="file"] {
+  width:100% !important;
+  min-width:0 !important;
+  height:48px !important;
+  box-sizing:border-box !important;
+  padding:11px 12px !important;
+  background:#ffffff !important;
+  color:#26394d !important;
+  border:1px solid #d5e0ea !important;
+  border-radius:13px !important;
+  font-size:12px !important;
+}
+#page-import .import-row button {
+  width:100% !important;
+  height:45px !important;
+  min-height:45px !important;
+  border:1px solid #d5e0ea !important;
+  border-radius:13px !important;
+  background:#ffffff !important;
+  color:#23415e !important;
+  font-size:13px !important;
+  font-weight:800 !important;
+  box-shadow:none !important;
+}
+#page-import .import-row button:active,
+#page-import .import-row button:hover {
+  background:#eef6ff !important;
+  border-color:#8fbce5 !important;
+  color:#216aa9 !important;
+}
+#page-import .import-error-text { color:#c53b35 !important; }
+#page-import [id^="import-summary-"] {
+  background:#eef7ff !important;
+  color:#23415e !important;
+  border:1px solid #d5e9fb !important;
+  border-radius:13px !important;
+  padding:11px 13px !important;
+}
+#page-import [id^="import-preview-wrap-"] {
+  border-top:1px solid #e2e9f0 !important;
+}
+#page-import .import-table-wrap {
+  background:#ffffff !important;
+  border:1px solid #dfe7ef !important;
+  border-radius:14px !important;
+}
+#page-import .import-table-wrap table { background:#fff !important; color:#24384c !important; }
+#page-import .import-table-wrap th {
+  background:#f3f7fb !important;
+  color:#65778a !important;
+  border-bottom:1px solid #dfe7ef !important;
+}
+#page-import .import-table-wrap td {
+  background:#fff !important;
+  color:#24384c !important;
+  border-bottom:1px solid #e8edf2 !important;
+}
+#page-import [id^="import-actions-"] button:first-child {
+  background:linear-gradient(135deg,#4a90d9,#2e6bb5) !important;
+  color:#fff !important;
+  border:0 !important;
+}
+#page-import [id^="import-actions-"] button:last-child {
+  background:#f3f6f9 !important;
+  color:#34495e !important;
+  border:1px solid #dbe3eb !important;
+}
+
+/* ---------- CATEGORIE ---------- */
+#page-categorie > .panel {
+  background:#ffffff !important;
+  color:#172b3f !important;
+  border:1px solid #e3eaf2 !important;
+  border-radius:24px !important;
+  box-shadow:0 8px 24px rgba(23,43,63,.07) !important;
+  padding:18px !important;
+  margin:0 0 18px !important;
+}
+#page-categorie > .panel h3 {
+  display:flex !important;
+  align-items:center !important;
+  gap:9px !important;
+  color:#172b3f !important;
+  font-size:19px !important;
+  font-weight:850 !important;
+  margin:0 0 10px !important;
+}
+#page-categorie > .panel > p {
+  background:#f5f8fb !important;
+  color:#6a7b8d !important;
+  border:1px solid #e2e9f0 !important;
+  border-radius:13px !important;
+  padding:10px 12px !important;
+  margin:0 0 14px !important;
+  font-size:12px !important;
+  line-height:1.45 !important;
+  font-weight:600 !important;
+}
+#page-categorie .cat-list {
+  display:flex !important;
+  flex-direction:column !important;
+  gap:8px !important;
+  list-style:none !important;
+  margin:0 !important;
+  padding:0 !important;
+}
+#page-categorie .cat-list > li {
+  width:100% !important;
+  min-height:58px !important;
+  box-sizing:border-box !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:10px !important;
+  padding:7px 8px 7px 12px !important;
+  background:#ffffff !important;
+  color:#172b3f !important;
+  border:1px solid #e0e8f0 !important;
+  border-radius:16px !important;
+  box-shadow:0 2px 7px rgba(23,43,63,.035) !important;
+}
+#page-categorie .cat-item-name {
+  min-width:0 !important;
+  display:flex !important;
+  align-items:center !important;
+  gap:11px !important;
+  color:#263c52 !important;
+  font-size:15px !important;
+  font-weight:750 !important;
+}
+#page-categorie .cat-item-name > span {
+  color:#263c52 !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  white-space:nowrap !important;
+}
+#page-categorie .cat-color-dot {
+  flex:0 0 32px !important;
+  width:32px !important;
+  height:32px !important;
+  border-radius:50% !important;
+  border:3px solid #ffffff !important;
+  box-shadow:0 2px 7px rgba(23,43,63,.18),0 0 0 1px rgba(23,43,63,.10) !important;
+  cursor:pointer !important;
+}
+#page-categorie .cat-actions {
+  flex:0 0 auto !important;
+  display:flex !important;
+  align-items:center !important;
+  gap:7px !important;
+}
+#page-categorie .cat-actions button {
+  width:46px !important;
+  height:46px !important;
+  min-width:46px !important;
+  min-height:46px !important;
+  padding:7px !important;
+  margin:0 !important;
+  border:0 !important;
+  border-radius:13px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  box-shadow:0 4px 10px rgba(23,43,63,.12) !important;
+}
+#page-categorie .cat-actions button svg {
+  width:30px !important;
+  height:30px !important;
+  display:block !important;
+}
+#page-categorie .cat-actions .btn-edit-tx {
+  background:linear-gradient(135deg,#4b92df,#2d70c0) !important;
+}
+#page-categorie .cat-actions .btn-delete {
+  background:linear-gradient(135deg,#f05a50,#cf332b) !important;
+}
+#page-categorie .cat-input-row {
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) auto !important;
+  gap:9px !important;
+  align-items:center !important;
+  margin-top:13px !important;
+  padding-top:13px !important;
+  border-top:1px solid #e4eaf0 !important;
+}
+#page-categorie .cat-input-row input {
+  width:100% !important;
+  height:45px !important;
+  box-sizing:border-box !important;
+  padding:0 13px !important;
+  border:1px solid #d8e2eb !important;
+  border-radius:13px !important;
+  background:#ffffff !important;
+  color:#263c52 !important;
+  font-size:13px !important;
+  font-weight:600 !important;
+}
+#page-categorie .cat-input-row input::placeholder { color:#93a1af !important; }
+#page-categorie .cat-input-row button {
+  height:45px !important;
+  min-height:45px !important;
+  padding:0 18px !important;
+  border:0 !important;
+  border-radius:13px !important;
+  background:linear-gradient(135deg,#4a90d9,#2e6bb5) !important;
+  color:#fff !important;
+  font-size:13px !important;
+  font-weight:800 !important;
+  box-shadow:0 5px 12px rgba(46,107,181,.20) !important;
+}
+
+/* ---------- MOBILE ---------- */
+@media(max-width:600px){
+  #page-import > h1,
+  #page-categorie > h1 { font-size:23px !important; margin-bottom:18px !important; }
+  #page-import > .panel,
+  #page-categorie > .panel {
+    padding:16px !important;
+    border-radius:21px !important;
+  }
+  #page-import > .panel .import-section-title,
+  #page-categorie > .panel h3 { font-size:18px !important; }
+  #page-import > .panel .import-section-title .icon-circle { width:39px !important; height:39px !important; min-width:39px !important; border-radius:12px !important; }
+  #page-categorie .cat-list > li { min-height:55px !important; padding-left:10px !important; }
+  #page-categorie .cat-item-name { font-size:14px !important; gap:9px !important; }
+  #page-categorie .cat-color-dot { flex-basis:30px !important; width:30px !important; height:30px !important; }
+  #page-categorie .cat-actions button { width:44px !important; height:44px !important; min-width:44px !important; min-height:44px !important; }
+  #page-categorie .cat-actions button svg { width:28px !important; height:28px !important; }
+  #page-categorie .cat-input-row { grid-template-columns:1fr !important; }
+  #page-categorie .cat-input-row button { width:100% !important; }
+}
+</style>
+
 </head>
 <body><div id="login-screen">
 <h1>Budget di Famiglia</h1>
