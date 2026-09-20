@@ -11097,6 +11097,7 @@ let unsubscribeSnapshot = null;
 let chartCategory = null, chartYear = null, chartResiduo = null, chartCompare = null;
 let activeSourceFilter = 'all';
 let homeMovementPage = 1;
+let homeMovementSort = 'date-desc';
 const HOME_MOVEMENTS_PER_PAGE = 10;
 let filterFrom = null, filterTo = null, filterMode = 'month';
 let editingCat = { type: null, index: null };
@@ -13496,10 +13497,22 @@ function renderHomeMovements(filteredTransactions) {
   if (!list) return;
   const panel = list.closest('.home-v3-movements-panel');
   const mt = [...filteredTransactions].sort((a,b) => {
-    const da = transactionDateISO(a);
-    const db = transactionDateISO(b);
-    const d = String(db || '').localeCompare(String(da || ''));
-    if (d) return d;
+    const da = transactionDateISO(a) || '';
+    const db = transactionDateISO(b) || '';
+    const aa = amountValue(a.amount);
+    const ab = amountValue(b.amount);
+    let result = 0;
+    if (homeMovementSort === 'date-asc') {
+      result = String(da).localeCompare(String(db));
+    } else if (homeMovementSort === 'amount-desc') {
+      result = ab - aa;
+    } else if (homeMovementSort === 'amount-asc') {
+      result = aa - ab;
+    } else {
+      result = String(db).localeCompare(String(da));
+    }
+    if (result) return result;
+    // A parità di data/importo manteniamo un ordine stabile usando l'id.
     return String(b.id || '').localeCompare(String(a.id || ''));
   });
 
@@ -17521,3 +17534,84 @@ document.addEventListener('DOMContentLoaded', function() {
   color-scheme: light !important;
 }
 </style>
+
+<style id="home-width-and-sort-final">
+/* Home: usa meglio la larghezza disponibile del display Android, senza arrivare ai bordi. */
+@media (max-width: 900px) {
+  #page-home .home-date-filter,
+  #page-home .home-v3-balance-card,
+  #page-home .home-v3-mini-grid,
+  #page-home .home-v3-new-movement,
+  #page-home .home-v3-movements-panel {
+    margin-left: 6px !important;
+    margin-right: 6px !important;
+  }
+  #page-home .home-v3-balance-card,
+  #page-home .home-v3-mini-grid,
+  #page-home .home-v3-new-movement,
+  #page-home .home-v3-movements-panel {
+    width: calc(100% - 12px) !important;
+  }
+  #page-home .home-date-filter { width: calc(100% - 12px) !important; }
+  #page-home .home-v3-section-title { margin-left: 6px !important; margin-right: 6px !important; }
+}
+
+.home-v3-sort-row {
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:7px;
+  padding:0 0 7px;
+}
+.home-v3-sort-row label {
+  font-size:9px;
+  color:#8291a2;
+  font-weight:800;
+}
+.home-v3-sort-select {
+  height:30px;
+  min-width:154px;
+  padding:0 28px 0 10px;
+  border:1px solid #dfe6eb;
+  border-radius:10px;
+  background:#f7f9fa;
+  color:#263b52;
+  font-size:9px;
+  font-weight:800;
+  outline:none;
+  color-scheme:light;
+}
+@media(max-width:600px){
+  .home-v3-sort-row { justify-content:space-between; padding-bottom:7px; }
+  .home-v3-sort-select { min-width:0; width:190px; max-width:58%; height:30px; font-size:9px; }
+}
+</style>
+<script id="home-sort-final-script">
+(function(){
+  function initHomeMovementSort(){
+    const filter = document.getElementById('home-source-filter');
+    if (!filter || document.getElementById('home-movement-sort')) return;
+    const row = document.createElement('div');
+    row.className = 'home-v3-sort-row';
+    row.innerHTML = `
+      <label for="home-movement-sort">Ordina movimenti</label>
+      <select id="home-movement-sort" class="home-v3-sort-select" aria-label="Ordina movimenti">
+        <option value="date-desc">Data ↓ · più recenti</option>
+        <option value="date-asc">Data ↑ · più vecchie</option>
+        <option value="amount-desc">Importo ↓ · maggiore</option>
+        <option value="amount-asc">Importo ↑ · minore</option>
+      </select>`;
+    filter.parentNode.insertBefore(row, filter.nextSibling);
+    const select = row.querySelector('select');
+    select.value = window.homeMovementSort || 'date-desc';
+    select.addEventListener('change', function(){
+      window.homeMovementSort = this.value;
+      homeMovementSort = this.value;
+      homeMovementPage = 1;
+      if (typeof updateHomeModernDashboard === 'function') updateHomeModernDashboard();
+    });
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initHomeMovementSort);
+  else initHomeMovementSort();
+})();
+</script>
