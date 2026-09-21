@@ -10092,7 +10092,7 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 <button class="active" data-home-source="all" type="button"><i class="ti ti-layout-grid"></i><span>Tutti</span></button>
 <button data-home-source="bank" type="button"><i class="ti ti-building-bank"></i><span>Conto corrente</span></button>
 <button data-home-source="cash" type="button"><i class="ti ti-wallet"></i><span>Cash</span></button>
-</div><div aria-label="Ordina movimenti" class="home-v3-sort-columns home-sort-unique"><div class="home-sort-unique-head" data-sort-key="date" role="button" tabindex="0"><span>Data</span><span class="home-sort-unique-arrow">↓</span></div><div class="home-sort-unique-head" data-sort-key="amount" role="button" tabindex="0"><span>Importo</span><span class="home-sort-unique-arrow">↕</span></div></div>
+</div><div aria-label="Ordina movimenti" class="home-v3-sort-columns"><button class="home-v3-sort-column-btn active" data-sort-key="date" type="button"><span>Data</span><span class="home-v3-sort-arrow">↓</span></button><button class="home-v3-sort-column-btn" data-sort-key="amount" type="button"><span>Importo</span><span class="home-v3-sort-arrow">↕</span></button></div>
 </div>
 <div id="home-movements-list"></div>
 </div>
@@ -16352,144 +16352,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 })();
 </script>
-<script id="home-sort-inline-handler">
-(function(){
-  if (window.__homeSortInlineHandler) return;
-  window.__homeSortInlineHandler = true;
 
-  window.__sortHomeColumn = function(key){
-    if (key !== 'date' && key !== 'amount') return false;
-
-    var current = (typeof homeMovementSort !== 'undefined' && homeMovementSort) ? homeMovementSort : 'date-desc';
-    var currentKey = current.indexOf('amount-') === 0 ? 'amount' : 'date';
-    var isAsc = current.slice(-4) === '-asc';
-    var direction = currentKey === key ? (isAsc ? 'desc' : 'asc') : 'desc';
-    var next = key + '-' + direction;
-
-    if (typeof homeMovementSort !== 'undefined') homeMovementSort = next;
-    window.homeMovementSort = next;
-    if (typeof homeMovementPage !== 'undefined') homeMovementPage = 1;
-
-    if (typeof updateHomeModernDashboard === 'function') {
-      updateHomeModernDashboard();
-    }
-
-    // La Home può ricreare il contenitore: aggiorniamo le frecce dopo il render.
-    setTimeout(function(){
-      var headers = document.querySelector('#page-home .home-v3-sort-columns');
-      if (!headers) return;
-      var activeKey = next.indexOf('amount-') === 0 ? 'amount' : 'date';
-      var asc = next.slice(-4) === '-asc';
-      headers.querySelectorAll('.home-v3-sort-column-btn').forEach(function(btn){
-        var active = btn.getAttribute('data-sort-key') === activeKey;
-        btn.classList.toggle('active', active);
-        var arrow = btn.querySelector('.home-v3-sort-arrow');
-        if (arrow) arrow.textContent = active ? (asc ? '↑' : '↓') : '↕';
-      });
-    }, 0);
-    return false;
-  };
-})();
-</script>
-<script id="home-sort-single-safe-script">
-(function(){
-  function updateSortHeaders(){
-    const headers=document.querySelector('#page-home .home-v3-sort-columns');
-    if(!headers) return;
-    const sort=window.homeMovementSort || 'date-desc';
-    const key=sort.indexOf('amount-')===0 ? 'amount' : 'date';
-    const asc=sort.endsWith('-asc');
-    headers.querySelectorAll('.home-v3-sort-column-btn').forEach(function(btn){
-      const active=btn.getAttribute('data-sort-key')===key;
-      btn.classList.toggle('active',active);
-      const arrow=btn.querySelector('.home-v3-sort-arrow');
-      if(arrow) arrow.textContent=active ? (asc ? '↑' : '↓') : '↕';
-    });
-  }
-  window.setHomeMovementSort=function(key){
-    if(key!=='date' && key!=='amount') return;
-    const current=window.homeMovementSort || 'date-desc';
-    const currentKey=current.indexOf('amount-')===0 ? 'amount' : 'date';
-    const currentAsc=current.endsWith('-asc');
-    const direction=(currentKey===key) ? (currentAsc ? 'desc' : 'asc') : 'desc';
-    const next=key+'-'+direction;
-    window.homeMovementSort=next;
-    homeMovementSort=next;
-    homeMovementPage=1;
-    updateSortHeaders();
-    if(typeof updateHomeModernDashboard==='function') updateHomeModernDashboard();
-  };
-  function bind(){
-    const headers=document.querySelector('#page-home .home-v3-sort-columns');
-    if(!headers || headers.dataset.bound==='1') return;
-    headers.dataset.bound='1';
-    headers.addEventListener('click',function(e){
-      const btn=e.target.closest('.home-v3-sort-column-btn');
-      if(!btn) return;
-      e.preventDefault(); e.stopPropagation();
-      window.setHomeMovementSort(btn.getAttribute('data-sort-key'));
-    });
-    headers.addEventListener('touchend',function(e){
-      const btn=e.target.closest('.home-v3-sort-column-btn');
-      if(!btn) return;
-      e.preventDefault(); e.stopPropagation();
-      window.setHomeMovementSort(btn.getAttribute('data-sort-key'));
-    },{passive:false});
-    updateSortHeaders();
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',bind); else bind();
-})();
-</script><style id="home-sort-clean-final">
-#page-home .home-v3-sort-column-btn{appearance:none;-webkit-appearance:none;border:0;background:transparent!important;color:#6f7f91!important;box-shadow:none!important;outline:none!important;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;font:inherit;font-weight:700;padding:4px 6px;border-radius:8px;}
-#page-home .home-v3-sort-column-btn:active,#page-home .home-v3-sort-column-btn:focus,#page-home .home-v3-sort-column-btn:hover{background:transparent!important;color:#172b40!important;box-shadow:none!important;}
-#page-home .home-v3-sort-arrow{margin-left:3px;font-size:11px;color:#8b9aac;}
-</style>
-<script id="home-sort-zero-final">
-(function(){
-  function sortHome(key){
-    if(key!=='date' && key!=='amount') return;
-    var current=window.homeMovementSort || 'date-desc';
-    var currentKey=current.indexOf('amount-')===0?'amount':'date';
-    var asc=current.slice(-4)==='-asc';
-    var direction=(currentKey===key)?(asc?'desc':'asc'):'desc';
-    var next=key+'-'+direction;
-    window.homeMovementSort=next;
-    try{ homeMovementSort=next; }catch(e){}
-    try{ homeMovementPage=1; }catch(e){}
-    var data=window.__homeLastFilteredTransactions;
-    if(Array.isArray(data) && typeof renderHomeMovements==='function'){
-      renderHomeMovements(data);
-    } else if(typeof updateHomeModernDashboard==='function'){
-      updateHomeModernDashboard();
-    }
-    setTimeout(updateHeaders,0);
-  }
-  function updateHeaders(){
-    var sort=window.homeMovementSort||'date-desc';
-    var key=sort.indexOf('amount-')===0?'amount':'date';
-    var asc=sort.slice(-4)==='-asc';
-    document.querySelectorAll('#page-home .home-v3-sort-column-btn').forEach(function(b){
-      var active=b.getAttribute('data-sort-key')===key;
-      var a=b.querySelector('.home-v3-sort-arrow');
-      if(a)a.textContent=active?(asc?'↑':'↓'):'↕';
-    });
-  }
-  document.addEventListener('click',function(e){
-    var b=e.target.closest && e.target.closest('#page-home .home-v3-sort-column-btn');
-    if(!b)return;
-    e.preventDefault();e.stopPropagation();sortHome(b.getAttribute('data-sort-key'));
-  },true);
-  document.addEventListener('touchend',function(e){
-    var b=e.target.closest && e.target.closest('#page-home .home-v3-sort-column-btn');
-    if(!b)return;
-    e.preventDefault();e.stopPropagation();sortHome(b.getAttribute('data-sort-key'));
-  },{capture:true,passive:false});
-  window.__homeSortZero=sortHome;
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',updateHeaders);else updateHeaders();
-})();
-</script>
-<style id="home-sort-unique-style">#page-home .home-sort-unique{display:grid!important;grid-template-columns:1fr auto!important;align-items:center!important}#page-home .home-sort-unique-head{display:inline-flex;align-items:center;gap:4px;padding:5px 4px;color:#738499;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation;font-weight:800;font-size:10px}#page-home .home-sort-unique-head[data-sort-key="amount"]{justify-self:end}#page-home .home-sort-unique-head.active{color:#172b40}#page-home .home-sort-unique-arrow{font-size:11px;color:#8b9aac}</style><script id="home-sort-unique-script">(function(){function paint(){var cur=window.homeMovementSort||'date-desc',key=cur.indexOf('amount-')===0?'amount':'date',asc=cur.endsWith('-asc');document.querySelectorAll('#page-home .home-sort-unique-head').forEach(function(x){var on=x.dataset.sortKey===key;x.classList.toggle('active',on);var a=x.querySelector('.home-sort-unique-arrow');if(a)a.textContent=on?(asc?'↑':'↓'):'↕'})}function sort(key){if(key!=='date'&&key!=='amount')return;var cur=window.homeMovementSort||'date-desc',same=cur.indexOf(key+'-')===0,next=key+'-'+(same&&cur.endsWith('-desc')?'asc':'desc');window.homeMovementSort=next;if(typeof homeMovementSort!=='undefined')homeMovementSort=next;if(typeof homeMovementPage!=='undefined')homeMovementPage=1;var list=window.__homeLastFilteredTransactions;if(Array.isArray(list)&&typeof renderHomeMovements==='function')renderHomeMovements(list);paint()}function tap(e){var x=e.target&&e.target.closest?e.target.closest('#page-home .home-sort-unique-head'):null;if(!x)return;e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();sort(x.dataset.sortKey)}document.addEventListener('pointerup',tap,true);document.addEventListener('keydown',function(e){if(e.key!=='Enter'&&e.key!==' ')return;var x=e.target&&e.target.closest?e.target.closest('#page-home .home-sort-unique-head'):null;if(x){e.preventDefault();sort(x.dataset.sortKey)}},true);if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',paint);else paint()})();</script></body>
-</html>
 <style id="clean-04-home-alignment-pagination">
 /* CLEAN-04: all Home cards align to the same horizontal edges as the balance cards. */
 @media (max-width: 900px) {
@@ -17701,91 +17564,58 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 </style>
 
-<style id="home-sort-column-headers">
-/* Ordinamento Home: intestazioni cliccabili Data / Importo */
-.home-v3-sort-row { display:none !important; }
-.home-v3-sort-columns {
-  display:grid;
-  grid-template-columns: 1fr auto;
-  align-items:center;
-  gap:10px;
-  margin:0 2px 6px;
-  padding:7px 10px 6px;
-  border-top:1px solid #edf1f4;
-  border-bottom:1px solid #edf1f4;
-}
-.home-v3-sort-column-btn {
-  appearance:none;
-  border:0;
-  background:transparent;
-  padding:4px 0;
-  margin:0;
-  color:#738499;
-  font:800 10px/1.2 inherit;
-  letter-spacing:.02em;
-  cursor:pointer;
-  display:inline-flex;
-  align-items:center;
-  gap:5px;
-  min-height:26px;
-}
-.home-v3-sort-column-btn:hover { color:#1d3852; }
-.home-v3-sort-column-btn.active { color:#1b344e; }
-.home-v3-sort-column-btn[data-sort-key="amount"] { justify-self:end; }
-.home-v3-sort-arrow {
-  font-size:11px;
-  line-height:1;
-  opacity:.55;
-  font-weight:900;
-}
-.home-v3-sort-column-btn.active .home-v3-sort-arrow { opacity:1; }
-@media(max-width:600px){
-  .home-v3-sort-columns { margin-left:0; margin-right:0; padding-left:8px; padding-right:8px; }
-  .home-v3-sort-column-btn { font-size:10px; }
-}
-</style>
-
-<style id="home-sort-columns-final-fix">
-/* Intestazioni Data/Importo: nessun aspetto da pulsante scuro */
-#page-home .home-v3-sort-columns {
-  background: transparent !important;
-  box-shadow: none !important;
-  border-top: 1px solid #edf1f4 !important;
-  border-bottom: 1px solid #edf1f4 !important;
-}
-#page-home .home-v3-sort-column-btn,
-#page-home .home-v3-sort-column-btn:hover,
-#page-home .home-v3-sort-column-btn:focus,
-#page-home .home-v3-sort-column-btn:active,
-#page-home .home-v3-sort-column-btn.active {
-  appearance: none !important;
-  -webkit-appearance: none !important;
-  background: transparent !important;
-  background-color: transparent !important;
-  box-shadow: none !important;
-  border: 0 !important;
-  outline: none !important;
-  color: #738499 !important;
-  -webkit-tap-highlight-color: transparent !important;
-}
-#page-home .home-v3-sort-column-btn.active {
-  color: #172b40 !important;
-}
-#page-home .home-v3-sort-column-btn:focus-visible {
-  outline: 2px solid #c9dff2 !important;
-  outline-offset: 2px;
-  border-radius: 6px;
-}
-#page-home .home-v3-sort-arrow {
-  color: #8b9aac !important;
-  opacity: 1 !important;
-}
-#page-home .home-v3-sort-column-btn.active .home-v3-sort-arrow {
-  color: #172b40 !important;
-}
-</style>
-
-
-
 <!-- FINAL FIX: delegated sorting for dynamically rebuilt Home headers -->
 
+
+
+<style id="home-sort-clean-rebuilt">
+#page-home .home-v3-sort-columns{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;margin:0 2px 6px;padding:7px 10px 6px;border-top:1px solid #edf1f4;border-bottom:1px solid #edf1f4;background:transparent!important;box-shadow:none!important;}
+#page-home .home-v3-sort-column-btn{appearance:none;-webkit-appearance:none;border:0!important;background:transparent!important;background-color:transparent!important;box-shadow:none!important;outline:none!important;color:#738499!important;padding:4px 6px;margin:0;min-height:26px;font:800 10px/1.2 inherit;display:inline-flex;align-items:center;gap:5px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
+#page-home .home-v3-sort-column-btn[data-sort-key="amount"]{justify-self:end;}
+#page-home .home-v3-sort-column-btn.active{color:#172b40!important;}
+#page-home .home-v3-sort-column-btn .home-v3-sort-arrow{font-size:11px;line-height:1;color:#8b9aac!important;}
+</style>
+<script id="home-sort-clean-rebuilt-script">
+(function(){
+  var lastPointer=0;
+  function state(){ return (typeof homeMovementSort !== 'undefined' && homeMovementSort) ? homeMovementSort : 'date-desc'; }
+  function apply(key){
+    if(key!=='date' && key!=='amount') return;
+    var cur=state();
+    var curKey=cur.indexOf('amount-')===0?'amount':'date';
+    var asc=cur.slice(-4)==='-asc';
+    var dir=(curKey===key) ? (asc?'desc':'asc') : 'desc';
+    var next=key+'-'+dir;
+    homeMovementSort=next;
+    window.homeMovementSort=next;
+    homeMovementPage=1;
+    var data=window.__homeLastFilteredTransactions;
+    if(Array.isArray(data)) renderHomeMovements(data);
+    else if(typeof updateHomeModernDashboard==='function') updateHomeModernDashboard();
+    update();
+  }
+  function update(){
+    var cur=state();
+    var key=cur.indexOf('amount-')===0?'amount':'date';
+    var asc=cur.slice(-4)==='-asc';
+    document.querySelectorAll('#page-home .home-v3-sort-column-btn').forEach(function(b){
+      var active=b.getAttribute('data-sort-key')===key;
+      b.classList.toggle('active',active);
+      var a=b.querySelector('.home-v3-sort-arrow');
+      if(a) a.textContent=active?(asc?'↑':'↓'):'↕';
+    });
+  }
+  function handler(e){
+    var b=e.target && e.target.closest ? e.target.closest('#page-home .home-v3-sort-column-btn') : null;
+    if(!b) return;
+    if(e.type==='click' && Date.now()-lastPointer<500) return;
+    if(e.type!=='click') lastPointer=Date.now();
+    e.preventDefault(); e.stopPropagation();
+    apply(b.getAttribute('data-sort-key'));
+  }
+  document.addEventListener('pointerdown',handler,true);
+  document.addEventListener('click',handler,true);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',update); else update();
+})();
+</script>
+</body>
