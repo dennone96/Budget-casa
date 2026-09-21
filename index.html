@@ -10092,7 +10092,7 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 <button class="active" data-home-source="all" type="button"><i class="ti ti-layout-grid"></i><span>Tutti</span></button>
 <button data-home-source="bank" type="button"><i class="ti ti-building-bank"></i><span>Conto corrente</span></button>
 <button data-home-source="cash" type="button"><i class="ti ti-wallet"></i><span>Cash</span></button>
-</div><div aria-label="Ordina movimenti" class="home-v3-sort-columns"><button aria-label="Ordina per data" class="home-v3-sort-column-btn active" data-sort-key="date" type="button"><span>Data</span><span class="home-v3-sort-arrow">↓</span></button><button aria-label="Ordina per importo" class="home-v3-sort-column-btn" data-sort-key="amount" type="button"><span>Importo</span><span class="home-v3-sort-arrow">↕</span></button></div>
+</div><div aria-label="Ordina movimenti" class="home-v3-sort-columns"><button aria-label="Ordina per data" class="home-v3-sort-column-btn active" data-sort-key="date" type="button" onclick="window.__sortHomeColumn('date'); return false;" ontouchend="window.__sortHomeColumn('date'); return false;"><span>Data</span><span class="home-v3-sort-arrow">↓</span></button><button aria-label="Ordina per importo" class="home-v3-sort-column-btn" data-sort-key="amount" type="button" onclick="window.__sortHomeColumn('amount'); return false;" ontouchend="window.__sortHomeColumn('amount'); return false;"><span>Importo</span><span class="home-v3-sort-arrow">↕</span></button></div>
 </div>
 <div id="home-movements-list"></div>
 </div>
@@ -16351,6 +16351,45 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 })();
 </script>
+<script id="home-sort-inline-handler">
+(function(){
+  if (window.__homeSortInlineHandler) return;
+  window.__homeSortInlineHandler = true;
+
+  window.__sortHomeColumn = function(key){
+    if (key !== 'date' && key !== 'amount') return false;
+
+    var current = (typeof homeMovementSort !== 'undefined' && homeMovementSort) ? homeMovementSort : 'date-desc';
+    var currentKey = current.indexOf('amount-') === 0 ? 'amount' : 'date';
+    var isAsc = current.slice(-4) === '-asc';
+    var direction = currentKey === key ? (isAsc ? 'desc' : 'asc') : 'desc';
+    var next = key + '-' + direction;
+
+    if (typeof homeMovementSort !== 'undefined') homeMovementSort = next;
+    window.homeMovementSort = next;
+    if (typeof homeMovementPage !== 'undefined') homeMovementPage = 1;
+
+    if (typeof updateHomeModernDashboard === 'function') {
+      updateHomeModernDashboard();
+    }
+
+    // La Home può ricreare il contenitore: aggiorniamo le frecce dopo il render.
+    setTimeout(function(){
+      var headers = document.querySelector('#page-home .home-v3-sort-columns');
+      if (!headers) return;
+      var activeKey = next.indexOf('amount-') === 0 ? 'amount' : 'date';
+      var asc = next.slice(-4) === '-asc';
+      headers.querySelectorAll('.home-v3-sort-column-btn').forEach(function(btn){
+        var active = btn.getAttribute('data-sort-key') === activeKey;
+        btn.classList.toggle('active', active);
+        var arrow = btn.querySelector('.home-v3-sort-arrow');
+        if (arrow) arrow.textContent = active ? (asc ? '↑' : '↓') : '↕';
+      });
+    }, 0);
+    return false;
+  };
+})();
+</script>
 <script id="home-sort-single-safe-script">
 (function(){
   function updateSortHeaders(){
@@ -17741,6 +17780,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Event delegation: le intestazioni vengono ricreate dalla Home,
   // quindi il listener non deve essere attaccato al singolo elemento.
   document.addEventListener('click', function(e){
+    if (window.__homeSortInlineHandler) return;
     var btn = e.target && e.target.closest ? e.target.closest('#page-home .home-v3-sort-column-btn') : null;
     if(!btn) return;
 
