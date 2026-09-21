@@ -17666,10 +17666,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!filter) return;
     const panel = filter.closest('.home-v3-movements-panel');
     if (!panel) return;
-
-    // Rimuove il vecchio selettore "Ordina movimenti", se presente.
     panel.querySelectorAll('.home-v3-sort-row').forEach(el => el.remove());
-
     let headers = panel.querySelector('.home-v3-sort-columns');
     if (!headers) {
       headers = document.createElement('div');
@@ -17681,49 +17678,56 @@ document.addEventListener('DOMContentLoaded', function() {
         <button type="button" class="home-v3-sort-column-btn" data-sort-key="amount" aria-label="Ordina per importo">
           <span>Importo</span><span class="home-v3-sort-arrow">↕</span>
         </button>`;
-      // Le intestazioni devono stare subito sotto i filtri Tutti/Conto corrente/Cash.
       filter.insertAdjacentElement('afterend', headers);
     }
-
-    const updateHeaderState = () => {
-      const sort = homeMovementSort || 'date-desc';
-      const key = sort.startsWith('amount') ? 'amount' : 'date';
-      const direction = sort.endsWith('asc') ? 'asc' : 'desc';
-      headers.querySelectorAll('.home-v3-sort-column-btn').forEach(btn => {
-        const active = btn.dataset.sortKey === key;
-        btn.classList.toggle('active', active);
-        const arrow = btn.querySelector('.home-v3-sort-arrow');
-        if (arrow) arrow.textContent = active ? (direction === 'asc' ? '↑' : '↓') : '↕';
-      });
-    };
-
     headers.querySelectorAll('.home-v3-sort-column-btn').forEach(btn => {
-      if (btn.dataset.bound === '1') return;
-      btn.dataset.bound = '1';
-      btn.addEventListener('click', () => {
-        const key = btn.dataset.sortKey;
-        const current = homeMovementSort || 'date-desc';
-        const currentKey = current.startsWith('amount') ? 'amount' : 'date';
-        const currentDir = current.endsWith('asc') ? 'asc' : 'desc';
-        const nextDir = currentKey === key ? (currentDir === 'asc' ? 'desc' : 'asc') : 'desc';
-        homeMovementSort = key + '-' + nextDir;
-        window.homeMovementSort = homeMovementSort;
-        homeMovementPage = 1;
-        updateHeaderState();
-        if (typeof updateHomeModernDashboard === 'function') updateHomeModernDashboard();
-      });
+      btn.onclick = function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        window.setHomeMovementSort(this.getAttribute('data-sort-key'));
+        return false;
+      };
     });
-    updateHeaderState();
+    updateHeaderState(headers);
   }
+
+  function updateHeaderState(headers){
+    const sort = window.homeMovementSort || 'date-desc';
+    const key = sort.indexOf('amount-') === 0 ? 'amount' : 'date';
+    const direction = sort.endsWith('-asc') ? 'asc' : 'desc';
+    headers.querySelectorAll('.home-v3-sort-column-btn').forEach(btn => {
+      const active = btn.getAttribute('data-sort-key') === key;
+      btn.classList.toggle('active', active);
+      const arrow = btn.querySelector('.home-v3-sort-arrow');
+      if (arrow) arrow.textContent = active ? (direction === 'asc' ? '↑' : '↓') : '↕';
+    });
+  }
+
+  window.setHomeMovementSort = function(key){
+    if (key !== 'date' && key !== 'amount') return;
+    const current = window.homeMovementSort || 'date-desc';
+    const currentKey = current.indexOf('amount-') === 0 ? 'amount' : 'date';
+    const currentDir = current.endsWith('-asc') ? 'asc' : 'desc';
+    const nextDir = currentKey === key ? (currentDir === 'asc' ? 'desc' : 'asc') : 'desc';
+    const nextSort = key + '-' + nextDir;
+    window.homeMovementSort = nextSort;
+    homeMovementSort = nextSort;
+    homeMovementPage = 1;
+    const headers = document.querySelector('#page-home .home-v3-sort-columns');
+    if (headers) updateHeaderState(headers);
+    if (typeof updateHomeModernDashboard === 'function') updateHomeModernDashboard();
+  };
 
   function boot(){
     setupHomeSortColumns();
-    // Se il DOM della Home viene ricostruito quando si cambia pagina, ripristina le intestazioni.
-    const observer = new MutationObserver(() => setupHomeSortColumns());
     const home = document.getElementById('page-home');
-    if (home) observer.observe(home, {childList:true, subtree:true});
+    if (home && !window.__homeSortObserverInstalled) {
+      window.__homeSortObserverInstalled = true;
+      new MutationObserver(function(){ setupHomeSortColumns(); }).observe(home,{childList:true,subtree:true});
+    }
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
 })();
 </script>
@@ -17770,52 +17774,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script id="home-sort-columns-final-fix-script">
 (function(){
-  /*
-   * Gestione definitiva dell'ordinamento.
-   * Usiamo un listener in fase capture per evitare che altri listener
-   * della Home intercettino il tap prima delle intestazioni Data/Importo.
-   */
-  function installReliableSortHandlers(){
-    if (window.__homeSortReliableHandlerInstalled) return;
-    window.__homeSortReliableHandlerInstalled = true;
-
-    document.addEventListener('click', function(e){
-      const btn = e.target && e.target.closest ? e.target.closest('#page-home .home-v3-sort-column-btn') : null;
-      if (!btn) return;
-
-      e.preventDefault();
-      e.stopPropagation();
-
-      const key = btn.getAttribute('data-sort-key');
-      if (key !== 'date' && key !== 'amount') return;
-
-      const current = (typeof homeMovementSort !== 'undefined' && homeMovementSort) ? homeMovementSort : 'date-desc';
-      const currentKey = current.indexOf('amount-') === 0 ? 'amount' : 'date';
-      const currentDir = current.endsWith('-asc') ? 'asc' : 'desc';
-      const nextDir = currentKey === key ? (currentDir === 'asc' ? 'desc' : 'asc') : 'desc';
-      const nextSort = key + '-' + nextDir;
-
-      homeMovementSort = nextSort;
-      window.homeMovementSort = nextSort;
-      homeMovementPage = 1;
-
-      document.querySelectorAll('#page-home .home-v3-sort-column-btn').forEach(function(b){
-        const active = b.getAttribute('data-sort-key') === key;
-        b.classList.toggle('active', active);
-        const arrow = b.querySelector('.home-v3-sort-arrow');
-        if (arrow) arrow.textContent = active ? (nextDir === 'asc' ? '↑' : '↓') : '↕';
-      });
-
-      if (typeof updateHomeModernDashboard === 'function') {
-        updateHomeModernDashboard();
-      }
-    }, true);
+  function handleSortTap(e){
+    const btn = e.target && e.target.closest ? e.target.closest('#page-home .home-v3-sort-column-btn') : null;
+    if(!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    if (typeof window.setHomeMovementSort === 'function') {
+      window.setHomeMovementSort(btn.getAttribute('data-sort-key'));
+    }
   }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', installReliableSortHandlers);
-  } else {
-    installReliableSortHandlers();
-  }
+  document.addEventListener('touchend', handleSortTap, true);
+  document.addEventListener('click', handleSortTap, true);
 })();
 </script>
