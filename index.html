@@ -10092,7 +10092,7 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 <button class="active" data-home-source="all" type="button"><i class="ti ti-layout-grid"></i><span>Tutti</span></button>
 <button data-home-source="bank" type="button"><i class="ti ti-building-bank"></i><span>Conto corrente</span></button>
 <button data-home-source="cash" type="button"><i class="ti ti-wallet"></i><span>Cash</span></button>
-</div><div aria-label="Ordina movimenti" class="home-v3-sort-columns"><button aria-label="Ordina per data" class="home-v3-sort-column-btn active" data-sort-key="date" type="button" onclick="window.__sortHomeColumn('date'); return false;" ontouchend="window.__sortHomeColumn('date'); return false;"><span>Data</span><span class="home-v3-sort-arrow">↓</span></button><button aria-label="Ordina per importo" class="home-v3-sort-column-btn" data-sort-key="amount" type="button" onclick="window.__sortHomeColumn('amount'); return false;" ontouchend="window.__sortHomeColumn('amount'); return false;"><span>Importo</span><span class="home-v3-sort-arrow">↕</span></button></div>
+</div><div aria-label="Ordina movimenti" class="home-v3-sort-columns"><button class="home-v3-sort-column-btn active" data-sort-key="date" type="button"><span>Data</span><span class="home-v3-sort-arrow">↓</span></button><button class="home-v3-sort-column-btn" data-sort-key="amount" type="button"><span>Importo</span><span class="home-v3-sort-arrow">↕</span></button></div>
 </div>
 <div id="home-movements-list"></div>
 </div>
@@ -13476,6 +13476,7 @@ function updateHomeModernDashboard() {
   renderHomeMovements(mt);
 }
 function renderHomeMovements(filteredTransactions) {
+  window.__homeLastFilteredTransactions = Array.isArray(filteredTransactions) ? filteredTransactions.slice() : [];
   const list = document.getElementById('home-movements-list');
   if (!list) return;
   const panel = list.closest('.home-v3-movements-panel');
@@ -16438,7 +16439,56 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',bind); else bind();
 })();
-</script></body>
+</script><style id="home-sort-clean-final">
+#page-home .home-v3-sort-column-btn{appearance:none;-webkit-appearance:none;border:0;background:transparent!important;color:#6f7f91!important;box-shadow:none!important;outline:none!important;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;font:inherit;font-weight:700;padding:4px 6px;border-radius:8px;}
+#page-home .home-v3-sort-column-btn:active,#page-home .home-v3-sort-column-btn:focus,#page-home .home-v3-sort-column-btn:hover{background:transparent!important;color:#172b40!important;box-shadow:none!important;}
+#page-home .home-v3-sort-arrow{margin-left:3px;font-size:11px;color:#8b9aac;}
+</style>
+<script id="home-sort-zero-final">
+(function(){
+  function sortHome(key){
+    if(key!=='date' && key!=='amount') return;
+    var current=window.homeMovementSort || 'date-desc';
+    var currentKey=current.indexOf('amount-')===0?'amount':'date';
+    var asc=current.slice(-4)==='-asc';
+    var direction=(currentKey===key)?(asc?'desc':'asc'):'desc';
+    var next=key+'-'+direction;
+    window.homeMovementSort=next;
+    try{ homeMovementSort=next; }catch(e){}
+    try{ homeMovementPage=1; }catch(e){}
+    var data=window.__homeLastFilteredTransactions;
+    if(Array.isArray(data) && typeof renderHomeMovements==='function'){
+      renderHomeMovements(data);
+    } else if(typeof updateHomeModernDashboard==='function'){
+      updateHomeModernDashboard();
+    }
+    setTimeout(updateHeaders,0);
+  }
+  function updateHeaders(){
+    var sort=window.homeMovementSort||'date-desc';
+    var key=sort.indexOf('amount-')===0?'amount':'date';
+    var asc=sort.slice(-4)==='-asc';
+    document.querySelectorAll('#page-home .home-v3-sort-column-btn').forEach(function(b){
+      var active=b.getAttribute('data-sort-key')===key;
+      var a=b.querySelector('.home-v3-sort-arrow');
+      if(a)a.textContent=active?(asc?'↑':'↓'):'↕';
+    });
+  }
+  document.addEventListener('click',function(e){
+    var b=e.target.closest && e.target.closest('#page-home .home-v3-sort-column-btn');
+    if(!b)return;
+    e.preventDefault();e.stopPropagation();sortHome(b.getAttribute('data-sort-key'));
+  },true);
+  document.addEventListener('touchend',function(e){
+    var b=e.target.closest && e.target.closest('#page-home .home-v3-sort-column-btn');
+    if(!b)return;
+    e.preventDefault();e.stopPropagation();sortHome(b.getAttribute('data-sort-key'));
+  },{capture:true,passive:false});
+  window.__homeSortZero=sortHome;
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',updateHeaders);else updateHeaders();
+})();
+</script>
+</body>
 </html>
 <style id="clean-04-home-alignment-pagination">
 /* CLEAN-04: all Home cards align to the same horizontal edges as the balance cards. */
@@ -17738,56 +17788,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 <!-- FINAL FIX: delegated sorting for dynamically rebuilt Home headers -->
-<script id="home-sort-delegated-final">
-(function(){
-  if (window.__homeSortDelegatedFinal) return;
-  window.__homeSortDelegatedFinal = true;
 
-  function applySort(key){
-    if(key !== 'date' && key !== 'amount') return;
-
-    var current = window.homeMovementSort || 'date-desc';
-    var currentKey = current.indexOf('amount-') === 0 ? 'amount' : 'date';
-    var currentAsc = current.slice(-4) === '-asc';
-    var direction = (currentKey === key) ? (currentAsc ? 'desc' : 'asc') : 'desc';
-    var next = key + '-' + direction;
-
-    window.homeMovementSort = next;
-    if (typeof homeMovementSort !== 'undefined') homeMovementSort = next;
-    if (typeof homeMovementPage !== 'undefined') homeMovementPage = 1;
-
-    if (typeof updateHomeModernDashboard === 'function') {
-      updateHomeModernDashboard();
-    } else if (typeof updateStats === 'function') {
-      updateStats();
-    }
-
-    // Aggiorna le frecce dopo che la Home ha ricreato il DOM.
-    setTimeout(function(){
-      var headers = document.querySelector('#page-home .home-v3-sort-columns');
-      if(!headers) return;
-      var activeKey = next.indexOf('amount-') === 0 ? 'amount' : 'date';
-      var asc = next.slice(-4) === '-asc';
-      headers.querySelectorAll('.home-v3-sort-column-btn').forEach(function(btn){
-        var active = btn.getAttribute('data-sort-key') === activeKey;
-        btn.classList.toggle('active', active);
-        var arrow = btn.querySelector('.home-v3-sort-arrow');
-        if(arrow) arrow.textContent = active ? (asc ? '↑' : '↓') : '↕';
-      });
-    }, 0);
-  }
-
-  // Event delegation: le intestazioni vengono ricreate dalla Home,
-  // quindi il listener non deve essere attaccato al singolo elemento.
-  document.addEventListener('click', function(e){
-    if (window.__homeSortInlineHandler) return;
-    var btn = e.target && e.target.closest ? e.target.closest('#page-home .home-v3-sort-column-btn') : null;
-    if(!btn) return;
-
-    e.preventDefault();
-    e.stopPropagation();
-    e.stopImmediatePropagation();
-    applySort(btn.getAttribute('data-sort-key'));
-  }, true);
-})();
-</script>
