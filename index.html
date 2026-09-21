@@ -17727,3 +17727,95 @@ document.addEventListener('DOMContentLoaded', function() {
   else boot();
 })();
 </script>
+
+<style id="home-sort-columns-final-fix">
+/* Intestazioni Data/Importo: nessun aspetto da pulsante scuro */
+#page-home .home-v3-sort-columns {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-top: 1px solid #edf1f4 !important;
+  border-bottom: 1px solid #edf1f4 !important;
+}
+#page-home .home-v3-sort-column-btn,
+#page-home .home-v3-sort-column-btn:hover,
+#page-home .home-v3-sort-column-btn:focus,
+#page-home .home-v3-sort-column-btn:active,
+#page-home .home-v3-sort-column-btn.active {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  outline: none !important;
+  color: #738499 !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+#page-home .home-v3-sort-column-btn.active {
+  color: #172b40 !important;
+}
+#page-home .home-v3-sort-column-btn:focus-visible {
+  outline: 2px solid #c9dff2 !important;
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+#page-home .home-v3-sort-arrow {
+  color: #8b9aac !important;
+  opacity: 1 !important;
+}
+#page-home .home-v3-sort-column-btn.active .home-v3-sort-arrow {
+  color: #172b40 !important;
+}
+</style>
+
+<script id="home-sort-columns-final-fix-script">
+(function(){
+  /*
+   * Gestione definitiva dell'ordinamento.
+   * Usiamo un listener in fase capture per evitare che altri listener
+   * della Home intercettino il tap prima delle intestazioni Data/Importo.
+   */
+  function installReliableSortHandlers(){
+    if (window.__homeSortReliableHandlerInstalled) return;
+    window.__homeSortReliableHandlerInstalled = true;
+
+    document.addEventListener('click', function(e){
+      const btn = e.target && e.target.closest ? e.target.closest('#page-home .home-v3-sort-column-btn') : null;
+      if (!btn) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      const key = btn.getAttribute('data-sort-key');
+      if (key !== 'date' && key !== 'amount') return;
+
+      const current = (typeof homeMovementSort !== 'undefined' && homeMovementSort) ? homeMovementSort : 'date-desc';
+      const currentKey = current.indexOf('amount-') === 0 ? 'amount' : 'date';
+      const currentDir = current.endsWith('-asc') ? 'asc' : 'desc';
+      const nextDir = currentKey === key ? (currentDir === 'asc' ? 'desc' : 'asc') : 'desc';
+      const nextSort = key + '-' + nextDir;
+
+      homeMovementSort = nextSort;
+      window.homeMovementSort = nextSort;
+      homeMovementPage = 1;
+
+      document.querySelectorAll('#page-home .home-v3-sort-column-btn').forEach(function(b){
+        const active = b.getAttribute('data-sort-key') === key;
+        b.classList.toggle('active', active);
+        const arrow = b.querySelector('.home-v3-sort-arrow');
+        if (arrow) arrow.textContent = active ? (nextDir === 'asc' ? '↑' : '↓') : '↕';
+      });
+
+      if (typeof updateHomeModernDashboard === 'function') {
+        updateHomeModernDashboard();
+      }
+    }, true);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', installReliableSortHandlers);
+  } else {
+    installReliableSortHandlers();
+  }
+})();
+</script>
