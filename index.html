@@ -17696,3 +17696,58 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 </style>
 
+
+
+<!-- FINAL FIX: delegated sorting for dynamically rebuilt Home headers -->
+<script id="home-sort-delegated-final">
+(function(){
+  if (window.__homeSortDelegatedFinal) return;
+  window.__homeSortDelegatedFinal = true;
+
+  function applySort(key){
+    if(key !== 'date' && key !== 'amount') return;
+
+    var current = window.homeMovementSort || 'date-desc';
+    var currentKey = current.indexOf('amount-') === 0 ? 'amount' : 'date';
+    var currentAsc = current.slice(-4) === '-asc';
+    var direction = (currentKey === key) ? (currentAsc ? 'desc' : 'asc') : 'desc';
+    var next = key + '-' + direction;
+
+    window.homeMovementSort = next;
+    if (typeof homeMovementSort !== 'undefined') homeMovementSort = next;
+    if (typeof homeMovementPage !== 'undefined') homeMovementPage = 1;
+
+    if (typeof updateHomeModernDashboard === 'function') {
+      updateHomeModernDashboard();
+    } else if (typeof updateStats === 'function') {
+      updateStats();
+    }
+
+    // Aggiorna le frecce dopo che la Home ha ricreato il DOM.
+    setTimeout(function(){
+      var headers = document.querySelector('#page-home .home-v3-sort-columns');
+      if(!headers) return;
+      var activeKey = next.indexOf('amount-') === 0 ? 'amount' : 'date';
+      var asc = next.slice(-4) === '-asc';
+      headers.querySelectorAll('.home-v3-sort-column-btn').forEach(function(btn){
+        var active = btn.getAttribute('data-sort-key') === activeKey;
+        btn.classList.toggle('active', active);
+        var arrow = btn.querySelector('.home-v3-sort-arrow');
+        if(arrow) arrow.textContent = active ? (asc ? '↑' : '↓') : '↕';
+      });
+    }, 0);
+  }
+
+  // Event delegation: le intestazioni vengono ricreate dalla Home,
+  // quindi il listener non deve essere attaccato al singolo elemento.
+  document.addEventListener('click', function(e){
+    var btn = e.target && e.target.closest ? e.target.closest('#page-home .home-v3-sort-column-btn') : null;
+    if(!btn) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    applySort(btn.getAttribute('data-sort-key'));
+  }, true);
+})();
+</script>
