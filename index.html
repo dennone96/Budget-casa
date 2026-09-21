@@ -17615,3 +17615,115 @@ document.addEventListener('DOMContentLoaded', function() {
   else initHomeMovementSort();
 })();
 </script>
+
+<style id="home-sort-column-headers">
+/* Ordinamento Home: intestazioni cliccabili Data / Importo */
+.home-v3-sort-row { display:none !important; }
+.home-v3-sort-columns {
+  display:grid;
+  grid-template-columns: 1fr auto;
+  align-items:center;
+  gap:10px;
+  margin:0 2px 6px;
+  padding:7px 10px 6px;
+  border-top:1px solid #edf1f4;
+  border-bottom:1px solid #edf1f4;
+}
+.home-v3-sort-column-btn {
+  appearance:none;
+  border:0;
+  background:transparent;
+  padding:4px 0;
+  margin:0;
+  color:#738499;
+  font:800 10px/1.2 inherit;
+  letter-spacing:.02em;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  min-height:26px;
+}
+.home-v3-sort-column-btn:hover { color:#1d3852; }
+.home-v3-sort-column-btn.active { color:#1b344e; }
+.home-v3-sort-column-btn[data-sort-key="amount"] { justify-self:end; }
+.home-v3-sort-arrow {
+  font-size:11px;
+  line-height:1;
+  opacity:.55;
+  font-weight:900;
+}
+.home-v3-sort-column-btn.active .home-v3-sort-arrow { opacity:1; }
+@media(max-width:600px){
+  .home-v3-sort-columns { margin-left:0; margin-right:0; padding-left:8px; padding-right:8px; }
+  .home-v3-sort-column-btn { font-size:10px; }
+}
+</style>
+<script id="home-sort-column-headers-script">
+(function(){
+  function setupHomeSortColumns(){
+    const filter = document.getElementById('home-source-filter');
+    if (!filter) return;
+    const panel = filter.closest('.home-v3-movements-panel');
+    if (!panel) return;
+
+    // Rimuove il vecchio selettore "Ordina movimenti", se presente.
+    panel.querySelectorAll('.home-v3-sort-row').forEach(el => el.remove());
+
+    let headers = panel.querySelector('.home-v3-sort-columns');
+    if (!headers) {
+      headers = document.createElement('div');
+      headers.className = 'home-v3-sort-columns';
+      headers.innerHTML = `
+        <button type="button" class="home-v3-sort-column-btn" data-sort-key="date" aria-label="Ordina per data">
+          <span>Data</span><span class="home-v3-sort-arrow">↕</span>
+        </button>
+        <button type="button" class="home-v3-sort-column-btn" data-sort-key="amount" aria-label="Ordina per importo">
+          <span>Importo</span><span class="home-v3-sort-arrow">↕</span>
+        </button>`;
+      // Le intestazioni devono stare subito sotto i filtri Tutti/Conto corrente/Cash.
+      filter.insertAdjacentElement('afterend', headers);
+    }
+
+    const updateHeaderState = () => {
+      const sort = homeMovementSort || 'date-desc';
+      const key = sort.startsWith('amount') ? 'amount' : 'date';
+      const direction = sort.endsWith('asc') ? 'asc' : 'desc';
+      headers.querySelectorAll('.home-v3-sort-column-btn').forEach(btn => {
+        const active = btn.dataset.sortKey === key;
+        btn.classList.toggle('active', active);
+        const arrow = btn.querySelector('.home-v3-sort-arrow');
+        if (arrow) arrow.textContent = active ? (direction === 'asc' ? '↑' : '↓') : '↕';
+      });
+    };
+
+    headers.querySelectorAll('.home-v3-sort-column-btn').forEach(btn => {
+      if (btn.dataset.bound === '1') return;
+      btn.dataset.bound = '1';
+      btn.addEventListener('click', () => {
+        const key = btn.dataset.sortKey;
+        const current = homeMovementSort || 'date-desc';
+        const currentKey = current.startsWith('amount') ? 'amount' : 'date';
+        const currentDir = current.endsWith('asc') ? 'asc' : 'desc';
+        const nextDir = currentKey === key ? (currentDir === 'asc' ? 'desc' : 'asc') : 'desc';
+        homeMovementSort = key + '-' + nextDir;
+        window.homeMovementSort = homeMovementSort;
+        homeMovementPage = 1;
+        updateHeaderState();
+        if (typeof updateHomeModernDashboard === 'function') updateHomeModernDashboard();
+      });
+    });
+    updateHeaderState();
+  }
+
+  function boot(){
+    setupHomeSortColumns();
+    // Se il DOM della Home viene ricostruito quando si cambia pagina, ripristina le intestazioni.
+    const observer = new MutationObserver(() => setupHomeSortColumns());
+    const home = document.getElementById('page-home');
+    if (home) observer.observe(home, {childList:true, subtree:true});
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>
