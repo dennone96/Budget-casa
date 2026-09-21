@@ -8253,7 +8253,6 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
   #category-detail-list { padding:6px 10px 8px !important; }
 }
 </style>
-
 <style id="modern-eu-v10">
 #tab-entrate-uscite .stats-detail-header{position:relative;display:flex;align-items:center;justify-content:center;min-height:52px;margin-bottom:10px;}
 #tab-entrate-uscite .stats-detail-header h2{margin:0;text-align:center;font-size:22px;font-weight:800;letter-spacing:-.4px;color:#17273c;}
@@ -8323,7 +8322,6 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 }
 @media(max-width:380px){#tab-residuo .chart-wrap{height:200px!important;max-height:none;}}
 </style>
-
 <style id="clean-19-final-fixes">
 /* CLEAN 20: every main page is a sibling, not nested inside Statistics */
 
@@ -8389,7 +8387,6 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
   #tab-confronto #table-compare td{padding:9px 3px!important;font-size:9px!important;}
 }
 </style>
-
 <style id="bollette-modern-table-style">
 /* ==========================================================
    LIBRERIA BOLLETTE — SOLO STILE TABELLA
@@ -8596,8 +8593,6 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
   }
 }
 </style>
-
-
 <style id="bollette-table-popup-final-style">
 /* ===== LIBRERIA BOLLETTE — RIGHE CONTINUE + TOTALI + POPUP MODERNO ===== */
 #page-bollette .bolletta-table-wrap{overflow-x:auto!important;overflow-y:hidden!important;border:0!important;border-radius:0!important;background:transparent!important;}
@@ -8724,8 +8719,6 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
   #bolletta-detail-delete{width:46px!important;}
 }
 </style>
-
-
 <style id="calendar-popup-position-fix">
 /* Popup calendario: leggermente piu in alto e sempre cliccabile */
 #event-modal-overlay, #event-detail-overlay, #calendar-event-modal-overlay {
@@ -8751,7 +8744,6 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
   }
 }
 </style>
-
 <style id="shopping-lists-modern-restyle">
 /* =========================================================
    LISTE DELLA SPESA — RESTYLING MODERNO
@@ -9125,7 +9117,6 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
   #page-liste .lista-modal-box { padding: 20px !important; border-radius: 22px !important; }
 }
 </style>
-
 <style id="shopping-lists-complete-redesign">
 /* =========================================================
    LISTE DELLA SPESA — REDESIGN COMPLETO
@@ -9393,7 +9384,6 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
   #page-liste .lista-modal-box{padding:20px !important;border-radius:22px !important;}
 }
 </style>
-
 <style id="shopping-lists-final-sizing-modal">
 /* =========================================================
    LISTE DELLA SPESA — DIMENSIONI PIÙ COMPATTE + POPUP MODERNO
@@ -9483,8 +9473,6 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
   #lista-modal-overlay .shopping-modal-title{font-size:19px !important;}
 }
 </style>
-
-
 <style id="bollette-mobile-file-fix">
 .bolletta-file-picker{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center;padding:8px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface-2);}
 .bolletta-file-input{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important;}
@@ -9497,7 +9485,6 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
   .bolletta-file-name{text-align:center;padding:2px 6px 3px;}
 }
 </style>
-
 <style id="force-light-import-categorie-final">
 /* ==========================================================
    TEMA CHIARO FORZATO - IMPORTA EXCEL + CATEGORIE
@@ -9654,8 +9641,6 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
   }
 }
 </style>
-
-
 <style id="categorie-import-complete-light-redesign">
 /* ============================================================
    IMPORTA EXCEL + CATEGORIE — LAYOUT LIGHT COMPLETAMENTE NUOVO
@@ -9972,8 +9957,7 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
   #page-categorie .cat-input-row button { width:100% !important; }
 }
 </style>
-
-</head>
+<style id="home-sort-safe-light-style">.home-v3-sort-column-btn,.home-v3-sort-column-btn:focus,.home-v3-sort-column-btn:active{background:transparent!important;color:#718399!important;-webkit-tap-highlight-color:transparent!important;outline:none!important;box-shadow:none!important;} .home-v3-sort-column-btn.active{background:transparent!important;color:#1b344e!important;} .home-v3-sort-column-btn:hover{background:transparent!important;}</style></head>
 <body><div id="login-screen">
 <h1>Budget di Famiglia</h1>
 <p class="subtitle">Gestisci le tue finanze in modo semplice</p>
@@ -10108,7 +10092,7 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 <button class="active" data-home-source="all" type="button"><i class="ti ti-layout-grid"></i><span>Tutti</span></button>
 <button data-home-source="bank" type="button"><i class="ti ti-building-bank"></i><span>Conto corrente</span></button>
 <button data-home-source="cash" type="button"><i class="ti ti-wallet"></i><span>Cash</span></button>
-</div>
+</div><div aria-label="Ordina movimenti" class="home-v3-sort-columns"><button aria-label="Ordina per data" class="home-v3-sort-column-btn active" data-sort-key="date" type="button"><span>Data</span><span class="home-v3-sort-arrow">↓</span></button><button aria-label="Ordina per importo" class="home-v3-sort-column-btn" data-sort-key="amount" type="button"><span>Importo</span><span class="home-v3-sort-arrow">↕</span></button></div>
 </div>
 <div id="home-movements-list"></div>
 </div>
@@ -10194,7 +10178,6 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 <div class="stats-detail-header"><button aria-label="Torna a Statistiche" class="stats-detail-back" type="button"><i class="ti ti-chevron-left"></i></button><h2>Entrate / Uscite</h2></div>
 <div id="screenshot-entrate-uscite">
 <div class="eu-chart-toolbar">
-
 <select id="chart-year"></select>
 </div>
 <div class="eu-chart-card">
@@ -10229,7 +10212,7 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 <div class="stats-detail-header"><button aria-label="Torna a Statistiche" class="stats-detail-back" type="button"><i class="ti ti-chevron-left"></i></button><h2>Residuo</h2></div>
 <div id="screenshot-residuo">
 <div class="row-between">
-<span class="residuo-section-spacer" aria-hidden="true"></span>
+<span aria-hidden="true" class="residuo-section-spacer"></span>
 <select id="chart-residuo-year"></select>
 </div>
 <div class="panel">
@@ -10414,12 +10397,12 @@ Movimenti in contanti. Stesse colonne del conto corrente.
       gap: 10px;
     ">
 <span class="shopping-add-icon">+</span><span>Nuova lista</span>
-    </button>
+</button>
 </div>
 <!-- Contenitore liste -->
 <div class="shopping-lists-toolbar">
-  <div class="shopping-lists-caption"><span class="shopping-caption-dot"></span><span>Le tue liste</span></div>
-  <div class="shopping-lists-count" id="shopping-lists-count">0 liste</div>
+<div class="shopping-lists-caption"><span class="shopping-caption-dot"></span><span>Le tue liste</span></div>
+<div class="shopping-lists-count" id="shopping-lists-count">0 liste</div>
 </div>
 <div id="liste-container-principale" style="min-height:200px;">
 <div style="text-align:center; padding:40px 20px; color:var(--text-muted);">
@@ -10696,11 +10679,11 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 <div style="margin-bottom:14px;">
 <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:4px;">File PDF *</label>
 <div class="bolletta-file-picker">
-  <input accept="application/pdf,.pdf" id="bolletta-modal-file" type="file" class="bolletta-file-input"/>
-  <button type="button" id="bolletta-modal-file-button" class="bolletta-file-button">
-    <i class="ti ti-file-type-pdf"></i><span>Seleziona PDF</span>
-  </button>
-  <div id="bolletta-modal-file-name" class="bolletta-file-name">Nessun file selezionato</div>
+<input accept="application/pdf,.pdf" class="bolletta-file-input" id="bolletta-modal-file" type="file"/>
+<button class="bolletta-file-button" id="bolletta-modal-file-button" type="button">
+<i class="ti ti-file-type-pdf"></i><span>Seleziona PDF</span>
+</button>
+<div class="bolletta-file-name" id="bolletta-modal-file-name">Nessun file selezionato</div>
 </div>
 </div>
 <div id="bolletta-modal-progress" style="display:none; margin-top:12px;">
@@ -16195,7 +16178,6 @@ document.addEventListener('DOMContentLoaded', function() {
   }, true);
 })();
 </script>
-
 <style id="calendar-event-popup-keyboard-fix">
 /* Calendario: popup realmente centrato e sempre sopra la tastiera mobile */
 #evento-modal-overlay {
@@ -16287,7 +16269,6 @@ document.addEventListener('DOMContentLoaded', function() {
   setTimeout(bindCalendarPopupKeyboard, 300);
 })();
 </script>
-
 <script id="bollette-mobile-file-fix-js">
 (function(){
   function getSelectedBolletta(){
@@ -16370,7 +16351,55 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 })();
 </script>
-</body>
+<script id="home-sort-single-safe-script">
+(function(){
+  function updateSortHeaders(){
+    const headers=document.querySelector('#page-home .home-v3-sort-columns');
+    if(!headers) return;
+    const sort=window.homeMovementSort || 'date-desc';
+    const key=sort.indexOf('amount-')===0 ? 'amount' : 'date';
+    const asc=sort.endsWith('-asc');
+    headers.querySelectorAll('.home-v3-sort-column-btn').forEach(function(btn){
+      const active=btn.getAttribute('data-sort-key')===key;
+      btn.classList.toggle('active',active);
+      const arrow=btn.querySelector('.home-v3-sort-arrow');
+      if(arrow) arrow.textContent=active ? (asc ? '↑' : '↓') : '↕';
+    });
+  }
+  window.setHomeMovementSort=function(key){
+    if(key!=='date' && key!=='amount') return;
+    const current=window.homeMovementSort || 'date-desc';
+    const currentKey=current.indexOf('amount-')===0 ? 'amount' : 'date';
+    const currentAsc=current.endsWith('-asc');
+    const direction=(currentKey===key) ? (currentAsc ? 'desc' : 'asc') : 'desc';
+    const next=key+'-'+direction;
+    window.homeMovementSort=next;
+    homeMovementSort=next;
+    homeMovementPage=1;
+    updateSortHeaders();
+    if(typeof updateHomeModernDashboard==='function') updateHomeModernDashboard();
+  };
+  function bind(){
+    const headers=document.querySelector('#page-home .home-v3-sort-columns');
+    if(!headers || headers.dataset.bound==='1') return;
+    headers.dataset.bound='1';
+    headers.addEventListener('click',function(e){
+      const btn=e.target.closest('.home-v3-sort-column-btn');
+      if(!btn) return;
+      e.preventDefault(); e.stopPropagation();
+      window.setHomeMovementSort(btn.getAttribute('data-sort-key'));
+    });
+    headers.addEventListener('touchend',function(e){
+      const btn=e.target.closest('.home-v3-sort-column-btn');
+      if(!btn) return;
+      e.preventDefault(); e.stopPropagation();
+      window.setHomeMovementSort(btn.getAttribute('data-sort-key'));
+    },{passive:false});
+    updateSortHeaders();
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',bind); else bind();
+})();
+</script></body>
 </html>
 <style id="clean-04-home-alignment-pagination">
 /* CLEAN-04: all Home cards align to the same horizontal edges as the balance cards. */
@@ -16526,7 +16555,6 @@ document.addEventListener('DOMContentLoaded', function() {
 <script>
 /* CLEAN 15 marker */
 </script>
-
 <style id="calendar-modern-overrides">
 /* =========================================================
    CALENDARIO EVENTI — RESTYLING MODERNO
@@ -17038,7 +17066,6 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 }
 </style>
-
 <style id="sections-modern-restyle-2026">
 /* =========================================================
    RESTYLING MIRATO: TITOLI + IMPORTA EXCEL + CATEGORIE
@@ -17374,7 +17401,6 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 }
 </style>
-
 <style id="scoped-light-theme-import-categorie-final">
 /* ==========================================================
    CORREZIONE DEFINITIVA:
@@ -17534,7 +17560,6 @@ document.addEventListener('DOMContentLoaded', function() {
   color-scheme: light !important;
 }
 </style>
-
 <style id="home-width-and-sort-final">
 /* Home: usa meglio la larghezza disponibile del display Android, senza arrivare ai bordi. */
 @media (max-width: 900px) {
@@ -17586,35 +17611,6 @@ document.addEventListener('DOMContentLoaded', function() {
   .home-v3-sort-select { min-width:0; width:190px; max-width:58%; height:30px; font-size:9px; }
 }
 </style>
-<script id="home-sort-final-script">
-(function(){
-  function initHomeMovementSort(){
-    const filter = document.getElementById('home-source-filter');
-    if (!filter || document.getElementById('home-movement-sort')) return;
-    const row = document.createElement('div');
-    row.className = 'home-v3-sort-row';
-    row.innerHTML = `
-      <label for="home-movement-sort">Ordina movimenti</label>
-      <select id="home-movement-sort" class="home-v3-sort-select" aria-label="Ordina movimenti">
-        <option value="date-desc">Data ↓ · più recenti</option>
-        <option value="date-asc">Data ↑ · più vecchie</option>
-        <option value="amount-desc">Importo ↓ · maggiore</option>
-        <option value="amount-asc">Importo ↑ · minore</option>
-      </select>`;
-    filter.parentNode.insertBefore(row, filter.nextSibling);
-    const select = row.querySelector('select');
-    select.value = window.homeMovementSort || 'date-desc';
-    select.addEventListener('change', function(){
-      window.homeMovementSort = this.value;
-      homeMovementSort = this.value;
-      homeMovementPage = 1;
-      if (typeof updateHomeModernDashboard === 'function') updateHomeModernDashboard();
-    });
-  }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initHomeMovementSort);
-  else initHomeMovementSort();
-})();
-</script>
 
 <style id="home-sort-column-headers">
 /* Ordinamento Home: intestazioni cliccabili Data / Importo */
@@ -17659,78 +17655,6 @@ document.addEventListener('DOMContentLoaded', function() {
   .home-v3-sort-column-btn { font-size:10px; }
 }
 </style>
-<script id="home-sort-column-headers-script">
-(function(){
-  function setupHomeSortColumns(){
-    const filter = document.getElementById('home-source-filter');
-    if (!filter) return;
-    const panel = filter.closest('.home-v3-movements-panel');
-    if (!panel) return;
-    panel.querySelectorAll('.home-v3-sort-row').forEach(el => el.remove());
-    let headers = panel.querySelector('.home-v3-sort-columns');
-    if (!headers) {
-      headers = document.createElement('div');
-      headers.className = 'home-v3-sort-columns';
-      headers.innerHTML = `
-        <button type="button" class="home-v3-sort-column-btn" data-sort-key="date" aria-label="Ordina per data">
-          <span>Data</span><span class="home-v3-sort-arrow">↕</span>
-        </button>
-        <button type="button" class="home-v3-sort-column-btn" data-sort-key="amount" aria-label="Ordina per importo">
-          <span>Importo</span><span class="home-v3-sort-arrow">↕</span>
-        </button>`;
-      filter.insertAdjacentElement('afterend', headers);
-    }
-    headers.querySelectorAll('.home-v3-sort-column-btn').forEach(btn => {
-      btn.onclick = function(e){
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        window.setHomeMovementSort(this.getAttribute('data-sort-key'));
-        return false;
-      };
-    });
-    updateHeaderState(headers);
-  }
-
-  function updateHeaderState(headers){
-    const sort = window.homeMovementSort || 'date-desc';
-    const key = sort.indexOf('amount-') === 0 ? 'amount' : 'date';
-    const direction = sort.endsWith('-asc') ? 'asc' : 'desc';
-    headers.querySelectorAll('.home-v3-sort-column-btn').forEach(btn => {
-      const active = btn.getAttribute('data-sort-key') === key;
-      btn.classList.toggle('active', active);
-      const arrow = btn.querySelector('.home-v3-sort-arrow');
-      if (arrow) arrow.textContent = active ? (direction === 'asc' ? '↑' : '↓') : '↕';
-    });
-  }
-
-  window.setHomeMovementSort = function(key){
-    if (key !== 'date' && key !== 'amount') return;
-    const current = window.homeMovementSort || 'date-desc';
-    const currentKey = current.indexOf('amount-') === 0 ? 'amount' : 'date';
-    const currentDir = current.endsWith('-asc') ? 'asc' : 'desc';
-    const nextDir = currentKey === key ? (currentDir === 'asc' ? 'desc' : 'asc') : 'desc';
-    const nextSort = key + '-' + nextDir;
-    window.homeMovementSort = nextSort;
-    homeMovementSort = nextSort;
-    homeMovementPage = 1;
-    const headers = document.querySelector('#page-home .home-v3-sort-columns');
-    if (headers) updateHeaderState(headers);
-    if (typeof updateHomeModernDashboard === 'function') updateHomeModernDashboard();
-  };
-
-  function boot(){
-    setupHomeSortColumns();
-    const home = document.getElementById('page-home');
-    if (home && !window.__homeSortObserverInstalled) {
-      window.__homeSortObserverInstalled = true;
-      new MutationObserver(function(){ setupHomeSortColumns(); }).observe(home,{childList:true,subtree:true});
-    }
-  }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
-  else boot();
-})();
-</script>
 
 <style id="home-sort-columns-final-fix">
 /* Intestazioni Data/Importo: nessun aspetto da pulsante scuro */
@@ -17772,19 +17696,3 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 </style>
 
-<script id="home-sort-columns-final-fix-script">
-(function(){
-  function handleSortTap(e){
-    const btn = e.target && e.target.closest ? e.target.closest('#page-home .home-v3-sort-column-btn') : null;
-    if(!btn) return;
-    e.preventDefault();
-    e.stopPropagation();
-    e.stopImmediatePropagation();
-    if (typeof window.setHomeMovementSort === 'function') {
-      window.setHomeMovementSort(btn.getAttribute('data-sort-key'));
-    }
-  }
-  document.addEventListener('touchend', handleSortTap, true);
-  document.addEventListener('click', handleSortTap, true);
-})();
-</script>
