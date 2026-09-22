@@ -13555,8 +13555,11 @@ function renderHomeMovements(filteredTransactions) {
   const mt = [...filteredTransactions].sort((a,b) => {
     const da = transactionDateISO(a) || '';
     const db = transactionDateISO(b) || '';
-    const aa = amountValue(a.amount);
-    const ab = amountValue(b.amount);
+    // Per l'ordinamento considero il segno reale del movimento:
+    // entrata = positivo, uscita = negativo. Il valore salvato può essere
+    // invece sempre positivo perché il segno viene aggiunto solo in visualizzazione.
+    const aa = a.type === 'expense' ? -Math.abs(amountValue(a.amount)) : Math.abs(amountValue(a.amount));
+    const ab = b.type === 'expense' ? -Math.abs(amountValue(b.amount)) : Math.abs(amountValue(b.amount));
     let result = 0;
     if (sortMode === 'date-asc') {
       result = String(da).localeCompare(String(db));
