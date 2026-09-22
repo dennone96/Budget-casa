@@ -13750,7 +13750,6 @@ function renderAll() { populateMonthSelects(); populateHomePeriodFilters(); upda
 // Home modern: azioni rapide
 setTimeout(() => {
   document.getElementById('home-see-all')?.addEventListener('click', () => document.getElementById('transactions-list')?.scrollIntoView({behavior:'smooth', block:'start'}));
-  document.getElementById('home-profile-btn')?.addEventListener('click', openHomeProfileModal);
 }, 0);
 
 document.getElementById('inp-date').value = todayISO();
@@ -17908,7 +17907,15 @@ document.addEventListener('DOMContentLoaded', function() {
       if(btn){btn.disabled=false;btn.textContent='Salva modifiche';}
     }
   }
+  // Apertura del popup profilo tramite delegazione: funziona anche se la Home viene ricostruita.
   document.addEventListener('click',function(e){
+    const profileBtn=e.target.closest && e.target.closest('#home-profile-btn');
+    if(profileBtn){
+      e.preventDefault();
+      e.stopPropagation();
+      window.openHomeProfileModal();
+      return;
+    }
     if(e.target.closest('#home-profile-modal-close')) closeHomeProfileModal();
     if(e.target.closest('#home-profile-save')) saveHomeProfileName();
     if(e.target.closest('#home-profile-logout')){
