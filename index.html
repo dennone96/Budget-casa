@@ -10025,31 +10025,62 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
   #page-home .home-v3-movement-row{padding-left:8px !important;padding-right:8px !important;}
 }
 </style>
+
+<style id="profiles-login-modern">
+.login-create-profile-card{margin-top:16px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:18px;box-shadow:var(--shadow-sm);}
+.login-create-profile-title{font-size:18px;font-weight:800;color:var(--text-primary);margin-bottom:4px;}
+.login-create-profile-subtitle{font-size:12px;color:var(--text-muted);font-weight:600;margin-bottom:14px;}
+.login-create-profile-card input{width:100%;height:46px;margin-bottom:10px;}
+.login-create-profile-card button{width:100%;height:46px;border:0;border-radius:var(--radius-sm);background:var(--accent-gradient);color:#fff;font-weight:800;cursor:pointer;}
+#create-profile-error{min-height:18px;margin:2px 0 8px;color:var(--danger);font-size:12px;font-weight:700;}
+.profile-main-panel{overflow:hidden;}
+.profile-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px;}
+.profile-panel-head h3{margin:0 0 4px;}
+.profile-panel-head p{margin:0;color:var(--text-muted);font-size:12px;font-weight:600;}
+.profile-admin-badge{padding:5px 10px;border-radius:999px;background:#e9f7ef;color:#16834b;font-size:11px;font-weight:800;white-space:nowrap;}
+.profile-members-list{display:flex;flex-direction:column;gap:8px;}
+.profile-member-card{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 13px;border:1px solid var(--border);border-radius:14px;background:var(--surface-2);}
+.profile-member-main{display:flex;align-items:center;gap:10px;min-width:0;}
+.profile-member-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:0 0 38px;background:var(--accent-gradient);color:#fff;font-size:14px;font-weight:800;}
+.profile-member-text{min-width:0;}
+.profile-member-name{font-size:14px;font-weight:800;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.profile-member-email{font-size:11px;color:var(--text-muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.profile-member-meta{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.profile-member-role,.profile-member-status{padding:5px 8px;border-radius:999px;font-size:10px;font-weight:800;}
+.profile-member-role{background:#e8f0fb;color:#315b8c;}
+.profile-member-role.admin{background:#e9f7ef;color:#16834b;}
+.profile-member-status{background:#fff3d6;color:#9a6b00;}
+.profile-member-remove{border:0;background:#fdeaea;color:#c63d3d;border-radius:9px;padding:7px 9px;font-size:11px;font-weight:800;cursor:pointer;}
+.profile-members-status{min-height:18px;margin:10px 0 0;font-size:12px;font-weight:700;color:var(--text-muted);}
+@media(max-width:600px){.login-create-profile-card{padding:16px;border-radius:18px}.profile-member-card{align-items:flex-start}.profile-member-meta{flex-wrap:wrap;justify-content:flex-end}.profile-member-role,.profile-member-status{font-size:9px;padding:4px 7px;}}
+</style>
 </head>
 <body><div id="login-screen">
 <h1>Budget di Famiglia</h1>
 <p class="subtitle">Gestisci le tue finanze in modo semplice</p>
 <form class="panel" id="login-form">
-<input autocomplete="email" id="login-email" placeholder="Email" required="" type="email"/>
-<input autocomplete="current-password" id="login-password" minlength="6" placeholder="Password (min 6 caratteri)" required="" type="password"/>
-<p id="login-error"></p>
-<button id="login-submit" type="submit">Accedi</button>
-<p style="text-align:center; font-size:14px; margin:0; color: var(--text-secondary);">
-<span id="login-toggle-label">Non hai un account?</span>
-<button id="login-toggle" type="button">Registrati</button>
-</p>
+  <input autocomplete="email" id="login-email" placeholder="Email" required type="email"/>
+  <input autocomplete="current-password" id="login-password" minlength="6" placeholder="Password (min 6 caratteri)" required type="password"/>
+  <p id="login-error"></p>
+  <button id="login-submit" type="submit">Accedi</button>
 </form>
-<!-- === CODICE 3: MESSAGGIO PER UTENTI INVITATI === -->
-<div style="margin-top:16px; padding:16px; background:var(--surface-2); border-radius:var(--radius-sm); border:1px solid var(--border); text-align:center;">
-<p style="margin:0; font-size:13px; color:var(--text-secondary);">
-    💌 <strong>Sei stato invitato?</strong><br/>
-<span style="font-size:12px; color:var(--text-muted);">
-      Registrati con l'email che hai ricevuto per accedere al budget familiare.
-    </span>
+
+<div class="login-create-profile-card">
+  <div class="login-create-profile-title">Crea un nuovo profilo</div>
+  <div class="login-create-profile-subtitle">Inserisci nome, email e password per creare il tuo profilo.</div>
+  <form id="create-profile-form">
+    <input autocomplete="name" id="create-profile-name" placeholder="Nome" required type="text" maxlength="80"/>
+    <input autocomplete="email" id="create-profile-email" placeholder="Email" required type="email"/>
+    <input autocomplete="new-password" id="create-profile-password" minlength="6" placeholder="Password (min 6 caratteri)" required type="password"/>
+    <p id="create-profile-error"></p>
+    <button id="create-profile-submit" type="submit">Crea profilo</button>
+  </form>
+</div>
+
+<div style="margin-top:16px; padding:14px 16px; background:var(--surface-2); border-radius:var(--radius-sm); border:1px solid var(--border); text-align:center;">
+<p style="margin:0; font-size:12px; color:var(--text-muted);">
+  Il profilo creato verrà associato alla famiglia dell'amministratore <strong style="color:var(--text-secondary);">dennisfarina1996@gmail.com</strong>.
 </p>
-<p style="margin:8px 0 0; font-size:12px; color:var(--text-muted);">
-    👉 <span style="font-weight:700; color:var(--accent);">Non hai ricevuto un invito?</span> Clicca su "Registrati" e crea il tuo budget personale.
-  </p>
 </div>
 </div>
 <div class="hidden" id="shell">
@@ -10513,78 +10544,39 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 </div>
 <div class="page" id="page-profilo">
 <h1>Profilo</h1>
-<!-- Info account esistente -->
+
+<div class="panel profile-main-panel">
+  <div class="profile-panel-head">
+    <div>
+      <h3>👥 Profili</h3>
+      <p>Qui vengono visualizzati tutti i profili creati nell'app.</p>
+    </div>
+    <span id="profile-admin-badge" class="profile-admin-badge" style="display:none;">Admin</span>
+  </div>
+  <div id="family-members-list" class="profile-members-list"></div>
+  <p id="profile-members-status" class="profile-members-status"></p>
+</div>
+
 <div class="panel">
-<h3>Informazioni account</h3>
-<div class="profile-field">
-<label>Email</label>
-<input id="profile-email-display" readonly="" style="background: var(--surface-2); color: var(--text-secondary);" type="text"/>
+  <h3>Cambia password</h3>
+  <p style="font-size:13px; color:var(--text-secondary); margin-top:0; line-height:1.6; font-weight:600;">
+    Riceverai un'email con le istruzioni per scegliere una nuova password.
+  </p>
+  <button id="btn-reset-password" style="width:100%; height:46px; border-radius:var(--radius-sm); font-weight:700;">
+    Invia email di reset
+  </button>
+  <p id="profile-msg"></p>
 </div>
-<div class="profile-field">
-<label>Account creato il</label>
-<input id="profile-created" readonly="" style="background: var(--surface-2); color: var(--text-secondary);" type="text"/>
-</div>
-</div>
-<!-- NUOVA SEZIONE: GESTIONE PROFILI -->
-<div class="panel">
-<h3>👥 Gestione profili familiari</h3>
-<p style="font-size:13px; color:var(--text-secondary); margin-bottom:1rem; font-weight:600;">
-      Aggiungi membri della famiglia per condividere il budget.
-    </p>
-<div id="family-members-list" style="margin-bottom:1rem;"></div>
-<div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-<div>
-<label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">Email del membro</label>
-<input id="invite-email" placeholder="email@esempio.it" style="width:100%; height:40px;" type="email"/>
-</div>
-<div>
-<label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">Nome</label>
-<input id="invite-name" placeholder="Nome del membro" style="width:100%; height:40px;" type="text"/>
-</div>
-</div>
-<button id="btn-invite-member" style="margin-top:10px; width:100%; height:44px; background:var(--accent-gradient); color:#fff; border:none; border-radius:var(--radius-sm); font-weight:700; cursor:pointer;">
-<i class="ti ti-user-plus" style="margin-right:8px;"></i> Aggiungi membro
-    </button>
-<p id="invite-status" style="font-size:13px; margin-top:10px; min-height:20px;"></p>
-</div>
-<div class="panel">
-<h3>🔧 Manutenzione</h3>
-<p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">
-      Se i dati non vengono visualizzati correttamente, clicca su "Correggi collegamento famiglia".
-    </p>
-<button id="btn-fix-family" style="width:100%; height:40px; background:var(--warning); color:#fff; border:none; border-radius:var(--radius-sm); font-weight:700; cursor:pointer;">
-      🔄 Correggi collegamento famiglia
-    </button>
-<p id="fix-status" style="font-size:12px; color:var(--text-muted); margin-top:8px; min-height:20px;"></p>
-</div>
-<!-- Cambia password -->
-<div class="panel">
-<h3>Cambia password</h3>
-<p style="font-size:14px; color:var(--text-secondary); margin-top:0; line-height:1.6; font-weight:600;">
-      Riceverai un'email con le istruzioni per scegliere una nuova password.
-    </p>
-<button id="btn-reset-password" style="width:100%; height:46px; border-radius:var(--radius-sm); font-weight:700;">
-      Invia email di reset
-    </button>
-<p id="profile-msg" style="font-size:13px; margin-top:12px;"></p>
-</div>
-<!-- Statistiche -->
-<div class="panel">
-<h3>Statistiche</h3>
-<div class="stats-row">
-<div class="stat-card">
-<p>Movimenti</p>
-<p id="profile-tx-count">0</p>
-</div>
-<div class="stat-card">
-<p>Primo movimento</p>
-<p id="profile-first-tx" style="font-size:14px;">—</p>
-</div>
-<div class="stat-card">
-<p>Promemoria</p>
-<p id="profile-rem-count">0</p>
-</div>
-</div>
+
+<div class="panel" id="profile-maintenance-panel">
+  <h3>🔧 Manutenzione</h3>
+  <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">
+    Se i dati non vengono visualizzati correttamente, puoi correggere il collegamento alla famiglia.
+  </p>
+  <button id="btn-fix-family" style="width:100%; height:40px; background:var(--warning); color:#fff; border:none; border-radius:var(--radius-sm); font-weight:700; cursor:pointer;">
+    🔄 Correggi collegamento famiglia
+  </button>
+  <p id="fix-status" style="font-size:12px; color:var(--text-muted); margin-top:8px; min-height:20px;"></p>
 </div>
 </div>
 <div class="page" id="page-categorie">
@@ -11642,25 +11634,95 @@ const overlay = document.getElementById('sidebar-overlay');
 hamburger.addEventListener('click', () => { sidebar.classList.add('open'); overlay.classList.add('open'); });
 overlay.addEventListener('click', closeSidebar);
 function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('open'); }
-let isRegisterMode = false;
-document.getElementById('login-toggle').addEventListener('click', () => {
-isRegisterMode = !isRegisterMode;
-document.getElementById('login-submit').textContent = isRegisterMode ? 'Crea account' : 'Accedi';
-document.getElementById('login-toggle-label').textContent = isRegisterMode ? 'Hai già un account?' : 'Non hai un account?';
-document.getElementById('login-toggle').textContent = isRegisterMode ? 'Accedi' : 'Registrati';
-document.getElementById('login-error').textContent = '';
-});
+const ADMIN_EMAIL = 'dennisfarina1996@gmail.com';
+
+// Login normale: entra nell'account esistente.
 document.getElementById('login-form').addEventListener('submit', async (e) => {
-e.preventDefault();
-const email = document.getElementById('login-email').value.trim();
-const password = document.getElementById('login-password').value;
-const errorEl = document.getElementById('login-error');
-errorEl.textContent = '';
-try {
-if (isRegisterMode) await auth.createUserWithEmailAndPassword(email, password);
-else await auth.signInWithEmailAndPassword(email, password);
-} catch (err) { errorEl.textContent = traduciErroreFirebase(err.code); }
+  e.preventDefault();
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const errorEl = document.getElementById('login-error');
+  errorEl.textContent = '';
+  try {
+    await auth.signInWithEmailAndPassword(email, password);
+  } catch (err) {
+    errorEl.textContent = traduciErroreFirebase(err.code);
+  }
 });
+
+// Crea un nuovo profilo senza disconnettere l'eventuale account principale.
+// Firebase Auth usa una seconda istanza temporanea per evitare di cambiare
+// l'utente autenticato nell'app principale.
+async function createProfileFromLogin(e) {
+  e.preventDefault();
+  const nameEl = document.getElementById('create-profile-name');
+  const emailEl = document.getElementById('create-profile-email');
+  const passwordEl = document.getElementById('create-profile-password');
+  const errorEl = document.getElementById('create-profile-error');
+  const submitBtn = document.getElementById('create-profile-submit');
+  const name = nameEl.value.trim();
+  const email = emailEl.value.trim().toLowerCase();
+  const password = passwordEl.value;
+  errorEl.textContent = '';
+
+  if (!name) { errorEl.textContent = 'Inserisci il nome.'; nameEl.focus(); return; }
+  if (!email) { errorEl.textContent = "Inserisci un'email valida."; emailEl.focus(); return; }
+  if (email === ADMIN_EMAIL.toLowerCase()) { errorEl.textContent = "Questa email è riservata all'amministratore."; emailEl.focus(); return; }
+  if (password.length < 6) { errorEl.textContent = 'La password deve contenere almeno 6 caratteri.'; passwordEl.focus(); return; }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Creazione in corso…';
+
+  let secondaryApp = null;
+  try {
+    const appName = 'profileCreator_' + Date.now();
+    secondaryApp = firebase.initializeApp(firebaseConfig, appName);
+    const secondaryAuth = secondaryApp.auth();
+    const secondaryDb = secondaryApp.firestore();
+    const credential = await secondaryAuth.createUserWithEmailAndPassword(email, password);
+    const newUser = credential.user;
+    await newUser.updateProfile({ displayName: name });
+
+    await secondaryDb.collection('profili').doc(newUser.uid).set({
+      uid: newUser.uid,
+      name: name,
+      email: email,
+      role: 'member',
+      status: 'active',
+      familyId: null,
+      createdAt: new Date().toISOString()
+    });
+
+    // Il collegamento alla famiglia dell'admin viene effettuato dal profilo
+    // admin alla successiva apertura/accesso, mantenendo sicure le regole.
+    await secondaryDb.collection('famiglie').doc(newUser.uid).set({
+      profile: { uid: newUser.uid, name: name, email: email, role: 'member', status: 'active' },
+      familyId: null,
+      familyMembers: {},
+      createdAt: new Date().toISOString()
+    }, { merge: true });
+
+    await secondaryAuth.signOut();
+    errorEl.style.color = 'var(--success)';
+    errorEl.textContent = '✅ Profilo creato. Ora puoi accedere con email e password.';
+    document.getElementById('login-email').value = email;
+    document.getElementById('login-password').value = '';
+    document.getElementById('create-profile-form').reset();
+  } catch (err) {
+    console.error('Errore creazione profilo:', err);
+    errorEl.style.color = 'var(--danger)';
+    errorEl.textContent = traduciErroreFirebase(err.code) || err.message || 'Impossibile creare il profilo.';
+  } finally {
+    if (secondaryApp) {
+      try { await secondaryApp.delete(); } catch (_) {}
+    }
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Crea profilo';
+  }
+}
+
+document.getElementById('create-profile-form').addEventListener('submit', createProfileFromLogin);
+
 document.getElementById('btn-logout').addEventListener('click', async () => {
 if (unsubscribeSnapshot) { unsubscribeSnapshot(); unsubscribeSnapshot = null; }
 if (unsubscribeBollette) { unsubscribeBollette(); unsubscribeBollette = null; }
@@ -13219,26 +13281,22 @@ if (diff === 0) return { label: 'Oggi', cls: 'today' };
 if (diff <= 7) return { label: `Tra ${diff} giorni`, cls: 'soon' };
 return { label: new Date(dateStr).toLocaleDateString('it-IT'), cls: '' };
 }
-function updateProfilePage() {
+async function updateProfilePage() {
   if (!currentUser) return;
-  
-  document.getElementById('profile-email-display').value = currentUser.email;
-  const created = currentUser.metadata.creationTime ? 
-    new Date(currentUser.metadata.creationTime).toLocaleDateString('it-IT', { day:'2-digit', month:'long', year:'numeric' }) : '—';
-  document.getElementById('profile-created').value = created;
-  
-  document.getElementById('profile-tx-count').textContent = state.transactions.length;
-  document.getElementById('profile-rem-count').textContent = state.reminders.length;
-  const dates = state.transactions.map(t => t.date).sort();
-  document.getElementById('profile-first-tx').textContent = dates.length ? new Date(dates[0]).toLocaleDateString('it-IT') : '—';
-  
-  // Carica i membri della famiglia SOLO se non sono già stati caricati
-  if (!currentFamilyId) {
-    loadFamilyMembers();
-  } else {
-    renderFamilyMembers();
+
+  const isAdmin = (currentUser.email || '').toLowerCase() === ADMIN_EMAIL.toLowerCase();
+  const badge = document.getElementById('profile-admin-badge');
+  if (badge) badge.style.display = isAdmin ? 'inline-flex' : 'none';
+
+  const maintenance = document.getElementById('profile-maintenance-panel');
+  if (maintenance) maintenance.style.display = isAdmin ? 'block' : 'none';
+
+  if (isAdmin) {
+    try { await syncCreatedProfilesToAdminFamily(); } catch (e) { console.error('Errore sincronizzazione profili:', e); }
   }
+  renderFamilyMembers();
 }
+
 document.getElementById('btn-reset-password').addEventListener('click', async () => {
 const msgEl = document.getElementById('profile-msg'); msgEl.textContent = '';
 try { await auth.sendPasswordResetEmail(currentUser.email); msgEl.style.color = 'var(--success)'; msgEl.textContent = 'Email inviata!'; } catch(e) { msgEl.style.color = 'var(--danger)'; msgEl.textContent = 'Errore: ' + e.message; }
@@ -15206,89 +15264,144 @@ async function createSharedFamilyDocument() {
   }
 }
 // Funzione per visualizzare i membri della famiglia
-function renderFamilyMembers() {
+async function renderFamilyMembers() {
   const container = document.getElementById('family-members-list');
-  if (!container) return;
-  
-  container.innerHTML = '';
-  
-  if (!familyMembers || Object.keys(familyMembers).length === 0) {
-    container.innerHTML = '<p style="color:var(--text-muted); font-size:13px; font-style:italic;">Nessun membro nella famiglia</p>';
-    return;
-  }
-  
-  const isAdmin = familyMembers[currentUser?.uid]?.role === 'admin';
-  
-  // Mostra/nascondi la sezione di invito in base al ruolo admin
-  const inviteSection = document.getElementById('invite-email')?.parentElement?.parentElement;
-  if (inviteSection) {
-    inviteSection.style.display = isAdmin ? 'grid' : 'none';
-  }
-  
-  const inviteBtn = document.getElementById('btn-invite-member');
-  if (inviteBtn) {
-    inviteBtn.style.display = isAdmin ? 'block' : 'none';
-  }
-  
-  Object.keys(familyMembers).forEach(userId => {
-    const member = familyMembers[userId];
-    const isCurrentUser = userId === currentUser?.uid;
-    const initials = (member.name || member.email || 'U').charAt(0).toUpperCase();
-    
-    const div = document.createElement('div');
-    div.className = 'member-item';
-    div.innerHTML = `
-      <div class="member-info">
-        <div class="member-avatar">${initials}</div>
-        <div class="member-details">
-          <div class="member-name">${escapeHtml(member.name || 'Utente')} ${isCurrentUser ? '👤' : ''}</div>
-          <div class="member-email">${escapeHtml(member.email || '')}</div>
-        </div>
-        <span class="member-role ${member.role === 'admin' ? 'admin' : ''}">${member.role === 'admin' ? 'Admin' : 'Membro'}</span>
-      </div>
-      ${isAdmin && !isCurrentUser ? `
-        <div class="member-actions">
-          <button class="btn-remove-member" data-userid="${userId}">Rimuovi</button>
-        </div>
-      ` : ''}
-    `;
-    container.appendChild(div);
-  });
-  
-  // Event listener per rimuovere membri
-  container.querySelectorAll('.btn-remove-member').forEach(btn => {
-    btn.addEventListener('click', async function() {
-      const userId = this.getAttribute('data-userid');
-      if (confirm(`Rimuovere questo membro dalla famiglia?`)) {
-        await removeFamilyMember(userId);
+  if (!container || !currentUser) return;
+  const statusEl = document.getElementById('profile-members-status');
+  const isAdmin = (currentUser.email || '').toLowerCase() === ADMIN_EMAIL.toLowerCase();
+
+  try {
+    if (isAdmin && currentFamilyId) {
+      const familyDoc = await db.collection('famiglie').doc(currentFamilyId).get();
+      if (familyDoc.exists && familyDoc.data().members) {
+        familyMembers = familyDoc.data().members || {};
+        familyData = familyDoc.data();
       }
+    }
+
+    container.innerHTML = '';
+    const entries = Object.entries(familyMembers || {});
+    if (!entries.length) {
+      container.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:12px;font-weight:600;">Nessun profilo collegato.</div>';
+      return;
+    }
+
+    entries.sort((a,b) => {
+      const ar = a[1]?.role === 'admin' ? 0 : 1;
+      const br = b[1]?.role === 'admin' ? 0 : 1;
+      return ar - br || String(a[1]?.name || '').localeCompare(String(b[1]?.name || ''), 'it');
     });
-  });
+
+    entries.forEach(([userId, member]) => {
+      const isCurrentUser = userId === currentUser.uid;
+      const isMemberAdmin = member?.role === 'admin';
+      const name = member?.name || member?.email || 'Utente';
+      const email = member?.email || '';
+      const initials = name.charAt(0).toUpperCase();
+      const status = member?.status || 'active';
+      const card = document.createElement('div');
+      card.className = 'profile-member-card';
+      card.innerHTML = `
+        <div class="profile-member-main">
+          <div class="profile-member-avatar">${escapeHtml(initials)}</div>
+          <div class="profile-member-text">
+            <div class="profile-member-name">${escapeHtml(name)}${isCurrentUser ? ' <span style="font-size:10px;color:var(--text-muted);">(tu)</span>' : ''}</div>
+            <div class="profile-member-email">${escapeHtml(email)}</div>
+          </div>
+        </div>
+        <div class="profile-member-meta">
+          <span class="profile-member-role ${isMemberAdmin ? 'admin' : ''}">${isMemberAdmin ? 'Admin' : 'Membro'}</span>
+          ${status !== 'active' ? `<span class="profile-member-status">${escapeHtml(status)}</span>` : ''}
+          ${isAdmin && !isCurrentUser && !isMemberAdmin ? `<button class="profile-member-remove" data-userid="${escapeHtml(userId)}">Rimuovi</button>` : ''}
+        </div>`;
+      container.appendChild(card);
+    });
+
+    container.querySelectorAll('.profile-member-remove').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const uid = btn.dataset.userid;
+        if (confirm('Rimuovere questo profilo dalla famiglia?')) await removeFamilyMember(uid);
+      });
+    });
+
+    if (statusEl) statusEl.textContent = isAdmin ? `${entries.length} profili presenti.` : 'Profilo collegato alla famiglia.';
+  } catch (err) {
+    console.error('Errore visualizzazione profili:', err);
+    if (statusEl) { statusEl.style.color = 'var(--danger)'; statusEl.textContent = 'Errore caricamento profili: ' + err.message; }
+  }
 }
 
-// Funzione per rimuovere un membro
 async function removeFamilyMember(userId) {
-  if (!confirm('Rimuovere questo membro dalla famiglia?')) return;
-  
+  if (!currentUser || (currentUser.email || '').toLowerCase() !== ADMIN_EMAIL.toLowerCase()) return;
   try {
-    if (familyMembers[userId]) {
-      delete familyMembers[userId];
-      await userDocRef().update({ familyMembers: familyMembers });
-      renderFamilyMembers();
-      
-      const statusEl = document.getElementById('invite-status');
-      if (statusEl) {
-        statusEl.textContent = '✅ Membro rimosso con successo!';
-        statusEl.style.color = 'var(--success)';
-      }
+    if (!currentFamilyId || !familyMembers[userId]) return;
+    delete familyMembers[userId];
+    await db.collection('famiglie').doc(currentFamilyId).update({ members: familyMembers, updatedAt: new Date().toISOString() });
+    const memberDoc = await db.collection('famiglie').doc(userId).get();
+    if (memberDoc.exists) {
+      await db.collection('famiglie').doc(userId).update({ familyId: null, familyMembers: {}, profileFamilyStatus: 'removed' });
     }
+    await db.collection('profili').doc(userId).set({ familyId: null, profileFamilyStatus: 'removed', updatedAt: new Date().toISOString() }, { merge: true });
+    await renderFamilyMembers();
   } catch (err) {
-    console.error('Errore rimozione membro:', err);
-    const statusEl = document.getElementById('invite-status');
-    if (statusEl) {
-      statusEl.textContent = 'Errore: ' + err.message;
-      statusEl.style.color = 'var(--danger)';
+    console.error('Errore rimozione profilo:', err);
+    const statusEl = document.getElementById('profile-members-status');
+    if (statusEl) { statusEl.style.color = 'var(--danger)'; statusEl.textContent = 'Errore: ' + err.message; }
+  }
+}
+
+// L'admin collega automaticamente alla propria famiglia tutti i profili
+// creati dalla schermata di login.
+async function syncCreatedProfilesToAdminFamily() {
+  if (!currentUser || (currentUser.email || '').toLowerCase() !== ADMIN_EMAIL.toLowerCase()) return;
+  if (!currentFamilyId) return;
+
+  const familyRef = db.collection('famiglie').doc(currentFamilyId);
+  const familySnap = await familyRef.get();
+  if (!familySnap.exists) return;
+  const family = familySnap.data() || {};
+  const members = { ...(family.members || {}) };
+
+  const profilesSnap = await db.collection('profili').get();
+  let changed = false;
+  for (const doc of profilesSnap.docs) {
+    const profile = doc.data() || {};
+    const uid = doc.id;
+    if (!uid || uid === currentUser.uid) continue;
+    if ((profile.email || '').toLowerCase() === ADMIN_EMAIL.toLowerCase()) continue;
+    if (profile.profileFamilyStatus === 'removed') continue;
+
+    const member = members[uid];
+    if (!member) {
+      members[uid] = {
+        name: profile.name || profile.email || 'Utente',
+        email: profile.email || '',
+        role: 'member',
+        status: 'active',
+        joinedAt: profile.createdAt || new Date().toISOString()
+      };
+      changed = true;
     }
+
+    const memberDocRef = db.collection('famiglie').doc(uid);
+    await memberDocRef.set({
+      profile: { uid, name: profile.name || profile.email || 'Utente', email: profile.email || '', role: 'member', status: 'active' },
+      familyId: currentFamilyId,
+      familyMembers: members,
+      profileFamilyStatus: 'active',
+      updatedAt: new Date().toISOString()
+    }, { merge: true });
+
+    if (profile.familyId !== currentFamilyId || profile.profileFamilyStatus !== 'active') {
+      await db.collection('profili').doc(uid).set({ familyId: currentFamilyId, profileFamilyStatus: 'active', updatedAt: new Date().toISOString() }, { merge: true });
+    }
+  }
+
+  if (changed) {
+    await familyRef.update({ members, updatedAt: new Date().toISOString() });
+    familyMembers = members;
+  } else {
+    familyMembers = members;
   }
 }
 
