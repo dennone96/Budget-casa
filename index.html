@@ -17837,177 +17837,136 @@ document.addEventListener('DOMContentLoaded', function() {
 <script id="home-profile-modal-script">
 (function(){
   function getActiveUser(){
-    try { return currentUser || (typeof auth !== 'undefined' ? auth.currentUser : null); }
+    try { return (typeof auth!=='undefined' && auth.currentUser) ? auth.currentUser : currentUser; }
     catch(e){ return currentUser || null; }
   }
-  function getProfileInitial(name,email){
-    const value=(name||email||'U').trim();
-    return value ? value.charAt(0).toUpperCase() : 'U';
-  }
   function profileStorageKey(uid){ return 'budgetCasaProfileName_' + uid; }
+  function getEmail(user){
+    const authEmail=(user && user.email ? String(user.email).trim() : '');
+    if(authEmail) return authEmail;
+    try{
+      if(user && user.uid && String(user.uid)===String((typeof currentUser!=='undefined'&&currentUser)?currentUser.uid:'')){
+        const ce=(currentUser.email||'').trim(); if(ce) return ce;
+      }
+    }catch(e){}
+    return (typeof ADMIN_EMAIL!=='undefined' ? String(ADMIN_EMAIL).trim() : '');
+  }
+  function getProfileInitial(name,email){ const v=(name||email||'U').trim(); return v?v.charAt(0).toUpperCase():'U'; }
 
   async function loadProfileModalData(){
-    const user=getActiveUser();
-    if(!user) return;
+    const user=getActiveUser(); if(!user) return;
     currentUser=user;
     const nameInput=document.getElementById('home-profile-name');
     const emailInput=document.getElementById('home-profile-email');
     const avatar=document.getElementById('home-profile-avatar-large');
     const msg=document.getElementById('home-profile-msg');
+    const email=getEmail(user);
+    if(emailInput) emailInput.value=email;
 
-    // Email: viene sempre dall'utente Firebase; per l'admin usiamo anche il valore fisso
-    // come fallback, così il campo non rimane vuoto.
-    const email=(user.email || ((typeof ADMIN_EMAIL !== 'undefined') ? ADMIN_EMAIL : '') || '').trim();
-
-    // Ordine di recupero del nome: profili -> documento personale -> Firebase Auth -> memoria locale.
-    let name=(user.displayName || '').trim();
+    let name='';
+    // 1) Profilo dedicato
     try{
       const snap=await db.collection('profili').doc(user.uid).get();
-      const data=snap.exists ? (snap.data()||{}) : {};
-      if((data.name||'').trim()) name=data.name.trim();
-    }catch(e){ console.warn('Lettura profili non disponibile:',e); }
-
+      if(snap.exists) name=String((snap.data()||{}).name||'').trim();
+    }catch(e){ console.warn('Lettura profili:',e); }
+    // 2) Membro della famiglia: questa è la fonte persistente principale dell'app
     if(!name){
       try{
-        const personalSnap=await db.collection('famiglie').doc(user.uid).get();
-        const personalData=personalSnap.exists ? (personalSnap.data()||{}) : {};
-        if(personalData.profile && (personalData.profile.name||'').trim()) name=personalData.profile.name.trim();
-      }catch(e){ console.warn('Lettura profilo personale non disponibile:',e); }
+        const fid=(typeof currentFamilyId!=='undefined'&&currentFamilyId)?currentFamilyId:user.uid;
+        const fs=await db.collection('famiglie').doc(fid).get();
+        if(fs.exists){
+          const d=fs.data()||{};
+          const m=(d.members||{})[user.uid];
+          if(m && m.name) name=String(m.name).trim();
+        }
+      }catch(e){ console.warn('Lettura membro famiglia:',e); }
     }
-
+    // 3) Documento personale
     if(!name){
-      try{ name=(localStorage.getItem(profileStorageKey(user.uid))||'').trim(); }catch(e){}
+      try{
+        const ps=await db.collection('famiglie').doc(user.uid).get();
+        if(ps.exists){ const d=ps.data()||{}; if(d.profile && d.profile.name) name=String(d.profile.name).trim(); }
+      }catch(e){}
     }
+    // 4) Firebase Auth
+    if(!name) name=String(user.displayName||'').trim();
+    // 5) fallback locale
+    if(!name){ try{ name=(localStorage.getItem(profileStorageKey(user.uid))||'').trim(); }catch(e){} }
 
     if(nameInput) nameInput.value=name;
-    if(emailInput) emailInput.value=email;
     if(avatar) avatar.textContent=getProfileInitial(name,email);
     if(msg){msg.textContent='';msg.style.color='';}
   }
 
   window.openHomeProfileModal=async function(){
-    const overlay=document.getElementById('home-profile-modal-overlay');
-    if(!overlay) return;
-    overlay.classList.add('open');
-    overlay.setAttribute('aria-hidden','false');
+    const overlay=document.getElementById('home-profile-modal-overlay'); if(!overlay) return;
+    // L'email viene impostata SUBITO, senza aspettare Firestore.
+    const user=getActiveUser();
+    const emailInput=document.getElementById('home-profile-email');
+    if(emailInput) emailInput.value=getEmail(user);
+    overlay.classList.add('open'); overlay.setAttribute('aria-hidden','false');
     await loadProfileModalData();
-    setTimeout(function(){
-      const input=document.getElementById('home-profile-name');
-      if(input) input.focus();
-    },80);
+    setTimeout(()=>{ const i=document.getElementById('home-profile-name'); if(i) i.focus(); },80);
   };
 
   function closeHomeProfileModal(){
     const overlay=document.getElementById('home-profile-modal-overlay');
-    if(!overlay) return;
-    overlay.classList.remove('open');
-    overlay.setAttribute('aria-hidden','true');
+    if(overlay){ overlay.classList.remove('open'); overlay.setAttribute('aria-hidden','true'); }
   }
 
   async function saveHomeProfileName(){
-    const user=getActiveUser();
-    if(!user) return;
+    const user=getActiveUser(); if(!user) return;
     currentUser=user;
     const input=document.getElementById('home-profile-name');
     const msg=document.getElementById('home-profile-msg');
     const btn=document.getElementById('home-profile-save');
     const avatar=document.getElementById('home-profile-avatar-large');
     const name=(input?.value||'').trim();
-    const email=(user.email || ((typeof ADMIN_EMAIL !== 'undefined') ? ADMIN_EMAIL : '') || '').trim();
-
+    const email=getEmail(user);
     if(!name){ if(msg){msg.style.color='var(--danger)';msg.textContent='Inserisci un nome.';} return; }
-    if(name.length>80){ if(msg){msg.style.color='var(--danger)';msg.textContent='Il nome è troppo lungo.';} return; }
     if(btn){btn.disabled=true;btn.textContent='Salvataggio...';}
-
-    let savedAuth=false, savedProfile=false, savedPersonal=false;
     try{
-      // 1. Firebase Authentication: nome ufficiale dell'account.
-      try{
-        await user.updateProfile({displayName:name});
-        savedAuth=true;
-      }catch(e){ console.warn('Aggiornamento Firebase Auth non disponibile:',e); }
+      // Firebase Auth
+      await user.updateProfile({displayName:name});
+      try{ await user.reload(); }catch(e){}
 
-      // 2. Documento profilo dedicato.
-      try{
-        await db.collection('profili').doc(user.uid).set({
-          uid:user.uid,
-          name:name,
-          email:email,
-          updatedAt:new Date().toISOString()
-        },{merge:true});
-        savedProfile=true;
-      }catch(e){ console.warn('Salvataggio profili non disponibile:',e); }
+      // Profilo dedicato
+      await db.collection('profili').doc(user.uid).set({uid:user.uid,name:name,email:email,updatedAt:new Date().toISOString()},{merge:true});
 
-      // 3. Copia nel documento personale già usato dall'app.
-      try{
-        await db.collection('famiglie').doc(user.uid).set({
-          profile:{uid:user.uid,name:name,email:email,updatedAt:new Date().toISOString()}
-        },{merge:true});
-        savedPersonal=true;
-      }catch(e){ console.warn('Salvataggio profilo personale non disponibile:',e); }
-
-      // 4. Fallback locale: mantiene il nome anche se una delle scritture Firebase
-      // viene temporaneamente rifiutata/offline.
-      try{ localStorage.setItem(profileStorageKey(user.uid),name); }catch(e){}
-
-      if(currentFamilyId){
-        try{
-          const familyRef=db.collection('famiglie').doc(currentFamilyId);
-          const familySnap=await familyRef.get();
-          if(familySnap.exists){
-            const data=familySnap.data()||{};
-            const members={...(data.members||{})};
-            if(members[user.uid]){
-              members[user.uid]={...members[user.uid],name:name,email:email || members[user.uid].email || ''};
-              await familyRef.update({members:members,updatedAt:new Date().toISOString()});
-              familyMembers=members;
-            }
-          }
-        }catch(e){ console.warn('Aggiornamento membro famiglia non disponibile:',e); }
+      // Documento famiglia/personale. Per l'admin la famiglia coincide con il suo UID.
+      const fid=(typeof currentFamilyId!=='undefined'&&currentFamilyId)?currentFamilyId:user.uid;
+      const familyRef=db.collection('famiglie').doc(fid);
+      const familySnap=await familyRef.get();
+      if(familySnap.exists){
+        const d=familySnap.data()||{};
+        const members={...(d.members||{})};
+        const old=members[user.uid]||{};
+        members[user.uid]={...old,uid:user.uid,name:name,email:email,role:old.role || (email.toLowerCase()===String(ADMIN_EMAIL||'').toLowerCase()?'admin':'member'),status:old.status||'active'};
+        await familyRef.set({members:members,profile:{uid:user.uid,name:name,email:email,updatedAt:new Date().toISOString()},updatedAt:new Date().toISOString()},{merge:true});
+        if(typeof familyMembers!=='undefined') familyMembers=members;
+      }else{
+        // Crea solo i campi profilo senza sovrascrivere eventuali dati esistenti.
+        await familyRef.set({profile:{uid:user.uid,name:name,email:email,updatedAt:new Date().toISOString()},members:{[user.uid]:{uid:user.uid,name:name,email:email,role:'admin',status:'active'}},updatedAt:new Date().toISOString()},{merge:true});
       }
-
-      if(!savedAuth && !savedProfile && !savedPersonal){
-        throw new Error('Nessun archivio del profilo è stato aggiornato.');
-      }
-
+      try{localStorage.setItem(profileStorageKey(user.uid),name);}catch(e){}
       if(avatar) avatar.textContent=getProfileInitial(name,email);
-      if(msg){msg.style.color='var(--success)';msg.textContent='Nome aggiornato correttamente.';}
-      const sidebar=document.getElementById('sidebar-user-email');
-      if(sidebar) sidebar.setAttribute('title',name);
-      if(document.getElementById('page-profilo')?.classList.contains('active')){
-        try{await updateProfilePage();}catch(e){}
-      }
+      if(msg){msg.style.color='var(--success)';msg.textContent='Nome salvato correttamente.';}
     }catch(e){
-      console.error('Errore aggiornamento profilo:',e);
-      if(msg){msg.style.color='var(--danger)';msg.textContent='Impossibile salvare il nome. Riprova.';}
-    }finally{
-      if(btn){btn.disabled=false;btn.textContent='Salva modifiche';}
-    }
+      console.error('Errore salvataggio profilo:',e);
+      if(msg){msg.style.color='var(--danger)';msg.textContent='Errore nel salvataggio: '+(e.message||'riprova.');}
+    }finally{ if(btn){btn.disabled=false;btn.textContent='Salva modifiche';} }
   }
 
   document.addEventListener('click',function(e){
-    const target=e.target;
-    const profileBtn=target.closest && target.closest('#home-profile-btn');
-    if(profileBtn){
-      e.preventDefault(); e.stopPropagation();
-      window.openHomeProfileModal();
-      return;
-    }
-    if(target.closest && target.closest('#home-profile-modal-close')){ closeHomeProfileModal(); return; }
-    if(target.closest && target.closest('#home-profile-save')){ saveHomeProfileName(); return; }
-    if(target.closest && target.closest('#home-profile-logout')){
-      closeHomeProfileModal();
-      if(typeof performAppLogout==='function') performAppLogout();
-      return;
-    }
+    const t=e.target;
+    const b=t.closest&&t.closest('#home-profile-btn');
+    if(b){e.preventDefault();e.stopPropagation();window.openHomeProfileModal();return;}
+    if(t.closest&&t.closest('#home-profile-modal-close')){e.preventDefault();closeHomeProfileModal();return;}
+    if(t.closest&&t.closest('#home-profile-save')){e.preventDefault();saveHomeProfileName();return;}
+    if(t.closest&&t.closest('#home-profile-logout')){e.preventDefault();closeHomeProfileModal();if(typeof performAppLogout==='function')performAppLogout();return;}
   },true);
-
-  document.getElementById('home-profile-modal-overlay')?.addEventListener('click',function(e){
-    if(e.target===this) closeHomeProfileModal();
-  });
-  document.addEventListener('keydown',function(e){
-    if(e.key==='Escape') closeHomeProfileModal();
-  });
+  document.addEventListener('click',function(e){const o=document.getElementById('home-profile-modal-overlay');if(o&&e.target===o)closeHomeProfileModal();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeHomeProfileModal();});
 })();
 </script>
 </body>
