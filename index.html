@@ -17836,93 +17836,172 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 <script id="home-profile-modal-script">
 (function(){
+  function getActiveUser(){
+    try { return currentUser || (typeof auth !== 'undefined' ? auth.currentUser : null); }
+    catch(e){ return currentUser || null; }
+  }
   function getProfileInitial(name,email){
     const value=(name||email||'U').trim();
     return value ? value.charAt(0).toUpperCase() : 'U';
   }
+  function profileStorageKey(uid){ return 'budgetCasaProfileName_' + uid; }
+
   async function loadProfileModalData(){
-    if(!currentUser) return;
+    const user=getActiveUser();
+    if(!user) return;
+    currentUser=user;
     const nameInput=document.getElementById('home-profile-name');
     const emailInput=document.getElementById('home-profile-email');
     const avatar=document.getElementById('home-profile-avatar-large');
     const msg=document.getElementById('home-profile-msg');
-    let name=currentUser.displayName || '';
+
+    // Email: viene sempre dall'utente Firebase; per l'admin usiamo anche il valore fisso
+    // come fallback, così il campo non rimane vuoto.
+    const email=(user.email || ((typeof ADMIN_EMAIL !== 'undefined') ? ADMIN_EMAIL : '') || '').trim();
+
+    // Ordine di recupero del nome: profili -> documento personale -> Firebase Auth -> memoria locale.
+    let name=(user.displayName || '').trim();
     try{
-      const snap=await db.collection('profili').doc(currentUser.uid).get();
-      if(snap.exists && snap.data().name) name=snap.data().name;
-    }catch(e){ console.warn('Impossibile leggere il profilo:',e); }
+      const snap=await db.collection('profili').doc(user.uid).get();
+      const data=snap.exists ? (snap.data()||{}) : {};
+      if((data.name||'').trim()) name=data.name.trim();
+    }catch(e){ console.warn('Lettura profili non disponibile:',e); }
+
+    if(!name){
+      try{
+        const personalSnap=await db.collection('famiglie').doc(user.uid).get();
+        const personalData=personalSnap.exists ? (personalSnap.data()||{}) : {};
+        if(personalData.profile && (personalData.profile.name||'').trim()) name=personalData.profile.name.trim();
+      }catch(e){ console.warn('Lettura profilo personale non disponibile:',e); }
+    }
+
+    if(!name){
+      try{ name=(localStorage.getItem(profileStorageKey(user.uid))||'').trim(); }catch(e){}
+    }
+
     if(nameInput) nameInput.value=name;
-    if(emailInput) emailInput.value=currentUser.email || '';
-    if(avatar) avatar.textContent=getProfileInitial(name,currentUser.email);
+    if(emailInput) emailInput.value=email;
+    if(avatar) avatar.textContent=getProfileInitial(name,email);
     if(msg){msg.textContent='';msg.style.color='';}
   }
+
   window.openHomeProfileModal=async function(){
     const overlay=document.getElementById('home-profile-modal-overlay');
     if(!overlay) return;
     overlay.classList.add('open');
     overlay.setAttribute('aria-hidden','false');
     await loadProfileModalData();
-    setTimeout(()=>document.getElementById('home-profile-name')?.focus(),80);
+    setTimeout(function(){
+      const input=document.getElementById('home-profile-name');
+      if(input) input.focus();
+    },80);
   };
+
   function closeHomeProfileModal(){
     const overlay=document.getElementById('home-profile-modal-overlay');
     if(!overlay) return;
     overlay.classList.remove('open');
     overlay.setAttribute('aria-hidden','true');
   }
+
   async function saveHomeProfileName(){
-    if(!currentUser) return;
+    const user=getActiveUser();
+    if(!user) return;
+    currentUser=user;
     const input=document.getElementById('home-profile-name');
     const msg=document.getElementById('home-profile-msg');
     const btn=document.getElementById('home-profile-save');
     const avatar=document.getElementById('home-profile-avatar-large');
     const name=(input?.value||'').trim();
-    if(!name){if(msg){msg.style.color='var(--danger)';msg.textContent='Inserisci un nome.';} return;}
-    if(name.length>80){if(msg){msg.style.color='var(--danger)';msg.textContent='Il nome è troppo lungo.';} return;}
+    const email=(user.email || ((typeof ADMIN_EMAIL !== 'undefined') ? ADMIN_EMAIL : '') || '').trim();
+
+    if(!name){ if(msg){msg.style.color='var(--danger)';msg.textContent='Inserisci un nome.';} return; }
+    if(name.length>80){ if(msg){msg.style.color='var(--danger)';msg.textContent='Il nome è troppo lungo.';} return; }
     if(btn){btn.disabled=true;btn.textContent='Salvataggio...';}
+
+    let savedAuth=false, savedProfile=false, savedPersonal=false;
     try{
-      await currentUser.updateProfile({displayName:name});
-      await db.collection('profili').doc(currentUser.uid).set({name:name,email:currentUser.email||'',updatedAt:new Date().toISOString()},{merge:true});
+      // 1. Firebase Authentication: nome ufficiale dell'account.
+      try{
+        await user.updateProfile({displayName:name});
+        savedAuth=true;
+      }catch(e){ console.warn('Aggiornamento Firebase Auth non disponibile:',e); }
+
+      // 2. Documento profilo dedicato.
+      try{
+        await db.collection('profili').doc(user.uid).set({
+          uid:user.uid,
+          name:name,
+          email:email,
+          updatedAt:new Date().toISOString()
+        },{merge:true});
+        savedProfile=true;
+      }catch(e){ console.warn('Salvataggio profili non disponibile:',e); }
+
+      // 3. Copia nel documento personale già usato dall'app.
+      try{
+        await db.collection('famiglie').doc(user.uid).set({
+          profile:{uid:user.uid,name:name,email:email,updatedAt:new Date().toISOString()}
+        },{merge:true});
+        savedPersonal=true;
+      }catch(e){ console.warn('Salvataggio profilo personale non disponibile:',e); }
+
+      // 4. Fallback locale: mantiene il nome anche se una delle scritture Firebase
+      // viene temporaneamente rifiutata/offline.
+      try{ localStorage.setItem(profileStorageKey(user.uid),name); }catch(e){}
+
       if(currentFamilyId){
-        const familyRef=db.collection('famiglie').doc(currentFamilyId);
-        const familySnap=await familyRef.get();
-        if(familySnap.exists){
-          const data=familySnap.data()||{};
-          const members={...(data.members||{})};
-          if(members[currentUser.uid]){
-            members[currentUser.uid]={...members[currentUser.uid],name:name,email:currentUser.email||members[currentUser.uid].email||''};
-            await familyRef.update({members:members,updatedAt:new Date().toISOString()});
-            familyMembers=members;
+        try{
+          const familyRef=db.collection('famiglie').doc(currentFamilyId);
+          const familySnap=await familyRef.get();
+          if(familySnap.exists){
+            const data=familySnap.data()||{};
+            const members={...(data.members||{})};
+            if(members[user.uid]){
+              members[user.uid]={...members[user.uid],name:name,email:email || members[user.uid].email || ''};
+              await familyRef.update({members:members,updatedAt:new Date().toISOString()});
+              familyMembers=members;
+            }
           }
-        }
+        }catch(e){ console.warn('Aggiornamento membro famiglia non disponibile:',e); }
       }
-      if(avatar) avatar.textContent=getProfileInitial(name,currentUser.email);
+
+      if(!savedAuth && !savedProfile && !savedPersonal){
+        throw new Error('Nessun archivio del profilo è stato aggiornato.');
+      }
+
+      if(avatar) avatar.textContent=getProfileInitial(name,email);
       if(msg){msg.style.color='var(--success)';msg.textContent='Nome aggiornato correttamente.';}
-      document.getElementById('sidebar-user-email')?.setAttribute('title',name);
-      if(document.getElementById('page-profilo')?.classList.contains('active')){try{await updateProfilePage();}catch(e){}}
+      const sidebar=document.getElementById('sidebar-user-email');
+      if(sidebar) sidebar.setAttribute('title',name);
+      if(document.getElementById('page-profilo')?.classList.contains('active')){
+        try{await updateProfilePage();}catch(e){}
+      }
     }catch(e){
       console.error('Errore aggiornamento profilo:',e);
-      if(msg){msg.style.color='var(--danger)';msg.textContent='Impossibile aggiornare il profilo.';}
+      if(msg){msg.style.color='var(--danger)';msg.textContent='Impossibile salvare il nome. Riprova.';}
     }finally{
       if(btn){btn.disabled=false;btn.textContent='Salva modifiche';}
     }
   }
-  // Apertura del popup profilo tramite delegazione: funziona anche se la Home viene ricostruita.
+
   document.addEventListener('click',function(e){
-    const profileBtn=e.target.closest && e.target.closest('#home-profile-btn');
+    const target=e.target;
+    const profileBtn=target.closest && target.closest('#home-profile-btn');
     if(profileBtn){
-      e.preventDefault();
-      e.stopPropagation();
+      e.preventDefault(); e.stopPropagation();
       window.openHomeProfileModal();
       return;
     }
-    if(e.target.closest('#home-profile-modal-close')) closeHomeProfileModal();
-    if(e.target.closest('#home-profile-save')) saveHomeProfileName();
-    if(e.target.closest('#home-profile-logout')){
+    if(target.closest && target.closest('#home-profile-modal-close')){ closeHomeProfileModal(); return; }
+    if(target.closest && target.closest('#home-profile-save')){ saveHomeProfileName(); return; }
+    if(target.closest && target.closest('#home-profile-logout')){
       closeHomeProfileModal();
-      performAppLogout();
+      if(typeof performAppLogout==='function') performAppLogout();
+      return;
     }
-  });
+  },true);
+
   document.getElementById('home-profile-modal-overlay')?.addEventListener('click',function(e){
     if(e.target===this) closeHomeProfileModal();
   });
