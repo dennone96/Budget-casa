@@ -9957,7 +9957,75 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
   #page-categorie .cat-input-row button { width:100% !important; }
 }
 </style>
-<style id="home-sort-safe-light-style">.home-v3-sort-column-btn,.home-v3-sort-column-btn:focus,.home-v3-sort-column-btn:active{background:transparent!important;color:#718399!important;-webkit-tap-highlight-color:transparent!important;outline:none!important;box-shadow:none!important;} .home-v3-sort-column-btn.active{background:transparent!important;color:#1b344e!important;} .home-v3-sort-column-btn:hover{background:transparent!important;}</style></head>
+
+<style id="home-movement-table-sort-css">
+#page-home .home-v3-movement-table-header,
+#page-home .home-v3-movement-row{
+  display:grid !important;
+  grid-template-columns:30px minmax(0,1fr) 58px 104px !important;
+  column-gap:10px !important;
+  align-items:center !important;
+}
+#page-home .home-v3-movement-table-header{
+  min-height:30px !important;
+  padding:0 10px 5px !important;
+  margin:0 0 2px !important;
+  border-bottom:1px solid #edf1f4 !important;
+}
+#page-home .home-v3-movement-sort-btn{
+  appearance:none !important;
+  -webkit-appearance:none !important;
+  border:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  outline:none !important;
+  padding:3px 0 !important;
+  margin:0 !important;
+  min-width:0 !important;
+  color:#718399 !important;
+  font:800 10px/1.2 inherit !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:3px !important;
+  cursor:pointer !important;
+  touch-action:manipulation !important;
+  -webkit-tap-highlight-color:transparent !important;
+}
+#page-home .home-v3-movement-sort-btn[data-sort-key="date"]{
+  justify-content:flex-start !important;
+  text-align:left !important;
+}
+#page-home .home-v3-movement-sort-btn[data-sort-key="amount"]{
+  justify-content:flex-end !important;
+  text-align:right !important;
+}
+#page-home .home-v3-movement-sort-btn.active{color:#172b40 !important;}
+#page-home .home-v3-movement-sort-arrow{font-size:10px !important;font-weight:900 !important;line-height:1 !important;}
+#page-home .home-v3-movement-row{
+  padding-left:10px !important;
+  padding-right:10px !important;
+}
+#page-home .home-v3-movement-main{min-width:0 !important;}
+#page-home .home-v3-movement-date{
+  min-width:0 !important;
+  text-align:left !important;
+  white-space:nowrap !important;
+  color:#718399 !important;
+  font-size:9px !important;
+  font-weight:700 !important;
+}
+#page-home .home-v3-movement-side{text-align:right !important;min-width:0 !important;}
+@media(max-width:600px){
+  #page-home .home-v3-movement-table-header,
+  #page-home .home-v3-movement-row{
+    grid-template-columns:28px minmax(0,1fr) 54px 96px !important;
+    column-gap:8px !important;
+  }
+  #page-home .home-v3-movement-table-header{padding-left:8px !important;padding-right:8px !important;}
+  #page-home .home-v3-movement-row{padding-left:8px !important;padding-right:8px !important;}
+}
+</style>
+</head>
 <body><div id="login-screen">
 <h1>Budget di Famiglia</h1>
 <p class="subtitle">Gestisci le tue finanze in modo semplice</p>
@@ -10092,8 +10160,7 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 <button class="active" data-home-source="all" type="button"><i class="ti ti-layout-grid"></i><span>Tutti</span></button>
 <button data-home-source="bank" type="button"><i class="ti ti-building-bank"></i><span>Conto corrente</span></button>
 <button data-home-source="cash" type="button"><i class="ti ti-wallet"></i><span>Cash</span></button>
-</div><div aria-label="Ordina movimenti" class="home-v3-sort-columns"><button class="home-v3-sort-column-btn active" data-sort-key="date" type="button"><span>Data</span><span class="home-v3-sort-arrow">↓</span></button><button class="home-v3-sort-column-btn" data-sort-key="amount" type="button"><span>Importo</span><span class="home-v3-sort-arrow">↕</span></button></div>
-</div>
+</div></div>
 <div id="home-movements-list"></div>
 </div>
 </section>
@@ -13476,27 +13543,31 @@ function updateHomeModernDashboard() {
   renderHomeMovements(mt);
 }
 function renderHomeMovements(filteredTransactions) {
-  window.__homeLastFilteredTransactions = Array.isArray(filteredTransactions) ? filteredTransactions.slice() : [];
   const list = document.getElementById('home-movements-list');
   if (!list) return;
   const panel = list.closest('.home-v3-movements-panel');
+
+  // Stato unico dell'ordinamento: non dipende da listener globali o da elementi esterni.
+  const sortMode = window.__homeMovementSort || homeMovementSort || 'date-desc';
+  homeMovementSort = sortMode;
+  window.homeMovementSort = sortMode;
+
   const mt = [...filteredTransactions].sort((a,b) => {
     const da = transactionDateISO(a) || '';
     const db = transactionDateISO(b) || '';
     const aa = amountValue(a.amount);
     const ab = amountValue(b.amount);
     let result = 0;
-    if (homeMovementSort === 'date-asc') {
+    if (sortMode === 'date-asc') {
       result = String(da).localeCompare(String(db));
-    } else if (homeMovementSort === 'amount-desc') {
+    } else if (sortMode === 'amount-desc') {
       result = ab - aa;
-    } else if (homeMovementSort === 'amount-asc') {
+    } else if (sortMode === 'amount-asc') {
       result = aa - ab;
     } else {
       result = String(db).localeCompare(String(da));
     }
     if (result) return result;
-    // A parità di data/importo manteniamo un ordine stabile usando l'id.
     return String(b.id || '').localeCompare(String(a.id || ''));
   });
 
@@ -13508,8 +13579,45 @@ function renderHomeMovements(filteredTransactions) {
   const pageItems = mt.slice(startIndex, startIndex + HOME_MOVEMENTS_PER_PAGE);
 
   list.innerHTML = '';
+
+  // Intestazioni integrate direttamente nella tabella/lista dei movimenti.
+  const header = document.createElement('div');
+  header.className = 'home-v3-movement-table-header';
+  header.innerHTML = `
+    <div class="home-v3-movement-header-spacer"></div>
+    <div class="home-v3-movement-header-description"></div>
+    <button type="button" class="home-v3-movement-sort-btn ${sortMode.indexOf('date-') === 0 ? 'active' : ''}" data-sort-key="date" aria-label="Ordina per data">
+      <span>Data</span><span class="home-v3-movement-sort-arrow">${sortMode === 'date-asc' ? '↑' : '↓'}</span>
+    </button>
+    <button type="button" class="home-v3-movement-sort-btn ${sortMode.indexOf('amount-') === 0 ? 'active' : ''}" data-sort-key="amount" aria-label="Ordina per importo">
+      <span>Importo</span><span class="home-v3-movement-sort-arrow">${sortMode === 'amount-asc' ? '↑' : (sortMode === 'amount-desc' ? '↓' : '↕')}</span>
+    </button>
+  `;
+  list.appendChild(header);
+
+  // I listener vengono agganciati direttamente agli elementi appena creati.
+  header.querySelectorAll('.home-v3-movement-sort-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const key = this.dataset.sortKey;
+      const current = window.__homeMovementSort || homeMovementSort || 'date-desc';
+      const currentKey = current.indexOf('amount-') === 0 ? 'amount' : 'date';
+      const currentAsc = current.endsWith('-asc');
+      const direction = currentKey === key ? (currentAsc ? 'desc' : 'asc') : 'desc';
+      const next = key + '-' + direction;
+      window.__homeMovementSort = next;
+      homeMovementSort = next;
+      homeMovementPage = 1;
+      renderHomeMovements(filteredTransactions);
+    });
+  });
+
   if (!mt.length) {
-    list.innerHTML = '<div class="home-v3-movement-empty">Nessun movimento nel periodo selezionato.</div>';
+    const empty = document.createElement('div');
+    empty.className = 'home-v3-movement-empty';
+    empty.textContent = 'Nessun movimento nel periodo selezionato.';
+    list.appendChild(empty);
     if (panel) panel.querySelector('.home-v3-pagination')?.remove();
     return;
   }
@@ -13524,7 +13632,8 @@ function renderHomeMovements(filteredTransactions) {
     const source = t.source === 'bank' ? 'Conto corrente' : 'Cash';
     row.innerHTML = `
       <span class="home-v3-movement-icon" style="--cat-color:${color};--cat-bg:${color}22"><i class="ti ${getCategoryIcon(t.category)}"></i></span>
-      <div class="home-v3-movement-main"><strong>${escapeHtml(t.description || t.category || 'Movimento')}</strong><small>${escapeHtml(t.category || '')} · ${date}</small></div>
+      <div class="home-v3-movement-main"><strong>${escapeHtml(t.description || t.category || 'Movimento')}</strong><small>${escapeHtml(t.category || '')}</small></div>
+      <div class="home-v3-movement-date">${escapeHtml(date)}</div>
       <div class="home-v3-movement-side"><strong style="color:${isIncome?'#19a85e':'#f04459'}">${isIncome?'+':'-'}${fmtEUR(amountValue(t.amount))}</strong><small>${source}</small></div>
     `;
     row.addEventListener('click', () => { if (typeof openDetailModal === 'function' && t.id) openDetailModal(t.id); });
@@ -17565,57 +17674,5 @@ document.addEventListener('DOMContentLoaded', function() {
 </style>
 
 <!-- FINAL FIX: delegated sorting for dynamically rebuilt Home headers -->
-
-
-
-<style id="home-sort-clean-rebuilt">
-#page-home .home-v3-sort-columns{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;margin:0 2px 6px;padding:7px 10px 6px;border-top:1px solid #edf1f4;border-bottom:1px solid #edf1f4;background:transparent!important;box-shadow:none!important;}
-#page-home .home-v3-sort-column-btn{appearance:none;-webkit-appearance:none;border:0!important;background:transparent!important;background-color:transparent!important;box-shadow:none!important;outline:none!important;color:#738499!important;padding:4px 6px;margin:0;min-height:26px;font:800 10px/1.2 inherit;display:inline-flex;align-items:center;gap:5px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
-#page-home .home-v3-sort-column-btn[data-sort-key="amount"]{justify-self:end;}
-#page-home .home-v3-sort-column-btn.active{color:#172b40!important;}
-#page-home .home-v3-sort-column-btn .home-v3-sort-arrow{font-size:11px;line-height:1;color:#8b9aac!important;}
-</style>
-<script id="home-sort-clean-rebuilt-script">
-(function(){
-  var lastPointer=0;
-  function state(){ return (typeof homeMovementSort !== 'undefined' && homeMovementSort) ? homeMovementSort : 'date-desc'; }
-  function apply(key){
-    if(key!=='date' && key!=='amount') return;
-    var cur=state();
-    var curKey=cur.indexOf('amount-')===0?'amount':'date';
-    var asc=cur.slice(-4)==='-asc';
-    var dir=(curKey===key) ? (asc?'desc':'asc') : 'desc';
-    var next=key+'-'+dir;
-    homeMovementSort=next;
-    window.homeMovementSort=next;
-    homeMovementPage=1;
-    var data=window.__homeLastFilteredTransactions;
-    if(Array.isArray(data)) renderHomeMovements(data);
-    else if(typeof updateHomeModernDashboard==='function') updateHomeModernDashboard();
-    update();
-  }
-  function update(){
-    var cur=state();
-    var key=cur.indexOf('amount-')===0?'amount':'date';
-    var asc=cur.slice(-4)==='-asc';
-    document.querySelectorAll('#page-home .home-v3-sort-column-btn').forEach(function(b){
-      var active=b.getAttribute('data-sort-key')===key;
-      b.classList.toggle('active',active);
-      var a=b.querySelector('.home-v3-sort-arrow');
-      if(a) a.textContent=active?(asc?'↑':'↓'):'↕';
-    });
-  }
-  function handler(e){
-    var b=e.target && e.target.closest ? e.target.closest('#page-home .home-v3-sort-column-btn') : null;
-    if(!b) return;
-    if(e.type==='click' && Date.now()-lastPointer<500) return;
-    if(e.type!=='click') lastPointer=Date.now();
-    e.preventDefault(); e.stopPropagation();
-    apply(b.getAttribute('data-sort-key'));
-  }
-  document.addEventListener('pointerdown',handler,true);
-  document.addEventListener('click',handler,true);
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',update); else update();
-})();
-</script>
 </body>
+</html>
