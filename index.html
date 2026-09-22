@@ -10152,7 +10152,7 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 <h1>Home</h1>
 <p aria-hidden="true"></p>
 </div>
-<button aria-label="Profilo" class="home-v3-avatar" id="home-profile-btn" type="button">
+<button aria-label="Profilo" class="home-v3-avatar" id="home-profile-btn" type="button" onclick="return window.__openHomeProfileDirect ? window.__openHomeProfileDirect(event) : false;" ontouchend="return window.__openHomeProfileDirect ? window.__openHomeProfileDirect(event) : false;">
 <i class="ti ti-user"></i>
 </button>
 </div>
@@ -11652,9 +11652,26 @@ document.querySelectorAll('.stats-detail-back').forEach(btn => {
 const hamburger = document.getElementById('hamburger');
 const sidebar = document.getElementById('sidebar');
 const overlay = document.getElementById('sidebar-overlay');
-hamburger.addEventListener('click', () => { sidebar.classList.add('open'); overlay.classList.add('open'); });
-overlay.addEventListener('click', closeSidebar);
-function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('open'); }
+function openSidebar(){
+  const s=document.getElementById('sidebar');
+  const o=document.getElementById('sidebar-overlay');
+  if(s) s.classList.add('open');
+  if(o) o.classList.add('open');
+}
+function closeSidebar() {
+  const s=document.getElementById('sidebar');
+  const o=document.getElementById('sidebar-overlay');
+  if(s) s.classList.remove('open');
+  if(o) o.classList.remove('open');
+}
+// Gestione delegata: resta funzionante anche se la Home viene ricostruita dinamicamente.
+document.addEventListener('click', function(e){
+  const target=e.target && e.target.closest ? e.target.closest('#hamburger') : null;
+  if(target){ e.preventDefault(); e.stopPropagation(); openSidebar(); return; }
+  const ov=e.target && e.target.closest ? e.target.closest('#sidebar-overlay') : null;
+  if(ov){ e.preventDefault(); e.stopPropagation(); closeSidebar(); }
+}, true);
+if(overlay) overlay.addEventListener('click', closeSidebar);
 const ADMIN_EMAIL = 'dennisfarina1996@gmail.com';
 
 // Login normale: entra nell'account esistente.
@@ -17837,136 +17854,115 @@ document.addEventListener('DOMContentLoaded', function() {
 <script id="home-profile-modal-script">
 (function(){
   function getActiveUser(){
-    try { return (typeof auth!=='undefined' && auth.currentUser) ? auth.currentUser : currentUser; }
-    catch(e){ return currentUser || null; }
+    try {
+      if(typeof auth!=='undefined' && auth && auth.currentUser) return auth.currentUser;
+    } catch(e){}
+    try { if(typeof currentUser!=='undefined' && currentUser) return currentUser; } catch(e){}
+    return null;
   }
   function profileStorageKey(uid){ return 'budgetCasaProfileName_' + uid; }
   function getEmail(user){
-    const authEmail=(user && user.email ? String(user.email).trim() : '');
-    if(authEmail) return authEmail;
-    try{
-      if(user && user.uid && String(user.uid)===String((typeof currentUser!=='undefined'&&currentUser)?currentUser.uid:'')){
-        const ce=(currentUser.email||'').trim(); if(ce) return ce;
-      }
-    }catch(e){}
-    return (typeof ADMIN_EMAIL!=='undefined' ? String(ADMIN_EMAIL).trim() : '');
+    var email = user && user.email ? String(user.email).trim() : '';
+    if(email) return email;
+    try { if(typeof currentUser!=='undefined' && currentUser && currentUser.email) return String(currentUser.email).trim(); } catch(e){}
+    try { if(typeof ADMIN_EMAIL!=='undefined') return String(ADMIN_EMAIL).trim(); } catch(e){}
+    return '';
   }
-  function getProfileInitial(name,email){ const v=(name||email||'U').trim(); return v?v.charAt(0).toUpperCase():'U'; }
+  function initial(name,email){ var v=String(name||email||'U').trim(); return v ? v.charAt(0).toUpperCase() : 'U'; }
 
   async function loadProfileModalData(){
-    const user=getActiveUser(); if(!user) return;
-    currentUser=user;
-    const nameInput=document.getElementById('home-profile-name');
-    const emailInput=document.getElementById('home-profile-email');
-    const avatar=document.getElementById('home-profile-avatar-large');
-    const msg=document.getElementById('home-profile-msg');
-    const email=getEmail(user);
+    var user=getActiveUser();
+    var email=getEmail(user);
+    var emailInput=document.getElementById('home-profile-email');
+    var nameInput=document.getElementById('home-profile-name');
+    var avatar=document.getElementById('home-profile-avatar-large');
+    var msg=document.getElementById('home-profile-msg');
     if(emailInput) emailInput.value=email;
-
-    let name='';
-    // 1) Profilo dedicato
+    if(!user){ if(msg){msg.textContent='Utente non disponibile.';msg.style.color='var(--danger)';} return; }
+    try { if(typeof currentUser!=='undefined') currentUser=user; } catch(e){}
+    var name='';
     try{
-      const snap=await db.collection('profili').doc(user.uid).get();
+      var snap=await db.collection('profili').doc(user.uid).get();
       if(snap.exists) name=String((snap.data()||{}).name||'').trim();
-    }catch(e){ console.warn('Lettura profili:',e); }
-    // 2) Membro della famiglia: questa è la fonte persistente principale dell'app
+    }catch(e){}
     if(!name){
       try{
-        const fid=(typeof currentFamilyId!=='undefined'&&currentFamilyId)?currentFamilyId:user.uid;
-        const fs=await db.collection('famiglie').doc(fid).get();
-        if(fs.exists){
-          const d=fs.data()||{};
-          const m=(d.members||{})[user.uid];
-          if(m && m.name) name=String(m.name).trim();
-        }
-      }catch(e){ console.warn('Lettura membro famiglia:',e); }
-    }
-    // 3) Documento personale
-    if(!name){
-      try{
-        const ps=await db.collection('famiglie').doc(user.uid).get();
-        if(ps.exists){ const d=ps.data()||{}; if(d.profile && d.profile.name) name=String(d.profile.name).trim(); }
+        var fid=(typeof currentFamilyId!=='undefined' && currentFamilyId) ? currentFamilyId : user.uid;
+        var fs=await db.collection('famiglie').doc(fid).get();
+        if(fs.exists){ var d=fs.data()||{}; var m=(d.members||{})[user.uid]; if(m&&m.name) name=String(m.name).trim(); }
       }catch(e){}
     }
-    // 4) Firebase Auth
+    if(!name){
+      try{ var ps=await db.collection('famiglie').doc(user.uid).get(); if(ps.exists){var pd=ps.data()||{}; if(pd.profile&&pd.profile.name) name=String(pd.profile.name).trim();} }catch(e){}
+    }
     if(!name) name=String(user.displayName||'').trim();
-    // 5) fallback locale
-    if(!name){ try{ name=(localStorage.getItem(profileStorageKey(user.uid))||'').trim(); }catch(e){} }
-
+    if(!name){ try{name=(localStorage.getItem(profileStorageKey(user.uid))||'').trim();}catch(e){} }
     if(nameInput) nameInput.value=name;
-    if(avatar) avatar.textContent=getProfileInitial(name,email);
+    if(avatar) avatar.textContent=initial(name,email);
     if(msg){msg.textContent='';msg.style.color='';}
   }
 
-  window.openHomeProfileModal=async function(){
-    const overlay=document.getElementById('home-profile-modal-overlay'); if(!overlay) return;
-    // L'email viene impostata SUBITO, senza aspettare Firestore.
-    const user=getActiveUser();
-    const emailInput=document.getElementById('home-profile-email');
+  window.openHomeProfileModal=function(){
+    var overlay=document.getElementById('home-profile-modal-overlay');
+    if(!overlay) return false;
+    var user=getActiveUser();
+    var emailInput=document.getElementById('home-profile-email');
     if(emailInput) emailInput.value=getEmail(user);
-    overlay.classList.add('open'); overlay.setAttribute('aria-hidden','false');
-    await loadProfileModalData();
-    setTimeout(()=>{ const i=document.getElementById('home-profile-name'); if(i) i.focus(); },80);
+    overlay.style.display='flex';
+    overlay.classList.add('open');
+    overlay.setAttribute('aria-hidden','false');
+    loadProfileModalData();
+    return false;
+  };
+  window.__openHomeProfileDirect=function(e){
+    if(e){ try{e.preventDefault();e.stopPropagation();}catch(x){} }
+    return window.openHomeProfileModal();
   };
 
-  function closeHomeProfileModal(){
-    const overlay=document.getElementById('home-profile-modal-overlay');
-    if(overlay){ overlay.classList.remove('open'); overlay.setAttribute('aria-hidden','true'); }
+  function closeModal(){
+    var overlay=document.getElementById('home-profile-modal-overlay');
+    if(overlay){overlay.classList.remove('open');overlay.style.display='none';overlay.setAttribute('aria-hidden','true');}
   }
+  window.closeHomeProfileModal=closeModal;
 
   async function saveHomeProfileName(){
-    const user=getActiveUser(); if(!user) return;
-    currentUser=user;
-    const input=document.getElementById('home-profile-name');
-    const msg=document.getElementById('home-profile-msg');
-    const btn=document.getElementById('home-profile-save');
-    const avatar=document.getElementById('home-profile-avatar-large');
-    const name=(input?.value||'').trim();
-    const email=getEmail(user);
-    if(!name){ if(msg){msg.style.color='var(--danger)';msg.textContent='Inserisci un nome.';} return; }
+    var user=getActiveUser(); if(!user) return;
+    var input=document.getElementById('home-profile-name'), msg=document.getElementById('home-profile-msg'), btn=document.getElementById('home-profile-save'), avatar=document.getElementById('home-profile-avatar-large');
+    var name=(input&&input.value||'').trim(), email=getEmail(user);
+    if(!name){if(msg){msg.style.color='var(--danger)';msg.textContent='Inserisci un nome.';}return;}
     if(btn){btn.disabled=true;btn.textContent='Salvataggio...';}
     try{
-      // Firebase Auth
       await user.updateProfile({displayName:name});
-      try{ await user.reload(); }catch(e){}
-
-      // Profilo dedicato
+      try{await user.reload();}catch(e){}
       await db.collection('profili').doc(user.uid).set({uid:user.uid,name:name,email:email,updatedAt:new Date().toISOString()},{merge:true});
-
-      // Documento famiglia/personale. Per l'admin la famiglia coincide con il suo UID.
-      const fid=(typeof currentFamilyId!=='undefined'&&currentFamilyId)?currentFamilyId:user.uid;
-      const familyRef=db.collection('famiglie').doc(fid);
-      const familySnap=await familyRef.get();
-      if(familySnap.exists){
-        const d=familySnap.data()||{};
-        const members={...(d.members||{})};
-        const old=members[user.uid]||{};
-        members[user.uid]={...old,uid:user.uid,name:name,email:email,role:old.role || (email.toLowerCase()===String(ADMIN_EMAIL||'').toLowerCase()?'admin':'member'),status:old.status||'active'};
+      var fid=(typeof currentFamilyId!=='undefined'&&currentFamilyId)?currentFamilyId:user.uid;
+      var familyRef=db.collection('famiglie').doc(fid), fs=await familyRef.get();
+      if(fs.exists){
+        var d=fs.data()||{}, members=Object.assign({},d.members||{}), old=members[user.uid]||{};
+        members[user.uid]=Object.assign({},old,{uid:user.uid,name:name,email:email,role:old.role||((email||'').toLowerCase()===(typeof ADMIN_EMAIL!=='undefined'?String(ADMIN_EMAIL).toLowerCase():'')?'admin':'member'),status:old.status||'active'});
         await familyRef.set({members:members,profile:{uid:user.uid,name:name,email:email,updatedAt:new Date().toISOString()},updatedAt:new Date().toISOString()},{merge:true});
-        if(typeof familyMembers!=='undefined') familyMembers=members;
       }else{
-        // Crea solo i campi profilo senza sovrascrivere eventuali dati esistenti.
         await familyRef.set({profile:{uid:user.uid,name:name,email:email,updatedAt:new Date().toISOString()},members:{[user.uid]:{uid:user.uid,name:name,email:email,role:'admin',status:'active'}},updatedAt:new Date().toISOString()},{merge:true});
       }
       try{localStorage.setItem(profileStorageKey(user.uid),name);}catch(e){}
-      if(avatar) avatar.textContent=getProfileInitial(name,email);
+      if(avatar) avatar.textContent=initial(name,email);
       if(msg){msg.style.color='var(--success)';msg.textContent='Nome salvato correttamente.';}
     }catch(e){
       console.error('Errore salvataggio profilo:',e);
       if(msg){msg.style.color='var(--danger)';msg.textContent='Errore nel salvataggio: '+(e.message||'riprova.');}
-    }finally{ if(btn){btn.disabled=false;btn.textContent='Salva modifiche';} }
+    }finally{if(btn){btn.disabled=false;btn.textContent='Salva modifiche';}}
   }
+  window.saveHomeProfileName=saveHomeProfileName;
 
   document.addEventListener('click',function(e){
-    const t=e.target;
-    const b=t.closest&&t.closest('#home-profile-btn');
-    if(b){e.preventDefault();e.stopPropagation();window.openHomeProfileModal();return;}
-    if(t.closest&&t.closest('#home-profile-modal-close')){e.preventDefault();closeHomeProfileModal();return;}
-    if(t.closest&&t.closest('#home-profile-save')){e.preventDefault();saveHomeProfileName();return;}
-    if(t.closest&&t.closest('#home-profile-logout')){e.preventDefault();closeHomeProfileModal();if(typeof performAppLogout==='function')performAppLogout();return;}
-  },true);
-  document.addEventListener('click',function(e){const o=document.getElementById('home-profile-modal-overlay');if(o&&e.target===o)closeHomeProfileModal();});
-  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeHomeProfileModal();});
+    var t=e.target;
+    if(t && t.closest && t.closest('#home-profile-btn')) return;
+    if(t && t.closest && t.closest('#home-profile-modal-close')){e.preventDefault();e.stopPropagation();closeModal();return;}
+    if(t && t.closest && t.closest('#home-profile-save')){e.preventDefault();e.stopPropagation();saveHomeProfileName();return;}
+    if(t && t.closest && t.closest('#home-profile-logout')){e.preventDefault();e.stopPropagation();closeModal();if(typeof performAppLogout==='function')performAppLogout();return;}
+  },false);
+  document.addEventListener('click',function(e){var o=document.getElementById('home-profile-modal-overlay');if(o&&e.target===o)closeModal();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal();});
 })();
 </script>
 </body>
