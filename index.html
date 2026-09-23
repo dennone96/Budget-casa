@@ -10075,9 +10075,118 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 #sidebar-footer{gap:8px;}
 @media(max-width:600px){.home-profile-modal-overlay{padding:54px 12px 20px;}.home-profile-modal{border-radius:21px;padding:19px;max-height:calc(100vh - 74px);overflow:auto;}.home-profile-modal-title{font-size:19px;}}
 </style>
+
+<style id="login-modern-layout-final">
+/* Correzione strutturale: la schermata Home non deve essere visibile sotto il login. */
+#shell.hidden{display:none !important;}
+#login-screen.hidden{display:none !important;}
+
+/* Login coerente con il mockup moderno chiaro utilizzato nel resto dell'app. */
+#login-screen{
+  width:min(100%, 470px);
+  max-width:470px;
+  min-height:100dvh;
+  margin:0 auto;
+  padding:28px 18px 34px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:0;
+  background:#f6f8fb;
+  color:#172b40;
+}
+body{background:#f6f8fb;}
+.login-brand{
+  display:flex;align-items:center;gap:12px;
+  margin:0 2px 24px;
+}
+.login-brand-icon{
+  width:46px;height:46px;border-radius:15px;
+  display:flex;align-items:center;justify-content:center;
+  flex:0 0 46px;
+  background:linear-gradient(135deg,#3f8fe8,#276fc4);
+  color:#fff;font-size:22px;
+  box-shadow:0 10px 22px rgba(47,128,237,.18);
+}
+.login-brand-name{font-size:15px;font-weight:850;color:#172b40;line-height:1.15;}
+.login-brand-caption{font-size:10px;font-weight:650;color:#7a8a9c;margin-top:3px;}
+#login-screen h1{
+  text-align:left;margin:0 2px 6px;
+  font-size:27px;line-height:1.12;font-weight:850;
+  letter-spacing:-.6px;color:#172b40;
+}
+#login-screen .subtitle{
+  text-align:left;margin:0 2px 18px;
+  color:#718197;font-size:12px;font-weight:650;
+}
+#login-screen .panel{
+  display:flex;flex-direction:column;gap:11px;
+  background:#fff;padding:18px;
+  border:1px solid #e1e8ef;border-radius:22px;
+  box-shadow:0 10px 30px rgba(25,48,72,.07);
+}
+#login-screen input{
+  width:100%;height:46px;box-sizing:border-box;
+  border-radius:13px;border:1px solid #dce4eb;
+  background:#f9fbfd;color:#172b40;
+  padding:0 13px;font-size:13px;font-weight:650;font-family:inherit;
+  box-shadow:none;
+}
+#login-screen input::placeholder{color:#91a0af;}
+#login-screen input:focus{
+  border-color:#3f8fe8;background:#fff;outline:none;
+  box-shadow:0 0 0 3px rgba(63,143,232,.12);
+}
+#login-screen button[type="submit"]{
+  width:100%;height:46px;margin-top:2px;
+  border:0;border-radius:13px;
+  background:linear-gradient(135deg,#3f8fe8,#2e79ce);
+  color:#fff;font-weight:850;font-size:13px;font-family:inherit;
+  box-shadow:0 9px 20px rgba(47,128,237,.18);
+}
+#login-screen button[type="submit"]:hover{transform:none;box-shadow:0 9px 20px rgba(47,128,237,.18);}
+#login-error{color:#d14343;font-size:11px;min-height:16px;margin:0;font-weight:700;}
+.login-create-profile-card{
+  margin-top:13px!important;padding:17px!important;
+  background:#fff!important;border:1px solid #e1e8ef!important;
+  border-radius:22px!important;
+  box-shadow:0 10px 30px rgba(25,48,72,.055)!important;
+}
+.login-create-profile-title{font-size:15px!important;font-weight:850!important;color:#172b40!important;margin-bottom:3px!important;}
+.login-create-profile-subtitle{font-size:10px!important;color:#7a8a9c!important;font-weight:650!important;margin-bottom:12px!important;}
+.login-create-profile-card input{
+  width:100%!important;height:43px!important;margin-bottom:8px!important;
+  box-sizing:border-box!important;background:#f9fbfd!important;color:#172b40!important;
+  border:1px solid #dce4eb!important;border-radius:12px!important;
+  font-size:12px!important;padding:0 12px!important;
+}
+.login-create-profile-card input:focus{border-color:#3f8fe8!important;box-shadow:0 0 0 3px rgba(63,143,232,.10)!important;background:#fff!important;outline:none!important;}
+.login-create-profile-card button{
+  width:100%!important;height:43px!important;border:0!important;border-radius:12px!important;
+  background:#edf5ff!important;color:#2869ad!important;font-weight:850!important;font-size:12px!important;
+  box-shadow:none!important;
+}
+#create-profile-error{min-height:16px!important;margin:2px 0 7px!important;font-size:10px!important;}
+@media(max-width:600px){
+  #login-screen{min-height:100dvh;padding:22px 14px 28px;}
+  .login-brand{margin-bottom:20px;}
+  .login-brand-icon{width:42px;height:42px;flex-basis:42px;border-radius:14px;font-size:20px;}
+  #login-screen h1{font-size:24px;}
+  #login-screen .subtitle{font-size:11px;margin-bottom:15px;}
+  #login-screen .panel{padding:15px;border-radius:19px;}
+  .login-create-profile-card{padding:15px!important;border-radius:19px!important;}
+}
+</style>
 </head>
 <body><div id="login-screen">
-<h1>Budget di Famiglia</h1>
+  <div class="login-brand">
+    <div class="login-brand-icon"><i class="ti ti-wallet"></i></div>
+    <div>
+      <div class="login-brand-name">Budget di Famiglia</div>
+      <div class="login-brand-caption">Le tue finanze, semplici da gestire</div>
+    </div>
+  </div>
+<h1>Accedi al tuo account</h1>
 <p class="subtitle">Gestisci le tue finanze in modo semplice</p>
 <form class="panel" id="login-form">
   <input autocomplete="email" id="login-email" placeholder="Email" required type="email"/>
@@ -10088,7 +10197,7 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
 
 <div class="login-create-profile-card">
   <div class="login-create-profile-title">Crea un nuovo profilo</div>
-  <div class="login-create-profile-subtitle">Inserisci nome, email e password per creare il tuo profilo.</div>
+  <div class="login-create-profile-subtitle">Inserisci i tuoi dati per creare un nuovo account.</div>
   <form id="create-profile-form">
     <input autocomplete="name" id="create-profile-name" placeholder="Nome" required type="text" maxlength="80"/>
     <input autocomplete="email" id="create-profile-email" placeholder="Email" required type="email"/>
@@ -10098,11 +10207,6 @@ html, body { width:100%; max-width:100%; overflow-x:hidden !important; }
   </form>
 </div>
 
-<div style="margin-top:16px; padding:14px 16px; background:var(--surface-2); border-radius:var(--radius-sm); border:1px solid var(--border); text-align:center;">
-<p style="margin:0; font-size:12px; color:var(--text-muted);">
-  Il profilo creato verrà associato alla famiglia dell'amministratore <strong style="color:var(--text-secondary);">dennisfarina1996@gmail.com</strong>.
-</p>
-</div>
 </div>
 <div class="hidden" id="shell">
 <button aria-label="Apri menu" id="hamburger">
