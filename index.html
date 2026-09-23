@@ -11808,7 +11808,7 @@ async function createProfileFromLogin(e) {
   errorEl.textContent = '';
 
   if (!name) { errorEl.textContent = 'Inserisci il nome.'; nameEl.focus(); return; }
-  if (!email) { errorEl.textContent = "Inserisci un'email valida."; emailEl.focus(); return; }
+  if (!email || !email.includes('@')) { errorEl.textContent = "Inserisci un'email valida."; emailEl.focus(); return; }
   if (email === ADMIN_EMAIL.toLowerCase()) { errorEl.textContent = "Questa email è riservata all'amministratore."; emailEl.focus(); return; }
   if (password.length < 6) { errorEl.textContent = 'La password deve contenere almeno 6 caratteri.'; passwordEl.focus(); return; }
 
@@ -11817,34 +11817,55 @@ async function createProfileFromLogin(e) {
 
   let secondaryApp = null;
   try {
+    // Creiamo l'account su una seconda istanza Firebase per NON disconnettere
+    // l'eventuale amministratore già autenticato nell'app principale.
     const appName = 'profileCreator_' + Date.now();
     secondaryApp = firebase.initializeApp(firebaseConfig, appName);
     const secondaryAuth = secondaryApp.auth();
-    const secondaryDb = secondaryApp.firestore();
     const credential = await secondaryAuth.createUserWithEmailAndPassword(email, password);
     const newUser = credential.user;
+
+    // Il nome viene salvato direttamente in Firebase Authentication.
+    // Questo passaggio non dipende dalle regole Firestore.
     await newUser.updateProfile({ displayName: name });
 
-    await secondaryDb.collection('profili').doc(newUser.uid).set({
-      uid: newUser.uid,
-      name: name,
-      email: email,
-      role: 'member',
-      status: 'active',
-      familyId: null,
-      createdAt: new Date().toISOString()
-    });
+    // Proviamo a creare i dati del profilo solo se le regole Firestore lo consentono.
+    // Un eventuale diniego NON deve annullare la creazione dell'account Firebase:
+    // l'account è già stato creato correttamente e potrà completare la sincronizzazione
+    // al primo accesso.
+    try {
+      const secondaryDb = secondaryApp.firestore();
+      await secondaryDb.collection('profili').doc(newUser.uid).set({
+        uid: newUser.uid,
+        name: name,
+        email: email,
+        role: 'member',
+        status: 'active',
+        familyId: null,
+        profileFamilyStatus: 'pending',
+        createdAt: new Date().toISOString()
+      }, { merge: true });
+    } catch (profileErr) {
+      console.warn('Sincronizzazione iniziale profilo non autorizzata:', profileErr);
+    }
 
-    // Il collegamento alla famiglia dell'admin viene effettuato dal profilo
-    // admin alla successiva apertura/accesso, mantenendo sicure le regole.
-    await secondaryDb.collection('famiglie').doc(newUser.uid).set({
-      profile: { uid: newUser.uid, name: name, email: email, role: 'member', status: 'active' },
-      familyId: null,
-      familyMembers: {},
-      createdAt: new Date().toISOString()
-    }, { merge: true });
+    // Anche la creazione del documento famiglia viene considerata opzionale:
+    // l'associazione definitiva viene eseguita quando il nuovo utente effettua il login.
+    try {
+      const secondaryDb = secondaryApp.firestore();
+      await secondaryDb.collection('famiglie').doc(newUser.uid).set({
+        profile: { uid: newUser.uid, name: name, email: email, role: 'member', status: 'active' },
+        familyId: null,
+        familyMembers: {},
+        profileFamilyStatus: 'pending',
+        createdAt: new Date().toISOString()
+      }, { merge: true });
+    } catch (familyErr) {
+      console.warn('Documento famiglia iniziale non autorizzato:', familyErr);
+    }
 
     await secondaryAuth.signOut();
+
     errorEl.style.color = 'var(--success)';
     errorEl.textContent = '✅ Profilo creato. Ora puoi accedere con email e password.';
     document.getElementById('login-email').value = email;
