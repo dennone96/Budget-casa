@@ -17849,7 +17849,7 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
     <p id="home-profile-msg" class="home-profile-msg"></p>
     <button type="button" id="home-profile-save" class="home-profile-save">Salva modifiche</button>
-    <button type="button" id="home-profile-logout" class="home-profile-logout">Esci dall'account</button>
+    <button type="button" id="home-profile-logout" onclick="return window.__homeProfileLogout && window.__homeProfileLogout();" type="button" class="home-profile-logout">Esci dall'account</button>
   </div>
 </div>
 <script id="home-profile-modal-script">
@@ -17927,6 +17927,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
   async function saveHomeProfileName(){
     var user=getActiveUser();
+    var firestoreDb = null;
+    try {
+      firestoreDb = (typeof firebase !== 'undefined' && firebase.firestore) ? firebase.firestore() : null;
+    } catch(e) {}
+    if(!firestoreDb){
+      try { firestoreDb = (typeof db !== 'undefined') ? db : null; } catch(e) {}
+    }
     if(!user){ setMsg('Utente non disponibile.','var(--danger)'); return; }
     var input=document.getElementById('home-profile-name'),btn=document.getElementById('home-profile-save'),avatar=document.getElementById('home-profile-avatar-large');
     var name=(input&&input.value||'').trim(), email=getEmail(user);
@@ -17938,13 +17945,13 @@ document.addEventListener('DOMContentLoaded', function() {
       await user.updateProfile({displayName:name});
       try{ await user.reload(); user=auth.currentUser||user; window.__budgetAuthUser=user; currentUser=user; }catch(e){}
       // 2) Documento profilo dedicato
-      await db.collection('profili').doc(user.uid).set({uid:user.uid,name:name,email:email,updatedAt:now},{merge:true});
+      await firestoreDb.collection('profili').doc(user.uid).set({uid:user.uid,name:name,email:email,updatedAt:now},{merge:true});
       // 3) Salva anche nel documento personale, così il dato non dipende dal familyId corrente
-      await db.collection('famiglie').doc(user.uid).set({profile:{uid:user.uid,name:name,email:email,updatedAt:now},updatedAt:now},{merge:true});
+      await firestoreDb.collection('famiglie').doc(user.uid).set({profile:{uid:user.uid,name:name,email:email,updatedAt:now},updatedAt:now},{merge:true});
       // 4) Aggiorna il membro della famiglia attiva, se presente
       var fid=(typeof currentFamilyId!=='undefined'&&currentFamilyId)?currentFamilyId:null;
       if(fid){
-        var familyRef=db.collection('famiglie').doc(fid), fs=await familyRef.get();
+        var familyRef=firestoreDb.collection('famiglie').doc(fid), fs=await familyRef.get();
         if(fs.exists){
           var d=fs.data()||{}, members=Object.assign({},d.members||{}), old=members[user.uid]||{};
           members[user.uid]=Object.assign({},old,{uid:user.uid,name:name,email:email,role:old.role||'member',status:old.status||'active'});
@@ -17964,13 +17971,28 @@ document.addEventListener('DOMContentLoaded', function() {
     }finally{if(btn){btn.disabled=false;btn.textContent='Salva modifiche';}}
   }
   window.saveHomeProfileName=saveHomeProfileName;
+  window.__homeProfileLogout = async function(){
+    try{
+      closeModal();
+      if(typeof unsubscribeSnapshot !== 'undefined' && unsubscribeSnapshot){ try{unsubscribeSnapshot();}catch(e){} unsubscribeSnapshot=null; }
+      if(typeof unsubscribeBollette !== 'undefined' && unsubscribeBollette){ try{unsubscribeBollette();}catch(e){} unsubscribeBollette=null; }
+      var a = (typeof auth !== 'undefined' && auth) ? auth : ((typeof firebase !== 'undefined' && firebase.auth) ? firebase.auth() : null);
+      if(!a || typeof a.signOut !== 'function') throw new Error('Servizio di autenticazione non disponibile');
+      await a.signOut();
+    }catch(e){
+      console.error('Errore logout profilo:',e);
+      try{ setMsg('Errore durante il logout. Riprova.','var(--danger)'); }catch(x){}
+    }
+    return false;
+  };
+
 
   document.addEventListener('click',function(e){
     var t=e.target;
     if(t&&t.closest&&t.closest('#home-profile-btn'))return;
     if(t&&t.closest&&t.closest('#home-profile-modal-close')){e.preventDefault();e.stopPropagation();closeModal();return;}
     if(t&&t.closest&&t.closest('#home-profile-save')){e.preventDefault();e.stopPropagation();saveHomeProfileName();return;}
-    if(t&&t.closest&&t.closest('#home-profile-logout')){e.preventDefault();e.stopPropagation();closeModal();if(typeof performAppLogout==='function')performAppLogout();return;}
+    if(t&&t.closest&&t.closest('#home-profile-logout')){e.preventDefault();e.stopPropagation();return;}
   },false);
   document.addEventListener('click',function(e){var o=document.getElementById('home-profile-modal-overlay');if(o&&e.target===o)closeModal();});
   document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal();});
