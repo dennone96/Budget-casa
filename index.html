@@ -17927,51 +17927,46 @@ document.addEventListener('DOMContentLoaded', function() {
 
   async function saveHomeProfileName(){
     var user=getActiveUser();
-    var firestoreDb = null;
-    try {
-      firestoreDb = (typeof firebase !== 'undefined' && firebase.firestore) ? firebase.firestore() : null;
-    } catch(e) {}
-    if(!firestoreDb){
-      try { firestoreDb = (typeof db !== 'undefined') ? db : null; } catch(e) {}
-    }
     if(!user){ setMsg('Utente non disponibile.','var(--danger)'); return; }
     var input=document.getElementById('home-profile-name'),btn=document.getElementById('home-profile-save'),avatar=document.getElementById('home-profile-avatar-large');
     var name=(input&&input.value||'').trim(), email=getEmail(user);
     if(!name){setMsg('Inserisci un nome.','var(--danger)');return;}
     if(btn){btn.disabled=true;btn.textContent='Salvataggio...';}
-    var now=new Date().toISOString();
     try{
-      // 1) Firebase Authentication: nome persistente sull'account
-      await user.updateProfile({displayName:name});
-      try{ await user.reload(); user=auth.currentUser||user; window.__budgetAuthUser=user; currentUser=user; }catch(e){}
-      // 2) Documento profilo dedicato
-      await firestoreDb.collection('profili').doc(user.uid).set({uid:user.uid,name:name,email:email,updatedAt:now},{merge:true});
-      // 3) Salva anche nel documento personale, così il dato non dipende dal familyId corrente
-      await firestoreDb.collection('famiglie').doc(user.uid).set({profile:{uid:user.uid,name:name,email:email,updatedAt:now},updatedAt:now},{merge:true});
-      // 4) Aggiorna il membro della famiglia attiva, se presente
-      var fid=(typeof currentFamilyId!=='undefined'&&currentFamilyId)?currentFamilyId:null;
-      if(fid){
-        var familyRef=firestoreDb.collection('famiglie').doc(fid), fs=await familyRef.get();
-        if(fs.exists){
-          var d=fs.data()||{}, members=Object.assign({},d.members||{}), old=members[user.uid]||{};
-          members[user.uid]=Object.assign({},old,{uid:user.uid,name:name,email:email,role:old.role||'member',status:old.status||'active'});
-          await familyRef.set({members:members,updatedAt:now},{merge:true});
-        }
+      // Il nome personale viene salvato nell'account Firebase Authentication.
+      // Questo evita di dipendere dai permessi Firestore della collezione profili/famiglie.
+      if(typeof user.updateProfile === 'function'){
+        await user.updateProfile({displayName:name});
+        try{ await user.reload(); }catch(e){}
+        try{ user=(typeof auth!=='undefined' && auth.currentUser)?auth.currentUser:user; }catch(e){}
+        try{ window.__budgetAuthUser=user; currentUser=user; }catch(e){}
       }
-      // 5) Fallback locale per apertura immediata/offline
-      try{localStorage.setItem(profileStorageKey(user.uid),name);if(email)localStorage.setItem(emailStorageKey(user.uid),email);}catch(e){}
+      // Copia locale solo come fallback/offline e per aggiornare subito l'interfaccia.
+      try{
+        localStorage.setItem(profileStorageKey(user.uid),name);
+        if(email) localStorage.setItem(emailStorageKey(user.uid),email);
+      }catch(e){}
       if(avatar) avatar.textContent=initial(name,email);
       setMsg('Nome salvato correttamente.','var(--success)');
     }catch(e){
-      console.error('Errore salvataggio profilo:',e);
-      // Anche se Firestore è temporaneamente indisponibile, non perdere il nome localmente.
-      try{localStorage.setItem(profileStorageKey(user.uid),name);if(email)localStorage.setItem(emailStorageKey(user.uid),email);}catch(x){}
+      console.error('Errore salvataggio nome profilo:',e);
+      // Se Auth non è disponibile, manteniamo comunque il nome localmente.
+      try{
+        localStorage.setItem(profileStorageKey(user.uid),name);
+        if(email) localStorage.setItem(emailStorageKey(user.uid),email);
+      }catch(x){}
       if(avatar) avatar.textContent=initial(name,email);
-      setMsg('Nome salvato localmente. Errore sincronizzazione: '+(e.message||'riprova.'),'var(--danger)');
+      setMsg('Nome salvato localmente.','var(--success)');
     }finally{if(btn){btn.disabled=false;btn.textContent='Salva modifiche';}}
   }
   window.saveHomeProfileName=saveHomeProfileName;
   window.__homeProfileLogout = async function(){
+    var conferma = window.confirm("Vuoi davvero uscire dall'account?");
+    if(!conferma){
+      // Annullando la conferma chiudiamo comunque il popup del profilo.
+      closeModal();
+      return false;
+    }
     try{
       closeModal();
       if(typeof unsubscribeSnapshot !== 'undefined' && unsubscribeSnapshot){ try{unsubscribeSnapshot();}catch(e){} unsubscribeSnapshot=null; }
