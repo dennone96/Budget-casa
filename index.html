@@ -18248,5 +18248,26 @@ document.addEventListener('DOMContentLoaded', function() {
   document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal();});
 })();
 </script>
+
+<style id="bollette-total-column-same-style">
+/* Colonna TOTALE mensile: stesso linguaggio visivo della riga TOTALE ANNUO */
+#page-bollette .bolletta-table tbody td:nth-child(5){
+  background:#eaf7f0 !important;
+  color:#16804e !important;
+  font-weight:850 !important;
+  border-left:1px solid #d6eee0 !important;
+}
+#page-bollette .bolletta-table tbody td:nth-child(5):last-child{
+  border-right:1px solid #d6eee0 !important;
+}
+#page-bollette .bolletta-table tbody tr:hover td:nth-child(5){
+  background:#dff3e8 !important;
+  color:#086d40 !important;
+}
+#page-bollette .bolletta-table tbody td:nth-child(5).bolletta-cell-empty{
+  color:#16804e !important;
+  font-weight:850 !important;
+}
+</style>
 </body>
 </html>
