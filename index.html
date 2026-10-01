@@ -18322,5 +18322,53 @@ document.addEventListener('DOMContentLoaded', function() {
   window.addEventToDeviceCalendar=addEventToDeviceCalendar;
 })();
 </script>
+<script id="android-calendar-direct-fix">
+(function(){
+  function enc(v){ return encodeURIComponent(String(v || '')); }
+  function pad(n){ return String(n).padStart(2,'0'); }
+  function googleCalendarUrl(dateStr,event){
+    var title=event.titolo || 'Evento';
+    var note=event.note || '';
+    var isAllDay=event.allDay===true || event.tuttoGiorno===true || !event.ora || event.ora==='Tutto il giorno';
+    var startDate=new Date(dateStr+'T00:00:00');
+    var start,end;
+    if(isAllDay){
+      start=dateStr.replace(/-/g,'');
+      var next=new Date(startDate); next.setDate(next.getDate()+1);
+      end=next.getFullYear()+pad(next.getMonth()+1)+pad(next.getDate());
+    }else{
+      var parts=String(event.ora).split(':');
+      var d=new Date(startDate);
+      d.setHours(parseInt(parts[0]||'0',10),parseInt(parts[1]||'0',10),0,0);
+      var e=new Date(d); e.setHours(e.getHours()+1);
+      start=d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'T'+pad(d.getHours())+pad(d.getMinutes())+'00';
+      end=e.getFullYear()+pad(e.getMonth()+1)+pad(e.getDate())+'T'+pad(e.getHours())+pad(e.getMinutes())+'00';
+    }
+    return 'https://calendar.google.com/calendar/render?action=TEMPLATE'
+      +'&text='+enc(title)+'&dates='+start+'/'+end+(note ? '&details='+enc(note) : '');
+  }
+  function openAndroidCalendar(dateStr,index){
+    try{
+      var list=(typeof eventsData!=='undefined' && eventsData[dateStr]) ? eventsData[dateStr] : null;
+      var event=list && list[index];
+      if(!event){ alert('Evento non trovato.'); return; }
+      var url=googleCalendarUrl(dateStr,event);
+      var opened=false;
+      try{ var w=window.open(url,'_blank'); if(w){ opened=true; } }catch(e){}
+      if(!opened){ window.location.href=url; }
+    }catch(err){
+      console.error('Errore collegamento calendario Android:',err);
+      alert('Non è stato possibile aprire il calendario dello smartphone.');
+    }
+  }
+  document.addEventListener('click',function(e){
+    var btn=e.target && e.target.closest ? e.target.closest('.evento-calendar') : null;
+    if(!btn) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    openAndroidCalendar(btn.dataset.date,parseInt(btn.dataset.index,10));
+  },true);
+  window.openAndroidCalendar=openAndroidCalendar;
+})();
+</script>
 </body>
 </html>
