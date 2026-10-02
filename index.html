@@ -18276,10 +18276,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-<script id="calendar-android-native-intent">
+
+
+<script id="calendar-google-app-direct">
 (function(){
   function enc(v){ return encodeURIComponent(String(v == null ? '' : v)); }
-  function buildIntent(btn){
+  function buildGoogleIntent(btn){
     var date=btn.getAttribute('data-date')||'';
     var title=btn.getAttribute('data-event-title')||'Evento';
     var time=btn.getAttribute('data-event-time')||'';
@@ -18290,24 +18292,36 @@ document.addEventListener('DOMContentLoaded', function() {
     var begin,end;
     if(allDay){
       begin=d.getTime();
-      var next=new Date(d); next.setDate(next.getDate()+1); end=next.getTime();
+      var n=new Date(d); n.setDate(n.getDate()+1); end=n.getTime();
     }else{
       var p=time.split(':');
-      d.setHours(parseInt(p[0]||'0',10),parseInt(p[1]||'0',10),0,0);
-      begin=d.getTime(); var e=new Date(d); e.setHours(e.getHours()+1); end=e.getTime();
+      d.setHours(parseInt(p[0]||0,10),parseInt(p[1]||0,10),0,0);
+      begin=d.getTime();
+      var e=new Date(d); e.setHours(e.getHours()+1); end=e.getTime();
     }
-    return 'intent:#Intent;action=android.intent.action.INSERT;type=vnd.android.cursor.item/event;S.title='+enc(title)+';l.beginTime='+begin+';l.endTime='+end+';B.allDay='+(allDay?'true':'false')+';'+(note?'S.description='+enc(note)+';':'')+'end';
+    return 'intent:#Intent;action=android.intent.action.INSERT;'
+      +'type=vnd.android.cursor.item/event;'
+      +'S.title='+enc(title)+';'
+      +'l.beginTime='+begin+';'
+      +'l.endTime='+end+';'
+      +'B.allDay='+(allDay?'true':'false')+';'
+      +(note?'S.description='+enc(note)+';':'')
+      +'package=com.google.android.calendar;end';
   }
-  function openNativeCalendar(btn){
-    try{ window.location.href=buildIntent(btn); }
-    catch(e){ alert('Non è stato possibile aprire il calendario Android.'); }
+  function openGoogleCalendar(btn){
+    try{
+      window.location.href=buildGoogleIntent(btn);
+    }catch(e){
+      alert('Non è stato possibile aprire Google Calendar.');
+    }
   }
   document.addEventListener('click',function(e){
     var btn=e.target&&e.target.closest?e.target.closest('#page-eventi .evento-calendar'):null;
     if(!btn) return;
-    e.preventDefault(); e.stopImmediatePropagation(); openNativeCalendar(btn);
+    e.preventDefault(); e.stopImmediatePropagation();
+    openGoogleCalendar(btn);
   },true);
-  window.openAndroidCalendar=openNativeCalendar;
+  window.openAndroidCalendar=openGoogleCalendar;
 })();
 </script>
 </body>
