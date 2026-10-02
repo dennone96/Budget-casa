@@ -18275,47 +18275,39 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-<script id="calendar-webview-final">
+
+<script id="calendar-android-native-intent">
 (function(){
-  function enc(v){ return encodeURIComponent(String(v || '')); }
-  function pad(n){ return String(n).padStart(2,'0'); }
-  function makeUrl(btn){
+  function enc(v){ return encodeURIComponent(String(v == null ? '' : v)); }
+  function buildIntent(btn){
     var date=btn.getAttribute('data-date')||'';
     var title=btn.getAttribute('data-event-title')||'Evento';
     var time=btn.getAttribute('data-event-time')||'';
     var note=btn.getAttribute('data-event-note')||'';
     var allDay=btn.getAttribute('data-event-allday')==='1';
     if(!date) throw new Error('Data evento mancante');
-    var start,end;
+    var d=new Date(date+'T00:00:00');
+    var begin,end;
     if(allDay){
-      var d=new Date(date+'T00:00:00'); var n=new Date(d); n.setDate(n.getDate()+1);
-      start=date.replace(/-/g,''); end=n.getFullYear()+pad(n.getMonth()+1)+pad(n.getDate());
+      begin=d.getTime();
+      var next=new Date(d); next.setDate(next.getDate()+1); end=next.getTime();
     }else{
-      var p=time.split(':'); var d2=new Date(date+'T00:00:00');
-      d2.setHours(parseInt(p[0]||0,10),parseInt(p[1]||0,10),0,0);
-      var e=new Date(d2); e.setHours(e.getHours()+1);
-      start=d2.getFullYear()+pad(d2.getMonth()+1)+pad(d2.getDate())+'T'+pad(d2.getHours())+pad(d2.getMinutes())+'00';
-      end=e.getFullYear()+pad(e.getMonth()+1)+pad(e.getDate())+'T'+pad(e.getHours())+pad(e.getMinutes())+'00';
+      var p=time.split(':');
+      d.setHours(parseInt(p[0]||'0',10),parseInt(p[1]||'0',10),0,0);
+      begin=d.getTime(); var e=new Date(d); e.setHours(e.getHours()+1); end=e.getTime();
     }
-    return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+enc(title)+'&dates='+start+'/'+end+(note?'&details='+enc(note):'');
+    return 'intent:#Intent;action=android.intent.action.INSERT;type=vnd.android.cursor.item/event;S.title='+enc(title)+';l.beginTime='+begin+';l.endTime='+end+';B.allDay='+(allDay?'true':'false')+';'+(note?'S.description='+enc(note)+';':'')+'end';
   }
-  function showFallback(url){
-    var old=document.getElementById('calendar-open-fallback'); if(old) old.remove();
-    var ov=document.createElement('div'); ov.id='calendar-open-fallback';
-    ov.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:20px;';
-    ov.innerHTML='<div style="background:#fff;border-radius:18px;padding:22px;max-width:360px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.25);font-family:Arial,sans-serif;"><div style="font-size:20px;font-weight:800;color:#172b40;margin-bottom:8px;">📅 Aggiungi al calendario</div><div style="font-size:14px;color:#66788a;line-height:1.45;margin-bottom:18px;">Il WebView non ha aperto automaticamente il calendario. Premi il pulsante qui sotto per aprire Google Calendar.</div><a href="'+url+'" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none;background:#172b40;color:#fff;padding:13px;border-radius:12px;font-weight:700;">Apri Google Calendar</a><button type="button" id="calendar-open-close" style="width:100%;margin-top:10px;padding:11px;border:0;background:#eef2f5;color:#34495e;border-radius:12px;font-weight:700;">Annulla</button></div>';
-    document.body.appendChild(ov); document.getElementById('calendar-open-close').onclick=function(){ov.remove();};
-  }
-  function openCalendar(btn){
-    var url; try{url=makeUrl(btn);}catch(e){alert('Dati evento non validi.');return;}
-    try{ window.location.href=url; return; }catch(e){}
-    showFallback(url);
+  function openNativeCalendar(btn){
+    try{ window.location.href=buildIntent(btn); }
+    catch(e){ alert('Non è stato possibile aprire il calendario Android.'); }
   }
   document.addEventListener('click',function(e){
     var btn=e.target&&e.target.closest?e.target.closest('#page-eventi .evento-calendar'):null;
-    if(!btn)return; e.preventDefault(); e.stopImmediatePropagation(); openCalendar(btn);
+    if(!btn) return;
+    e.preventDefault(); e.stopImmediatePropagation(); openNativeCalendar(btn);
   },true);
-  window.openAndroidCalendar=openCalendar;
+  window.openAndroidCalendar=openNativeCalendar;
 })();
 </script>
 </body>
