@@ -16393,7 +16393,15 @@ function renderEventsForDay(dateStr) {
       <div class="evento-card">
         <div class="evento-ora">${event.ora || 'Tutto il giorno'}</div>
         <div class="evento-titolo">${escapeHtml(event.titolo)}</div>
-        <button class="evento-calendar" data-index="${index}" data-date="${dateStr}" title="Aggiungi al calendario" aria-label="Aggiungi al calendario">📅</button>
+        <button class="evento-calendar"
+        data-index="${index}"
+        data-date="${dateStr}"
+        data-event-title="${escapeHtml(event.titolo || '')}"
+        data-event-time="${escapeHtml(event.ora || '')}"
+        data-event-note="${escapeHtml(event.note || '')}"
+        data-event-allday="${(event.allDay === true || event.tuttoGiorno === true || !event.ora || event.ora === 'Tutto il giorno') ? '1' : '0'}"
+        title="Aggiungi al calendario"
+        aria-label="Aggiungi al calendario">📅</button>
         <button class="evento-edit" data-index="${index}" data-date="${dateStr}" title="Modifica evento">✎</button>
         <button class="evento-delete" data-index="${index}" data-date="${dateStr}" title="Elimina evento">✕</button>
       </div>
@@ -18262,113 +18270,91 @@ document.addEventListener('DOMContentLoaded', function() {
     .evento-calendar, .evento-edit, .evento-delete { width: 30px !important; height: 30px !important; min-width: 30px !important; padding: 0 !important; }
   }
 </style>
-<script id="calendar-device-integration-script">
-(function(){
-  function icsEscape(value){
-    return String(value || '').replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
-  }
-  function pad(n){ return String(n).padStart(2,'0'); }
-  function nextDateString(dateStr){
-    var d = new Date(dateStr + 'T00:00:00'); d.setDate(d.getDate()+1);
-    return d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate());
-  }
-  function icsDate(dateStr,time){
-    var parts=String(dateStr).split('-'); if(parts.length!==3) return '';
-    if(!time) return parts[0]+parts[1]+parts[2];
-    var tp=String(time).split(':');
-    return parts[0]+parts[1]+parts[2]+'T'+pad(tp[0]||0)+pad(tp[1]||0)+'00';
-  }
-  function buildICS(dateStr,event){
-    var allDay=event.allDay===true || event.tuttoGiorno===true || !event.ora || event.ora==='Tutto il giorno';
-    var title=event.titolo||'Evento', note=event.note||'';
-    var uid=((event.createdAt||Date.now())+'-'+dateStr+'-'+title).replace(/[^a-zA-Z0-9._-]/g,'-')+'@budget-casa';
-    var lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Budget Casa//Calendario Eventi//IT','CALSCALE:GREGORIAN','METHOD:PUBLISH','X-WR-CALNAME:Budget Casa','BEGIN:VEVENT','UID:'+uid,'DTSTAMP:'+new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d{3}Z$/,'Z')];
-    if(allDay){
-      lines.push('DTSTART;VALUE=DATE:'+icsDate(dateStr));
-      lines.push('DTEND;VALUE=DATE:'+nextDateString(dateStr));
-    } else {
-      var start=icsDate(dateStr,event.ora);
-      var d=new Date(dateStr+'T'+event.ora+':00'); d.setMinutes(d.getMinutes()+60);
-      var end=d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'T'+pad(d.getHours())+pad(d.getMinutes())+'00';
-      lines.push('DTSTART:'+start); lines.push('DTEND:'+end);
-    }
-    lines.push('SUMMARY:'+icsEscape(title));
-    if(note) lines.push('DESCRIPTION:'+icsEscape(note));
-    lines.push('END:VEVENT','END:VCALENDAR');
-    return lines.join('\r\n')+'\r\n';
-  }
-  async function addEventToDeviceCalendar(dateStr,index){
-    try{
-      var list=(typeof eventsData!=='undefined' && eventsData[dateStr])?eventsData[dateStr]:null;
-      var event=list&&list[index]; if(!event) return;
-      var blob=new Blob([buildICS(dateStr,event)],{type:'text/calendar;charset=utf-8'});
-      var filename=(String(event.titolo||'evento').replace(/[^a-zA-Z0-9àèéìòùÀÈÉÌÒÙ _-]/g,'').trim()||'evento')+'.ics';
-      if(typeof navigator!=='undefined' && navigator.share && typeof File!=='undefined'){
-        var file=new File([blob],filename,{type:'text/calendar'});
-        if(!navigator.canShare || navigator.canShare({files:[file]})){
-          try{ await navigator.share({files:[file],title:event.titolo||'Evento',text:'Aggiungi questo evento al calendario'}); return; }
-          catch(e){ if(e && e.name==='AbortError') return; }
-        }
-      }
-      var url=URL.createObjectURL(blob), a=document.createElement('a');
-      a.href=url; a.download=filename; a.style.display='none'; document.body.appendChild(a); a.click();
-      setTimeout(function(){ a.remove(); URL.revokeObjectURL(url); },1500);
-    }catch(err){ console.error('Errore aggiunta evento al calendario:',err); alert("Non è stato possibile preparare l'evento per il calendario."); }
-  }
-  document.addEventListener('click',function(e){
-    var btn=e.target&&e.target.closest?e.target.closest('.evento-calendar'):null; if(!btn) return;
-    e.preventDefault(); e.stopPropagation(); addEventToDeviceCalendar(btn.dataset.date,parseInt(btn.dataset.index,10));
-  },true);
-  window.addEventToDeviceCalendar=addEventToDeviceCalendar;
-})();
-</script>
-<script id="android-calendar-direct-fix">
+
+
+
+<script id="calendar-android-final-fix">
 (function(){
   function enc(v){ return encodeURIComponent(String(v || '')); }
   function pad(n){ return String(n).padStart(2,'0'); }
-  function googleCalendarUrl(dateStr,event){
-    var title=event.titolo || 'Evento';
-    var note=event.note || '';
-    var isAllDay=event.allDay===true || event.tuttoGiorno===true || !event.ora || event.ora==='Tutto il giorno';
-    var startDate=new Date(dateStr+'T00:00:00');
-    var start,end;
-    if(isAllDay){
-      start=dateStr.replace(/-/g,'');
-      var next=new Date(startDate); next.setDate(next.getDate()+1);
-      end=next.getFullYear()+pad(next.getMonth()+1)+pad(next.getDate());
-    }else{
-      var parts=String(event.ora).split(':');
-      var d=new Date(startDate);
-      d.setHours(parseInt(parts[0]||'0',10),parseInt(parts[1]||'0',10),0,0);
-      var e=new Date(d); e.setHours(e.getHours()+1);
-      start=d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'T'+pad(d.getHours())+pad(d.getMinutes())+'00';
-      end=e.getFullYear()+pad(e.getMonth()+1)+pad(e.getDate())+'T'+pad(e.getHours())+pad(e.getMinutes())+'00';
+
+  function buildGoogleCalendarUrl(btn){
+    var dateStr = btn.getAttribute('data-date') || '';
+    var title = btn.getAttribute('data-event-title') || 'Evento';
+    var time = btn.getAttribute('data-event-time') || '';
+    var note = btn.getAttribute('data-event-note') || '';
+    var allDay = btn.getAttribute('data-event-allday') === '1';
+
+    if(!dateStr) throw new Error('Data evento mancante');
+
+    var start, end;
+
+    if(allDay){
+      var d0 = new Date(dateStr + 'T00:00:00');
+      var d1 = new Date(d0);
+      d1.setDate(d1.getDate() + 1);
+      start = dateStr.replace(/-/g,'');
+      end = d1.getFullYear() + pad(d1.getMonth()+1) + pad(d1.getDate());
+    } else {
+      var p = time.split(':');
+      var d = new Date(dateStr + 'T00:00:00');
+      d.setHours(parseInt(p[0] || '0',10), parseInt(p[1] || '0',10), 0, 0);
+      var e = new Date(d);
+      e.setHours(e.getHours() + 1);
+
+      start = d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) +
+              'T' + pad(d.getHours()) + pad(d.getMinutes()) + '00';
+      end = e.getFullYear() + pad(e.getMonth()+1) + pad(e.getDate()) +
+            'T' + pad(e.getHours()) + pad(e.getMinutes()) + '00';
     }
-    return 'https://calendar.google.com/calendar/render?action=TEMPLATE'
-      +'&text='+enc(title)+'&dates='+start+'/'+end+(note ? '&details='+enc(note) : '');
+
+    var url = 'https://calendar.google.com/calendar/render?action=TEMPLATE' +
+      '&text=' + enc(title) + '&dates=' + start + '/' + end;
+
+    if(note) url += '&details=' + enc(note);
+    return url;
   }
-  function openAndroidCalendar(dateStr,index){
+
+  function openCalendar(btn){
     try{
-      var list=(typeof eventsData!=='undefined' && eventsData[dateStr]) ? eventsData[dateStr] : null;
-      var event=list && list[index];
-      if(!event){ alert('Evento non trovato.'); return; }
-      var url=googleCalendarUrl(dateStr,event);
-      var opened=false;
-      try{ var w=window.open(url,'_blank'); if(w){ opened=true; } }catch(e){}
-      if(!opened){ window.location.href=url; }
+      var url = buildGoogleCalendarUrl(btn);
+      var opened = false;
+
+      try{
+        var w = window.open(url, '_blank');
+        opened = !!w;
+      }catch(e){}
+
+      if(!opened){
+        try{
+          window.location.assign(url);
+          opened = true;
+        }catch(e){}
+      }
+
+      if(!opened){
+        alert('Il WebView dell\\'APK blocca l\\'apertura del calendario. Per il collegamento diretto servirà il ponte nativo Android.');
+      }
     }catch(err){
-      console.error('Errore collegamento calendario Android:',err);
-      alert('Non è stato possibile aprire il calendario dello smartphone.');
+      console.error('Calendario Android:', err);
+      alert('Non è stato possibile preparare l\\'evento per il calendario.');
     }
   }
-  document.addEventListener('click',function(e){
-    var btn=e.target && e.target.closest ? e.target.closest('.evento-calendar') : null;
+
+  document.addEventListener('click', function(e){
+    var btn = e.target && e.target.closest
+      ? e.target.closest('#page-eventi .evento-calendar')
+      : null;
     if(!btn) return;
-    e.preventDefault(); e.stopImmediatePropagation();
-    openAndroidCalendar(btn.dataset.date,parseInt(btn.dataset.index,10));
-  },true);
-  window.openAndroidCalendar=openAndroidCalendar;
+
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    openCalendar(btn);
+  }, true);
+
+  window.openAndroidCalendar = openCalendar;
 })();
 </script>
+
 </body>
 </html>
