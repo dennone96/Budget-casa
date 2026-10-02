@@ -18273,88 +18273,50 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-<script id="calendar-android-final-fix">
+
+
+<script id="calendar-webview-final">
 (function(){
   function enc(v){ return encodeURIComponent(String(v || '')); }
   function pad(n){ return String(n).padStart(2,'0'); }
-
-  function buildGoogleCalendarUrl(btn){
-    var dateStr = btn.getAttribute('data-date') || '';
-    var title = btn.getAttribute('data-event-title') || 'Evento';
-    var time = btn.getAttribute('data-event-time') || '';
-    var note = btn.getAttribute('data-event-note') || '';
-    var allDay = btn.getAttribute('data-event-allday') === '1';
-
-    if(!dateStr) throw new Error('Data evento mancante');
-
-    var start, end;
-
+  function makeUrl(btn){
+    var date=btn.getAttribute('data-date')||'';
+    var title=btn.getAttribute('data-event-title')||'Evento';
+    var time=btn.getAttribute('data-event-time')||'';
+    var note=btn.getAttribute('data-event-note')||'';
+    var allDay=btn.getAttribute('data-event-allday')==='1';
+    if(!date) throw new Error('Data evento mancante');
+    var start,end;
     if(allDay){
-      var d0 = new Date(dateStr + 'T00:00:00');
-      var d1 = new Date(d0);
-      d1.setDate(d1.getDate() + 1);
-      start = dateStr.replace(/-/g,'');
-      end = d1.getFullYear() + pad(d1.getMonth()+1) + pad(d1.getDate());
-    } else {
-      var p = time.split(':');
-      var d = new Date(dateStr + 'T00:00:00');
-      d.setHours(parseInt(p[0] || '0',10), parseInt(p[1] || '0',10), 0, 0);
-      var e = new Date(d);
-      e.setHours(e.getHours() + 1);
-
-      start = d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) +
-              'T' + pad(d.getHours()) + pad(d.getMinutes()) + '00';
-      end = e.getFullYear() + pad(e.getMonth()+1) + pad(e.getDate()) +
-            'T' + pad(e.getHours()) + pad(e.getMinutes()) + '00';
+      var d=new Date(date+'T00:00:00'); var n=new Date(d); n.setDate(n.getDate()+1);
+      start=date.replace(/-/g,''); end=n.getFullYear()+pad(n.getMonth()+1)+pad(n.getDate());
+    }else{
+      var p=time.split(':'); var d2=new Date(date+'T00:00:00');
+      d2.setHours(parseInt(p[0]||0,10),parseInt(p[1]||0,10),0,0);
+      var e=new Date(d2); e.setHours(e.getHours()+1);
+      start=d2.getFullYear()+pad(d2.getMonth()+1)+pad(d2.getDate())+'T'+pad(d2.getHours())+pad(d2.getMinutes())+'00';
+      end=e.getFullYear()+pad(e.getMonth()+1)+pad(e.getDate())+'T'+pad(e.getHours())+pad(e.getMinutes())+'00';
     }
-
-    var url = 'https://calendar.google.com/calendar/render?action=TEMPLATE' +
-      '&text=' + enc(title) + '&dates=' + start + '/' + end;
-
-    if(note) url += '&details=' + enc(note);
-    return url;
+    return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+enc(title)+'&dates='+start+'/'+end+(note?'&details='+enc(note):'');
   }
-
+  function showFallback(url){
+    var old=document.getElementById('calendar-open-fallback'); if(old) old.remove();
+    var ov=document.createElement('div'); ov.id='calendar-open-fallback';
+    ov.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:20px;';
+    ov.innerHTML='<div style="background:#fff;border-radius:18px;padding:22px;max-width:360px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.25);font-family:Arial,sans-serif;"><div style="font-size:20px;font-weight:800;color:#172b40;margin-bottom:8px;">📅 Aggiungi al calendario</div><div style="font-size:14px;color:#66788a;line-height:1.45;margin-bottom:18px;">Il WebView non ha aperto automaticamente il calendario. Premi il pulsante qui sotto per aprire Google Calendar.</div><a href="'+url+'" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none;background:#172b40;color:#fff;padding:13px;border-radius:12px;font-weight:700;">Apri Google Calendar</a><button type="button" id="calendar-open-close" style="width:100%;margin-top:10px;padding:11px;border:0;background:#eef2f5;color:#34495e;border-radius:12px;font-weight:700;">Annulla</button></div>';
+    document.body.appendChild(ov); document.getElementById('calendar-open-close').onclick=function(){ov.remove();};
+  }
   function openCalendar(btn){
-    try{
-      var url = buildGoogleCalendarUrl(btn);
-      var opened = false;
-
-      try{
-        var w = window.open(url, '_blank');
-        opened = !!w;
-      }catch(e){}
-
-      if(!opened){
-        try{
-          window.location.assign(url);
-          opened = true;
-        }catch(e){}
-      }
-
-      if(!opened){
-        alert('Il WebView dell\\'APK blocca l\\'apertura del calendario. Per il collegamento diretto servirà il ponte nativo Android.');
-      }
-    }catch(err){
-      console.error('Calendario Android:', err);
-      alert('Non è stato possibile preparare l\\'evento per il calendario.');
-    }
+    var url; try{url=makeUrl(btn);}catch(e){alert('Dati evento non validi.');return;}
+    try{ window.location.href=url; return; }catch(e){}
+    showFallback(url);
   }
-
-  document.addEventListener('click', function(e){
-    var btn = e.target && e.target.closest
-      ? e.target.closest('#page-eventi .evento-calendar')
-      : null;
-    if(!btn) return;
-
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    openCalendar(btn);
-  }, true);
-
-  window.openAndroidCalendar = openCalendar;
+  document.addEventListener('click',function(e){
+    var btn=e.target&&e.target.closest?e.target.closest('#page-eventi .evento-calendar'):null;
+    if(!btn)return; e.preventDefault(); e.stopImmediatePropagation(); openCalendar(btn);
+  },true);
+  window.openAndroidCalendar=openCalendar;
 })();
 </script>
-
 </body>
 </html>
