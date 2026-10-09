@@ -18280,48 +18280,68 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script id="calendar-google-app-direct">
 (function(){
-  function enc(v){ return encodeURIComponent(String(v == null ? '' : v)); }
-  function buildGoogleIntent(btn){
-    var date=btn.getAttribute('data-date')||'';
-    var title=btn.getAttribute('data-event-title')||'Evento';
-    var time=btn.getAttribute('data-event-time')||'';
-    var note=btn.getAttribute('data-event-note')||'';
-    var allDay=btn.getAttribute('data-event-allday')==='1';
-    if(!date) throw new Error('Data evento mancante');
-    var d=new Date(date+'T00:00:00');
-    var begin,end;
-    if(allDay){
-      begin=d.getTime();
-      var n=new Date(d); n.setDate(n.getDate()+1); end=n.getTime();
-    }else{
-      var p=time.split(':');
-      d.setHours(parseInt(p[0]||0,10),parseInt(p[1]||0,10),0,0);
-      begin=d.getTime();
-      var e=new Date(d); e.setHours(e.getHours()+1); end=e.getTime();
+  document.addEventListener('click', function(e){
+    var btn = e.target && e.target.closest
+      ? e.target.closest('#page-eventi .evento-calendar')
+      : null;
+    if (!btn) return;
+
+    e.preventDefault();
+    e.stopImmediatePropagation();
+
+    var date = btn.getAttribute('data-date') || '';
+    var title = btn.getAttribute('data-event-title') || 'Evento';
+    var time = btn.getAttribute('data-event-time') || '';
+    var note = btn.getAttribute('data-event-note') || '';
+    var allDay = btn.getAttribute('data-event-allday') === '1';
+
+    if (!date) {
+      alert('La data dell’evento non è disponibile.');
+      return;
     }
-    return 'intent:#Intent;action=android.intent.action.INSERT;'
-      +'type=vnd.android.cursor.item/event;'
-      +'S.title='+enc(title)+';'
-      +'l.beginTime='+begin+';'
-      +'l.endTime='+end+';'
-      +'B.allDay='+(allDay?'true':'false')+';'
-      +(note?'S.description='+enc(note)+';':'')
-      +'package=com.google.android.calendar;end';
-  }
-  function openGoogleCalendar(btn){
-    try{
-      window.location.href=buildGoogleIntent(btn);
-    }catch(e){
-      alert('Non è stato possibile aprire Google Calendar.');
+
+    // Nell'app Android il bridge apre direttamente la schermata
+    // di creazione evento di Google Calendar.
+    if (window.AndroidCalendar &&
+        typeof window.AndroidCalendar.openEvent === 'function') {
+      window.AndroidCalendar.openEvent(date, title, time, note, allDay);
+      return;
     }
-  }
-  document.addEventListener('click',function(e){
-    var btn=e.target&&e.target.closest?e.target.closest('#page-eventi .evento-calendar'):null;
-    if(!btn) return;
-    e.preventDefault(); e.stopImmediatePropagation();
-    openGoogleCalendar(btn);
-  },true);
-  window.openAndroidCalendar=openGoogleCalendar;
+
+    // Fallback per la pagina aperta in un normale browser:
+    // apre Google Calendar sul web con i dettagli precompilati.
+    try {
+      var start = new Date(date + 'T00:00:00');
+      var end = new Date(start);
+      if (allDay) {
+        end.setDate(end.getDate() + 1);
+      } else {
+        var parts = time.split(':');
+        start.setHours(parseInt(parts[0] || '0', 10),
+                       parseInt(parts[1] || '0', 10), 0, 0);
+        end = new Date(start);
+        end.setHours(end.getHours() + 1);
+      }
+      function pad(n){ return String(n).padStart(2, '0'); }
+      function stamp(d){
+        return d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) +
+               'T' + pad(d.getHours()) + pad(d.getMinutes()) + '00';
+      }
+      var url = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
+        + '&text=' + encodeURIComponent(title)
+        + '&dates=' + (allDay
+            ? date.replace(/-/g, '') + '/' + end.getFullYear()
+              + pad(end.getMonth()+1) + pad(end.getDate())
+            : stamp(start) + '/' + stamp(end))
+        + '&details=' + encodeURIComponent(note);
+      window.open(url, '_blank');
+    } catch (err) {
+      alert('Non è stato possibile aprire il calendario.');
+    }
+  }, true);
+  window.openAndroidCalendar = function(btn){
+    if (btn) btn.click();
+  };
 })();
 </script>
 </body>
