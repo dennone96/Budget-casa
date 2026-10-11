@@ -13077,13 +13077,19 @@ window.downloadAttachment = async function(txId) {
 const t = state.transactions.find(t => t.id === txId);
 if (!t || !t.attachment) return;
 try {
-const link = document.createElement('a');
-link.href = t.attachment.url;
-link.download = t.attachment.name;
-link.target = '_blank';
-document.body.appendChild(link);
-link.click();
-document.body.removeChild(link);
+  // Nell'APK Android il download viene gestito dal sistema, non dall'attributo
+  // HTML download (che alcune WebView mobili ignorano).
+  if (window.AndroidFiles && typeof window.AndroidFiles.downloadFile === 'function') {
+    window.AndroidFiles.downloadFile(String(t.attachment.url || ''), String(t.attachment.name || 'allegato'));
+    return;
+  }
+  const link = document.createElement('a');
+  link.href = t.attachment.url;
+  link.download = t.attachment.name;
+  link.target = '_blank';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 } catch (err) { alert('Errore nel download: ' + err.message); }
 };
 window.removeAttachment = async function(txId) {
@@ -16813,6 +16819,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     const url=bolletta.url;
     const filename=bolletta.nome || 'bolletta.pdf';
+    // Nell'APK usa DownloadManager Android: funziona anche quando la WebView
+    // ignora l'attributo download o non gestisce window.open correttamente.
+    if(window.AndroidFiles && typeof window.AndroidFiles.downloadFile === 'function'){
+      window.AndroidFiles.downloadFile(String(url), String(filename));
+      return;
+    }
     try{
       // Primo tentativo: download reale tramite Blob, più affidabile su browser mobile.
       const response=await fetch(url,{mode:'cors'});
