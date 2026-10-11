@@ -14671,6 +14671,17 @@ function openBollettaDetail(tipo, meseKey, index) {
       }
       
       try {
+        // Nell'APK Android usa il bridge nativo: il download HTML viene ignorato
+        // da alcune WebView e non apre necessariamente il file.
+        if (window.AndroidFiles && typeof window.AndroidFiles.downloadFile === 'function') {
+          const urlDownload = String(bolletta.url || '');
+          const nomeDownload = String(bolletta.nome || 'bolletta.pdf');
+          if (!urlDownload) throw new Error('Link della bolletta mancante');
+          window.AndroidFiles.downloadFile(urlDownload, nomeDownload);
+          console.log('✅ Download bolletta richiesto ad Android:', nomeDownload);
+          return;
+        }
+        // Fallback per il browser normale.
         const link = document.createElement('a');
         link.href = bolletta.url;
         link.download = bolletta.nome;
