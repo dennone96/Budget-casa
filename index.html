@@ -12484,8 +12484,18 @@ function openCategoryDetail(category, month) {
         e.stopPropagation();
         // Il popup del movimento deve stare sopra quello della categoria.
         const detailOverlay = document.getElementById('detail-overlay');
-        if (detailOverlay) detailOverlay.style.zIndex = '900';
+        if (detailOverlay) {
+          detailOverlay.style.position = 'fixed';
+          detailOverlay.style.inset = '0';
+          detailOverlay.style.zIndex = '100000';
+        }
+        // Il popup movimento viene aperto dopo aver impostato il livello superiore.
         openDetailModal(t.id);
+        if (detailOverlay) {
+          detailOverlay.style.position = 'fixed';
+          detailOverlay.style.inset = '0';
+          detailOverlay.style.zIndex = '100000';
+        }
       };
       item.addEventListener('click', openMovementDetail);
       item.addEventListener('keydown', function(e) {
@@ -14849,11 +14859,11 @@ function openIncomeExpenseDetail(type) {
   
   const from = filterFrom || todayISO().slice(0,7) + '-01';
   const to = filterTo || todayISO();
+  // Nel popup Entrate/Uscite mostriamo sempre entrambe le provenienze.
   const mt = state.transactions.filter(t =>
     t.type === type &&
     transactionDateISO(t) >= from &&
-    transactionDateISO(t) <= to &&
-    matchesSourceFilter(t)
+    transactionDateISO(t) <= to
   );
   
   const cashTotal = mt
@@ -18367,5 +18377,26 @@ document.addEventListener('DOMContentLoaded', function() {
   };
 })();
 </script>
+
+<style id="restore-three-ui-fixes">
+/* Popup movimento sempre sopra al popup della categoria. */
+#category-detail-overlay { z-index: 800 !important; }
+#detail-overlay { position: fixed !important; inset: 0 !important; z-index: 100000 !important; }
+#detail-overlay.open { display: flex !important; z-index: 100000 !important; }
+/* Totale mensile verde come il totale annuale per categoria. */
+#page-bollette .bolletta-table tbody td.bolletta-cell-total,
+#page-bollette .bolletta-table tbody td.bolletta-cell-empty:last-child {
+  background: #eaf7f0 !important;
+  color: #16804e !important;
+  font-weight: 850 !important;
+  border-left: 1px solid #d6eee0 !important;
+}
+#page-bollette .bolletta-table tbody tr:hover td.bolletta-cell-total,
+#page-bollette .bolletta-table tbody tr:hover td.bolletta-cell-empty:last-child {
+  background: #dff3e8 !important;
+  color: #086d40 !important;
+}
+</style>
+
 </body>
 </html>
