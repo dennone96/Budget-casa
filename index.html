@@ -10651,7 +10651,6 @@ Movimenti in contanti. Stesse colonne del conto corrente.
   </div>
   <div class="archive-coming-soon">Questa sezione è pronta per essere organizzata in seguito.</div>
 </div>
-</div>
 <div class="page" id="page-liste">
 <h1>Lista della spesa</h1>
 <!-- Pulsante per nuova lista -->
@@ -18568,18 +18567,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (nav) window.openArchivioPage(event);
   }, true);
   showArchiveOverview();
-})();
-</script>
-
-
-<!-- FIX: ripristina le pagine del menu che erano finite fuori da #main a causa di un div di chiusura sbilanciato nell'HTML. -->
-<script id="fix-menu-pages-after-archivio">
-(function () {
-  var main = document.getElementById('main');
-  if (!main) return;
-  document.querySelectorAll('body > .page, body > div.page').forEach(function (page) {
-    main.appendChild(page);
-  });
 })();
 </script>
 
