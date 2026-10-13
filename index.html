@@ -10228,9 +10228,10 @@ body{background:#f6f8fb;}
 <button class="nav-item" data-page="page-import">
 <i class="ti ti-file-spreadsheet"></i> Importa Excel
   </button>
-<button class="nav-item" data-page="page-bollette">
-<i class="ti ti-file-invoice"></i> Libreria Bollette
-  </button>
+<button class="nav-item nav-archivio" data-page="page-bollette">
+<i class="ti ti-archive"></i> <span>Archivio</span>
+<i class="ti ti-chevron-down nav-chevron"></i>
+</button>
 <button class="nav-item" data-page="page-liste">
 <i class="ti ti-shopping-cart"></i> Liste spesa
   </button>
@@ -10568,7 +10569,37 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 </div>
 </div>
 <div class="page" id="page-bollette">
-<h1>Libreria Bollette</h1>
+<div class="archive-overview" id="archive-overview">
+  <div class="archive-main-header"><h1>Archivio</h1></div>
+  <div class="archive-cards">
+    <div class="archive-card" data-archive-target="archive-bollette" role="button" tabindex="0">
+      <div class="archive-card-icon archive-icon-green"><i class="ti ti-file-invoice"></i></div>
+      <div class="archive-card-copy"><strong>Bollette</strong><span>Riepilogo mensile e annuale delle bollette</span></div>
+      <i class="ti ti-chevron-right archive-card-arrow"></i>
+    </div>
+    <div class="archive-card" data-archive-target="archive-internet" role="button" tabindex="0">
+      <div class="archive-card-icon archive-icon-blue"><i class="ti ti-wifi"></i></div>
+      <div class="archive-card-copy"><strong>Internet</strong><span>Contratti e documenti Internet</span></div>
+      <i class="ti ti-chevron-right archive-card-arrow"></i>
+    </div>
+    <div class="archive-card" data-archive-target="archive-assicurazioni" role="button" tabindex="0">
+      <div class="archive-card-icon archive-icon-purple"><i class="ti ti-shield-check"></i></div>
+      <div class="archive-card-copy"><strong>Assicurazioni</strong><span>Polizze e documentazione assicurativa</span></div>
+      <i class="ti ti-chevron-right archive-card-arrow"></i>
+    </div>
+    <div class="archive-card" data-archive-target="archive-documenti" role="button" tabindex="0">
+      <div class="archive-card-icon archive-icon-yellow"><i class="ti ti-folder"></i></div>
+      <div class="archive-card-copy"><strong>Documenti</strong><span>Documenti personali e della casa</span></div>
+      <i class="ti ti-chevron-right archive-card-arrow"></i>
+    </div>
+  </div>
+</div>
+<div class="archive-subpage" id="archive-bollette" style="display:none;">
+  <div class="archive-detail-header">
+    <button aria-label="Torna ad Archivio" class="archive-detail-back" type="button"><i class="ti ti-chevron-left"></i></button>
+    <h2>Bollette</h2>
+  </div>
+<h1 class="archive-legacy-title" style="display:none;">Libreria Bollette</h1>
 <button id="btn-nuova-bolletta" onclick="window.openBollettaModal()" style="width: 100%; height: 50px; background: var(--accent-gradient); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: var(--shadow); transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px;">
 <i class="ti ti-plus" style="font-size:20px;"></i> Nuova bolletta
 </button>
@@ -10596,6 +10627,29 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 <tfoot id="bolletta-table-foot"></tfoot>
 </table>
 </div>
+</div>
+</div>
+</div>
+<div class="archive-subpage archive-placeholder" id="archive-internet" style="display:none;">
+  <div class="archive-detail-header">
+    <button aria-label="Torna ad Archivio" class="archive-detail-back" type="button"><i class="ti ti-chevron-left"></i></button>
+    <h2>Internet</h2>
+  </div>
+  <div class="archive-coming-soon">Questa sezione è pronta per essere organizzata in seguito.</div>
+</div>
+<div class="archive-subpage archive-placeholder" id="archive-assicurazioni" style="display:none;">
+  <div class="archive-detail-header">
+    <button aria-label="Torna ad Archivio" class="archive-detail-back" type="button"><i class="ti ti-chevron-left"></i></button>
+    <h2>Assicurazioni</h2>
+  </div>
+  <div class="archive-coming-soon">Questa sezione è pronta per essere organizzata in seguito.</div>
+</div>
+<div class="archive-subpage archive-placeholder" id="archive-documenti" style="display:none;">
+  <div class="archive-detail-header">
+    <button aria-label="Torna ad Archivio" class="archive-detail-back" type="button"><i class="ti ti-chevron-left"></i></button>
+    <h2>Documenti</h2>
+  </div>
+  <div class="archive-coming-soon">Questa sezione è pronta per essere organizzata in seguito.</div>
 </div>
 </div>
 <div class="page" id="page-liste">
@@ -11695,7 +11749,7 @@ console.error('Errore navigazione:', err);
 }
 }
 navItems.forEach(btn => {
-  if (!btn.classList.contains('nav-statistiche')) {
+  if (!btn.classList.contains('nav-statistiche') && !btn.classList.contains('nav-archivio')) {
     btn.addEventListener('click', () => showPage(btn.dataset.page));
   }
 });
@@ -18397,6 +18451,100 @@ document.addEventListener('DOMContentLoaded', function() {
   color: #086d40 !important;
 }
 </style>
+
+
+<style id="archive-navigation-style">
+/* Archivio: schermata iniziale e sottosezioni, nello stile delle Statistiche. */
+.nav-archivio .nav-chevron { margin-left:auto; transition:transform .2s ease; font-size:17px; }
+.nav-archivio.expanded .nav-chevron { transform:rotate(180deg); }
+#page-bollette .archive-main-header { text-align:center; margin:0 0 20px; }
+#page-bollette .archive-main-header h1 { margin:0; font-size:27px; font-weight:850; color:var(--modern-ink, var(--text-primary)); }
+#page-bollette .archive-cards { display:grid; grid-template-columns:1fr; gap:12px; }
+#page-bollette .archive-card {
+  display:flex; align-items:center; gap:13px; min-height:82px; padding:15px;
+  border:1px solid #e8edf1; border-radius:18px; background:#fff; cursor:pointer;
+  box-shadow:0 5px 18px rgba(20,33,49,.035); transition:transform .18s ease, box-shadow .18s ease;
+}
+#page-bollette .archive-card:hover { transform:translateY(-1px); box-shadow:0 10px 24px rgba(20,33,49,.07); }
+#page-bollette .archive-card:active { transform:scale(.99); }
+#page-bollette .archive-card-icon { display:flex; align-items:center; justify-content:center; flex:0 0 46px; width:46px; height:46px; border-radius:15px; font-size:23px; }
+#page-bollette .archive-icon-green { color:#1b9b5a; background:#eaf7f0; }
+#page-bollette .archive-icon-blue { color:#347fc5; background:#eaf3fd; }
+#page-bollette .archive-icon-purple { color:#8056c7; background:#f2ecfc; }
+#page-bollette .archive-icon-yellow { color:#a77b17; background:#fbf4df; }
+#page-bollette .archive-card-copy { display:flex; flex:1; min-width:0; flex-direction:column; gap:5px; }
+#page-bollette .archive-card-copy strong { font-size:14px; line-height:1.25; font-weight:850; color:#17273c; }
+#page-bollette .archive-card-copy span { font-size:11px; line-height:1.45; color:#7d8995; }
+#page-bollette .archive-card-arrow { font-size:19px; color:#aab4bd; }
+#page-bollette .archive-detail-header { position:relative; display:flex; justify-content:center; align-items:center; min-height:46px; margin:0 0 18px; }
+#page-bollette .archive-detail-header h2 { margin:0; text-align:center; font-size:22px; line-height:1.25; font-weight:850; color:var(--modern-ink, #17273c); }
+#page-bollette .archive-detail-back { position:absolute; left:0; top:50%; transform:translateY(-50%); display:flex; align-items:center; justify-content:center; width:40px; height:40px; padding:0; border:1px solid #e6ebef; border-radius:13px; background:#fff; color:#17273c; box-shadow:0 4px 14px rgba(17,27,38,.06); cursor:pointer; }
+#page-bollette .archive-detail-back i { font-size:19px; }
+#page-bollette .archive-coming-soon { padding:22px 16px; border:1px solid #e8edf1; border-radius:18px; background:#fff; color:#7d8995; text-align:center; font-size:13px; line-height:1.5; }
+@media(max-width:600px) {
+  #page-bollette .archive-main-header h1 { font-size:24px; }
+  #page-bollette .archive-card { min-height:76px; padding:12px; border-radius:16px; }
+  #page-bollette .archive-card-icon { width:42px; height:42px; flex-basis:42px; border-radius:13px; }
+  #page-bollette .archive-detail-header h2 { font-size:20px; }
+}
+</style>
+
+
+<script id="archive-navigation-script">
+(function() {
+  const archiveNav = document.querySelector('.nav-archivio');
+  const archiveOverview = document.getElementById('archive-overview');
+  const archiveCards = document.querySelectorAll('.archive-card');
+  const archiveSections = document.querySelectorAll('.archive-subpage');
+
+  function showArchiveOverview() {
+    if (archiveOverview) archiveOverview.style.display = 'block';
+    archiveSections.forEach(section => section.style.display = 'none');
+    if (archiveNav) archiveNav.classList.remove('expanded');
+  }
+
+  function openArchiveSection(sectionId) {
+    if (archiveOverview) archiveOverview.style.display = 'none';
+    archiveSections.forEach(section => section.style.display = section.id === sectionId ? 'block' : 'none');
+    if (archiveNav) archiveNav.classList.add('expanded');
+    if (sectionId === 'archive-bollette') {
+      try {
+        if (typeof populateBollettaMeseSelect === 'function') populateBollettaMeseSelect();
+        if (typeof renderBolletteList === 'function') renderBolletteList();
+      } catch (e) { console.error('Errore apertura archivio bollette:', e); }
+    }
+  }
+
+  if (archiveNav) {
+    archiveNav.addEventListener('click', function(e) {
+      e.preventDefault();
+      if (typeof showPage === 'function') showPage('page-bollette');
+      showArchiveOverview();
+    });
+  }
+
+  archiveCards.forEach(card => {
+    const activate = () => openArchiveSection(card.dataset.archiveTarget);
+    card.addEventListener('click', activate);
+    card.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); }
+    });
+  });
+
+  document.querySelectorAll('.archive-detail-back').forEach(btn => btn.addEventListener('click', showArchiveOverview));
+
+  // Se si arriva alla pagina Archivio tramite altra navigazione, si parte dalla schermata principale.
+  const originalShowPage = window.showPage;
+  if (typeof originalShowPage === 'function') {
+    window.showPage = function(pageId) {
+      const result = originalShowPage.apply(this, arguments);
+      if (pageId === 'page-bollette') showArchiveOverview();
+      return result;
+    };
+  }
+  showArchiveOverview();
+})();
+</script>
 
 </body>
 </html>
