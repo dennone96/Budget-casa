@@ -18571,5 +18571,17 @@ document.addEventListener('DOMContentLoaded', function() {
 })();
 </script>
 
+
+<!-- FIX: ripristina le pagine del menu che erano finite fuori da #main a causa di un div di chiusura sbilanciato nell'HTML. -->
+<script id="fix-menu-pages-after-archivio">
+(function () {
+  var main = document.getElementById('main');
+  if (!main) return;
+  document.querySelectorAll('body > .page, body > div.page').forEach(function (page) {
+    main.appendChild(page);
+  });
+})();
+</script>
+
 </body>
 </html>
