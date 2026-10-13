@@ -10230,7 +10230,7 @@ body{background:#f6f8fb;}
   </button>
 <button class="nav-item nav-archivio" data-page="page-bollette">
 <i class="ti ti-archive"></i> <span>Archivio</span>
-<i class="ti ti-chevron-down nav-chevron"></i>
+
 </button>
 <button class="nav-item" data-page="page-liste">
 <i class="ti ti-shopping-cart"></i> Liste spesa
@@ -18490,57 +18490,73 @@ document.addEventListener('DOMContentLoaded', function() {
 </style>
 
 
+
+
+<style id="archive-navigation-fix-style">
+.nav-archivio .nav-chevron { display:none !important; }
+.nav-archivio.expanded .nav-chevron { display:none !important; }
+</style>
 <script id="archive-navigation-script">
 (function() {
-  const archiveNav = document.querySelector('.nav-archivio');
   const archiveOverview = document.getElementById('archive-overview');
-  const archiveCards = document.querySelectorAll('.archive-card');
-  const archiveSections = document.querySelectorAll('.archive-subpage');
+  const archiveSections = Array.from(document.querySelectorAll('.archive-subpage'));
+  const archiveCards = Array.from(document.querySelectorAll('.archive-card'));
+  const archiveNav = document.querySelector('.nav-archivio');
 
   function showArchiveOverview() {
     if (archiveOverview) archiveOverview.style.display = 'block';
     archiveSections.forEach(section => section.style.display = 'none');
-    if (archiveNav) archiveNav.classList.remove('expanded');
   }
 
   function openArchiveSection(sectionId) {
     if (archiveOverview) archiveOverview.style.display = 'none';
-    archiveSections.forEach(section => section.style.display = section.id === sectionId ? 'block' : 'none');
-    if (archiveNav) archiveNav.classList.add('expanded');
+    archiveSections.forEach(section => {
+      section.style.display = section.id === sectionId ? 'block' : 'none';
+    });
     if (sectionId === 'archive-bollette') {
       try {
         if (typeof populateBollettaMeseSelect === 'function') populateBollettaMeseSelect();
         if (typeof renderBolletteList === 'function') renderBolletteList();
-      } catch (e) { console.error('Errore apertura archivio bollette:', e); }
+      } catch (err) { console.error('Errore apertura archivio bollette:', err); }
     }
   }
 
-  if (archiveNav) {
-    archiveNav.addEventListener('click', function(e) {
-      e.preventDefault();
-      if (typeof showPage === 'function') showPage('page-bollette');
-      showArchiveOverview();
-    });
-  }
+  // Gestore in capture: intercetta sempre Archivio e non lo lascia al router generico.
+  document.addEventListener('click', function(event) {
+    const nav = event.target && event.target.closest ? event.target.closest('.nav-archivio') : null;
+    if (!nav) return;
+    event.preventDefault();
+    event.stopPropagation();
+    if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+    if (typeof window.showPage === 'function') window.showPage('page-bollette');
+    else {
+      document.querySelectorAll('.page').forEach(page => page.classList.toggle('active', page.id === 'page-bollette'));
+      document.querySelectorAll('.nav-item').forEach(item => item.classList.toggle('active', item === nav));
+    }
+    document.querySelectorAll('.nav-item').forEach(item => item.classList.toggle('active', item === nav));
+    showArchiveOverview();
+  }, true);
 
   archiveCards.forEach(card => {
     const activate = () => openArchiveSection(card.dataset.archiveTarget);
     card.addEventListener('click', activate);
-    card.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); }
+    card.addEventListener('keydown', event => {
+      if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); activate(); }
     });
   });
+  document.querySelectorAll('.archive-detail-back').forEach(button => button.addEventListener('click', showArchiveOverview));
 
-  document.querySelectorAll('.archive-detail-back').forEach(btn => btn.addEventListener('click', showArchiveOverview));
-
-  // Se si arriva alla pagina Archivio tramite altra navigazione, si parte dalla schermata principale.
+  // Ogni accesso alla pagina bollette tramite il router mostra Archivio; il dettaglio Bollette
+  // viene aperto solo selezionando la relativa scheda.
   const originalShowPage = window.showPage;
-  if (typeof originalShowPage === 'function') {
-    window.showPage = function(pageId) {
+  if (typeof originalShowPage === 'function' && !originalShowPage.__archiveWrapped) {
+    const wrappedShowPage = function(pageId) {
       const result = originalShowPage.apply(this, arguments);
       if (pageId === 'page-bollette') showArchiveOverview();
       return result;
     };
+    wrappedShowPage.__archiveWrapped = true;
+    window.showPage = wrappedShowPage;
   }
   showArchiveOverview();
 })();
