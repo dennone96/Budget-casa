@@ -11821,6 +11821,7 @@ function closeSidebar() {
   if(s) s.classList.remove('open');
   if(o) o.classList.remove('open');
 }
+window.closeSidebar = closeSidebar;
 // Gestione delegata: resta funzionante anche se la Home viene ricostruita dinamicamente.
 document.addEventListener('click', function(e){
   const target=e.target && e.target.closest ? e.target.closest('#hamburger') : null;
@@ -14491,7 +14492,7 @@ function populateBollettaYearFilter() {
   
   console.log('✅ Filtro anno popolato, valore:', select.value);
 }
-
+window.populateBollettaYearFilter = populateBollettaYearFilter;
 
 // 3. Funzione handler per il cambio anno (separata per poterla rimuovere)
 function handleYearChange(e) {
@@ -18513,14 +18514,20 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     const page = document.getElementById('page-bollette');
     if (!page) return false;
-    document.querySelectorAll('.page').forEach(function (item) {
-      item.classList.toggle('active', item === page);
-    });
-    document.querySelectorAll('.nav-item').forEach(function (item) {
-      item.classList.toggle('active', item.classList.contains('nav-archivio'));
-    });
+    // Usa la stessa navigazione delle altre voci: aggiorna pagina attiva,
+    // voce selezionata e chiusura del menu con un unico percorso coerente.
+    if (typeof window.showPage === 'function') {
+      window.showPage('page-bollette');
+    } else {
+      document.querySelectorAll('.page').forEach(function (item) {
+        item.classList.toggle('active', item === page);
+      });
+      document.querySelectorAll('.nav-item').forEach(function (item) {
+        item.classList.toggle('active', item.classList.contains('nav-archivio'));
+      });
+      if (typeof window.closeSidebar === 'function') window.closeSidebar();
+    }
     showArchiveOverview();
-    if (typeof window.closeSidebar === 'function') window.closeSidebar();
     return false;
   };
 
@@ -18537,8 +18544,18 @@ document.addEventListener('DOMContentLoaded', function() {
       });
       if (id === 'archive-bollette') {
         try {
+          // Aggiorna il filtro e ridisegna dopo che la sottopagina è visibile.
+          // Il secondo render copre il caso in cui i dati Firebase arrivino
+          // mentre l'utente sta entrando nell'Archivio.
           if (typeof window.populateBollettaMeseSelect === 'function') window.populateBollettaMeseSelect();
+          if (typeof window.populateBollettaYearFilter === 'function') window.populateBollettaYearFilter();
           if (typeof window.renderBolletteList === 'function') window.renderBolletteList();
+          requestAnimationFrame(function () {
+            if (typeof window.renderBolletteList === 'function') window.renderBolletteList();
+          });
+          setTimeout(function () {
+            if (typeof window.renderBolletteList === 'function') window.renderBolletteList();
+          }, 300);
         } catch (err) { console.error('Errore apertura Bollette:', err); }
       }
     }
