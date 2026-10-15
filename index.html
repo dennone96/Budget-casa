@@ -14586,13 +14586,12 @@ async function loadBolletteData() {
         bolletteData = {};
       }
       
-      // Aggiorna le opzioni del filtro
+      // Aggiorna sempre il filtro e la tabella appena Firebase consegna i dati.
+      // La tabella è dentro una sottosezione di Archivio: non usare la classe
+      // "active" della pagina principale per decidere se aggiornarla.
       populateBollettaYearFilter();
-      
-      // Se la pagina è attiva, ridisegna la tabella
-      if (document.getElementById('page-bollette')?.classList?.contains('active')) {
-        renderBolletteList();
-      }
+      renderBolletteList();
+      requestAnimationFrame(() => renderBolletteList());
     }, (err) => {
       console.error('Errore caricamento bollette:', err);
       bolletteData = {};
