@@ -10177,6 +10177,48 @@ body{background:#f6f8fb;}
   .login-create-profile-card{padding:15px!important;border-radius:19px!important;}
 }
 </style>
+
+<style id="internet-bollette-mobile-fixes">
+/* Abbassa l'intestazione delle sottosezioni per non sovrapporla al menu flottante. */
+#page-bollette #archive-bollette,
+#page-bollette #archive-internet { padding-top: 54px !important; box-sizing: border-box; }
+#page-bollette #archive-bollette > .archive-detail-header,
+#page-bollette #archive-internet > .archive-detail-header { margin-top: 0 !important; }
+/* La tabella Internet ha solo due colonne: usa tutta la larghezza disponibile senza scroll orizzontale. */
+#page-bollette #internet-table-wrap,
+#page-bollette #archive-internet .bolletta-table-wrap { width:100% !important; max-width:100% !important; overflow-x:hidden !important; }
+#page-bollette #archive-internet .bolletta-table {
+  width:100% !important; min-width:0 !important; max-width:100% !important;
+  table-layout:fixed !important; box-sizing:border-box !important;
+}
+#page-bollette #archive-internet .bolletta-table thead th:first-child,
+#page-bollette #archive-internet .bolletta-table tbody td:first-child,
+#page-bollette #archive-internet .bolletta-table tfoot td:first-child { width:50% !important; }
+#page-bollette #archive-internet .bolletta-table thead th:last-child,
+#page-bollette #archive-internet .bolletta-table tbody td:last-child,
+#page-bollette #archive-internet .bolletta-table tfoot td:last-child { width:50% !important; }
+#page-bollette #archive-internet .bolletta-table thead th,
+#page-bollette #archive-internet .bolletta-table tbody td,
+#page-bollette #archive-internet .bolletta-table tfoot td { padding-left:10px !important; padding-right:10px !important; }
+/* Gli importi salvati restano verdi anche dopo il salvataggio e al passaggio del puntatore. */
+#page-bollette #archive-internet .bolletta-table tbody td.bolletta-cell-attachment,
+#page-bollette #archive-internet .bolletta-table tbody tr:hover td.bolletta-cell-attachment,
+#page-bollette #archive-internet .bolletta-table tbody td.bolletta-cell-attachment:hover {
+  background:#eaf7f0 !important; color:#16804e !important;
+}
+#page-bollette #archive-internet .bolletta-table tbody td.bolletta-cell-attachment > span:first-child,
+#page-bollette #archive-internet .bolletta-table tbody td.bolletta-cell-attachment:hover > span:first-child {
+  color:#16804e !important; background:transparent !important;
+}
+@media(max-width:600px) {
+  #page-bollette #archive-bollette,
+  #page-bollette #archive-internet { padding-top:54px !important; }
+  #page-bollette #archive-internet .bolletta-table thead th,
+  #page-bollette #archive-internet .bolletta-table tbody td,
+  #page-bollette #archive-internet .bolletta-table tfoot td { padding-left:8px !important; padding-right:8px !important; }
+}
+</style>
+
 </head>
 <body><div id="login-screen">
   <div class="login-brand">
