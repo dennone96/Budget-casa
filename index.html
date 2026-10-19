@@ -10239,6 +10239,28 @@ body{background:#f6f8fb;}
 }
 </style>
 
+
+<style id="comparison-table-clean-style">
+#tab-confronto .data-table { border-collapse: separate !important; border-spacing: 0 !important; overflow: hidden; border-radius: 14px; background: var(--surface); }
+#tab-confronto .data-table th { background: var(--surface-2) !important; color: var(--text-secondary) !important; font-size: 11px !important; font-weight: 800 !important; letter-spacing: .25px; padding: 12px 9px !important; white-space: normal; }
+#tab-confronto .data-table td { padding: 12px 9px !important; border-bottom: 1px solid var(--border) !important; font-size: 12px; vertical-align: middle; }
+#tab-confronto .data-table tbody tr:nth-child(even):not(.section-header):not(.total-row) td { background: var(--surface-2); }
+#tab-confronto .data-table tbody tr:hover td { background: var(--surface-2) !important; }
+#tab-confronto .data-table .section-header td { background: var(--accent-light) !important; color: var(--text-secondary) !important; border-top: 1px solid var(--border) !important; font-size: 10px !important; letter-spacing: .7px; padding: 9px !important; }
+#tab-confronto .data-table .total-row td { background: var(--surface-2) !important; border-top: 2px solid var(--border) !important; font-weight: 800 !important; }
+#tab-confronto .data-table .total-row td:first-child { border-radius: 0; }
+#tab-confronto .compare-category-row .category-icon { flex-shrink: 0; }
+@media (max-width: 600px) {
+ #tab-confronto .data-table { table-layout: fixed; width: 100%; }
+ #tab-confronto .data-table th, #tab-confronto .data-table td { padding: 10px 5px !important; font-size: 10px !important; overflow-wrap: anywhere; }
+ #tab-confronto .data-table th:first-child, #tab-confronto .data-table td:first-child { width: 34%; }
+ #tab-confronto .data-table th:not(:first-child), #tab-confronto .data-table td:not(:first-child) { width: 22%; }
+ #tab-confronto .compare-cat-name { gap: 4px; }
+ #tab-confronto .compare-category-row .category-icon { width: 24px; height: 24px; margin-right: 3px; border-radius: 7px; }
+ #tab-confronto .compare-category-row .category-icon i { font-size: 11px; }
+}
+</style>
+
 </head>
 <body><div id="login-screen">
   <div class="login-brand">
@@ -13021,18 +13043,6 @@ const cats = {};
 mt.forEach(t => { cats[t.category] = (cats[t.category] || 0) + amountValue(t.amount); });
 return cats;
 };
-let tr = document.createElement('tr');
-tr.className = 'total-row';
-let diff = totalInc2 - totalInc1;
-tr.innerHTML = `
-<td style="font-weight: 800;">💰 Totale Entrate</td>
-<td class="text-right" style="font-weight: 700; color: var(--success)">${fmtEUR(totalInc1)}</td>
-<td class="text-right" style="font-weight: 700; color: var(--success)">${fmtEUR(totalInc2)}</td>
-<td class="text-right" style="font-weight: 800; color: ${diff >= 0 ? 'var(--success)' : 'var(--danger)'}">
-${diff >= 0 ? '+' : ''}${fmtEUR(diff)}
-</td>
-`;
-tbody.appendChild(tr);
 const catsInc1 = getCategoriesByType(m1, 'income');
 const catsInc2 = getCategoriesByType(m2, 'income');
 const allCatsInc = [...new Set([...Object.keys(catsInc1), ...Object.keys(catsInc2)])];
@@ -13058,18 +13068,19 @@ ${diffCat >= 0 ? '+' : ''}${fmtEUR(diffCat)}
 tbody.appendChild(row);
 });
 }
-tr = document.createElement('tr');
+let tr = document.createElement('tr');
 tr.className = 'total-row';
-diff = totalExp2 - totalExp1;
+let diff = totalInc2 - totalInc1;
 tr.innerHTML = `
-<td style="font-weight: 800;">💸 Totale Uscite</td>
-<td class="text-right" style="font-weight: 700; color: var(--danger)">${fmtEUR(totalExp1)}</td>
-<td class="text-right" style="font-weight: 700; color: var(--danger)">${fmtEUR(totalExp2)}</td>
-<td class="text-right" style="font-weight: 800; color: ${diff >= 0 ? 'var(--danger)' : 'var(--success)'}">
+<td style="font-weight: 800;">💰 Totale Entrate</td>
+<td class="text-right" style="font-weight: 700; color: var(--success)">${fmtEUR(totalInc1)}</td>
+<td class="text-right" style="font-weight: 700; color: var(--success)">${fmtEUR(totalInc2)}</td>
+<td class="text-right" style="font-weight: 800; color: ${diff >= 0 ? 'var(--success)' : 'var(--danger)'}">
 ${diff >= 0 ? '+' : ''}${fmtEUR(diff)}
 </td>
 `;
 tbody.appendChild(tr);
+
 const catsExp1 = getCategoriesByType(m1, 'expense');
 const catsExp2 = getCategoriesByType(m2, 'expense');
 const allCatsExp = [...new Set([...Object.keys(catsExp1), ...Object.keys(catsExp2)])];
@@ -13095,6 +13106,19 @@ ${diffCat >= 0 ? '+' : ''}${fmtEUR(diffCat)}
 tbody.appendChild(row);
 });
 }
+tr = document.createElement('tr');
+tr.className = 'total-row';
+diff = totalExp2 - totalExp1;
+tr.innerHTML = `
+<td style="font-weight: 800;">💸 Totale Uscite</td>
+<td class="text-right" style="font-weight: 700; color: var(--danger)">${fmtEUR(totalExp1)}</td>
+<td class="text-right" style="font-weight: 700; color: var(--danger)">${fmtEUR(totalExp2)}</td>
+<td class="text-right" style="font-weight: 800; color: ${diff >= 0 ? 'var(--danger)' : 'var(--success)'}">
+${diff >= 0 ? '+' : ''}${fmtEUR(diff)}
+</td>
+`;
+tbody.appendChild(tr);
+
 tr = document.createElement('tr');
 tr.className = 'total-row';
 diff = saldo2 - saldo1;
