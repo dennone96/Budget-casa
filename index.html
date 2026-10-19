@@ -10178,44 +10178,64 @@ body{background:#f6f8fb;}
 }
 </style>
 
-<style id="internet-bollette-mobile-fixes">
-/* Abbassa l'intestazione delle sottosezioni per non sovrapporla al menu flottante. */
-#page-bollette #archive-bollette,
-#page-bollette #archive-internet { padding-top: 54px !important; box-sizing: border-box; }
-#page-bollette #archive-bollette > .archive-detail-header,
-#page-bollette #archive-internet > .archive-detail-header { margin-top: 0 !important; }
-/* La tabella Internet ha solo due colonne: usa tutta la larghezza disponibile senza scroll orizzontale. */
-#page-bollette #internet-table-wrap,
-#page-bollette #archive-internet .bolletta-table-wrap { width:100% !important; max-width:100% !important; overflow-x:hidden !important; }
-#page-bollette #archive-internet .bolletta-table {
-  width:100% !important; min-width:0 !important; max-width:100% !important;
-  table-layout:fixed !important; box-sizing:border-box !important;
+
+
+
+<style id="internet-bollette-mobile-fixes-v2">
+/* Abbassa entrambe le sottosezioni: sono elementi .archive-subpage indipendenti. */
+#archive-bollette,
+#archive-internet {
+  padding-top: 58px !important;
+  box-sizing: border-box !important;
 }
-#page-bollette #archive-internet .bolletta-table thead th:first-child,
-#page-bollette #archive-internet .bolletta-table tbody td:first-child,
-#page-bollette #archive-internet .bolletta-table tfoot td:first-child { width:50% !important; }
-#page-bollette #archive-internet .bolletta-table thead th:last-child,
-#page-bollette #archive-internet .bolletta-table tbody td:last-child,
-#page-bollette #archive-internet .bolletta-table tfoot td:last-child { width:50% !important; }
-#page-bollette #archive-internet .bolletta-table thead th,
-#page-bollette #archive-internet .bolletta-table tbody td,
-#page-bollette #archive-internet .bolletta-table tfoot td { padding-left:10px !important; padding-right:10px !important; }
-/* Gli importi salvati restano verdi anche dopo il salvataggio e al passaggio del puntatore. */
-#page-bollette #archive-internet .bolletta-table tbody td.bolletta-cell-attachment,
-#page-bollette #archive-internet .bolletta-table tbody tr:hover td.bolletta-cell-attachment,
-#page-bollette #archive-internet .bolletta-table tbody td.bolletta-cell-attachment:hover {
-  background:#eaf7f0 !important; color:#16804e !important;
+#archive-bollette > .archive-detail-header,
+#archive-internet > .archive-detail-header {
+  margin-top: 0 !important;
 }
-#page-bollette #archive-internet .bolletta-table tbody td.bolletta-cell-attachment > span:first-child,
-#page-bollette #archive-internet .bolletta-table tbody td.bolletta-cell-attachment:hover > span:first-child {
-  color:#16804e !important; background:transparent !important;
+/* Tabella Internet: due sole colonne, senza scorrimento orizzontale. */
+#archive-internet .bolletta-table-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
 }
-@media(max-width:600px) {
-  #page-bollette #archive-bollette,
-  #page-bollette #archive-internet { padding-top:54px !important; }
-  #page-bollette #archive-internet .bolletta-table thead th,
-  #page-bollette #archive-internet .bolletta-table tbody td,
-  #page-bollette #archive-internet .bolletta-table tfoot td { padding-left:8px !important; padding-right:8px !important; }
+#archive-internet #internet-table {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  table-layout: fixed !important;
+  box-sizing: border-box !important;
+}
+#archive-internet #internet-table th,
+#archive-internet #internet-table td {
+  box-sizing: border-box !important;
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+  overflow-wrap: anywhere;
+}
+#archive-internet #internet-table th:first-child,
+#archive-internet #internet-table td:first-child { width: 58% !important; }
+#archive-internet #internet-table th:last-child,
+#archive-internet #internet-table td:last-child { width: 42% !important; }
+/* Gli importi/celle con fattura Internet conservano il verde anche dopo il salvataggio. */
+#archive-internet #internet-table tbody td.bolletta-cell-attachment,
+#archive-internet #internet-table tbody tr:hover td.bolletta-cell-attachment,
+#archive-internet #internet-table tbody td.bolletta-cell-attachment:hover {
+  background: #eaf7f0 !important;
+  color: #16804e !important;
+}
+#archive-internet #internet-table tbody td.bolletta-cell-attachment > span:first-child,
+#archive-internet #internet-table tbody td.bolletta-cell-attachment:hover > span:first-child {
+  color: #16804e !important;
+  background: transparent !important;
+}
+@media (max-width: 600px) {
+  #archive-bollette,
+  #archive-internet { padding-top: 58px !important; }
+  #archive-internet #internet-table th,
+  #archive-internet #internet-table td {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
 }
 </style>
 
