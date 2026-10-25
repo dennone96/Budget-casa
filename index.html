@@ -16269,8 +16269,10 @@ function openListDetail(listId) {
     </div>
     
     <!-- BARRA AGGIUNGI ELEMENTI SPOSTATA IN CIMA -->
-    <div class="lista-add-bar" style="margin-top: 0; margin-bottom: 16px;">
-      <input type="text" id="nuovo-item-input" placeholder="Aggiungi un elemento...">
+    <div class="lista-add-bar shopping-add-quantity" style="margin-top: 0; margin-bottom: 16px;">
+      <input type="text" id="nuovo-item-input" placeholder="Nome articolo..." autocomplete="off">
+      <label class="shopping-quantity-label" for="nuovo-item-quantita">Quantità</label>
+      <input type="number" id="nuovo-item-quantita" min="0.01" step="any" value="1" inputmode="decimal" aria-label="Quantità articolo">
       <button class="btn-add-item-principale" id="btn-add-item">Aggiungi</button>
     </div>
     
@@ -16292,7 +16294,8 @@ function openListDetail(listId) {
         <div class="item-row-principale">
           <input type="checkbox" class="item-checkbox-principale" data-index="${index}" ${item.completato ? 'checked' : ''}>
           <span class="item-nome-principale ${item.completato ? 'completato' : ''}">${escapeHtml(item.nome)}</span>
-          <button class="item-delete-principale" data-index="${index}">✕</button>
+          <span class="item-quantita-principale">Qtà: ${escapeHtml(String(item.quantita ?? 1))}</span>
+          <button class="item-delete-principale" data-index="${index}" aria-label="Elimina ${escapeHtml(item.nome)}">✕</button>
         </div>
       `;
     });
@@ -16320,6 +16323,8 @@ function openListDetail(listId) {
   document.getElementById('btn-add-item').addEventListener('click', async function() {
     const input = document.getElementById('nuovo-item-input');
     const nome = input.value.trim();
+    const quantitaInput = document.getElementById('nuovo-item-quantita');
+    const quantita = quantitaInput ? Number(quantitaInput.value) : 1;
     
     if (!nome) {
       input.style.borderColor = '#E74C3C';
@@ -16331,12 +16336,21 @@ function openListDetail(listId) {
       return;
     }
     
+    if (!Number.isFinite(quantita) || quantita <= 0) {
+      if (quantitaInput) {
+        quantitaInput.style.borderColor = '#E74C3C';
+        quantitaInput.focus();
+      }
+      return;
+    }
+
     if (!shoppingLists[listId].items) {
       shoppingLists[listId].items = [];
     }
     
     shoppingLists[listId].items.push({
       nome: nome,
+      quantita: quantita,
       completato: false
     });
     
@@ -18945,5 +18959,51 @@ document.addEventListener('DOMContentLoaded', function() {
 })();
 </script>
 
+
+<style id="shopping-list-spacing-quantity-fix">
+/* Liste spesa: separa checkbox, carrello e testo per evitare sovrapposizioni */
+#page-liste .lista-info-principale {
+  grid-template-columns: 30px 54px minmax(0,1fr) !important;
+  column-gap: 13px !important;
+  padding-left: 8px !important;
+}
+#page-liste .shopping-list-icon {
+  width: 48px !important;
+  min-width: 48px !important;
+  height: 48px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-left: 0 !important;
+  border-radius: 16px !important;
+}
+#page-liste .lista-dettagli-principale { min-width: 0 !important; }
+#page-liste .lista-nome-principale { overflow-wrap: anywhere; }
+#page-liste .shopping-add-quantity {
+  display: grid !important;
+  grid-template-columns: minmax(0,1fr) 68px 74px auto !important;
+  gap: 8px !important;
+  align-items: center !important;
+}
+#page-liste #nuovo-item-quantita {
+  width: 100% !important; min-width: 0 !important; box-sizing: border-box !important;
+  padding: 12px 8px !important; border-radius: 12px !important;
+}
+#page-liste .shopping-quantity-label { font-size: 12px; font-weight: 700; color: var(--text-muted, #718096); }
+#page-liste .item-quantita-principale {
+  font-size: 12px; font-weight: 700; color: #2f80d9; background: #edf6ff;
+  border-radius: 8px; padding: 5px 7px; white-space: nowrap; justify-self: start;
+}
+#page-liste .item-row-principale { column-gap: 10px !important; }
+@media (max-width: 480px) {
+  #page-liste .lista-info-principale { grid-template-columns: 27px 48px minmax(0,1fr) !important; column-gap: 10px !important; padding-left: 8px !important; }
+  #page-liste .shopping-list-icon { width: 44px !important; min-width: 44px !important; height: 44px !important; }
+  #page-liste .shopping-add-quantity { grid-template-columns: minmax(0,1fr) 60px 66px !important; }
+  #page-liste .shopping-quantity-label { grid-column: 2; grid-row: 1; }
+  #page-liste #nuovo-item-quantita { grid-column: 2; grid-row: 2; }
+  #page-liste #btn-add-item { grid-column: 3; grid-row: 2; }
+  #page-liste #nuovo-item-input { grid-column: 1; grid-row: 1 / span 2; min-width: 0 !important; }
+}
+</style>
 </body>
 </html>
