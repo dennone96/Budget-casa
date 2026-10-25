@@ -16272,7 +16272,11 @@ function openListDetail(listId) {
     <div class="lista-add-bar shopping-add-quantity" style="margin-top: 0; margin-bottom: 16px;">
       <input type="text" id="nuovo-item-input" placeholder="Nome articolo..." autocomplete="off">
       <label class="shopping-quantity-label" for="nuovo-item-quantita">Quantità</label>
-      <input type="number" id="nuovo-item-quantita" min="0.01" step="any" value="1" inputmode="decimal" aria-label="Quantità articolo">
+      <div class="shopping-quantity-stepper" aria-label="Imposta quantità da aggiungere">
+        <button type="button" class="quantity-step-btn" data-target="nuovo-item-quantita" data-step="-1" aria-label="Diminuisci quantità">−</button>
+        <input type="number" id="nuovo-item-quantita" min="0.01" step="1" value="1" inputmode="decimal" aria-label="Quantità articolo">
+        <button type="button" class="quantity-step-btn" data-target="nuovo-item-quantita" data-step="1" aria-label="Aumenta quantità">+</button>
+      </div>
       <button class="btn-add-item-principale" id="btn-add-item">Aggiungi</button>
     </div>
     
@@ -16294,7 +16298,11 @@ function openListDetail(listId) {
         <div class="item-row-principale">
           <input type="checkbox" class="item-checkbox-principale" data-index="${index}" ${item.completato ? 'checked' : ''}>
           <span class="item-nome-principale ${item.completato ? 'completato' : ''}">${escapeHtml(item.nome)}</span>
-          <span class="item-quantita-principale">Qtà: ${escapeHtml(String(item.quantita ?? 1))}</span>
+          <div class="item-quantity-stepper" aria-label="Quantità di ${escapeHtml(item.nome)}">
+            <button type="button" class="quantity-step-btn item-quantity-change" data-index="${index}" data-step="-1" aria-label="Diminuisci quantità di ${escapeHtml(item.nome)}">−</button>
+            <span class="item-quantita-principale">${escapeHtml(String(item.quantita ?? 1))}</span>
+            <button type="button" class="quantity-step-btn item-quantity-change" data-index="${index}" data-step="1" aria-label="Aumenta quantità di ${escapeHtml(item.nome)}">+</button>
+          </div>
           <button class="item-delete-principale" data-index="${index}" aria-label="Elimina ${escapeHtml(item.nome)}">✕</button>
         </div>
       `;
@@ -16363,6 +16371,35 @@ function openListDetail(listId) {
     if (e.key === 'Enter') {
       document.getElementById('btn-add-item').click();
     }
+  });
+
+  // Pulsanti +/- della quantità durante l'inserimento: il campo resta anche modificabile a mano.
+  document.querySelectorAll('#page-liste .quantity-step-btn[data-target="nuovo-item-quantita"]').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const field = document.getElementById(this.dataset.target);
+      if (!field) return;
+      const current = Number(field.value) || 1;
+      const step = Number(this.dataset.step) || 1;
+      const next = Math.max(0.01, current + step);
+      field.value = Number(next.toFixed(2));
+      field.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+  });
+
+  // Pulsanti +/- degli articoli già inseriti: salva subito la nuova quantità.
+  document.querySelectorAll('#page-liste .item-quantity-change').forEach(btn => {
+    btn.addEventListener('click', async function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const index = Number(this.dataset.index);
+      const step = Number(this.dataset.step) || 1;
+      const item = shoppingLists[listId] && shoppingLists[listId].items[index];
+      if (!item) return;
+      const current = Number(item.quantita ?? 1) || 1;
+      item.quantita = Math.max(0.01, Number((current + step).toFixed(2)));
+      await saveShoppingLists();
+      openListDetail(listId);
+    });
   });
   
   // Event listener: Checkbox elemento
@@ -19003,6 +19040,26 @@ document.addEventListener('DOMContentLoaded', function() {
   #page-liste #nuovo-item-quantita { grid-column: 2; grid-row: 2; }
   #page-liste #btn-add-item { grid-column: 3; grid-row: 2; }
   #page-liste #nuovo-item-input { grid-column: 1; grid-row: 1 / span 2; min-width: 0 !important; }
+}
+
+/* Controlli quantità +/- per inserimento e articoli già presenti */
+#page-liste .shopping-add-quantity { grid-template-columns: minmax(0,1fr) 150px auto !important; }
+#page-liste .shopping-add-quantity .shopping-quantity-label { grid-column: 2; grid-row: 1; }
+#page-liste .shopping-quantity-stepper { grid-column: 2; grid-row: 2; display:flex; align-items:center; gap:5px; min-width:0; }
+#page-liste #nuovo-item-quantita { flex:1; min-width:0; width:100% !important; text-align:center; }
+#page-liste .quantity-step-btn { display:inline-flex; align-items:center; justify-content:center; flex:0 0 32px; width:32px; height:34px; padding:0; border:1px solid #c8dced; border-radius:10px; background:#edf6ff; color:#173b5d; font-size:21px; line-height:1; font-weight:800; cursor:pointer; touch-action:manipulation; }
+#page-liste .quantity-step-btn:active { transform:scale(.96); background:#dceeff; }
+#page-liste #btn-add-item { grid-column:3; grid-row:2; }
+#page-liste .item-quantity-stepper { display:flex; align-items:center; gap:5px; justify-self:start; }
+#page-liste .item-quantity-stepper .quantity-step-btn { flex-basis:28px; width:28px; height:30px; border-radius:9px; }
+#page-liste .item-quantita-principale { min-width:24px; text-align:center; padding:5px 4px; }
+@media (max-width:480px) {
+  #page-liste .shopping-add-quantity { grid-template-columns:minmax(0,1fr) 150px !important; }
+  #page-liste .shopping-add-quantity .shopping-quantity-label { grid-column:2; grid-row:1; }
+  #page-liste .shopping-quantity-stepper { grid-column:2; grid-row:2; }
+  #page-liste #btn-add-item { grid-column:1 / -1; grid-row:3; }
+  #page-liste #nuovo-item-input { grid-column:1 / -1; grid-row:1; }
+  #page-liste .item-row-principale { grid-template-columns:22px minmax(0,1fr) auto auto !important; }
 }
 </style>
 </body>
