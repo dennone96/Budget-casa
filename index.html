@@ -10738,12 +10738,36 @@ Movimenti in contanti. Stesse colonne del conto corrente.
     </div>
   </div>
 </div>
-<div class="archive-subpage archive-placeholder" id="archive-assicurazioni" style="display:none;">
+<div class="archive-subpage" id="archive-assicurazioni" style="display:none;">
   <div class="archive-detail-header">
     <button aria-label="Torna ad Archivio" class="archive-detail-back" type="button"><i class="ti ti-chevron-left"></i></button>
     <h2>Assicurazioni</h2>
   </div>
-  <div class="archive-coming-soon">Questa sezione è pronta per essere organizzata in seguito.</div>
+  <button id="btn-nuovo-documento-assicurazione" type="button" class="insurance-primary-btn"><i class="ti ti-upload"></i> Carica documento assicurativo</button>
+  <div class="panel insurance-panel">
+    <div class="insurance-filter-row">
+      <div><h3 style="margin:0;">I miei documenti</h3><p style="margin:5px 0 0;color:var(--text-secondary);font-size:13px;">File organizzati per anno</p></div>
+      <label class="insurance-year-label" for="insurance-year-filter">Anno
+        <select id="insurance-year-filter" aria-label="Filtra documenti per anno"></select>
+      </label>
+    </div>
+    <div id="insurance-files-list" class="insurance-files-list"><div class="insurance-empty">Caricamento documenti…</div></div>
+  </div>
+</div>
+<!-- Popup caricamento documenti assicurativi -->
+<div id="insurance-upload-overlay" class="insurance-overlay" style="display:none;">
+  <div class="insurance-modal" role="dialog" aria-modal="true" aria-labelledby="insurance-upload-title">
+    <h3 id="insurance-upload-title">🛡️ Carica documento assicurativo</h3>
+    <p class="insurance-modal-subtitle">Il documento verrà archiviato nell'anno selezionato.</p>
+    <label for="insurance-doc-title">Nome / descrizione *</label>
+    <input id="insurance-doc-title" type="text" maxlength="120" placeholder="Es. Polizza auto, assicurazione casa" />
+    <label for="insurance-doc-year">Anno *</label>
+    <select id="insurance-doc-year"></select>
+    <label for="insurance-doc-file">File da caricare *</label>
+    <input id="insurance-doc-file" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx" />
+    <div id="insurance-doc-progress" class="insurance-progress" style="display:none;">Caricamento in corso…</div>
+    <div class="insurance-modal-actions"><button id="insurance-upload-cancel" type="button" class="insurance-secondary-btn">Annulla</button><button id="insurance-upload-save" type="button" class="insurance-primary-btn">Carica file</button></div>
+  </div>
 </div>
 <div class="archive-subpage archive-placeholder" id="archive-documenti" style="display:none;">
   <div class="archive-detail-header">
@@ -18995,6 +19019,78 @@ document.addEventListener('DOMContentLoaded', function() {
 })();
 </script>
 
+
+
+<style id="internet-insurance-light-theme-and-year-archive">
+/* Popup dettaglio Internet: tema chiaro indipendente dal tema generale */
+#internet-detail-overlay { background:rgba(25,39,56,.42)!important; backdrop-filter:blur(5px)!important; }
+#internet-detail-overlay > div { background:#ffffff!important; color:#203247!important; border:1px solid #e1e8ef!important; box-shadow:0 22px 65px rgba(22,45,70,.20)!important; }
+#internet-detail-overlay h3 { color:#173653!important; }
+#internet-detail-overlay .detail-field { border-bottom:1px solid #e7edf3!important; }
+#internet-detail-overlay .detail-field label { color:#71849a!important; }
+#internet-detail-overlay .detail-field p { color:#263c52!important; }
+#internet-detail-overlay #internet-detail-close { background:#f1f5f9!important; border-color:#d8e2ec!important; color:#34495e!important; }
+#internet-detail-overlay #internet-detail-download { background:#245d8f!important; }
+/* Archivio assicurazioni: filtro annuale e file */
+#archive-assicurazioni { padding-top:58px!important; box-sizing:border-box!important; }
+#archive-assicurazioni .insurance-primary-btn { width:100%; min-height:48px; display:flex; justify-content:center; align-items:center; gap:9px; border:0; border-radius:14px; padding:12px 16px; background:var(--accent-gradient); color:#fff; font-weight:800; font-size:15px; cursor:pointer; box-shadow:var(--shadow); margin-bottom:16px; }
+#archive-assicurazioni .insurance-panel { padding:18px!important; }
+#archive-assicurazioni .insurance-filter-row { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:16px; }
+#archive-assicurazioni .insurance-year-label { display:flex; align-items:center; gap:8px; color:var(--text-secondary); font-weight:700; font-size:13px; }
+#archive-assicurazioni #insurance-year-filter { min-width:100px; height:40px; padding:0 10px; border:1px solid var(--border); border-radius:10px; background:var(--surface); color:var(--text-primary); font-weight:700; }
+#archive-assicurazioni .insurance-files-list { display:flex; flex-direction:column; gap:10px; }
+#archive-assicurazioni .insurance-file-card { display:flex; align-items:center; gap:12px; padding:13px; border:1px solid var(--border); border-radius:15px; background:var(--surface); min-width:0; }
+#archive-assicurazioni .insurance-file-icon { width:44px; height:44px; flex:0 0 44px; display:grid; place-items:center; border-radius:13px; color:#5c4bb7; background:#f0edff; font-size:22px; }
+#archive-assicurazioni .insurance-file-copy { flex:1; min-width:0; }
+#archive-assicurazioni .insurance-file-copy strong { display:block; overflow-wrap:anywhere; color:var(--text-primary); font-size:14px; }
+#archive-assicurazioni .insurance-file-copy span { display:block; color:var(--text-secondary); font-size:12px; margin-top:4px; overflow-wrap:anywhere; }
+#archive-assicurazioni .insurance-file-actions { display:flex; gap:6px; flex-shrink:0; }
+#archive-assicurazioni .insurance-file-actions button { width:36px; height:36px; border-radius:10px; border:1px solid var(--border); background:var(--surface-2); color:var(--text-primary); display:grid; place-items:center; cursor:pointer; font-size:17px; }
+#archive-assicurazioni .insurance-file-actions .insurance-delete { color:#c24141; }
+#archive-assicurazioni .insurance-empty { text-align:center; padding:30px 12px; color:var(--text-secondary); font-size:14px; }
+.insurance-overlay { position:fixed; inset:0; z-index:1200; background:rgba(20,34,49,.48); backdrop-filter:blur(5px); display:flex; align-items:center; justify-content:center; padding:16px; overflow-y:auto; }
+.insurance-modal { width:100%; max-width:480px; max-height:calc(100dvh - 32px); overflow:auto; padding:23px; border-radius:22px; background:#fff; color:#23384d; box-shadow:0 24px 70px rgba(15,35,55,.24); }
+.insurance-modal h3 { margin:0 0 7px; font-size:20px; color:#173653; }
+.insurance-modal-subtitle { margin:0 0 18px; font-size:13px; color:#708197; }
+.insurance-modal label { display:block; margin:13px 0 6px; font-size:12px; font-weight:800; color:#53677d; }
+.insurance-modal input[type="text"],.insurance-modal select,.insurance-modal input[type="file"] { width:100%; min-height:44px; padding:10px 12px; border:1.5px solid #c8d8e7; border-radius:11px; background:#fbfdff; color:#23384d; box-sizing:border-box; font:inherit; }
+.insurance-modal input:focus,.insurance-modal select:focus { outline:2px solid #b5d8f5; border-color:#4c9ad6; }
+.insurance-modal-actions { display:flex; gap:10px; margin-top:20px; }
+.insurance-modal-actions button { min-height:44px; border-radius:11px; padding:10px 14px; font-weight:800; cursor:pointer; }
+.insurance-secondary-btn { flex:1; background:#f1f5f9; color:#42566b; border:1px solid #d8e2ec; }
+.insurance-modal-actions .insurance-primary-btn { flex:1.5; margin:0; }
+.insurance-progress { margin-top:12px; color:#246b9b; font-size:13px; font-weight:700; }
+@media(max-width:480px){#archive-assicurazioni .insurance-panel{padding:13px!important}#archive-assicurazioni .insurance-file-card{gap:8px;padding:10px}#archive-assicurazioni .insurance-file-icon{width:38px;height:38px;flex-basis:38px}#archive-assicurazioni .insurance-file-actions{gap:4px}#archive-assicurazioni .insurance-file-actions button{width:32px;height:34px}.insurance-modal{padding:19px}}
+</style>
+
+
+<script id="insurance-year-file-archive">
+(function(){
+ 'use strict';
+ const $=id=>document.getElementById(id);
+ let user=null, files=[], selectedYear=String(new Date().getFullYear()), busy=false;
+ let db, storage;
+ const currentYear=new Date().getFullYear();
+ function yearOptions(select, years, selected){select.innerHTML='';years.forEach(y=>{const o=document.createElement('option');o.value=String(y);o.textContent=String(y);select.appendChild(o)});select.value=String(selected);}
+ function escapeHtml(v){return String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+ function setupYears(){const years=new Set([currentYear,currentYear-1,currentYear-2]);files.forEach(f=>{if(Number(f.year)>1900)years.add(Number(f.year))});const sorted=[...years].sort((a,b)=>b-a);const filter=$('insurance-year-filter');const prev=filter.value;yearOptions(filter,sorted,sorted.includes(Number(prev))?Number(prev):(sorted.includes(Number(selectedYear))?Number(selectedYear):currentYear));selectedYear=filter.value;yearOptions($('insurance-doc-year'),sorted,currentYear);}
+ function render(){const list=$('insurance-files-list');if(!list)return;list.innerHTML='';const filtered=files.filter(f=>String(f.year)===String(selectedYear)).sort((a,b)=>String(b.uploadedAt||'').localeCompare(String(a.uploadedAt||'')));
+ if(!filtered.length){const empty=document.createElement('div');empty.className='insurance-empty';empty.innerHTML='<div style="font-size:34px;margin-bottom:8px">📁</div><strong>Nessun documento per '+escapeHtml(selectedYear)+'</strong><div style="margin-top:5px">Carica una polizza o un documento assicurativo.</div>';list.appendChild(empty);return;}
+ filtered.forEach(item=>{const card=document.createElement('div');card.className='insurance-file-card';const icon=document.createElement('div');icon.className='insurance-file-icon';icon.innerHTML='<i class="ti ti-file-description"></i>';const copy=document.createElement('div');copy.className='insurance-file-copy';const title=document.createElement('strong');title.textContent=item.title||item.name||'Documento assicurativo';const meta=document.createElement('span');const date=item.uploadedAt?new Date(item.uploadedAt):null;meta.textContent=(item.name||'File')+' · '+(date&&!isNaN(date)?date.toLocaleDateString('it-IT'):'Anno '+item.year);copy.append(title,meta);const actions=document.createElement('div');actions.className='insurance-file-actions';const down=document.createElement('button');down.type='button';down.title='Apri o scarica';down.setAttribute('aria-label','Apri o scarica '+(item.title||item.name));down.innerHTML='<i class="ti ti-download"></i>';down.addEventListener('click',()=>download(item));const del=document.createElement('button');del.type='button';del.className='insurance-delete';del.title='Elimina documento';del.setAttribute('aria-label','Elimina '+(item.title||item.name));del.innerHTML='<i class="ti ti-trash"></i>';del.addEventListener('click',()=>remove(item));actions.append(down,del);card.append(icon,copy,actions);list.appendChild(card);});
+ }
+ async function load(){if(!user){files=[];setupYears();render();return;}try{const snap=await db.collection('assicurazioni').doc(user.uid).get();files=snap.exists&&Array.isArray(snap.data().files)?snap.data().files:[];}catch(e){console.error('Errore caricamento archivio assicurazioni',e);files=[];if(e.code==='permission-denied')$('insurance-files-list').innerHTML='<div class="insurance-empty">Permessi Firestore non sufficienti: controlla le regole della raccolta assicurazioni.</div>';}
+ setupYears();render();}
+ async function save(){if(!user)throw new Error('Accedi all’app prima di caricare documenti.');await db.collection('assicurazioni').doc(user.uid).set({files:files,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});}
+ function open(){if(!user){alert('Accedi all’app prima di caricare documenti.');return;} $('insurance-doc-title').value='';$('insurance-doc-file').value='';yearOptions($('insurance-doc-year'),[...new Set([currentYear,currentYear-1,currentYear-2,...files.map(f=>Number(f.year)).filter(y=>y>1900)])].sort((a,b)=>b-a),selectedYear||currentYear);$('insurance-doc-progress').style.display='none';$('insurance-upload-overlay').style.display='flex';}
+ function close(){if(!busy)$('insurance-upload-overlay').style.display='none';}
+ async function upload(){if(busy)return;if(!user){alert('Accedi all’app prima di caricare documenti.');return;}const title=$('insurance-doc-title').value.trim();const year=$('insurance-doc-year').value;const file=$('insurance-doc-file').files&&$('insurance-doc-file').files[0];if(!title){alert('Inserisci il nome o la descrizione del documento.');$('insurance-doc-title').focus();return;}if(!year){alert('Seleziona l’anno.');return;}if(!file){alert('Seleziona un file da caricare.');return;}if(file.size>20*1024*1024){alert('Il file supera il limite di 20 MB.');return;}
+ busy=true;const btn=$('insurance-upload-save');btn.disabled=true;btn.textContent='Caricamento…';$('insurance-doc-progress').style.display='block';$('insurance-doc-progress').textContent='Caricamento del file…';let path='';try{const safeName=file.name.replace(/[\/#?]/g,'_');path='assicurazioni/'+user.uid+'/'+year+'/'+Date.now()+'_'+safeName;const ref=storage.ref().child(path);const snap=await ref.put(file);const url=await snap.ref.getDownloadURL();const record={id:String(Date.now())+'_'+Math.random().toString(36).slice(2,8),title,name:file.name,year:Number(year),url,storagePath:path,size:file.size,contentType:file.type||'',uploadedAt:new Date().toISOString()};files.push(record);try{await save();}catch(e){files=files.filter(f=>f.id!==record.id);try{await ref.delete()}catch(_){}throw e;}selectedYear=String(year);setupYears();$('insurance-year-filter').value=selectedYear;render();$('insurance-upload-overlay').style.display='none';alert('Documento assicurativo caricato con successo!');}catch(e){console.error('Errore caricamento documento assicurativo',e);alert('Impossibile caricare il documento: '+(e.message||e)+'\nSe compare un errore di permessi, vanno aggiornate le regole Firebase Storage e Firestore.');}finally{busy=false;btn.disabled=false;btn.textContent='Carica file';$('insurance-doc-progress').style.display='none';}}
+ function download(item){if(!item||!item.url){alert('Link del file non disponibile.');return;}if(window.AndroidFiles&&typeof window.AndroidFiles.downloadFile==='function'){window.AndroidFiles.downloadFile(item.url,item.name||'documento-assicurativo');return;}const a=document.createElement('a');a.href=item.url;a.download=item.name||'documento-assicurativo';a.target='_blank';document.body.appendChild(a);a.click();a.remove();}
+ async function remove(item){if(!user||!item)return;if(!confirm('Eliminare il documento “'+(item.title||item.name)+'”?'))return;const old=files.slice();files=files.filter(f=>f.id!==item.id);try{await save();if(item.storagePath){try{await storage.ref().child(item.storagePath).delete()}catch(e){console.warn('File Storage non eliminato',e);}}setupYears();render();}catch(e){files=old;render();alert('Impossibile eliminare il documento: '+(e.message||e));}}
+ function init(){if(!window.firebase||!firebase.apps||!firebase.apps.length){console.error('Firebase non inizializzato: archivio assicurazioni non disponibile');return;}db=firebase.firestore();storage=firebase.storage();$('btn-nuovo-documento-assicurazione')?.addEventListener('click',open);$('insurance-upload-cancel')?.addEventListener('click',close);$('insurance-upload-save')?.addEventListener('click',upload);$('insurance-year-filter')?.addEventListener('change',()=>{selectedYear=$('insurance-year-filter').value;render();});$('insurance-upload-overlay')?.addEventListener('click',e=>{if(e.target===$('insurance-upload-overlay'))close();});firebase.auth().onAuthStateChanged(u=>{user=u;load();});setupYears();render();}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
 
 <style id="shopping-list-spacing-quantity-fix">
 /* Liste spesa: separa checkbox, carrello e testo per evitare sovrapposizioni */
