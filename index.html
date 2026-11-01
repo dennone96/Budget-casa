@@ -10769,12 +10769,36 @@ Movimenti in contanti. Stesse colonne del conto corrente.
     <div class="insurance-modal-actions"><button id="insurance-upload-cancel" type="button" class="insurance-secondary-btn">Annulla</button><button id="insurance-upload-save" type="button" class="insurance-primary-btn">Carica file</button></div>
   </div>
 </div>
-<div class="archive-subpage archive-placeholder" id="archive-documenti" style="display:none;">
+<div class="archive-subpage" id="archive-documenti" style="display:none;">
   <div class="archive-detail-header">
     <button aria-label="Torna ad Archivio" class="archive-detail-back" type="button"><i class="ti ti-chevron-left"></i></button>
     <h2>Documenti</h2>
   </div>
-  <div class="archive-coming-soon">Questa sezione è pronta per essere organizzata in seguito.</div>
+  <button id="btn-nuovo-documento-personale" type="button" class="insurance-primary-btn"><i class="ti ti-upload"></i> Carica documento</button>
+  <div class="panel insurance-panel">
+    <div class="insurance-filter-row">
+      <div><h3 style="margin:0;">I miei documenti</h3><p style="margin:5px 0 0;color:var(--text-secondary);font-size:13px;">File organizzati per anno</p></div>
+      <label class="insurance-year-label" for="personal-doc-year-filter">Anno
+        <select id="personal-doc-year-filter" aria-label="Filtra documenti per anno"></select>
+      </label>
+    </div>
+    <div id="personal-doc-files-list" class="insurance-files-list"><div class="insurance-empty">Caricamento documenti…</div></div>
+  </div>
+</div>
+<!-- Popup caricamento documenti personali -->
+<div id="personal-doc-upload-overlay" class="insurance-overlay" style="display:none;">
+  <div class="insurance-modal" role="dialog" aria-modal="true" aria-labelledby="personal-doc-upload-title">
+    <h3 id="personal-doc-upload-title">📁 Carica documento</h3>
+    <p class="insurance-modal-subtitle">Il documento verrà archiviato nell'anno selezionato.</p>
+    <label for="personal-doc-title">Nome / descrizione *</label>
+    <input id="personal-doc-title" type="text" maxlength="120" placeholder="Es. Atto, contratto, documento casa" />
+    <label for="personal-doc-year">Anno *</label>
+    <select id="personal-doc-year"></select>
+    <label for="personal-doc-file">File da caricare *</label>
+    <input id="personal-doc-file" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx" />
+    <div id="personal-doc-progress" class="insurance-progress" style="display:none;">Caricamento in corso…</div>
+    <div class="insurance-modal-actions"><button id="personal-doc-upload-cancel" type="button" class="insurance-secondary-btn">Annulla</button><button id="personal-doc-upload-save" type="button" class="insurance-primary-btn">Carica file</button></div>
+  </div>
 </div>
 </div>
 <div class="page" id="page-liste">
@@ -19088,6 +19112,53 @@ document.addEventListener('DOMContentLoaded', function() {
  function download(item){if(!item||!item.url){alert('Link del file non disponibile.');return;}if(window.AndroidFiles&&typeof window.AndroidFiles.downloadFile==='function'){window.AndroidFiles.downloadFile(item.url,item.name||'documento-assicurativo');return;}const a=document.createElement('a');a.href=item.url;a.download=item.name||'documento-assicurativo';a.target='_blank';document.body.appendChild(a);a.click();a.remove();}
  async function remove(item){if(!user||!item)return;if(!confirm('Eliminare il documento “'+(item.title||item.name)+'”?'))return;const old=files.slice();files=files.filter(f=>f.id!==item.id);try{await save();if(item.storagePath){try{await storage.ref().child(item.storagePath).delete()}catch(e){console.warn('File Storage non eliminato',e);}}setupYears();render();}catch(e){files=old;render();alert('Impossibile eliminare il documento: '+(e.message||e));}}
  function init(){if(!window.firebase||!firebase.apps||!firebase.apps.length){console.error('Firebase non inizializzato: archivio assicurazioni non disponibile');return;}db=firebase.firestore();storage=firebase.storage();$('btn-nuovo-documento-assicurazione')?.addEventListener('click',open);$('insurance-upload-cancel')?.addEventListener('click',close);$('insurance-upload-save')?.addEventListener('click',upload);$('insurance-year-filter')?.addEventListener('change',()=>{selectedYear=$('insurance-year-filter').value;render();});$('insurance-upload-overlay')?.addEventListener('click',e=>{if(e.target===$('insurance-upload-overlay'))close();});firebase.auth().onAuthStateChanged(u=>{user=u;load();});setupYears();render();}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
+
+
+<style id="personal-documents-archive-style">
+#archive-documenti { padding-top:58px!important; box-sizing:border-box!important; }
+#archive-documenti .insurance-primary-btn { width:100%; min-height:48px; display:flex; justify-content:center; align-items:center; gap:9px; border:0; border-radius:14px; padding:12px 16px; background:var(--accent-gradient); color:#fff; font-weight:800; font-size:15px; cursor:pointer; box-shadow:var(--shadow); margin-bottom:16px; }
+#archive-documenti .insurance-panel { padding:18px!important; }
+#archive-documenti .insurance-filter-row { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:16px; }
+#archive-documenti .insurance-year-label { display:flex; align-items:center; gap:8px; color:var(--text-secondary); font-weight:700; font-size:13px; }
+#archive-documenti #personal-doc-year-filter { min-width:100px; height:40px; padding:0 10px; border:1px solid var(--border); border-radius:10px; background:var(--surface); color:var(--text-primary); font-weight:700; }
+#archive-documenti .insurance-files-list { display:flex; flex-direction:column; gap:10px; }
+#archive-documenti .insurance-file-card { display:flex; align-items:center; gap:12px; padding:13px; border:1px solid var(--border); border-radius:15px; background:var(--surface); min-width:0; }
+#archive-documenti .insurance-file-copy { flex:1; min-width:0; }
+#archive-documenti .insurance-file-copy strong { display:block; overflow-wrap:anywhere; color:var(--text-primary); font-size:14px; }
+#archive-documenti .insurance-file-copy span { display:block; color:var(--text-secondary); font-size:12px; margin-top:4px; overflow-wrap:anywhere; }
+#archive-documenti .insurance-file-actions { display:flex; gap:6px; flex-shrink:0; }
+#archive-documenti .insurance-file-actions button { width:36px; height:36px; border-radius:10px; border:1px solid var(--border); background:var(--surface-2); color:var(--text-primary); display:grid; place-items:center; cursor:pointer; font-size:17px; }
+#archive-documenti .insurance-file-actions .insurance-delete { color:#c24141; }
+#archive-documenti .insurance-empty { text-align:center; padding:30px 12px; color:var(--text-secondary); font-size:14px; }
+@media(max-width:480px){#archive-documenti .insurance-panel{padding:13px!important}#archive-documenti .insurance-file-card{gap:8px;padding:10px}#archive-documenti .insurance-file-actions{gap:4px}#archive-documenti .insurance-file-actions button{width:32px;height:34px}}
+</style>
+<script id="personal-doc-year-file-archive">
+(function(){
+ 'use strict';
+ const $=id=>document.getElementById(id);
+ let user=null, files=[], selectedYear=String(new Date().getFullYear()), busy=false;
+ let db, storage;
+ const currentYear=new Date().getFullYear();
+ function yearOptions(select, years, selected){select.innerHTML='';years.forEach(y=>{const o=document.createElement('option');o.value=String(y);o.textContent=String(y);select.appendChild(o)});select.value=String(selected);}
+ function escapeHtml(v){return String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+ function setupYears(){const years=new Set([currentYear,currentYear-1,currentYear-2]);files.forEach(f=>{if(Number(f.year)>1900)years.add(Number(f.year))});const sorted=[...years].sort((a,b)=>b-a);const filter=$('personal-doc-year-filter');const prev=filter.value;yearOptions(filter,sorted,sorted.includes(Number(prev))?Number(prev):(sorted.includes(Number(selectedYear))?Number(selectedYear):currentYear));selectedYear=filter.value;yearOptions($('personal-doc-year'),sorted,currentYear);}
+ function render(){const list=$('personal-doc-files-list');if(!list)return;list.innerHTML='';const filtered=files.filter(f=>String(f.year)===String(selectedYear)).sort((a,b)=>String(b.uploadedAt||'').localeCompare(String(a.uploadedAt||'')));
+ if(!filtered.length){const empty=document.createElement('div');empty.className='insurance-empty';empty.innerHTML='<div style="font-size:34px;margin-bottom:8px">📁</div><strong>Nessun documento per '+escapeHtml(selectedYear)+'</strong><div style="margin-top:5px">Carica un documento.</div>';list.appendChild(empty);return;}
+ filtered.forEach(item=>{const card=document.createElement('div');card.className='insurance-file-card';const icon=document.createElement('div');icon.className='insurance-file-icon';icon.innerHTML='<i class="ti ti-file-description"></i>';const copy=document.createElement('div');copy.className='insurance-file-copy';const title=document.createElement('strong');title.textContent=item.title||item.name||'Documento personale';const meta=document.createElement('span');const date=item.uploadedAt?new Date(item.uploadedAt):null;meta.textContent=(item.name||'File')+' · '+(date&&!isNaN(date)?date.toLocaleDateString('it-IT'):'Anno '+item.year);copy.append(title,meta);const actions=document.createElement('div');actions.className='insurance-file-actions';const down=document.createElement('button');down.type='button';down.title='Apri o scarica';down.setAttribute('aria-label','Apri o scarica '+(item.title||item.name));down.innerHTML='<i class="ti ti-download"></i>';down.addEventListener('click',()=>download(item));const del=document.createElement('button');del.type='button';del.className='insurance-delete';del.title='Elimina documento';del.setAttribute('aria-label','Elimina '+(item.title||item.name));del.innerHTML='<i class="ti ti-trash"></i>';del.addEventListener('click',()=>remove(item));actions.append(down,del);card.append(icon,copy,actions);list.appendChild(card);});
+ }
+ async function load(){if(!user){files=[];setupYears();render();return;}try{const snap=await db.collection('documenti').doc(user.uid).get();files=snap.exists&&Array.isArray(snap.data().files)?snap.data().files:[];}catch(e){console.error('Errore caricamento archivio documenti',e);files=[];if(e.code==='permission-denied')$('personal-doc-files-list').innerHTML='<div class="insurance-empty">Permessi Firestore non sufficienti: controlla le regole della raccolta documenti.</div>';}
+ setupYears();render();}
+ async function save(){if(!user)throw new Error('Accedi all’app prima di caricare documenti.');await db.collection('documenti').doc(user.uid).set({files:files,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});}
+ function open(){if(!user){alert('Accedi all’app prima di caricare documenti.');return;} $('personal-doc-title').value='';$('personal-doc-file').value='';yearOptions($('personal-doc-year'),[...new Set([currentYear,currentYear-1,currentYear-2,...files.map(f=>Number(f.year)).filter(y=>y>1900)])].sort((a,b)=>b-a),selectedYear||currentYear);$('personal-doc-progress').style.display='none';$('personal-doc-upload-overlay').style.display='flex';}
+ function close(){if(!busy)$('personal-doc-upload-overlay').style.display='none';}
+ async function upload(){if(busy)return;if(!user){alert('Accedi all’app prima di caricare documenti.');return;}const title=$('personal-doc-title').value.trim();const year=$('personal-doc-year').value;const file=$('personal-doc-file').files&&$('personal-doc-file').files[0];if(!title){alert('Inserisci il nome o la descrizione del documento.');$('personal-doc-title').focus();return;}if(!year){alert('Seleziona l’anno.');return;}if(!file){alert('Seleziona un file da caricare.');return;}if(file.size>20*1024*1024){alert('Il file supera il limite di 20 MB.');return;}
+ busy=true;const btn=$('personal-doc-upload-save');btn.disabled=true;btn.textContent='Caricamento…';$('personal-doc-progress').style.display='block';$('personal-doc-progress').textContent='Caricamento del file…';let path='';try{const safeName=file.name.replace(/[\/#?]/g,'_');path='documenti/'+user.uid+'/'+year+'/'+Date.now()+'_'+safeName;const ref=storage.ref().child(path);const snap=await ref.put(file);const url=await snap.ref.getDownloadURL();const record={id:String(Date.now())+'_'+Math.random().toString(36).slice(2,8),title,name:file.name,year:Number(year),url,storagePath:path,size:file.size,contentType:file.type||'',uploadedAt:new Date().toISOString()};files.push(record);try{await save();}catch(e){files=files.filter(f=>f.id!==record.id);try{await ref.delete()}catch(_){}throw e;}selectedYear=String(year);setupYears();$('personal-doc-year-filter').value=selectedYear;render();$('personal-doc-upload-overlay').style.display='none';alert('Documento caricato con successo!');}catch(e){console.error('Errore caricamento documento personale',e);alert('Impossibile caricare il documento: '+(e.message||e)+'\nSe compare un errore di permessi, vanno aggiornate le regole Firebase Storage e Firestore.');}finally{busy=false;btn.disabled=false;btn.textContent='Carica file';$('personal-doc-progress').style.display='none';}}
+ function download(item){if(!item||!item.url){alert('Link del file non disponibile.');return;}if(window.AndroidFiles&&typeof window.AndroidFiles.downloadFile==='function'){window.AndroidFiles.downloadFile(item.url,item.name||'documento');return;}const a=document.createElement('a');a.href=item.url;a.download=item.name||'documento';a.target='_blank';document.body.appendChild(a);a.click();a.remove();}
+ async function remove(item){if(!user||!item)return;if(!confirm('Eliminare il documento “'+(item.title||item.name)+'”?'))return;const old=files.slice();files=files.filter(f=>f.id!==item.id);try{await save();if(item.storagePath){try{await storage.ref().child(item.storagePath).delete()}catch(e){console.warn('File Storage non eliminato',e);}}setupYears();render();}catch(e){files=old;render();alert('Impossibile eliminare il documento: '+(e.message||e));}}
+ function init(){if(!window.firebase||!firebase.apps||!firebase.apps.length){console.error('Firebase non inizializzato: archivio documenti non disponibile');return;}db=firebase.firestore();storage=firebase.storage();$('btn-nuovo-documento-personale')?.addEventListener('click',open);$('personal-doc-upload-cancel')?.addEventListener('click',close);$('personal-doc-upload-save')?.addEventListener('click',upload);$('personal-doc-year-filter')?.addEventListener('change',()=>{selectedYear=$('personal-doc-year-filter').value;render();});$('personal-doc-upload-overlay')?.addEventListener('click',e=>{if(e.target===$('personal-doc-upload-overlay'))close();});firebase.auth().onAuthStateChanged(u=>{user=u;load();});setupYears();render();}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
 </script>
