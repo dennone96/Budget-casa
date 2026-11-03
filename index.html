@@ -11542,33 +11542,25 @@ let eventsData = {};
 
 // Carica gli eventi
 async function loadEvents() {
-  if (!currentUser) return;
-  
+  if (!currentUser || !currentFamilyId) return;
   try {
-    const userDoc = await userDocRef().get();
-    const data = userDoc.data();
-    
-    if (data && data.events) {
-      eventsData = data.events;
-    } else {
-      eventsData = {};
-      await userDocRef().update({ events: eventsData });
-    }
-    
+    const snap = await sharedFamilyDocRef().get();
+    if (!snap.exists) throw new Error('Documento famiglia non disponibile.');
+    const data = snap.data() || {};
+    eventsData = data.events && typeof data.events === 'object' ? data.events : {};
     renderCalendar();
   } catch (err) {
-    console.error('Errore caricamento eventi:', err);
+    console.error('Errore caricamento eventi condivisi:', err);
   }
 }
 
-// Salva gli eventi
+// Salva gli eventi nel documento della famiglia verificata.
 async function saveEvents() {
-  if (!currentUser) return;
-  
+  if (!currentUser || !currentFamilyId) return;
   try {
-    await userDocRef().update({ events: eventsData });
+    await sharedFamilyDocRef().set({ events: eventsData || {}, updatedAt: new Date().toISOString() }, { merge: true });
   } catch (err) {
-    console.error('Errore salvataggio eventi:', err);
+    console.error('Errore salvataggio eventi condivisi:', err);
   }
 }
 
@@ -12060,88 +12052,63 @@ async function createProfileFromLogin(e) {
   const passwordEl = document.getElementById('create-profile-password');
   const errorEl = document.getElementById('create-profile-error');
   const submitBtn = document.getElementById('create-profile-submit');
+  const invite = getFamilyInviteFromUrl();
   const name = nameEl.value.trim();
   const email = emailEl.value.trim().toLowerCase();
   const password = passwordEl.value;
   errorEl.textContent = '';
-
+  if (!invite) { errorEl.textContent = 'La registrazione è disponibile solo tramite un invito familiare.'; return; }
   if (!name) { errorEl.textContent = 'Inserisci il nome.'; nameEl.focus(); return; }
-  if (!email || !email.includes('@')) { errorEl.textContent = "Inserisci un'email valida."; emailEl.focus(); return; }
-  if (email === ADMIN_EMAIL.toLowerCase()) { errorEl.textContent = "Questa email è riservata all'amministratore."; emailEl.focus(); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { errorEl.textContent = 'Inserisci un indirizzo email valido.'; emailEl.focus(); return; }
+  if (email === ADMIN_EMAIL.toLowerCase()) { errorEl.textContent = 'Questa email è riservata all’amministratore.'; return; }
   if (password.length < 6) { errorEl.textContent = 'La password deve contenere almeno 6 caratteri.'; passwordEl.focus(); return; }
-
-  submitBtn.disabled = true;
-  submitBtn.textContent = 'Creazione in corso…';
-
+  submitBtn.disabled = true; submitBtn.textContent = 'Creazione in corso…';
   let secondaryApp = null;
   try {
-    // Creiamo l'account su una seconda istanza Firebase per NON disconnettere
-    // l'eventuale amministratore già autenticato nell'app principale.
-    const appName = 'profileCreator_' + Date.now();
-    secondaryApp = firebase.initializeApp(firebaseConfig, appName);
+    secondaryApp = firebase.initializeApp(firebaseConfig, 'inviteRegistration_' + Date.now());
     const secondaryAuth = secondaryApp.auth();
     const credential = await secondaryAuth.createUserWithEmailAndPassword(email, password);
-    const newUser = credential.user;
-
-    // Il nome viene salvato direttamente in Firebase Authentication.
-    // Questo passaggio non dipende dalle regole Firestore.
-    await newUser.updateProfile({ displayName: name });
-
-    // Proviamo a creare i dati del profilo solo se le regole Firestore lo consentono.
-    // Un eventuale diniego NON deve annullare la creazione dell'account Firebase:
-    // l'account è già stato creato correttamente e potrà completare la sincronizzazione
-    // al primo accesso.
-    try {
-      const secondaryDb = secondaryApp.firestore();
-      await secondaryDb.collection('profili').doc(newUser.uid).set({
-        uid: newUser.uid,
-        name: name,
-        email: email,
-        role: 'member',
-        status: 'active',
-        familyId: null,
-        profileFamilyStatus: 'pending',
-        createdAt: new Date().toISOString(),
-        createdBy: 'login-registration'
-      }, { merge: true });
-    } catch (profileErr) {
-      console.warn('Sincronizzazione iniziale profilo non autorizzata:', profileErr);
-    }
-
-    // Anche la creazione del documento famiglia viene considerata opzionale:
-    // l'associazione definitiva viene eseguita quando il nuovo utente effettua il login.
-    try {
-      const secondaryDb = secondaryApp.firestore();
-      await secondaryDb.collection('famiglie').doc(newUser.uid).set({
-        profile: { uid: newUser.uid, name: name, email: email, role: 'member', status: 'active' },
-        familyId: null,
-        familyMembers: {},
-        profileFamilyStatus: 'pending',
-        createdAt: new Date().toISOString()
-      }, { merge: true });
-    } catch (familyErr) {
-      console.warn('Documento famiglia iniziale non autorizzato:', familyErr);
-    }
-
+    await credential.user.updateProfile({ displayName: name });
+    await credential.user.sendEmailVerification();
     await secondaryAuth.signOut();
-
-    errorEl.style.color = 'var(--success)';
-    errorEl.textContent = '✅ Profilo creato. Ora puoi accedere con email e password.';
     document.getElementById('login-email').value = email;
     document.getElementById('login-password').value = '';
     document.getElementById('create-profile-form').reset();
+    errorEl.style.color = 'var(--success)';
+    errorEl.textContent = 'Account creato. Verifica l’indirizzo email dal messaggio ricevuto, poi accedi qui con le stesse credenziali per completare l’invito.';
   } catch (err) {
-    console.error('Errore creazione profilo:', err);
+    console.error('Errore creazione profilo tramite invito:', err);
     errorEl.style.color = 'var(--danger)';
     errorEl.textContent = traduciErroreFirebase(err.code) || err.message || 'Impossibile creare il profilo.';
   } finally {
-    if (secondaryApp) {
-      try { await secondaryApp.delete(); } catch (_) {}
-    }
-    submitBtn.disabled = false;
-    submitBtn.textContent = 'Crea profilo';
+    if (secondaryApp) { try { await secondaryApp.delete(); } catch (_) {} }
+    submitBtn.disabled = false; submitBtn.textContent = 'Crea profilo';
   }
 }
+
+function getFamilyInviteFromUrl() {
+  const match = String(window.location.hash || '').match(/(?:^#|&)invite=([0-9a-f-]{36})\.([0-9a-f]{64})(?:&|$)/i);
+  return match ? { inviteId: match[1], token: match[2] } : null;
+}
+
+async function acceptFamilyInviteIfPresent(user) {
+  const invite = getFamilyInviteFromUrl();
+  if (!invite) return false;
+  await user.reload();
+  if (!user.emailVerified) throw new Error('Devi prima verificare il tuo indirizzo email. Apri il link ricevuto via email e accedi nuovamente.');
+  const acceptInvite = firebase.functions('europe-west1').httpsCallable('acceptFamilyInvite');
+  const result = await acceptInvite(invite);
+  window.history.replaceState(null, '', window.location.pathname + window.location.search);
+  currentFamilyId = result.data.familyId;
+  return true;
+}
+
+function updateInviteRegistrationVisibility() {
+  const card = document.querySelector('.login-create-profile-card');
+  if (card) card.style.display = getFamilyInviteFromUrl() ? '' : 'none';
+}
+window.addEventListener('hashchange', updateInviteRegistrationVisibility);
+updateInviteRegistrationVisibility();
 
 document.getElementById('create-profile-form').addEventListener('submit', createProfileFromLogin);
 
@@ -12154,28 +12121,37 @@ function traduciErroreFirebase(code) {
 const map = { 'auth/email-already-in-use': 'Email già registrata.', 'auth/invalid-email': 'Email non valida.', 'auth/weak-password': 'Password di almeno 6 caratteri.', 'auth/wrong-password': 'Password errata.', 'auth/user-not-found': 'Nessun account con questa email.', 'auth/invalid-credential': 'Email o password errati.', 'auth/too-many-requests': 'Troppi tentativi.' };
 return map[code] || 'Si è verificato un errore.';
 }
-auth.onAuthStateChanged((user) => {
+auth.onAuthStateChanged(async (user) => {
   window.__budgetAuthUser = user || null;
   if (user) {
     currentUser = user;
-    document.getElementById('login-screen').classList.add('hidden');
-    document.getElementById('shell').classList.remove('hidden');
-    document.getElementById('sidebar-user-email').textContent = user.email;
-    
-    // === CODICE 5: CARICA MEMBRI E CORREGGI IL FAMILYID ===
-    loadFamilyMembers().then(async () => {
-      // Correggi il familyId se necessario
+    try {
+      const acceptedInvite = await acceptFamilyInviteIfPresent(user);
+      await user.reload();
+      const isAdmin = (user.email || '').trim().toLowerCase() === ADMIN_EMAIL.toLowerCase();
+      if (!isAdmin && !user.emailVerified) throw new Error('Verifica il tuo indirizzo email prima di accedere alla famiglia.');
+      document.getElementById('login-screen').classList.add('hidden');
+      document.getElementById('shell').classList.remove('hidden');
+      document.getElementById('sidebar-user-email').textContent = user.email || '';
+      await loadFamilyMembers();
       await fixMemberFamilyId();
-      
-      // Ora carica i dati
       await loadSharedFamilyData();
+      if (!currentFamilyId) throw new Error('Famiglia non verificata.');
       attachFirestoreListener();
       loadBolletteData();
-    });
-    
-    document.getElementById('save-status').textContent = 'Caricamento dati famiglia...';
+      document.getElementById('save-status').textContent = acceptedInvite ? 'Invito accettato. Famiglia collegata.' : 'Dati famiglia caricati.';
+    } catch (err) {
+      console.error('Accesso famiglia non completato:', err);
+      document.getElementById('shell').classList.add('hidden');
+      document.getElementById('login-screen').classList.remove('hidden');
+      const loginError = document.getElementById('login-error');
+      if (loginError) loginError.textContent = err.message || 'Impossibile accedere alla famiglia.';
+      if (auth.currentUser) await auth.signOut();
+    }
   } else {
     currentUser = null;
+    currentFamilyId = null;
+    familyMembers = {};
     if (unsubscribeSnapshot) { unsubscribeSnapshot(); unsubscribeSnapshot = null; }
     if (unsubscribeBollette) { unsubscribeBollette(); unsubscribeBollette = null; }
     document.getElementById('shell').classList.add('hidden');
@@ -12214,6 +12190,12 @@ function downloadTemplate(type) {
 window.downloadTemplate = downloadTemplate;  
 
 function userDocRef() { return db.collection('famiglie').doc(currentUser.uid); }
+// Liste della spesa e calendario sono dati condivisi: usano il documento
+// della famiglia verificata, non il documento personale del singolo utente.
+function sharedFamilyDocRef() {
+  if (!currentUser || !currentFamilyId) throw new Error('Famiglia non verificata: operazione non consentita.');
+  return db.collection('famiglie').doc(currentFamilyId);
+}
 function attachFirestoreListener() {
   // I dati applicativi sono condivisi nel documento della FAMIGLIA.
   // Non ascoltare famiglie/{uid}: quel documento contiene principalmente
@@ -12255,6 +12237,16 @@ function attachFirestoreListener() {
     }
     if (Object.prototype.hasOwnProperty.call(data, 'categoryColors')) {
       categoryColors = data.categoryColors || {};
+    }
+    // Liste e calendario sono anch'essi condivisi: il listener aggiorna
+    // immediatamente gli altri dispositivi quando un membro salva modifiche.
+    if (Object.prototype.hasOwnProperty.call(data, 'shoppingLists')) {
+      shoppingLists = data.shoppingLists && typeof data.shoppingLists === 'object' ? data.shoppingLists : {};
+      if (document.getElementById('liste-container-principale')) renderShoppingLists();
+    }
+    if (Object.prototype.hasOwnProperty.call(data, 'events')) {
+      eventsData = data.events && typeof data.events === 'object' ? data.events : {};
+      if (document.getElementById('calendario-giorni')) renderCalendar();
     }
 
     setTab(state.currentType);
@@ -15495,132 +15487,63 @@ updateTransactionsList = function() {
 
   // Funzione per caricare i membri della famiglia
 async function loadFamilyMembers() {
-  if (!currentUser) {
-    console.error('Nessun utente loggato');
-    return;
-  }
-
+  if (!currentUser) throw new Error('Nessun utente autenticato.');
   const container = document.getElementById('family-members-list');
-  if (!container) return;
-
   try {
-    const userRef = userDocRef();
-    const userSnap = await userRef.get();
-    const userData = userSnap.exists ? (userSnap.data() || {}) : {};
+    const ownRef = userDocRef();
+    const ownSnap = await ownRef.get();
+    const ownData = ownSnap.exists ? (ownSnap.data() || {}) : {};
+    const isAdmin = (currentUser.email || '').trim().toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
-    // 1) Se il profilo possiede già un familyId valido, usalo.
-    if (userData.familyId) {
-      currentFamilyId = userData.familyId;
-      const familySnap = await db.collection('famiglie').doc(currentFamilyId).get();
-      if (familySnap.exists) {
-        const family = familySnap.data() || {};
-        familyMembers = family.members || {};
-      } else {
-        currentFamilyId = null;
-      }
-    }
-
-    // 2) Se non abbiamo ancora una famiglia, cerca LA FAMIGLIA DELL'ADMIN.
-    //    È il punto fondamentale per i nuovi profili: non devono creare una
-    //    famiglia vuota propria, ma entrare nella famiglia condivisa.
-    if (!currentFamilyId) {
-      const allFamilies = await db.collection('famiglie').get();
-      let adminFamilyDoc = null;
-
-      for (const doc of allFamilies.docs) {
-        const data = doc.data() || {};
-        const members = data.members || {};
-        const hasAdmin = Object.values(members).some(member =>
-          member && String(member.email || '').trim().toLowerCase() === ADMIN_EMAIL.toLowerCase()
-        );
-        const isCurrentAdmin = (currentUser.email || '').toLowerCase() === ADMIN_EMAIL.toLowerCase();
-        const isAdminFamily = (isCurrentAdmin && doc.id === currentUser.uid) || hasAdmin;
-        if (isAdminFamily) {
-          adminFamilyDoc = doc;
-          break;
-        }
-      }
-
-      if (adminFamilyDoc) {
-        currentFamilyId = adminFamilyDoc.id;
-        const family = adminFamilyDoc.data() || {};
-        familyMembers = { ...(family.members || {}) };
-
-        // Inserisci il nuovo profilo nella famiglia condivisa.
-        familyMembers[currentUser.uid] = {
-          name: currentUser.displayName || currentUser.email || 'Utente',
-          email: currentUser.email || '',
-          role: 'member',
-          status: 'active',
-          joinedAt: new Date().toISOString()
-        };
-
-        await db.collection('famiglie').doc(currentFamilyId).update({
-          members: familyMembers,
-          updatedAt: new Date().toISOString()
-        });
-
-        // Il documento personale può non esistere: usare set+merge, non update.
-        await userRef.set({
-          familyId: currentFamilyId,
-          familyMembers: familyMembers,
-          profileFamilyStatus: 'active',
-          profile: {
-            uid: currentUser.uid,
-            name: currentUser.displayName || currentUser.email || 'Utente',
-            email: currentUser.email || '',
-            role: 'member',
-            status: 'active'
-          },
-          updatedAt: new Date().toISOString()
-        }, { merge: true });
-
-        // Completa anche il documento profili se possibile. Se le regole non lo
-        // consentono, la condivisione dei dati non viene comunque interrotta.
-        try {
-          await db.collection('profili').doc(currentUser.uid).set({
-            uid: currentUser.uid,
-            name: currentUser.displayName || currentUser.email || 'Utente',
-            email: currentUser.email || '',
-            role: 'member',
-            status: 'active',
-            familyId: currentFamilyId,
-            profileFamilyStatus: 'active',
-            updatedAt: new Date().toISOString()
-          }, { merge: true });
-        } catch (profileErr) {
-          console.warn('Impossibile aggiornare profili/{uid}; continuo con la famiglia:', profileErr);
-        }
-      }
-    }
-
-    // 3) Se ancora non esiste una famiglia, solo allora crea una famiglia personale.
-    if (!currentFamilyId) {
+    // L'amministratore è proprietario della famiglia identificata dal proprio UID.
+    if (isAdmin) {
       currentFamilyId = currentUser.uid;
-      familyMembers = {
-        [currentUser.uid]: {
-          name: currentUser.displayName || currentUser.email || 'Utente',
-          email: currentUser.email || '',
-          role: 'admin',
-          status: 'active',
-          joinedAt: new Date().toISOString()
-        }
-      };
-      await userRef.set({
-        familyMembers: familyMembers,
-        familyId: currentFamilyId,
-        profileFamilyStatus: 'active'
-      }, { merge: true });
+      const familyRef = db.collection('famiglie').doc(currentFamilyId);
+      const familySnap = await familyRef.get();
+      if (!familySnap.exists) {
+        throw new Error('Documento della famiglia amministratore non trovato. Nessun dato è stato creato o modificato.');
+      }
+      const family = familySnap.data() || {};
+      familyMembers = { ...(family.members || {}) };
+      const adminEntry = familyMembers[currentUser.uid] || {};
+      if (adminEntry.role !== 'admin' || adminEntry.status !== 'active') {
+        familyMembers[currentUser.uid] = {
+          ...adminEntry,
+          name: currentUser.displayName || adminEntry.name || 'Amministratore',
+          email: currentUser.email || ADMIN_EMAIL,
+          role: 'admin', status: 'active',
+          joinedAt: adminEntry.joinedAt || new Date().toISOString()
+        };
+        await familyRef.update({ members: familyMembers, updatedAt: new Date().toISOString() });
+      }
+    } else {
+      // Un membro non può cercare famiglie né auto-iscriversi: familyId viene
+      // scritto esclusivamente dalla Cloud Function acceptFamilyInvite.
+      if (!ownData.familyId || ownData.profileFamilyStatus !== 'active') {
+        throw new Error('Questo account non è ancora associato a una famiglia. Accetta prima un invito valido usando l’email verificata.');
+      }
+      currentFamilyId = String(ownData.familyId);
+      const familySnap = await db.collection('famiglie').doc(currentFamilyId).get();
+      if (!familySnap.exists) throw new Error('La famiglia associata a questo account non esiste. Contatta l’amministratore.');
+      const family = familySnap.data() || {};
+      familyMembers = { ...(family.members || {}) };
+      const membership = familyMembers[currentUser.uid];
+      if (!membership || membership.status !== 'active' || String(membership.email || '').toLowerCase() !== String(currentUser.email || '').toLowerCase()) {
+        currentFamilyId = null;
+        throw new Error('L’accesso alla famiglia non risulta attivo per questo account. Contatta l’amministratore.');
+      }
     }
 
-    console.log('Famiglia collegata:', currentFamilyId);
-    await loadSharedFamilyData();
+    console.log('Famiglia collegata tramite verifica esplicita:', currentFamilyId);
     await renderFamilyMembers();
   } catch (err) {
-    console.error('Errore caricamento famiglia:', err);
-    if (container) {
-      container.innerHTML = `<p style="color:var(--danger);font-size:13px;">Errore: ${escapeHtml(err.message || 'Impossibile collegare la famiglia.')}</p>`;
-    }
+    currentFamilyId = null;
+    familyMembers = {};
+    console.error('Verifica appartenenza famiglia non riuscita:', err);
+    if (container) container.innerHTML = `<p style="color:var(--danger);font-size:13px;">${escapeHtml(err.message || 'Accesso alla famiglia non autorizzato.')}</p>`;
+    const saveStatus = document.getElementById('save-status');
+    if (saveStatus) saveStatus.textContent = 'Accesso famiglia non completato.';
+    throw err;
   }
 }
 
@@ -15654,6 +15577,9 @@ async function loadSharedFamilyData() {
       document.getElementById('save-status').textContent = '✅ Dati della famiglia caricati.';
     } else {
       console.log('Documento famiglia non trovato per ID:', currentFamilyId);
+      if ((currentUser.email || '').trim().toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+        throw new Error('Documento famiglia non trovato. Un membro non può crearne uno autonomamente.');
+      }
 
       // Recupero dati legacy: se il documento personale contiene ancora
       // transactions/categories/reminders, trasferiscili nella famiglia
@@ -15725,36 +15651,7 @@ async function renderFamilyMembers() {
   try {
     let members = { ...(familyMembers || {}) };
 
-    // Per l'admin, unisci anche tutti i profili registrati nella collezione
-    // profili, così la lista rappresenta i profili creati e non solo quelli
-    // già presenti nel documento members della famiglia.
-    if (isAdmin) {
-      try {
-        const profilesSnap = await db.collection('profili').get();
-        profilesSnap.forEach(doc => {
-          const profile = doc.data() || {};
-          const uid = doc.id;
-          if (!uid || uid === currentUser.uid || profile.profileFamilyStatus === 'removed') return;
-          if (!members[uid]) {
-            members[uid] = {
-              name: profile.name || profile.email || 'Utente',
-              email: profile.email || '',
-              role: 'member',
-              status: profile.status || 'active',
-              joinedAt: profile.createdAt || profile.updatedAt || new Date().toISOString()
-            };
-          } else {
-            members[uid] = {
-              ...members[uid],
-              name: profile.name || members[uid].name,
-              email: profile.email || members[uid].email
-            };
-          }
-        });
-      } catch (profileListErr) {
-        console.warn('Lista profili non leggibile; uso i membri della famiglia:', profileListErr);
-      }
-    }
+    // Mostra esclusivamente i membri registrati nel documento famiglia dal backend/invito.
 
     familyMembers = members;
     container.innerHTML = '';
@@ -15822,78 +15719,7 @@ I dati condivisi della famiglia non verranno cancellati.`);
 async function removeProfileCompletely(userId) {
   if (!currentUser || (currentUser.email || '').toLowerCase() !== ADMIN_EMAIL.toLowerCase()) return;
   if (!userId || userId === currentUser.uid) return;
-
-  const statusEl = document.getElementById('profile-members-status');
-  try {
-    if (statusEl) {
-      statusEl.style.color = 'var(--text-muted)';
-      statusEl.textContent = 'Eliminazione dati in corso…';
-    }
-
-    // Rimuove il profilo dalla famiglia condivisa, senza toccare i dati comuni.
-    if (currentFamilyId) {
-      const familyRef = db.collection('famiglie').doc(currentFamilyId);
-      const familySnap = await familyRef.get();
-      if (familySnap.exists) {
-        const family = familySnap.data() || {};
-        const members = { ...(family.members || {}) };
-        delete members[userId];
-        await familyRef.update({ members, updatedAt: new Date().toISOString() });
-        familyMembers = members;
-      }
-    }
-
-    // Elimina il documento profilo.
-    try { await db.collection('profili').doc(userId).delete(); }
-    catch (e) { console.warn('Impossibile eliminare profili/{uid}:', e); }
-
-    // Elimina il documento personale del profilo (eventi, preferenze e altri
-    // dati personali memorizzati nel documento famiglie/{uid}).
-    try { await db.collection('famiglie').doc(userId).delete(); }
-    catch (e) { console.warn('Impossibile eliminare famiglie/{uid}:', e); }
-
-    // Elimina la raccolta dati delle bollette del profilo.
-    try { await db.collection('bollette').doc(userId).delete(); }
-    catch (e) { console.warn('Impossibile eliminare bollette/{uid}:', e); }
-
-    // Elimina anche gli allegati personali presenti in Storage, se le regole
-    // permettono all'admin di farlo.
-    const storagePrefixes = [`bollette/${userId}`, `attachments/${userId}`];
-    for (const prefix of storagePrefixes) {
-      try {
-        const listResult = await storage.ref().child(prefix).listAll();
-        const deletions = [];
-        listResult.items.forEach(item => deletions.push(item.delete()));
-        for (const folder of (listResult.prefixes || [])) {
-          try {
-            const nested = await folder.listAll();
-            nested.items.forEach(item => deletions.push(item.delete()));
-          } catch (nestedErr) {
-            console.warn('Impossibile leggere una sottocartella Storage:', nestedErr);
-          }
-        }
-        await Promise.all(deletions);
-      } catch (storageErr) {
-        console.warn('Allegati Storage non eliminati:', storageErr);
-      }
-    }
-
-    // NOTA: dal client Firebase non è possibile eliminare l'utente dalla
-    // Firebase Authentication di un'altra persona. I dati Firestore/Storage
-    // vengono eliminati; l'account Auth potrà essere eliminato solo tramite
-    // Admin SDK/Cloud Function.
-    await renderFamilyMembers();
-    if (statusEl) {
-      statusEl.style.color = 'var(--success)';
-      statusEl.textContent = 'Profilo e dati personali eliminati da Firebase.';
-    }
-  } catch (err) {
-    console.error('Errore eliminazione profilo:', err);
-    if (statusEl) {
-      statusEl.style.color = 'var(--danger)';
-      statusEl.textContent = 'Errore eliminazione: ' + (err.message || err);
-    }
-  }
+  alert('La rimozione dei membri sarà gestita da una Cloud Function amministrativa. Per sicurezza questa versione non elimina account, documenti o allegati dal browser.');
 }
 
 // Compatibilità con eventuali vecchi riferimenti.
@@ -15904,130 +15730,35 @@ async function removeFamilyMember(userId) {
 // L'admin collega automaticamente alla propria famiglia tutti i profili
 // creati dalla schermata di login.
 async function syncCreatedProfilesToAdminFamily() {
-  if (!currentUser || (currentUser.email || '').toLowerCase() !== ADMIN_EMAIL.toLowerCase()) return;
-  if (!currentFamilyId) return;
-
-  try {
-    const familyRef = db.collection('famiglie').doc(currentFamilyId);
-    const familySnap = await familyRef.get();
-    if (!familySnap.exists) return;
-
-    const family = familySnap.data() || {};
-    const members = { ...(family.members || {}) };
-    const profilesSnap = await db.collection('profili').get();
-    let changed = false;
-
-    for (const doc of profilesSnap.docs) {
-      const profile = doc.data() || {};
-      const uid = doc.id;
-      if (!uid || uid === currentUser.uid) continue;
-      if ((profile.email || '').toLowerCase() === ADMIN_EMAIL.toLowerCase()) continue;
-      if (profile.profileFamilyStatus === 'removed') continue;
-
-      const member = members[uid] || {};
-      members[uid] = {
-        ...member,
-        name: profile.name || member.name || profile.email || 'Utente',
-        email: profile.email || member.email || '',
-        role: 'member',
-        status: 'active',
-        joinedAt: member.joinedAt || profile.createdAt || new Date().toISOString()
-      };
-      changed = true;
-
-      try {
-        await db.collection('famiglie').doc(uid).set({
-          profile: { uid, name: members[uid].name, email: members[uid].email, role: 'member', status: 'active' },
-          familyId: currentFamilyId,
-          familyMembers: members,
-          profileFamilyStatus: 'active',
-          updatedAt: new Date().toISOString()
-        }, { merge: true });
-      } catch (memberErr) {
-        console.warn('Documento personale membro non aggiornato:', memberErr);
-      }
-
-      try {
-        await db.collection('profili').doc(uid).set({
-          familyId: currentFamilyId,
-          profileFamilyStatus: 'active',
-          updatedAt: new Date().toISOString()
-        }, { merge: true });
-      } catch (profileErr) {
-        console.warn('Profilo non aggiornato:', profileErr);
-      }
-    }
-
-    if (changed) {
-      await familyRef.update({ members, updatedAt: new Date().toISOString() });
-    }
-    familyMembers = members;
-  } catch (err) {
-    console.warn('Sincronizzazione profili non completata:', err);
-  }
+  // Disabilitata intenzionalmente: i profili entrano in famiglia solo tramite invito verificato.
+  return;
 }
 
 // Funzione per invitare un nuovo membro
 async function inviteMember() {
-  const email = document.getElementById('invite-email').value.trim();
+  const email = document.getElementById('invite-email').value.trim().toLowerCase();
   const name = document.getElementById('invite-name').value.trim();
   const statusEl = document.getElementById('invite-status');
-  
-  if (!email) {
-    statusEl.textContent = 'Inserisci un email valida';
-    statusEl.style.color = 'var(--danger)';
-    return;
-  }
-  
-  if (!name) {
-    statusEl.textContent = 'Inserisci un nome per il membro';
-    statusEl.style.color = 'var(--danger)';
-    return;
-  }
-  
-  statusEl.textContent = 'Invio invito...';
-  statusEl.style.color = 'var(--text-secondary)';
-  
+  if (!email || !name) { statusEl.textContent = 'Inserisci nome ed email del membro.'; statusEl.style.color = 'var(--danger)'; return; }
+  if (!currentUser || (currentUser.email || '').toLowerCase() !== ADMIN_EMAIL.toLowerCase()) { statusEl.textContent = 'Solo l’amministratore può creare inviti.'; statusEl.style.color = 'var(--danger)'; return; }
+  statusEl.textContent = 'Creazione invito in corso…'; statusEl.style.color = 'var(--text-secondary)';
   try {
-    // Verifica se l'email è già nella lista
-    const existingMember = Object.keys(familyMembers).find(key => 
-      familyMembers[key].email === email
-    );
-    
-    if (existingMember) {
-      statusEl.textContent = '⚠️ Questa email è già stata invitata';
-      statusEl.style.color = 'var(--warning)';
-      return;
+    const createInvite = firebase.functions('europe-west1').httpsCallable('createFamilyInvite');
+    const response = await createInvite({ email, name });
+    const { inviteId, token, expiresInDays } = response.data;
+    const inviteUrl = window.location.origin + window.location.pathname + '#invite=' + inviteId + '.' + token;
+    try {
+      await navigator.clipboard.writeText(inviteUrl);
+      statusEl.textContent = 'Invito creato per ' + email + '. Link copiato: invialo tramite WhatsApp. Scade tra ' + expiresInDays + ' giorni.';
+    } catch (_) {
+      statusEl.innerHTML = 'Invito creato per <strong>' + escapeHtml(email) + '</strong>. Copia il link e invialo tramite WhatsApp:<br><textarea readonly style="width:100%;min-height:76px;margin-top:8px;">' + escapeHtml(inviteUrl) + '</textarea>Scade tra ' + expiresInDays + ' giorni.';
     }
-    
-    // Aggiungi il nuovo membro
-    const tempId = 'pending_' + Date.now();
-    familyMembers[tempId] = {
-      name: name,
-      email: email,
-      role: 'member',
-      status: 'pending',
-      invitedAt: new Date().toISOString()
-    };
-    
-    await userDocRef().update({ familyMembers: familyMembers });
-    
-    renderFamilyMembers();
-    
+    statusEl.style.color = 'var(--success)';
     document.getElementById('invite-email').value = '';
     document.getElementById('invite-name').value = '';
-    
-    statusEl.innerHTML = `
-      ✅ Invito inviato a <strong>${email}</strong>!<br>
-      <small style="color:var(--text-muted);">
-        L'utente dovrà registrarsi con questa email per accedere al budget.
-      </small>
-    `;
-    statusEl.style.color = 'var(--success)';
-    
   } catch (err) {
-    console.error('Errore invio invito:', err);
-    statusEl.textContent = 'Errore: ' + err.message;
+    console.error('Errore creazione invito:', err);
+    statusEl.textContent = 'Errore: ' + (err.message || 'impossibile creare l’invito.');
     statusEl.style.color = 'var(--danger)';
   }
 }
@@ -16064,71 +15795,17 @@ if (inviteBtn) {
   inviteBtn.onclick = inviteMember;
 }
 async function fixMemberFamilyId() {
-  if (!currentUser) return;
-
-  try {
-    const userRef = userDocRef();
-    const userSnap = await userRef.get();
-    const userData = userSnap.exists ? (userSnap.data() || {}) : {};
-
-    // Se siamo già collegati alla famiglia dell'admin, non cambiare nulla.
-    if (userData.familyId && userData.familyId !== currentUser.uid) {
-      const currentFamilySnap = await db.collection('famiglie').doc(userData.familyId).get();
-      if (currentFamilySnap.exists) {
-        const family = currentFamilySnap.data() || {};
-        const members = family.members || {};
-        const hasAdmin = Object.values(members).some(member =>
-          member && String(member.email || '').trim().toLowerCase() === ADMIN_EMAIL.toLowerCase()
-        );
-        if (hasAdmin) {
-          currentFamilyId = userData.familyId;
-          familyMembers = members;
-          return;
-        }
-      }
-    }
-
-    // Cerca specificamente la famiglia dell'admin, non una famiglia qualsiasi
-    // che abbia transazioni.
-    const allFamilies = await db.collection('famiglie').get();
-    let adminFamily = null;
-    for (const doc of allFamilies.docs) {
-      const data = doc.data() || {};
-      const members = data.members || {};
-      const hasAdmin = ((currentUser.email || '').toLowerCase() === ADMIN_EMAIL.toLowerCase() && doc.id === currentUser.uid) || Object.values(members).some(member =>
-        member && String(member.email || '').trim().toLowerCase() === ADMIN_EMAIL.toLowerCase()
-      );
-      if (hasAdmin) { adminFamily = doc; break; }
-    }
-
-    if (!adminFamily) return;
-
-    currentFamilyId = adminFamily.id;
-    const family = adminFamily.data() || {};
-    familyMembers = { ...(family.members || {}) };
-
-    if (!familyMembers[currentUser.uid]) {
-      familyMembers[currentUser.uid] = {
-        name: currentUser.displayName || currentUser.email || 'Utente',
-        email: currentUser.email || '',
-        role: 'member',
-        status: 'active',
-        joinedAt: new Date().toISOString()
-      };
-      await db.collection('famiglie').doc(currentFamilyId).update({
-        members: familyMembers,
-        updatedAt: new Date().toISOString()
-      });
-    }
-
-    await userRef.set({
-      familyId: currentFamilyId,
-      familyMembers,
-      profileFamilyStatus: 'active'
-    }, { merge: true });
-  } catch (err) {
-    console.error('Errore fixMemberFamilyId:', err);
+  // Nessuna correzione automatica: l'associazione è stabilita esclusivamente
+  // dalla Cloud Function acceptFamilyInvite e verificata in loadFamilyMembers.
+  if (!currentUser || !currentFamilyId) return false;
+  const snap = await userDocRef().get();
+  if ((currentUser.email || '').toLowerCase() === ADMIN_EMAIL.toLowerCase()) return currentFamilyId === currentUser.uid;
+  const data = snap.exists ? snap.data() || {} : {};
+  if (data.familyId !== currentFamilyId || data.profileFamilyStatus !== 'active') {
+    currentFamilyId = null;
+    throw new Error('Associazione famiglia non valida.');
   }
+  return true;
 }
 
 // === INIZIALIZZAZIONE PAGINA LISTE ===
@@ -16157,41 +15834,32 @@ function initListPage() {
 
 // 1. loadShoppingLists - Carica le liste dal database
 async function loadShoppingLists() {
-  if (!currentUser) {
-    console.warn('Nessun utente loggato');
+  if (!currentUser || !currentFamilyId) {
+    console.warn('Famiglia non verificata: caricamento liste sospeso');
     return;
   }
-  
   try {
-    const userDoc = await userDocRef().get();
-    const data = userDoc.data();
-    
-    if (data && data.shoppingLists) {
-      shoppingLists = data.shoppingLists;
-    } else {
-      shoppingLists = {};
-      await userDocRef().update({ shoppingLists: shoppingLists });
-    }
-    
+    const snap = await sharedFamilyDocRef().get();
+    if (!snap.exists) throw new Error('Documento famiglia non disponibile.');
+    const data = snap.data() || {};
+    shoppingLists = data.shoppingLists && typeof data.shoppingLists === 'object' ? data.shoppingLists : {};
     renderShoppingLists();
   } catch (err) {
-    console.error('Errore caricamento liste:', err);
+    console.error('Errore caricamento liste condivise:', err);
   }
 }
 
-// 2. saveShoppingLists - Salva le liste nel database
+// 2. saveShoppingLists - Salva le liste nel documento della famiglia
 async function saveShoppingLists() {
-  if (!currentUser) {
-    console.warn('⚠️ Nessun utente loggato, impossibile salvare');
+  if (!currentUser || !currentFamilyId) {
+    console.warn('Famiglia non verificata: salvataggio liste sospeso');
     return;
   }
-  
   try {
-    console.log('💾 Salvataggio liste in corso...', shoppingLists);
-    await userDocRef().update({ shoppingLists: shoppingLists });
-    console.log('✅ Liste salvate con successo!');
+    await sharedFamilyDocRef().set({ shoppingLists: shoppingLists || {}, updatedAt: new Date().toISOString() }, { merge: true });
+    console.log('Liste condivise salvate.');
   } catch (err) {
-    console.error('❌ Errore salvataggio liste:', err);
+    console.error('Errore salvataggio liste condivise:', err);
   }
 }
 
@@ -16601,33 +16269,25 @@ function initListPage() {
 
 // Carica gli eventi
 async function loadEvents() {
-  if (!currentUser) return;
-  
+  if (!currentUser || !currentFamilyId) return;
   try {
-    const userDoc = await userDocRef().get();
-    const data = userDoc.data();
-    
-    if (data && data.events) {
-      eventsData = data.events;
-    } else {
-      eventsData = {};
-      await userDocRef().update({ events: eventsData });
-    }
-    
+    const snap = await sharedFamilyDocRef().get();
+    if (!snap.exists) throw new Error('Documento famiglia non disponibile.');
+    const data = snap.data() || {};
+    eventsData = data.events && typeof data.events === 'object' ? data.events : {};
     renderCalendar();
   } catch (err) {
-    console.error('Errore caricamento eventi:', err);
+    console.error('Errore caricamento eventi condivisi:', err);
   }
 }
 
-// Salva gli eventi
+// Salva gli eventi nel documento della famiglia verificata.
 async function saveEvents() {
-  if (!currentUser) return;
-  
+  if (!currentUser || !currentFamilyId) return;
   try {
-    await userDocRef().update({ events: eventsData });
+    await sharedFamilyDocRef().set({ events: eventsData || {}, updatedAt: new Date().toISOString() }, { merge: true });
   } catch (err) {
-    console.error('Errore salvataggio eventi:', err);
+    console.error('Errore salvataggio eventi condivisi:', err);
   }
 }
 
