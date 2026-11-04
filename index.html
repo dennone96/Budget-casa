@@ -10876,6 +10876,24 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 <div class="page" id="page-profilo">
 <h1>Profilo</h1>
 
+<div class="panel" id="family-management-panel" style="display:none;">
+  <div class="profile-panel-head">
+    <div>
+      <h3>👨‍👩‍👧‍👦 Gestione famiglia</h3>
+      <p>Invita una persona a condividere il bilancio familiare. L'invito è valido 7 giorni.</p>
+    </div>
+    <span class="profile-admin-badge">Admin</span>
+  </div>
+  <div class="family-invite-form" style="display:grid;gap:10px;margin-top:14px;">
+    <label for="invite-name" style="font-size:12px;font-weight:700;color:var(--text-secondary);">Nome del membro</label>
+    <input id="invite-name" type="text" autocomplete="name" placeholder="Es. Maria Rossi" style="width:100%;min-height:46px;padding:12px;border:1px solid var(--border);border-radius:13px;">
+    <label for="invite-email" style="font-size:12px;font-weight:700;color:var(--text-secondary);">Email del membro</label>
+    <input id="invite-email" type="email" autocomplete="email" placeholder="nome@email.com" style="width:100%;min-height:46px;padding:12px;border:1px solid var(--border);border-radius:13px;">
+    <button id="btn-invite-member" type="button" style="width:100%;min-height:48px;border:0;border-radius:14px;background:var(--modern-ink,#203447);color:#fff;font-weight:800;">🔗 Crea invito e copia link</button>
+    <p id="invite-status" role="status" aria-live="polite" style="font-size:12px;line-height:1.5;margin:2px 0 0;color:var(--text-secondary);"></p>
+  </div>
+</div>
+
 <div class="panel profile-main-panel">
   <div class="profile-panel-head">
     <div>
@@ -10899,16 +10917,6 @@ Movimenti in contanti. Stesse colonne del conto corrente.
   <p id="profile-msg"></p>
 </div>
 
-<div class="panel" id="profile-maintenance-panel">
-  <h3>🔧 Manutenzione</h3>
-  <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">
-    Se i dati non vengono visualizzati correttamente, puoi correggere il collegamento alla famiglia.
-  </p>
-  <button id="btn-fix-family" style="width:100%; height:40px; background:var(--warning); color:#fff; border:none; border-radius:var(--radius-sm); font-weight:700; cursor:pointer;">
-    🔄 Correggi collegamento famiglia
-  </button>
-  <p id="fix-status" style="font-size:12px; color:var(--text-muted); margin-top:8px; min-height:20px;"></p>
-</div>
 </div>
 <div class="page" id="page-categorie">
 <h1>Categorie</h1>
@@ -13721,8 +13729,8 @@ async function updateProfilePage() {
   const badge = document.getElementById('profile-admin-badge');
   if (badge) badge.style.display = isAdmin ? 'inline-flex' : 'none';
 
-  const maintenance = document.getElementById('profile-maintenance-panel');
-  if (maintenance) maintenance.style.display = isAdmin ? 'block' : 'none';
+  const familyManagement = document.getElementById('family-management-panel');
+  if (familyManagement) familyManagement.style.display = isAdmin ? 'block' : 'none';
 
   if (isAdmin) {
     try { await syncCreatedProfilesToAdminFamily(); } catch (e) { console.error('Errore sincronizzazione profili:', e); }
@@ -15736,10 +15744,14 @@ async function syncCreatedProfilesToAdminFamily() {
 
 // Funzione per invitare un nuovo membro
 async function inviteMember() {
-  const email = document.getElementById('invite-email').value.trim().toLowerCase();
-  const name = document.getElementById('invite-name').value.trim();
+  const emailEl = document.getElementById('invite-email');
+  const nameEl = document.getElementById('invite-name');
   const statusEl = document.getElementById('invite-status');
+  if (!emailEl || !nameEl || !statusEl) return;
+  const email = emailEl.value.trim().toLowerCase();
+  const name = nameEl.value.trim();
   if (!email || !name) { statusEl.textContent = 'Inserisci nome ed email del membro.'; statusEl.style.color = 'var(--danger)'; return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { statusEl.textContent = 'Inserisci un indirizzo email valido.'; statusEl.style.color = 'var(--danger)'; return; }
   if (!currentUser || (currentUser.email || '').toLowerCase() !== ADMIN_EMAIL.toLowerCase()) { statusEl.textContent = 'Solo l’amministratore può creare inviti.'; statusEl.style.color = 'var(--danger)'; return; }
   statusEl.textContent = 'Creazione invito in corso…'; statusEl.style.color = 'var(--text-secondary)';
   try {
@@ -15754,8 +15766,8 @@ async function inviteMember() {
       statusEl.innerHTML = 'Invito creato per <strong>' + escapeHtml(email) + '</strong>. Copia il link e invialo tramite WhatsApp:<br><textarea readonly style="width:100%;min-height:76px;margin-top:8px;">' + escapeHtml(inviteUrl) + '</textarea>Scade tra ' + expiresInDays + ' giorni.';
     }
     statusEl.style.color = 'var(--success)';
-    document.getElementById('invite-email').value = '';
-    document.getElementById('invite-name').value = '';
+    emailEl.value = '';
+    nameEl.value = '';
   } catch (err) {
     console.error('Errore creazione invito:', err);
     statusEl.textContent = 'Errore: ' + (err.message || 'impossibile creare l’invito.');
