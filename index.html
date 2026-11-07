@@ -20,6 +20,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-storage-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-functions-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -15754,8 +15755,13 @@ async function inviteMember() {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { statusEl.textContent = 'Inserisci un indirizzo email valido.'; statusEl.style.color = 'var(--danger)'; return; }
   if (!currentUser || (currentUser.email || '').toLowerCase() !== ADMIN_EMAIL.toLowerCase()) { statusEl.textContent = 'Solo l’amministratore può creare inviti.'; statusEl.style.color = 'var(--danger)'; return; }
   statusEl.textContent = 'Creazione invito in corso…'; statusEl.style.color = 'var(--text-secondary)';
+  const button = document.getElementById('btn-invite-member');
+  if (button) { button.disabled = true; button.textContent = '⏳ Creazione invito…'; }
   try {
-    const createInvite = firebase.functions('europe-west1').httpsCallable('createFamilyInvite');
+    if (!window.firebase || typeof firebase.functions !== 'function') {
+      throw new Error('Componente Firebase Functions non caricato. Ricarica la pagina e riprova.');
+    }
+    const createInvite = firebase.app().functions('europe-west1').httpsCallable('createFamilyInvite');
     const response = await createInvite({ email, name });
     const { inviteId, token, expiresInDays } = response.data;
     const inviteUrl = window.location.origin + window.location.pathname + '#invite=' + inviteId + '.' + token;
@@ -15770,8 +15776,11 @@ async function inviteMember() {
     nameEl.value = '';
   } catch (err) {
     console.error('Errore creazione invito:', err);
-    statusEl.textContent = 'Errore: ' + (err.message || 'impossibile creare l’invito.');
+    const code = err && err.code ? ' (' + err.code + ')' : '';
+    statusEl.textContent = 'Invito non creato: ' + (err.message || 'errore non specificato') + code;
     statusEl.style.color = 'var(--danger)';
+  } finally {
+    if (button) { button.disabled = false; button.textContent = '🔗 Crea invito e copia link'; }
   }
 }
 // === EVENT LISTENER SEMPLIFICATI ===
@@ -15804,7 +15813,17 @@ if (resetBtn) {
 // Invito membro
 const inviteBtn = document.getElementById('btn-invite-member');
 if (inviteBtn) {
-  inviteBtn.onclick = inviteMember;
+  inviteBtn.addEventListener('click', function(event) {
+    event.preventDefault();
+    inviteMember().catch(function(err) {
+      console.error('Errore imprevisto pulsante invito:', err);
+      const statusEl = document.getElementById('invite-status');
+      if (statusEl) {
+        statusEl.textContent = 'Errore imprevisto: ' + (err && err.message ? err.message : 'operazione non riuscita');
+        statusEl.style.color = 'var(--danger)';
+      }
+    });
+  });
 }
 async function fixMemberFamilyId() {
   // Nessuna correzione automatica: l'associazione è stabilita esclusivamente
