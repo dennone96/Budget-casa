@@ -14173,8 +14173,10 @@ setTimeout(() => {
   document.getElementById('home-see-all')?.addEventListener('click', () => document.getElementById('transactions-list')?.scrollIntoView({behavior:'smooth', block:'start'}));
 }, 0);
 
-document.getElementById('inp-date').value = todayISO();
-document.getElementById('rem-date').value = todayISO();
+const _inpDate = document.getElementById('inp-date');
+if (_inpDate) _inpDate.value = todayISO();
+const _remDate = document.getElementById('rem-date');
+if (_remDate) _remDate.value = todayISO();
 function showLoading(show) { document.getElementById('pdf-loading').classList.toggle('show', show); }
 function drawPDFTable(doc, headers, rows, margin, startY, colWidths, pageWidth) {
 let y = startY;
@@ -19021,5 +19023,6 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 </style>
 
+<link rel="stylesheet" href="ios.css"/>
 </body>
 </html>
