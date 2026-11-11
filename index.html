@@ -10824,35 +10824,66 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 </div>
 <div class="page" id="page-bollette">
 <div class="archive-overview" id="archive-overview">
-  <div class="archive-main-header"><h1>Archivio</h1></div>
+  <section class="ap-overview-hero" aria-labelledby="ap-archive-main-title">
+    <div class="ap-hero-copy">
+      <span class="ap-eyebrow"><span class="ap-status-dot"></span> IL TUO SPAZIO ORGANIZZATO</span>
+      <h1 id="ap-archive-main-title">Tutto in ordine<span class="ap-title-period">.</span></h1>
+      <p>Bollette, fatture e documenti importanti. Un posto semplice e sicuro dove ritrovare tutto ciò che conta.</p>
+      <div class="ap-hero-meta"><i class="ti ti-lock-check"></i> I documenti restano nel tuo archivio personale <span class="ap-meta-divider"></span><span id="ap-today-label"></span></div>
+    </div>
+    <div class="ap-hero-visual" aria-hidden="true">
+      <span class="ap-hero-halo"></span><span class="ap-hero-circle"></span>
+      <span class="ap-floating-paper ap-paper-back"><i class="ti ti-file-invoice"></i></span>
+      <span class="ap-floating-paper ap-paper-mid"><i class="ti ti-file-description"></i></span>
+      <span class="ap-floating-paper ap-paper-front"><i class="ti ti-folder"></i></span>
+      <span class="ap-hero-spark ap-spark-one"></span><span class="ap-hero-spark ap-spark-two"></span>
+    </div>
+  </section>
+  <div class="ap-overview-heading"><div><span class="ap-kicker">PANORAMICA</span><h2>Il tuo archivio, in breve</h2></div><span class="ap-year-pill"><i class="ti ti-calendar-event"></i> Dati disponibili</span></div>
+  <div class="ap-summary-grid" aria-label="Riepilogo archivio">
+    <article class="ap-summary-card ap-summary-bills"><div class="ap-summary-top"><span>Bollette</span><span class="ap-summary-icon"><i class="ti ti-flame"></i></span></div><strong id="ap-overview-bills">—</strong><small id="ap-overview-bills-caption">Totale anno selezionato</small><span class="ap-summary-decoration"></span></article>
+    <article class="ap-summary-card ap-summary-net"><div class="ap-summary-top"><span>Internet</span><span class="ap-summary-icon"><i class="ti ti-wifi"></i></span></div><strong id="ap-overview-internet">—</strong><small id="ap-overview-internet-caption">Totale anno selezionato</small><span class="ap-summary-decoration"></span></article>
+    <article class="ap-summary-card ap-summary-files"><div class="ap-summary-top"><span>Documenti</span><span class="ap-summary-icon"><i class="ti ti-files"></i></span></div><strong id="ap-overview-docs">—</strong><small>File visibili negli anni selezionati</small><span class="ap-summary-decoration"></span></article>
+    <article class="ap-summary-card ap-summary-sections"><div class="ap-summary-top"><span>Organizzazione</span><span class="ap-summary-icon"><i class="ti ti-layout-grid"></i></span></div><strong>4 <em>sezioni</em></strong><small>Tutto a portata di mano</small><span class="ap-summary-decoration"></span></article>
+  </div>
+  <div class="ap-directory-heading"><div><span class="ap-kicker">ESPLORA</span><h2>Le tue sezioni <span class="ap-count-pill" id="ap-category-count">04</span></h2></div><label class="ap-search-field" for="ap-archive-search"><i class="ti ti-search"></i><input id="ap-archive-search" type="search" autocomplete="off" placeholder="Cerca una sezione..." aria-label="Cerca sezione nell'archivio"><span class="ap-search-hint">/</span></label></div>
   <div class="archive-cards">
-    <div class="archive-card" data-archive-target="archive-bollette" role="button" tabindex="0">
-      <div class="archive-card-icon archive-icon-green"><i class="ti ti-file-invoice"></i></div>
-      <div class="archive-card-copy"><strong>Bollette</strong><span>Riepilogo mensile e annuale delle bollette</span></div>
-      <i class="ti ti-chevron-right archive-card-arrow"></i>
+    <div class="archive-card" data-archive-target="archive-bollette" role="button" tabindex="0" aria-label="Apri archivio bollette">
+      <div class="ap-card-top"><span class="archive-card-icon archive-icon-green"><i class="ti ti-file-invoice"></i></span><span class="ap-card-flag">UTENZE</span></div>
+      <div class="archive-card-copy"><strong>Bollette</strong><span>Gas, luce e acqua con importi, allegati e riepiloghi annuali.</span></div>
+      <div class="ap-card-footer"><span id="ap-card-bollette">Riepilogo per mese</span><span class="ap-card-enter"><i class="ti ti-arrow-up-right"></i></span></div>
     </div>
-    <div class="archive-card" data-archive-target="archive-internet" role="button" tabindex="0">
-      <div class="archive-card-icon archive-icon-blue"><i class="ti ti-wifi"></i></div>
-      <div class="archive-card-copy"><strong>Internet</strong><span>Contratti e documenti Internet</span></div>
-      <i class="ti ti-chevron-right archive-card-arrow"></i>
+    <div class="archive-card" data-archive-target="archive-internet" role="button" tabindex="0" aria-label="Apri archivio internet">
+      <div class="ap-card-top"><span class="archive-card-icon archive-icon-blue"><i class="ti ti-wifi"></i></span><span class="ap-card-flag">CONNETTIVITÀ</span></div>
+      <div class="archive-card-copy"><strong>Internet</strong><span>Fatture PDF e panoramica dei costi di connessione nel tempo.</span></div>
+      <div class="ap-card-footer"><span id="ap-card-internet">Fatture per anno</span><span class="ap-card-enter"><i class="ti ti-arrow-up-right"></i></span></div>
     </div>
-    <div class="archive-card" data-archive-target="archive-assicurazioni" role="button" tabindex="0">
-      <div class="archive-card-icon archive-icon-purple"><i class="ti ti-shield-check"></i></div>
-      <div class="archive-card-copy"><strong>Assicurazioni</strong><span>Polizze e documentazione assicurativa</span></div>
-      <i class="ti ti-chevron-right archive-card-arrow"></i>
+    <div class="archive-card" data-archive-target="archive-assicurazioni" role="button" tabindex="0" aria-label="Apri archivio assicurazioni">
+      <div class="ap-card-top"><span class="archive-card-icon archive-icon-purple"><i class="ti ti-shield-check"></i></span><span class="ap-card-flag">PROTEZIONE</span></div>
+      <div class="archive-card-copy"><strong>Assicurazioni</strong><span>Polizze, rinnovi e documenti assicurativi, ordinati per anno.</span></div>
+      <div class="ap-card-footer"><span id="ap-card-insurance">Documenti e polizze</span><span class="ap-card-enter"><i class="ti ti-arrow-up-right"></i></span></div>
     </div>
-    <div class="archive-card" data-archive-target="archive-documenti" role="button" tabindex="0">
-      <div class="archive-card-icon archive-icon-yellow"><i class="ti ti-folder"></i></div>
-      <div class="archive-card-copy"><strong>Documenti</strong><span>Documenti personali e della casa</span></div>
-      <i class="ti ti-chevron-right archive-card-arrow"></i>
+    <div class="archive-card" data-archive-target="archive-documenti" role="button" tabindex="0" aria-label="Apri archivio documenti">
+      <div class="ap-card-top"><span class="archive-card-icon archive-icon-yellow"><i class="ti ti-folders"></i></span><span class="ap-card-flag">PERSONALE</span></div>
+      <div class="archive-card-copy"><strong>Documenti</strong><span>File personali e della casa in cartelle facili da organizzare.</span></div>
+      <div class="ap-card-footer"><span id="ap-card-docs">Cartelle e file</span><span class="ap-card-enter"><i class="ti ti-arrow-up-right"></i></span></div>
     </div>
   </div>
+  <div class="ap-no-results" id="ap-archive-no-results" hidden><i class="ti ti-search-off"></i><strong>Nessuna sezione trovata</strong><p>Prova a usare un termine diverso.</p></div>
+  <p class="ap-overview-footnote"><i class="ti ti-info-circle"></i> I riepiloghi sono calcolati sui dati caricati nell'app, in base agli anni selezionati nelle singole sezioni.</p>
 </div>
 <div class="archive-subpage" id="archive-bollette" style="display:none;">
-  <div class="archive-detail-header">
-    <button aria-label="Torna ad Archivio" class="archive-detail-back" type="button"><i class="ti ti-chevron-left"></i></button>
-    <h2>Bollette</h2>
+  <div class="archive-detail-header"><button aria-label="Torna ad Archivio" class="archive-detail-back" type="button"><i class="ti ti-arrow-left"></i><span>Archivio</span></button><span class="ap-breadcrumb">ARCHIVIO <i class="ti ti-chevron-right"></i> BOLLETTE</span></div>
+  <section class="ap-subhero ap-subhero-green"><div class="ap-subhero-text"><span class="ap-eyebrow">BOLLETTE & UTENZE</span><h2>Bollette<span class="ap-title-period">.</span></h2><p>Controlla le spese di gas, luce e acqua e consulta le fatture mese per mese.</p></div><span class="ap-subhero-icon" aria-hidden="true"><i class="ti ti-file-invoice"></i></span></section>
+  <div class="ap-detail-topline"><div><span class="ap-kicker">IL TUO RIEPILOGO</span><h3>Panoramica annuale</h3></div><button type="button" class="ap-export-btn" data-ap-export="bills"><i class="ti ti-download"></i> Esporta CSV</button></div>
+  <div class="ap-detail-metrics" id="ap-metrics-bills">
+    <article class="ap-metric"><span><i class="ti ti-wallet"></i> Totale annuo</span><strong data-ap-metric="total">—</strong><small data-ap-note="total">Anno selezionato</small></article>
+    <article class="ap-metric"><span><i class="ti ti-chart-bar"></i> Media per mese con spese</span><strong data-ap-metric="average">—</strong><small data-ap-note="average">Mesi con importi</small></article>
+    <article class="ap-metric"><span><i class="ti ti-trending-up"></i> Mese più costoso</span><strong data-ap-metric="highest">—</strong><small data-ap-note="highest">Nessun importo</small></article>
+    <article class="ap-metric"><span><i class="ti ti-calendar-stats"></i> Mesi registrati</span><strong data-ap-metric="months">—</strong><small data-ap-note="months">Su 12 mesi</small></article>
   </div>
+  <section class="ap-chart-panel" aria-label="Andamento annuale dei costi"><div class="ap-chart-head"><div><span class="ap-kicker">ANDAMENTO</span><h3>Le spese mese per mese</h3></div><div class="ap-chart-switch" role="group" aria-label="Visualizza servizio"><button type="button" class="is-active" data-ap-service="total" aria-pressed="true">Totale</button><button type="button" data-ap-service="gas" aria-pressed="false">Gas</button><button type="button" data-ap-service="luce" aria-pressed="false">Luce</button><button type="button" data-ap-service="acqua" aria-pressed="false">Acqua</button></div></div><div class="ap-month-chart" id="ap-chart-bills"></div><p class="ap-chart-insight" id="ap-insight-bills" aria-live="polite">Gli importi verranno mostrati non appena disponibili.</p></section>
+
 <h1 class="archive-legacy-title" style="display:none;">Libreria Bollette</h1>
 <button id="btn-nuova-bolletta" onclick="window.openBollettaModal()" style="width: 100%; height: 50px; background: var(--accent-gradient); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: var(--shadow); transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px;">
 <i class="ti ti-plus" style="font-size:20px;"></i> Nuova bolletta
@@ -10884,10 +10915,17 @@ Movimenti in contanti. Stesse colonne del conto corrente.
 </div>
 </div>
 <div class="archive-subpage" id="archive-internet" style="display:none;">
-  <div class="archive-detail-header">
-    <button aria-label="Torna ad Archivio" class="archive-detail-back" type="button"><i class="ti ti-chevron-left"></i></button>
-    <h2>Internet</h2>
+  <div class="archive-detail-header"><button aria-label="Torna ad Archivio" class="archive-detail-back" type="button"><i class="ti ti-arrow-left"></i><span>Archivio</span></button><span class="ap-breadcrumb">ARCHIVIO <i class="ti ti-chevron-right"></i> INTERNET</span></div>
+  <section class="ap-subhero ap-subhero-blue"><div class="ap-subhero-text"><span class="ap-eyebrow">CONNETTIVITÀ</span><h2>Internet<span class="ap-title-period">.</span></h2><p>Tieni sotto controllo i costi di connessione e ritrova ogni fattura PDF.</p></div><span class="ap-subhero-icon" aria-hidden="true"><i class="ti ti-wifi"></i></span></section>
+  <div class="ap-detail-topline"><div><span class="ap-kicker">IL TUO RIEPILOGO</span><h3>Panoramica annuale</h3></div><button type="button" class="ap-export-btn" data-ap-export="internet"><i class="ti ti-download"></i> Esporta CSV</button></div>
+  <div class="ap-detail-metrics" id="ap-metrics-internet">
+    <article class="ap-metric"><span><i class="ti ti-wallet"></i> Totale annuo</span><strong data-ap-metric="total">—</strong><small data-ap-note="total">Anno selezionato</small></article>
+    <article class="ap-metric"><span><i class="ti ti-chart-bar"></i> Media per mese con spese</span><strong data-ap-metric="average">—</strong><small data-ap-note="average">Mesi con importi</small></article>
+    <article class="ap-metric"><span><i class="ti ti-trending-up"></i> Mese più costoso</span><strong data-ap-metric="highest">—</strong><small data-ap-note="highest">Nessun importo</small></article>
+    <article class="ap-metric"><span><i class="ti ti-calendar-stats"></i> Mesi registrati</span><strong data-ap-metric="months">—</strong><small data-ap-note="months">Su 12 mesi</small></article>
   </div>
+  <section class="ap-chart-panel" aria-label="Andamento annuale dei costi"><div class="ap-chart-head"><div><span class="ap-kicker">ANDAMENTO</span><h3>Le spese mese per mese</h3></div><span class="ap-chart-caption">Fatture mensili</span></div><div class="ap-month-chart" id="ap-chart-internet"></div><p class="ap-chart-insight" id="ap-insight-internet" aria-live="polite">Gli importi verranno mostrati non appena disponibili.</p></section>
+
   <button id="btn-nuova-fattura-internet" type="button" style="width:100%; height:50px; margin-bottom:16px; background:var(--accent-gradient); color:#fff; border:none; border-radius:var(--radius-sm); font-size:16px; font-weight:700; cursor:pointer; box-shadow:var(--shadow); display:flex; align-items:center; justify-content:center; gap:10px;">
     <i class="ti ti-file-type-pdf" style="font-size:20px;"></i> Carica fattura PDF
   </button>
@@ -10909,10 +10947,15 @@ Movimenti in contanti. Stesse colonne del conto corrente.
   </div>
 </div>
 <div class="archive-subpage" id="archive-assicurazioni" style="display:none;">
-  <div class="archive-detail-header">
-    <button aria-label="Torna ad Archivio" class="archive-detail-back" type="button"><i class="ti ti-chevron-left"></i></button>
-    <h2>Assicurazioni</h2>
+  <div class="archive-detail-header"><button aria-label="Torna ad Archivio" class="archive-detail-back" type="button"><i class="ti ti-arrow-left"></i><span>Archivio</span></button><span class="ap-breadcrumb">ARCHIVIO <i class="ti ti-chevron-right"></i> ASSICURAZIONI</span></div>
+  <section class="ap-subhero ap-subhero-purple"><div class="ap-subhero-text"><span class="ap-eyebrow">POLIZZE & GARANZIE</span><h2>Assicurazioni<span class="ap-title-period">.</span></h2><p>Le tue polizze e i documenti importanti, ordinati per anno.</p></div><span class="ap-subhero-icon" aria-hidden="true"><i class="ti ti-shield-check"></i></span></section>
+  <div class="ap-detail-topline"><div><span class="ap-kicker">IL TUO RIEPILOGO</span><h3>I file del tuo archivio</h3></div><span class="ap-verified-pill"><i class="ti ti-folder-check"></i> Organizzati per anno</span></div>
+  <div class="ap-detail-metrics ap-document-metrics" id="ap-metrics-insurance">
+    <article class="ap-metric"><span><i class="ti ti-files"></i> File nell'anno</span><strong data-ap-metric="count">—</strong><small data-ap-note="count">Anno selezionato</small></article>
+    <article class="ap-metric"><span><i class="ti ti-file-type-pdf"></i> Documenti PDF</span><strong data-ap-metric="pdf">—</strong><small data-ap-note="pdf">Nell'anno selezionato</small></article>
+    <article class="ap-metric"><span><i class="ti ti-folder"></i> Ultimo documento</span><strong data-ap-metric="extra">—</strong><small data-ap-note="extra">Nome più recente</small></article>
   </div>
+
   <button id="btn-nuovo-documento-assicurazione" type="button" class="insurance-primary-btn"><i class="ti ti-upload"></i> Carica documento assicurativo</button>
   <div class="panel insurance-panel">
     <div class="insurance-filter-row">
@@ -10921,6 +10964,9 @@ Movimenti in contanti. Stesse colonne del conto corrente.
         <select id="insurance-year-filter" aria-label="Filtra documenti per anno"></select>
       </label>
     </div>
+    <div class="ap-document-toolbar"><label class="ap-search-field ap-document-search" for="ap-search-insurance"><i class="ti ti-search"></i><input id="ap-search-insurance" type="search" autocomplete="off" placeholder="Cerca per nome o file..." aria-label="Cerca documenti"></label><label class="ap-type-select-wrap"><i class="ti ti-adjustments-horizontal"></i><select id="ap-type-insurance" aria-label="Filtra per tipo di file"><option value="all">Tutti i tipi</option><option value="pdf">PDF</option><option value="image">Immagini</option><option value="other">Altri file</option></select></label></div>
+    <p class="ap-document-count" id="ap-count-insurance" aria-live="polite">I tuoi documenti appariranno qui.</p>
+    <div class="ap-filter-empty" id="ap-filter-empty-insurance" hidden><i class="ti ti-file-search"></i><strong>Nessun file corrisponde ai filtri</strong><span>Modifica la ricerca o scegli un altro tipo.</span></div>
     <div id="insurance-files-list" class="insurance-files-list"><div class="insurance-empty">Caricamento documenti…</div></div>
   </div>
 </div>
@@ -10940,10 +10986,15 @@ Movimenti in contanti. Stesse colonne del conto corrente.
   </div>
 </div>
 <div class="archive-subpage" id="archive-documenti" style="display:none;">
-  <div class="archive-detail-header">
-    <button aria-label="Torna ad Archivio" class="archive-detail-back" type="button"><i class="ti ti-chevron-left"></i></button>
-    <h2>Documenti</h2>
+  <div class="archive-detail-header"><button aria-label="Torna ad Archivio" class="archive-detail-back" type="button"><i class="ti ti-arrow-left"></i><span>Archivio</span></button><span class="ap-breadcrumb">ARCHIVIO <i class="ti ti-chevron-right"></i> DOCUMENTI</span></div>
+  <section class="ap-subhero ap-subhero-yellow"><div class="ap-subhero-text"><span class="ap-eyebrow">DOCUMENTI PERSONALI</span><h2>Documenti<span class="ap-title-period">.</span></h2><p>Organizza i file della famiglia in cartelle, in modo semplice.</p></div><span class="ap-subhero-icon" aria-hidden="true"><i class="ti ti-folders"></i></span></section>
+  <div class="ap-detail-topline"><div><span class="ap-kicker">IL TUO RIEPILOGO</span><h3>I file del tuo archivio</h3></div><span class="ap-verified-pill"><i class="ti ti-folder-check"></i> Organizzati per anno</span></div>
+  <div class="ap-detail-metrics ap-document-metrics" id="ap-metrics-docs">
+    <article class="ap-metric"><span><i class="ti ti-files"></i> File nell'anno</span><strong data-ap-metric="count">—</strong><small data-ap-note="count">Anno selezionato</small></article>
+    <article class="ap-metric"><span><i class="ti ti-file-type-pdf"></i> Documenti PDF</span><strong data-ap-metric="pdf">—</strong><small data-ap-note="pdf">Nell'anno selezionato</small></article>
+    <article class="ap-metric"><span><i class="ti ti-folder"></i> Cartelle presenti</span><strong data-ap-metric="extra">—</strong><small data-ap-note="extra">Nell'anno selezionato</small></article>
   </div>
+
   <button id="btn-nuovo-documento-personale" type="button" class="insurance-primary-btn"><i class="ti ti-upload"></i> Carica documento</button>
   <div class="panel insurance-panel">
     <div class="insurance-filter-row">
@@ -10953,6 +11004,9 @@ Movimenti in contanti. Stesse colonne del conto corrente.
       </label>
     </div>
     <button id="personal-doc-create-folder" type="button" class="personal-doc-folder-create"><i class="ti ti-folder-plus"></i> Nuova cartella</button>
+    <div class="ap-document-toolbar"><label class="ap-search-field ap-document-search" for="ap-search-docs"><i class="ti ti-search"></i><input id="ap-search-docs" type="search" autocomplete="off" placeholder="Cerca per nome o file..." aria-label="Cerca documenti"></label><label class="ap-type-select-wrap"><i class="ti ti-adjustments-horizontal"></i><select id="ap-type-docs" aria-label="Filtra per tipo di file"><option value="all">Tutti i tipi</option><option value="pdf">PDF</option><option value="image">Immagini</option><option value="other">Altri file</option></select></label></div>
+    <p class="ap-document-count" id="ap-count-docs" aria-live="polite">I tuoi documenti appariranno qui.</p>
+    <div class="ap-filter-empty" id="ap-filter-empty-docs" hidden><i class="ti ti-file-search"></i><strong>Nessun file corrisponde ai filtri</strong><span>Modifica la ricerca o scegli un altro tipo.</span></div>
     <div id="personal-doc-files-list" class="insurance-files-list"><div class="insurance-empty">Caricamento documenti…</div></div>
   </div>
 </div>
@@ -20613,5 +20667,397 @@ body:has(#shell:not(.hidden)) {--focus-ring: 0 0 0 4px rgba(var(--pp-accent-rgb)
 })();
 
 </script>
+
+<style id="archive-premium-redesign-2026">
+/* Archivio Premium / CSS isolato per non alterare i flussi Firebase. */
+#page-bollette{--ap-ink:#142a43;--ap-muted:#6c8097;--ap-blue:#377bd3;--ap-line:#e5edf5;--ap-soft:#f4f8fc;--ap-shadow:0 12px 36px rgba(30,65,106,.07);color:var(--ap-ink);padding-bottom:64px}
+#page-bollette *,#page-bollette *::before,#page-bollette *::after{box-sizing:border-box}
+#page-bollette .archive-overview,#page-bollette .archive-subpage{max-width:1230px;margin-inline:auto;min-width:0}
+#page-bollette .archive-overview[style*="none"],#page-bollette .archive-subpage[style*="none"]{display:none!important}
+#page-bollette .ap-eyebrow,#page-bollette .ap-kicker{font-size:10px;letter-spacing:1.65px;font-weight:850;color:#5d8dbf;display:inline-flex;align-items:center;gap:8px}
+#page-bollette .ap-status-dot{width:7px;height:7px;display:inline-block;background:#39b88a;border-radius:50%;box-shadow:0 0 0 4px rgba(57,184,138,.14)}
+#page-bollette .ap-title-period{color:#5b9be7}
+#page-bollette .ap-overview-hero{position:relative;isolation:isolate;min-height:238px;display:flex;align-items:center;justify-content:space-between;overflow:hidden;border:1px solid #dce9f6;border-radius:27px;background:linear-gradient(116deg,#fff 5%,#f8fbff 46%,#e7f2ff 100%);padding:38px 44px;margin:8px 0 30px;box-shadow:var(--ap-shadow)}
+#page-bollette .ap-overview-hero:before{content:"";position:absolute;inset:auto -6% -240px auto;width:520px;height:430px;border-radius:50%;background:radial-gradient(circle,rgba(106,159,237,.13),transparent 68%);z-index:-1}
+#page-bollette .ap-hero-copy{position:relative;z-index:2;max-width:600px}
+#page-bollette .ap-hero-copy h1{font-size:clamp(30px,3.15vw,45px)!important;line-height:1.14!important;letter-spacing:-1.95px!important;color:var(--ap-ink)!important;font-weight:850!important;margin:15px 0 12px!important;text-align:left!important}
+#page-bollette .ap-hero-copy>p{font-size:14px;line-height:1.8;color:#667d96;max-width:495px;margin:0}
+#page-bollette .ap-hero-meta{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:22px;font-size:11px;font-weight:700;color:#8298ae}
+#page-bollette .ap-hero-meta i{font-size:16px;color:#609fc5}
+#page-bollette .ap-meta-divider{height:11px;width:1px;background:#d2e2f0;margin:0 4px}
+#page-bollette .ap-hero-visual{position:relative;flex:0 0 245px;height:183px;margin-right:16px}
+#page-bollette .ap-hero-halo{position:absolute;width:202px;height:202px;border-radius:50%;left:26px;top:-10px;background:linear-gradient(135deg,rgba(154,200,250,.24),rgba(255,255,255,.45));border:1px solid rgba(255,255,255,.68)}
+#page-bollette .ap-hero-circle{position:absolute;width:147px;height:147px;border-radius:50%;left:53px;top:16px;border:1px dashed #b6d2f3}
+#page-bollette .ap-floating-paper{position:absolute;display:grid;place-items:center;border:1px solid rgba(196,216,238,.85);border-radius:19px;width:91px;height:112px;background:#fff;box-shadow:0 19px 34px rgba(31,83,150,.13);font-size:44px;color:#4c91e1}
+#page-bollette .ap-paper-back{left:44px;top:43px;transform:rotate(-23deg);background:#e4f5ef;color:#43ae8a;animation:apFloatBack 7s ease-in-out infinite}
+#page-bollette .ap-paper-mid{left:102px;top:31px;transform:rotate(18deg);background:#f5edff;color:#9c7ed6;animation:apFloatMid 6s ease-in-out infinite}
+#page-bollette .ap-paper-front{left:81px;top:54px;width:104px;height:106px;background:#fff;transform:rotate(1deg);animation:apFloatFront 5.2s ease-in-out infinite}
+#page-bollette .ap-hero-spark{position:absolute;border-radius:50%;background:#7db4f0}
+#page-bollette .ap-spark-one{right:10px;top:13px;width:7px;height:7px;box-shadow:0 0 0 5px rgba(125,180,240,.13)}
+#page-bollette .ap-spark-two{left:16px;bottom:13px;width:5px;height:5px;background:#81cdb9}
+@keyframes apFloatBack{0%,100%{transform:translateY(0) rotate(-23deg)}50%{transform:translateY(-6px) rotate(-20deg)}}
+@keyframes apFloatMid{0%,100%{transform:translateY(0) rotate(18deg)}50%{transform:translateY(7px) rotate(15deg)}}
+@keyframes apFloatFront{0%,100%{transform:translateY(0) rotate(1deg)}50%{transform:translateY(-7px) rotate(3deg)}}
+#page-bollette .ap-overview-heading,#page-bollette .ap-directory-heading,#page-bollette .ap-detail-topline{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:16px}
+#page-bollette .ap-overview-heading h2,#page-bollette .ap-directory-heading h2,#page-bollette .ap-detail-topline h3{font-size:19px;font-weight:850;letter-spacing:-.65px;margin:5px 0 0;color:var(--ap-ink);line-height:1.28}
+#page-bollette .ap-year-pill,#page-bollette .ap-verified-pill{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;color:#6582a2;background:#f1f6fb;border:1px solid #e2ecf6;border-radius:999px;padding:8px 12px;font-size:11px;font-weight:750}
+#page-bollette .ap-year-pill i{font-size:15px}
+#page-bollette .ap-summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:33px}
+#page-bollette .ap-summary-card{position:relative;overflow:hidden;padding:18px 19px 17px;border-radius:21px;border:1px solid #e5edf4;background:#fff;min-width:0;box-shadow:0 6px 20px rgba(34,74,117,.045);transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease}
+#page-bollette .ap-summary-card:hover{transform:translateY(-3px);box-shadow:0 15px 27px rgba(25,63,105,.09);border-color:#d3e3f1}
+#page-bollette .ap-summary-top{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:11px;color:#7790a9;font-size:12px;font-weight:800}
+#page-bollette .ap-summary-icon{width:36px;height:36px;display:grid;place-items:center;border-radius:12px;background:#edf8f1;color:#35a97d;font-size:19px}
+#page-bollette .ap-summary-net .ap-summary-icon{background:#ebf4ff;color:#498ce1}
+#page-bollette .ap-summary-files .ap-summary-icon{background:#f2eeff;color:#9874db}
+#page-bollette .ap-summary-sections .ap-summary-icon{background:#fff5e9;color:#e4a353}
+#page-bollette .ap-summary-card strong{position:relative;z-index:1;display:block;color:#203c5a;font-size:clamp(19px,1.95vw,27px);line-height:1.27;letter-spacing:-1.05px;font-weight:850;white-space:nowrap;font-variant-numeric:tabular-nums}
+#page-bollette .ap-summary-card strong em{font-size:12px;letter-spacing:0;font-weight:700;font-style:normal;color:#91a5b6}
+#page-bollette .ap-summary-card small{position:relative;z-index:1;display:block;color:#879cb1;font-size:10px;font-weight:700;margin-top:6px;line-height:1.5}
+#page-bollette .ap-summary-decoration{position:absolute;right:-22px;bottom:-43px;width:94px;height:94px;background:radial-gradient(circle,#f2f8ff 12%,transparent 70%);border-radius:50%}
+#page-bollette .ap-directory-heading{margin-bottom:15px;align-items:center}
+#page-bollette .ap-count-pill{display:inline-grid;place-items:center;margin-left:7px;padding:3px 7px;vertical-align:middle;font-size:11px;color:#4483c2;background:#eaf4ff;border-radius:7px;letter-spacing:0}
+#page-bollette .ap-search-field{height:44px;min-width:0;width:min(100%,285px);display:flex;align-items:center;gap:9px;padding:0 13px;background:#fff;border:1px solid #dee8f2;border-radius:13px;color:#86a0b8;box-shadow:0 4px 16px rgba(18,56,96,.03);transition:border-color .2s,box-shadow .2s}
+#page-bollette .ap-search-field:focus-within{border-color:#8dbcea;box-shadow:0 0 0 4px rgba(55,123,211,.1)}
+#page-bollette .ap-search-field i{font-size:18px;flex-shrink:0}
+#page-bollette .ap-search-field input{padding:0!important;border:0!important;background:transparent!important;color:var(--ap-ink)!important;outline:0!important;box-shadow:none!important;flex:1;min-width:0;font-size:12px;height:100%;font-weight:650}
+#page-bollette .ap-search-field input::placeholder{color:#99aabe}
+#page-bollette .ap-search-hint{font-size:11px;border:1px solid #dbe5ef;border-radius:6px;padding:1px 6px;color:#afc0d1}
+#page-bollette .archive-cards{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:15px!important}
+#page-bollette .archive-card{position:relative;display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:0!important;min-height:192px!important;padding:21px 23px 18px!important;margin:0!important;overflow:hidden;border:1px solid #e3ebf4!important;border-radius:22px!important;background:#fff!important;box-shadow:0 8px 23px rgba(26,57,97,.055)!important;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s,border-color .25s!important;cursor:pointer}
+#page-bollette .archive-card:after{content:"";position:absolute;top:0;left:0;right:0;height:3px;transform:scaleX(0);transform-origin:left;background:linear-gradient(90deg,#74a7e8,#c4e1ff);transition:transform .32s ease}
+#page-bollette .archive-card:hover,#page-bollette .archive-card:focus-visible{transform:translateY(-4px)!important;box-shadow:0 22px 38px rgba(25,65,112,.12)!important;border-color:#bfdbf5!important;outline:0}
+#page-bollette .archive-card:hover:after,#page-bollette .archive-card:focus-visible:after{transform:scaleX(1)}
+#page-bollette .archive-card:active{transform:translateY(-1px) scale(.992)!important}
+#page-bollette .archive-card[hidden]{display:none!important}
+#page-bollette .ap-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:17px}
+#page-bollette .archive-card-icon{width:49px!important;height:49px!important;flex:0 0 49px!important;font-size:25px!important;border-radius:16px!important;display:grid!important;place-items:center!important}
+#page-bollette .ap-card-flag{font-size:9px;letter-spacing:1.25px;font-weight:850;color:#91a5b9}
+#page-bollette .archive-card-copy{flex:1!important;gap:6px!important}
+#page-bollette .archive-card-copy strong{font-size:19px!important;letter-spacing:-.5px!important;font-weight:850!important;color:#183554!important}
+#page-bollette .archive-card-copy span{font-size:12px!important;line-height:1.65!important;color:#8094a8!important;max-width:350px}
+#page-bollette .ap-card-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:14px;margin-top:18px;border-top:1px solid #f0f3f7;font-size:11px;color:#6b90b3;font-weight:750}
+#page-bollette .ap-card-enter{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;border-radius:9px;background:#eff6ff;color:#4889d0;transition:background .2s,color .2s,transform .2s}
+#page-bollette .archive-card:hover .ap-card-enter{background:#397ed3;color:#fff;transform:translate(2px,-2px)}
+#page-bollette .ap-no-results,#page-bollette .ap-filter-empty{color:#738aa3;text-align:center;padding:31px 15px;border:1px dashed #d8e5f1;border-radius:18px;background:#fafcff;display:flex;flex-direction:column;align-items:center;gap:7px;font-size:12px}
+#page-bollette .ap-no-results[hidden],#page-bollette .ap-filter-empty[hidden]{display:none!important}
+#page-bollette .ap-no-results i,#page-bollette .ap-filter-empty i{font-size:27px;color:#9ebbd7}
+#page-bollette .ap-no-results strong,#page-bollette .ap-filter-empty strong{font-size:14px;color:#35536f}
+#page-bollette .ap-no-results p{margin:0}
+#page-bollette .ap-overview-footnote{font-size:11px;color:#92a1b0;margin:18px 0 0;display:flex;align-items:center;gap:7px;line-height:1.6}
+/* Sottopagine */
+#page-bollette #archive-bollette,#page-bollette #archive-internet,#page-bollette #archive-assicurazioni,#page-bollette #archive-documenti{padding:0!important;margin:0 auto 40px!important;background:transparent!important}
+#page-bollette .archive-detail-header{display:flex!important;justify-content:space-between!important;align-items:center!important;min-height:36px!important;margin:1px 0 17px!important}
+#page-bollette .archive-detail-back{position:static!important;left:auto!important;top:auto!important;transform:none!important;display:inline-flex!important;gap:9px!important;align-items:center!important;justify-content:center!important;width:auto!important;min-width:106px!important;height:37px!important;padding:0 12px!important;border:1px solid #e0eaf4!important;border-radius:11px!important;box-shadow:none!important;background:#fff!important;color:#54718e!important;font-size:12px!important;font-weight:800!important}
+#page-bollette .archive-detail-back:hover{background:#eaf4ff!important;border-color:#afcce8!important;color:#286ab9!important}
+#page-bollette .archive-detail-back i{font-size:18px}
+#page-bollette .ap-breadcrumb{display:inline-flex;align-items:center;gap:8px;font-size:10px;letter-spacing:1.1px;font-weight:850;color:#a1b2c4}
+#page-bollette .ap-breadcrumb i{font-size:13px;color:#bfd0e0}
+#page-bollette .ap-subhero{position:relative;overflow:hidden;min-height:156px;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:27px 32px;border:1px solid #dfebf7;border-radius:24px;background:linear-gradient(112deg,#fff,#f3f9ff);box-shadow:0 9px 28px rgba(29,69,111,.055);margin-bottom:24px}
+#page-bollette .ap-subhero-purple{background:linear-gradient(112deg,#fff,#f8f5ff);border-color:#eee8fa}
+#page-bollette .ap-subhero-green{background:linear-gradient(112deg,#fff,#f3fcf8);border-color:#e1f0eb}
+#page-bollette .ap-subhero-yellow{background:linear-gradient(112deg,#fff,#fff9f0);border-color:#f0e9db}
+#page-bollette .ap-subhero:before{content:"";position:absolute;right:-40px;bottom:-125px;width:275px;height:275px;border:1px solid rgba(107,158,213,.12);border-radius:50%;box-shadow:0 0 0 24px rgba(129,182,238,.06),0 0 0 50px rgba(129,182,238,.04)}
+#page-bollette .ap-subhero-text{position:relative;z-index:1;max-width:680px}
+#page-bollette .ap-subhero h2{font-size:clamp(27px,2.7vw,37px)!important;letter-spacing:-1.35px;font-weight:850;line-height:1.17;margin:9px 0 8px;color:var(--ap-ink)}
+#page-bollette .ap-subhero p{margin:0;color:#7890a7;font-size:13px;line-height:1.7;max-width:490px}
+#page-bollette .ap-subhero-icon{position:relative;z-index:1;width:79px;height:79px;flex:0 0 79px;display:grid;place-items:center;color:#4b92db;background:#e4f2ff;border:1px solid #d3e6fa;border-radius:22px;font-size:38px;transform:rotate(-6deg);box-shadow:0 9px 22px rgba(42,112,174,.11)}
+#page-bollette .ap-subhero-green .ap-subhero-icon{color:#28a77c;background:#e6f8f0;border-color:#d8f0e5}
+#page-bollette .ap-subhero-purple .ap-subhero-icon{color:#9572db;background:#efeaff;border-color:#e8e0fa}
+#page-bollette .ap-subhero-yellow .ap-subhero-icon{color:#c59a46;background:#fff5e4;border-color:#f8ecd4}
+#page-bollette .ap-detail-topline{margin:0 0 13px}
+#page-bollette .ap-detail-topline h3{font-size:18px}
+#page-bollette .ap-export-btn{height:38px;display:inline-flex;align-items:center;gap:8px;padding:0 13px;white-space:nowrap;border:1px solid #dbe8f4;background:#fff;color:#4d759b;border-radius:11px;font-size:11px;font-weight:800;cursor:pointer;transition:background .2s,transform .2s}
+#page-bollette .ap-export-btn:hover{background:#eef7ff;transform:translateY(-1px)}
+#page-bollette .ap-detail-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin:0 0 18px}
+#page-bollette .ap-detail-metrics.ap-document-metrics{grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:19px}
+#page-bollette .ap-metric{padding:18px 17px 16px;min-width:0;background:#fff;border:1px solid #e2ecf5;border-radius:18px;box-shadow:0 6px 19px rgba(28,69,111,.045);transition:transform .2s,box-shadow .2s}
+#page-bollette .ap-metric:hover{transform:translateY(-2px);box-shadow:0 11px 26px rgba(28,69,111,.08)}
+#page-bollette .ap-metric>span{display:flex;align-items:center;gap:8px;color:#788ca0;font-size:11px;font-weight:750;white-space:nowrap}
+#page-bollette .ap-metric>span i{color:#6c9ac6;font-size:17px}
+#page-bollette .ap-metric strong{display:block;overflow:hidden;text-overflow:ellipsis;margin:12px 0 6px;font-weight:850;color:#183b5d;font-size:clamp(18px,1.65vw,23px);line-height:1.2;letter-spacing:-.65px;font-variant-numeric:tabular-nums;white-space:nowrap}
+#page-bollette .ap-metric small{display:block;color:#99abbb;font-size:10px;font-weight:700;line-height:1.45;min-height:14px}
+#page-bollette .ap-chart-panel{padding:22px 22px 14px;background:#fff;border:1px solid #e2ebf5;border-radius:22px;box-shadow:0 6px 20px rgba(34,72,111,.045);margin-bottom:19px;overflow:hidden}
+#page-bollette .ap-chart-head{display:flex;justify-content:space-between;align-items:center;gap:14px;margin:0 0 14px}
+#page-bollette .ap-chart-head h3{font-size:17px;letter-spacing:-.45px;color:#21415f;margin:5px 0 0;font-weight:850}
+#page-bollette .ap-chart-switch{display:flex;gap:3px;padding:4px;border:1px solid #e5edf5;border-radius:11px;background:#f4f8fc}
+#page-bollette .ap-chart-switch button{border:0;background:transparent;color:#8298ad;padding:7px 11px;font-size:11px;font-weight:850;border-radius:8px;cursor:pointer;transition:background .2s,color .2s,box-shadow .2s}
+#page-bollette .ap-chart-switch button:hover{color:#3d79b7}
+#page-bollette .ap-chart-switch button.is-active{background:#fff;color:#367dcc;box-shadow:0 3px 8px rgba(44,84,134,.1)}
+#page-bollette .ap-chart-caption{color:#a0b1c3;font-size:11px;font-weight:750}
+#page-bollette .ap-month-chart{height:176px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));align-items:end;gap:12px;padding:12px 6px 0;border-bottom:1px solid #e5eef5;background:repeating-linear-gradient(to top,transparent 0,transparent 42px,#f0f4f8 43px,transparent 44px)}
+#page-bollette .ap-chart-column{height:100%;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:end;gap:7px;position:relative}
+#page-bollette .ap-chart-bar-wrap{width:100%;height:131px;display:flex;align-items:end;justify-content:center}
+#page-bollette .ap-chart-bar{width:min(28px,86%);min-height:3px;height:3px;border-radius:8px 8px 3px 3px;background:linear-gradient(180deg,#7dbcf6,#438ddd);box-shadow:inset 0 0 0 1px rgba(255,255,255,.22);transition:height .75s cubic-bezier(.22,.75,.24,1),background .2s;cursor:default}
+#page-bollette .ap-chart-column:hover .ap-chart-bar{background:linear-gradient(180deg,#438ddd,#245d9e)}
+#page-bollette .ap-chart-column.is-max .ap-chart-bar{background:linear-gradient(180deg,#6ab8e9,#2f86d0)}
+#page-bollette .ap-chart-column.is-empty .ap-chart-bar{background:#e3ebf4;box-shadow:none}
+#page-bollette .ap-chart-month{font-size:10px;font-weight:750;color:#91a4b7;white-space:nowrap;padding-bottom:10px}
+#page-bollette .ap-chart-insight{display:flex;align-items:flex-start;gap:8px;font-size:11px;color:#7792aa;margin:12px 0 0;line-height:1.65}
+#page-bollette .ap-chart-insight:before{content:'✦';color:#61a0d9;font-size:12px;line-height:1.5}
+#page-bollette #btn-nuova-bolletta,#page-bollette #btn-nuova-fattura-internet,#page-bollette #btn-nuovo-documento-assicurazione,#page-bollette #btn-nuovo-documento-personale{width:auto!important;min-width:184px!important;max-width:100%!important;height:46px!important;min-height:46px!important;padding:0 18px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:9px!important;margin:0 0 17px!important;border-radius:12px!important;background:linear-gradient(135deg,#3a88db,#286ebd)!important;color:#fff!important;border:0!important;font-size:13px!important;font-weight:800!important;box-shadow:0 8px 18px rgba(49,122,203,.18)!important;transition:transform .2s,box-shadow .2s!important}
+#page-bollette #btn-nuova-bolletta:hover,#page-bollette #btn-nuova-fattura-internet:hover,#page-bollette #btn-nuovo-documento-assicurazione:hover,#page-bollette #btn-nuovo-documento-personale:hover{transform:translateY(-2px);box-shadow:0 13px 23px rgba(49,122,203,.23)!important}
+#page-bollette .archive-subpage>.panel{background:#fff!important;border:1px solid #e2ebf5!important;border-radius:21px!important;box-shadow:0 7px 23px rgba(34,70,110,.045)!important;padding:21px!important;overflow:hidden}
+#page-bollette .archive-subpage>.panel h3{font-size:16px!important;color:#1c3957!important;font-weight:850!important;letter-spacing:-.4px}
+#page-bollette .bolletta-table-wrap{border:1px solid #eaf0f5;border-radius:14px;overflow:auto;max-width:100%}
+#page-bollette .bolletta-table{width:100%;border-collapse:separate;border-spacing:0;background:#fff;min-width:0}
+#page-bollette .bolletta-table th{background:#f4f8fc!important;color:#6686a5!important;font-weight:850!important;font-size:11px!important;letter-spacing:.15px;padding:13px 10px!important;border-bottom:1px solid #e2ebf4}
+#page-bollette .bolletta-table td{padding:12px 10px!important;font-size:12px!important;color:#34536f!important;border-bottom:1px solid #f0f4f8;transition:background .18s}
+#page-bollette .bolletta-table tbody tr:hover td{background:#f7fbff!important}
+#page-bollette .bolletta-table tbody tr:last-child td{border-bottom:0}
+#page-bollette .bolletta-table td.bolletta-cell-month{font-weight:850!important;color:#335371!important}
+#page-bollette .bolletta-table td.bolletta-cell-total{color:#1d78ba!important;font-weight:850!important}
+#page-bollette .bolletta-table td.bolletta-cell-attachment{cursor:pointer!important;color:#357dbe!important}
+#page-bollette .bolletta-table td.bolletta-cell-attachment:hover{background:#e8f3ff!important}
+#page-bollette .bolletta-table tfoot td{background:#f0f7ff!important;color:#295581!important;font-weight:850!important;border-top:1px solid #deebf8!important}
+#page-bollette .archive-subpage select{max-width:100%;border-radius:10px!important;border-color:#d9e6f2!important;color:#345470!important;background-color:#fff!important;box-shadow:none!important}
+/* Documenti e polizze */
+#page-bollette .ap-document-toolbar{display:flex;align-items:center;gap:10px;margin:15px 0 10px}
+#page-bollette .ap-document-search{flex:1;width:auto;height:44px}
+#page-bollette .ap-type-select-wrap{height:44px;display:flex;align-items:center;gap:8px;border:1px solid #dfe9f2;background:#fff;border-radius:12px;padding:0 12px;color:#7591ac;min-width:165px}
+#page-bollette .ap-type-select-wrap i{font-size:17px}
+#page-bollette .ap-type-select-wrap select{flex:1;height:100%;border:none!important;background:transparent!important;outline:none!important;font-size:12px;font-weight:750;padding:0!important;color:#5a7899!important;min-width:0}
+#page-bollette .ap-document-count{margin:0 0 12px;color:#8aa1b6;font-size:11px;font-weight:750;line-height:1.55}
+#page-bollette .insurance-filter-row{border-bottom:1px solid #eef2f7;padding-bottom:15px;margin-bottom:0!important}
+#page-bollette .insurance-filter-row h3{font-size:16px!important}
+#page-bollette .insurance-filter-row p{font-size:11px!important}
+#page-bollette .insurance-file-card{border-radius:15px!important;border:1px solid #e5edf5!important;padding:13px!important;background:#fff!important;box-shadow:0 3px 13px rgba(32,73,115,.035);transition:transform .2s,box-shadow .2s,border-color .2s}
+#page-bollette .insurance-file-card:hover{border-color:#bbd8ee!important;box-shadow:0 10px 23px rgba(34,73,115,.09);transform:translateY(-1px)}
+#page-bollette .insurance-file-card[hidden],#page-bollette .personal-doc-folder-group[hidden]{display:none!important}
+#page-bollette .insurance-file-icon{color:#5b90cf!important;background:#edf5ff!important;border-radius:13px}
+#page-bollette .insurance-file-copy strong{font-size:13px!important;font-weight:850!important;color:#23415d!important}
+#page-bollette .insurance-file-copy span{font-size:11px!important;color:#91a2b2!important}
+#page-bollette .insurance-file-actions button{border-radius:10px!important;transition:transform .15s,background .15s}
+#page-bollette .insurance-file-actions button:hover{transform:translateY(-1px);background:#eaf4ff!important}
+#page-bollette .insurance-file-actions .insurance-delete:hover{background:#ffedf0!important;color:#cc4254!important}
+#page-bollette .personal-doc-folder-group{background:#fff!important;border:1px solid #e7edf5!important;border-radius:16px!important;overflow:hidden}
+#page-bollette .personal-doc-folder-heading{padding:12px!important;background:#f9fbfe!important}
+#page-bollette .personal-doc-folder-toggle{color:#31597f!important;font-weight:850!important}
+#page-bollette .personal-doc-folder-content{padding:0 12px 12px}
+#page-bollette .ap-searching .personal-doc-folder-content{display:block!important}
+#page-bollette .ap-document-toolbar~.ap-filter-empty{margin:10px 0}
+#page-bollette .insurance-empty{padding:35px!important;border-radius:16px!important;background:#f9fbfe!important;color:#92a5b8!important}
+#page-bollette .insurance-overlay{backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
+#page-bollette .insurance-modal{background:#fff!important;border:1px solid #e1edf6!important;border-radius:22px!important;box-shadow:0 27px 65px rgba(20,48,87,.21)!important}
+/* Animate entrances. Respect reduced motion. */
+#page-bollette .archive-overview:not([style*="none"]) .ap-overview-hero,#page-bollette .archive-subpage:not([style*="none"]) .ap-subhero{animation:apReveal .45s cubic-bezier(.22,.7,.22,1) both}
+#page-bollette .archive-overview:not([style*="none"]) .ap-summary-card,#page-bollette .archive-overview:not([style*="none"]) .archive-card,#page-bollette .archive-subpage:not([style*="none"]) .ap-metric{animation:apReveal .42s cubic-bezier(.22,.7,.22,1) both}
+#page-bollette .archive-overview .ap-summary-card:nth-child(2),#page-bollette .archive-overview .archive-card:nth-child(2),#page-bollette .archive-subpage .ap-metric:nth-child(2){animation-delay:.055s}
+#page-bollette .archive-overview .ap-summary-card:nth-child(3),#page-bollette .archive-overview .archive-card:nth-child(3),#page-bollette .archive-subpage .ap-metric:nth-child(3){animation-delay:.11s}
+#page-bollette .archive-overview .ap-summary-card:nth-child(4),#page-bollette .archive-overview .archive-card:nth-child(4),#page-bollette .archive-subpage .ap-metric:nth-child(4){animation-delay:.16s}
+@keyframes apReveal{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:1050px){#page-bollette .ap-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#page-bollette .ap-detail-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){#page-bollette .ap-overview-hero{min-height:207px;padding:27px 25px;margin-top:4px}#page-bollette .ap-hero-visual{flex-basis:120px;transform:scale(.7);transform-origin:center;margin:-20px -10px -20px -30px}#page-bollette .ap-hero-copy>p{font-size:12px;max-width:340px}#page-bollette .archive-cards{gap:11px!important}#page-bollette .archive-card{padding:18px!important}#page-bollette .ap-detail-metrics.ap-document-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}#page-bollette .ap-document-metrics .ap-metric:last-child{grid-column:span 2}}
+@media(max-width:560px){#page-bollette{padding-bottom:96px}#page-bollette .ap-overview-hero{padding:25px 21px!important;min-height:202px;border-radius:22px;margin-bottom:25px}#page-bollette .ap-hero-visual{display:none}#page-bollette .ap-hero-copy h1{font-size:32px!important;letter-spacing:-1.3px!important;margin:11px 0 10px!important}#page-bollette .ap-hero-copy>p{line-height:1.65}#page-bollette .ap-hero-meta{margin-top:15px;font-size:10px}#page-bollette .ap-meta-divider{display:none}#page-bollette .ap-overview-heading h2,#page-bollette .ap-directory-heading h2{font-size:17px}#page-bollette .ap-summary-grid{gap:9px;margin-bottom:24px}#page-bollette .ap-summary-card{padding:13px 12px 12px;border-radius:16px}#page-bollette .ap-summary-card strong{font-size:20px}#page-bollette .ap-summary-card small{font-size:9px}#page-bollette .ap-summary-top{font-size:10px;margin-bottom:9px}#page-bollette .ap-summary-icon{height:29px;width:29px;font-size:16px}#page-bollette .ap-year-pill{display:none}#page-bollette .ap-directory-heading{flex-direction:column;align-items:stretch;gap:13px}#page-bollette .ap-directory-heading>div{display:flex;align-items:center;gap:8px}#page-bollette .ap-directory-heading .ap-kicker{display:none}#page-bollette .ap-directory-heading h2{margin:0}#page-bollette .ap-search-field{width:100%}#page-bollette .archive-cards{grid-template-columns:1fr!important;gap:10px!important}#page-bollette .archive-card{min-height:154px!important;border-radius:18px!important;padding:15px 17px 13px!important}#page-bollette .ap-card-top{margin-bottom:7px}#page-bollette .archive-card-icon{width:42px!important;height:42px!important;flex-basis:42px!important;font-size:22px!important;border-radius:14px!important}#page-bollette .archive-card-copy strong{font-size:17px!important}#page-bollette .archive-card-copy span{font-size:11px!important}#page-bollette .ap-card-footer{padding-top:9px;margin-top:10px}#page-bollette .ap-overview-footnote{font-size:10px;align-items:flex-start}#page-bollette .archive-detail-header{margin:0 0 13px!important}#page-bollette .ap-breadcrumb{font-size:9px}#page-bollette .ap-subhero{min-height:134px;padding:20px!important;border-radius:21px;margin-bottom:20px}#page-bollette .ap-subhero h2{font-size:28px!important}#page-bollette .ap-subhero p{font-size:11px}#page-bollette .ap-subhero-icon{height:54px;width:54px;flex-basis:54px;border-radius:16px;font-size:28px}#page-bollette .ap-detail-topline h3{font-size:17px}#page-bollette .ap-detail-metrics{gap:9px;margin-bottom:13px}#page-bollette .ap-metric{padding:13px 11px;border-radius:15px}#page-bollette .ap-metric>span{font-size:10px;white-space:normal;line-height:1.4}#page-bollette .ap-metric strong{font-size:18px;margin:11px 0 5px}#page-bollette .ap-metric small{font-size:9px}#page-bollette .ap-chart-panel{padding:15px 12px 12px;border-radius:18px;margin-bottom:15px}#page-bollette .ap-chart-head{flex-direction:column;align-items:stretch}#page-bollette .ap-chart-head h3{font-size:15px}#page-bollette .ap-chart-switch{align-self:stretch;justify-content:space-between}#page-bollette .ap-chart-switch button{flex:1;padding:7px 5px}#page-bollette .ap-month-chart{gap:5px;height:147px;padding:10px 0 0}#page-bollette .ap-chart-bar-wrap{height:108px}#page-bollette .ap-chart-month{font-size:9px}#page-bollette #btn-nuova-bolletta,#page-bollette #btn-nuova-fattura-internet,#page-bollette #btn-nuovo-documento-assicurazione,#page-bollette #btn-nuovo-documento-personale{width:100%!important}#page-bollette .archive-subpage>.panel{padding:14px!important;border-radius:18px!important}#page-bollette .ap-export-btn{padding:0 9px;font-size:10px}#page-bollette .bolletta-table th,#page-bollette .bolletta-table td{padding:11px 5px!important;font-size:10px!important}#page-bollette .bolletta-table td span{font-size:11px!important}#page-bollette .ap-document-toolbar{flex-direction:column;align-items:stretch;gap:8px}#page-bollette .ap-type-select-wrap{width:100%}#page-bollette .insurance-filter-row{align-items:flex-start!important}#page-bollette .ap-document-metrics .ap-metric strong{font-size:17px}#page-bollette .ap-verified-pill{font-size:9px;padding:7px 9px}}
+@media(max-width:370px){#page-bollette .ap-subhero-icon{display:none}#page-bollette .ap-summary-card strong{font-size:18px}#page-bollette .archive-detail-back{min-width:84px!important}#page-bollette .ap-breadcrumb{font-size:8px}#page-bollette .ap-metric strong{font-size:16px}}
+@media(prefers-reduced-motion:reduce){#page-bollette *,#page-bollette *:before,#page-bollette *:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+
+<script id="archive-premium-interactions-2026">
+(function(){
+  'use strict';
+  const root=document.getElementById('page-bollette');
+  if(!root||root.dataset.apInitialized==='yes')return;
+  root.dataset.apInitialized='yes';
+  const $=s=>root.querySelector(s),$$=s=>Array.from(root.querySelectorAll(s));
+  const euro=n=>(Number(n)||0).toLocaleString('it-IT',{style:'currency',currency:'EUR'});
+  const clean=s=>String(s||'').toLocaleLowerCase('it-IT').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+  const amounts={bills:[],internet:[]};
+  const shortMonths=['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
+  const longMonths=['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+  let activeService='total';
+  let refreshTimer=0;
+  const getText=(selector)=>$(selector)?.textContent?.trim()||'';
+  const put=(selector,value)=>{const el=$(selector);if(el&&el.textContent!==String(value))el.textContent=String(value)};
+  const parseEuro=raw=>{
+    const match=String(raw||'').match(/-?[\d.]+(?:,\d{1,2})?/);
+    if(!match)return 0;
+    const value=Number(match[0].replace(/\./g,'').replace(',','.'));
+    return Number.isFinite(value)?value:0;
+  };
+  const readCell=el=>{
+    if(!el || el.classList.contains('bolletta-cell-empty'))return 0;
+    return parseEuro(el.querySelector('span')?.textContent||el.textContent);
+  };
+  function tableData(kind){
+    const body=$(kind==='bills'?'#bolletta-table-body':'#internet-table-body');
+    const rows=body?Array.from(body.querySelectorAll('tr')):[];
+    return rows.map((tr,i)=>{
+      const c=tr.querySelectorAll('td');
+      const month=c[0]?.textContent.trim()||longMonths[i]||'';
+      if(kind==='bills')return{month,gas:readCell(c[1]),luce:readCell(c[2]),acqua:readCell(c[3]),total:readCell(c[4])};
+      return {month,total:readCell(c[1])};
+    }).slice(0,12);
+  }
+  function moneySummary(kind){
+    const rows=amounts[kind]||[];
+    const values=rows.map(r=>Number(r.total)||0);
+    const total=values.reduce((a,b)=>a+b,0);
+    const active=values.filter(v=>v>0).length;
+    const max=Math.max(0,...values);
+    const maxIdx=values.indexOf(max);
+    const year=$(kind==='bills'?'#bolletta-year-filter':'#internet-year-filter')?.value||String(new Date().getFullYear());
+    return {total,active,max,maxIdx,year,rows};
+  }
+  function metric(kind,key,value,note){
+    const card=$('#ap-metrics-'+kind);if(!card)return;
+    const valueEl=card.querySelector(`[data-ap-metric="${key}"]`);
+    const noteEl=card.querySelector(`[data-ap-note="${key}"]`);
+    if(valueEl&&valueEl.textContent!==value)valueEl.textContent=value;
+    if(noteEl&&noteEl.textContent!==note)noteEl.textContent=note;
+  }
+  function renderChart(kind){
+    const el=$('#ap-chart-'+kind);if(!el)return;
+    const data=amounts[kind]||[];
+    const service=kind==='bills'?activeService:'total';
+    const series=data.map(r=>Math.max(0,Number(r[service])||0));
+    const max=Math.max(0,...series);
+    const frag=document.createDocumentFragment();
+    for(let i=0;i<12;i++){
+      const value=series[i]||0;
+      const column=document.createElement('div');column.className='ap-chart-column'+(value===0?' is-empty':'')+(value>0&&value===max?' is-max':'');
+      const wrap=document.createElement('div');wrap.className='ap-chart-bar-wrap';
+      const bar=document.createElement('div');bar.className='ap-chart-bar';bar.setAttribute('role','img');
+      bar.setAttribute('aria-label',(longMonths[i]||'')+': '+euro(value));
+      bar.title=(longMonths[i]||'')+' · '+euro(value);
+      wrap.appendChild(bar);
+      const label=document.createElement('span');label.className='ap-chart-month';label.textContent=shortMonths[i];
+      column.append(wrap,label);frag.appendChild(column);
+    }
+    el.replaceChildren(frag);
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      Array.from(el.querySelectorAll('.ap-chart-bar')).forEach((bar,i)=>{
+        bar.style.height=max&&series[i]?Math.max(5,(series[i]/max)*94)+'%':'3px';
+      });
+    }));
+    const selected=kind==='bills'?({total:'complessive',gas:'del gas',luce:'della luce',acqua:'dell’acqua'}[service]||'complessive'):'Internet';
+    const maximum=max>0?series.indexOf(max):-1;
+    put('#ap-insight-'+kind,maximum>=0?`Il mese con le spese ${selected} più alte è ${longMonths[maximum]} (${euro(max)}). Tocca gli importi della tabella per consultare gli allegati.`:'Nessuna spesa registrata nell’anno selezionato. Le barre si aggiorneranno quando aggiungerai una fattura.');
+  }
+  function renderFinancial(kind){
+    amounts[kind]=tableData(kind);
+    const {total,active,max,maxIdx,year,rows}=moneySummary(kind);
+    if(rows.length!==12)return;
+    const label=kind==='bills'?'bollette':'internet';
+    metric(kind,'total',euro(total),'Anno '+year);
+    metric(kind,'average',euro(active?total/active:0),active===1?'1 mese con spese':active+' mesi con spese');
+    metric(kind,'highest',max>0?longMonths[maxIdx]:'—',max>0?euro(max):'Nessuna spesa');
+    metric(kind,'months',active+' / 12','Con importi registrati');
+    const overviewKey=kind==='bills'?'bills':'internet';
+    put('#ap-overview-'+overviewKey,euro(total));
+    put('#ap-overview-'+overviewKey+'-caption','Totale '+year);
+    put('#ap-card-'+label,active+' '+(active===1?'mese registrato':'mesi registrati')+' · '+year);
+    renderChart(kind);
+  }
+  function getFileCards(kind){return $$(kind==='insurance'?'#insurance-files-list .insurance-file-card':'#personal-doc-files-list .insurance-file-card');}
+  function extension(card){const meta=card.querySelector('.insurance-file-copy span')?.textContent||'';const basename=meta.split(' · ')[0].trim();return (basename.match(/\.([a-z0-9]{2,6})$/i)||[])[1]?.toLowerCase()||'';}
+  function typeOf(card){const ext=extension(card);if(ext==='pdf')return 'pdf';if(['jpg','jpeg','png','gif','webp','bmp','heic'].includes(ext))return 'image';return 'other';}
+  function docSearch(kind){
+    const input=$('#ap-search-'+kind);const type=$('#ap-type-'+kind)?.value||'all';
+    const query=clean(input?.value);
+    const section=$(kind==='insurance'?'#archive-assicurazioni':'#archive-documenti');
+    const cards=getFileCards(kind);
+    const matching=cards.filter(card=>{
+      const matched=(!query||clean(card.querySelector('.insurance-file-copy')?.textContent).includes(query))&&(type==='all'||typeOf(card)===type);
+      card.hidden=!matched;return matched;
+    });
+    section?.classList.toggle('ap-searching',Boolean(query||type!=='all'));
+    if(kind==='docs'){
+      $$('#personal-doc-files-list .personal-doc-folder-group').forEach(group=>{
+        const visible=group.querySelectorAll('.insurance-file-card:not([hidden])').length;
+        group.hidden=visible===0;
+      });
+    }
+    const count=$('#ap-count-'+kind);
+    if(count)count.textContent=(query||type!=='all')?`${matching.length} ${matching.length===1?'file trovato':'file trovati'} su ${cards.length}`:`${cards.length} ${cards.length===1?'file archiviato':'file archiviati'} nell'anno selezionato`;
+    const empty=$('#ap-filter-empty-'+kind);
+    if(empty)empty.hidden=!Boolean((query||type!=='all')&&matching.length===0&&cards.length>0);
+  }
+  function renderDocs(kind){
+    const cards=getFileCards(kind);const count=cards.length;
+    const pdf=cards.filter(card=>typeOf(card)==='pdf').length;
+    const selector=kind==='insurance'?'#insurance-year-filter':'#personal-doc-year-filter';
+    const year=$(selector)?.value||String(new Date().getFullYear());
+    const key=kind==='insurance'?'insurance':'docs';
+    metric(key,'count',String(count),'Anno '+year);
+    metric(key,'pdf',String(pdf),'Nel '+year);
+    if(kind==='insurance'){
+      const latest=cards[0]?.querySelector('.insurance-file-copy strong')?.textContent||'—';
+      metric(key,'extra',latest,latest==='—'?'Nessun documento':'Ultimo file caricato');
+      put('#ap-card-insurance',count+' '+(count===1?'file':'file')+' · '+year);
+    }else{
+      const folders=$$('#personal-doc-files-list .personal-doc-folder-group').length;
+      metric(key,'extra',String(folders),folders===1?'1 cartella nell’anno':folders+' cartelle nell’anno');
+      put('#ap-card-docs',count+' file · '+folders+' '+(folders===1?'cartella':'cartelle'));
+    }
+    docSearch(kind);
+  }
+  function updateOverviewFileTotal(){
+    const files=getFileCards('insurance').length+getFileCards('docs').length;
+    put('#ap-overview-docs',String(files));
+  }
+  function refresh(){
+    try{
+      renderFinancial('bills');renderFinancial('internet');
+      renderDocs('insurance');renderDocs('docs');updateOverviewFileTotal();
+    }catch(error){console.warn('Aggiornamento riepiloghi Archivio:',error);}
+  }
+  function schedule(delay=90){clearTimeout(refreshTimer);refreshTimer=setTimeout(refresh,delay);}
+  // Osserva solo i nodi dati aggiornati dai renderer originali; non altera il database.
+  ['#bolletta-table-body','#internet-table-body','#insurance-files-list','#personal-doc-files-list'].forEach(sel=>{
+    const node=$(sel);if(node)new MutationObserver(()=>schedule(95)).observe(node,{childList:true,subtree:true});
+  });
+  ['#bolletta-year-filter','#internet-year-filter','#insurance-year-filter','#personal-doc-year-filter'].forEach(sel=>{
+    $(sel)?.addEventListener('change',()=>schedule(150));
+  });
+  ['insurance','docs'].forEach(kind=>{
+    $('#ap-search-'+kind)?.addEventListener('input',()=>docSearch(kind));
+    $('#ap-type-'+kind)?.addEventListener('change',()=>docSearch(kind));
+  });
+  const overviewSearch=$('#ap-archive-search');
+  function updateOverviewSearch(){
+    const query=clean(overviewSearch?.value);let visible=0;
+    $$('.archive-card[data-archive-target]').forEach(card=>{const found=(!query||clean(card.textContent).includes(query));card.hidden=!found;if(found)visible++;});
+    put('#ap-category-count',String(visible).padStart(2,'0'));
+    const none=$('#ap-archive-no-results');if(none)none.hidden=visible>0;
+  }
+  overviewSearch?.addEventListener('input',updateOverviewSearch);
+  document.addEventListener('keydown',event=>{
+    if(event.key!=='/'||event.altKey||event.ctrlKey||event.metaKey||event.repeat)return;
+    if(!root.classList.contains('active')||$('#archive-overview')?.style.display==='none')return;
+    const tag=document.activeElement?.tagName;
+    if(['INPUT','TEXTAREA','SELECT'].includes(tag)||document.activeElement?.isContentEditable)return;
+    event.preventDefault();overviewSearch?.focus();
+  });
+  $$('.ap-chart-switch button').forEach(button=>button.addEventListener('click',()=>{
+    activeService=button.dataset.apService||'total';
+    $$('.ap-chart-switch button').forEach(b=>{const on=b===button;b.classList.toggle('is-active',on);b.setAttribute('aria-pressed',on?'true':'false');});
+    renderChart('bills');
+  }));
+  function exportCSV(kind){
+    const year=$(kind==='bills'?'#bolletta-year-filter':'#internet-year-filter')?.value||String(new Date().getFullYear());
+    const rows=tableData(kind);
+    const headings=kind==='bills'?['Mese','Gas (€)','Luce (€)','Acqua (€)','Totale (€)']:['Mese','Importo (€)'];
+    const cells=rows.map(r=>kind==='bills'?[r.month,r.gas,r.luce,r.acqua,r.total]:[r.month,r.total]);
+    const esc=val=>'"'+String(val).replace(/"/g,'""')+'"';
+    const csv='\ufeffsep=;\r\n'+[headings,...cells].map(row=>row.map(esc).join(';')).join('\r\n');
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+    const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='archivio-'+kind+'-'+year+'.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
+  }
+  $$('[data-ap-export]').forEach(button=>button.addEventListener('click',()=>exportCSV(button.dataset.apExport)));
+  const dateLabel=$('#ap-today-label');
+  if(dateLabel)dateLabel.textContent=new Intl.DateTimeFormat('it-IT',{day:'numeric',month:'long',year:'numeric'}).format(new Date());
+  $$('.archive-card[data-archive-target],.archive-detail-back').forEach(element=>element.addEventListener('click',()=>{
+    schedule(95);
+    // Ritorna in cima all'area principale senza alterare la navigazione esistente.
+    if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+      const scroller=document.querySelector('.main-content');if(scroller&&scroller.scrollTop>300)scroller.scrollTo({top:0,behavior:'smooth'});
+    }
+  }));
+  schedule(120);
+  window.refreshArchivePremium=()=>schedule(20);
+})();
+</script>
+
 </body>
 </html>
