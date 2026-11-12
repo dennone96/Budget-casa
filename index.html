@@ -21193,6 +21193,13 @@ body:has(#shell:not(.hidden)) {--focus-ring: 0 0 0 4px rgba(var(--pp-accent-rgb)
 @media(prefers-reduced-motion:reduce){#page-liste .sp-stat,#page-liste .sp-list-card,#page-liste .sp-item-row,#sp-modal .sp-modal-box,#sp-toast{animation:none!important}#page-liste .sp-btn,#page-liste .sp-progress>span,#page-liste .sp-list-card{transition:none!important}}
 
 </style>
+<style id="shopping-templates-fix">
+#page-liste .sp-templates{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:14px 0 16px;padding:13px 15px;border:1px solid #e3eafa;background:#f9fbff;border-radius:16px}
+#page-liste .sp-templates span{font-size:12px;font-weight:800;color:#667ca3;margin-right:4px}
+#page-liste .sp-templates button{height:36px;min-height:36px;border-radius:11px;border:1px solid #dee6f4;background:#fff;color:#405b8a;padding:7px 12px;font-size:12px;font-weight:740;cursor:pointer}
+#page-liste .sp-templates button:hover{border-color:#899ce8;background:#edf2ff}
+@media(max-width:520px){#page-liste .sp-templates{padding:11px;gap:7px}#page-liste .sp-templates span{flex-basis:100%}#page-liste .sp-templates button{flex:1 1 auto;font-size:11px;padding:6px 8px}}
+</style>
 <script id="shopping-premium-2026-script">
 /* SHOPPING PREMIUM PLUS — enhancement layer, preserves Firebase shoppingLists schema. */
 (() => {
@@ -21227,6 +21234,7 @@ body:has(#shell:not(.hidden)) {--focus-ring: 0 0 0 4px rgba(var(--pp-accent-rgb)
   const dateLabel=value=>{const d=new Date(value||'');return Number.isFinite(d.getTime())?new Intl.DateTimeFormat('it-IT',{day:'numeric',month:'short',year:'numeric'}).format(d):'Lista salvata';};
   let detailId=null;
   let initialized=false;
+  let loading=false;
   let listing={search:'',filter:'all',sort:'recent'};
   let detailFilter={search:'',filter:'all',sort:'added'};
   let activeModal=null;
@@ -21302,6 +21310,7 @@ body:has(#shell:not(.hidden)) {--focus-ring: 0 0 0 4px rgba(var(--pp-accent-rgb)
   function drawOverview(){
     detailId=null;currentListId=null;metrics();
     outlet.innerHTML=`<div class="sp-section-head"><div><div class="sp-eyebrow">Le tue liste</div><h2>Organizza gli acquisti</h2></div><small>Condivise con la famiglia</small></div>
+      <div class="sp-templates" aria-label="Crea una lista pronta all’uso"><span>${icon('sparkles')} Inizia da un modello</span><button type="button" data-sp-action="quick-template" data-template="weekly">${icon('basket')} Spesa settimanale</button><button type="button" data-sp-action="quick-template" data-template="home">${icon('home')} Prodotti casa</button><button type="button" data-sp-action="quick-template" data-template="produce">${icon('carrot')} Frutta e verdura</button></div>
       <section class="sp-panel" aria-label="Elenco liste spesa"><div class="sp-toolbar">
         <label class="sp-search" for="sp-search-lists">${icon('search')}<input id="sp-search-lists" type="search" autocomplete="off" placeholder="Cerca una lista o un articolo..." value="${esc(listing.search)}"></label>
         <div class="sp-segments" role="group" aria-label="Filtra liste">${[['all','Tutte'],['active','Attive'],['complete','Completate']].map(([key,label])=>`<button type="button" data-sp-action="list-filter" data-filter="${key}" class="${listing.filter===key?'is-active':''}" aria-pressed="${listing.filter===key}">${label}</button>`).join('')}</div>
@@ -21404,8 +21413,12 @@ body:has(#shell:not(.hidden)) {--focus-ring: 0 0 0 4px rgba(var(--pp-accent-rgb)
       if(modalBudget && (!Number.isFinite(budget)||budget<0||budget>100000000)){notify('Controlla il budget inserito.',true);return;}
       if(state.kind==='new-list'){
         const id=Date.now().toString(36)+Math.random().toString(36).slice(2,9);
-        shoppingLists[id]={nome:name,items:[],completata:false,createdAt:new Date().toISOString(),...(budget!==null?{budget}: {})};
-        closeModal();detailId=id;drawDetail(id);if(await persist())notify('Lista creata! Aggiungi i tuoi articoli.');
+        if(!currentUser||!currentFamilyId){notify('Accedi alla tua famiglia per salvare una lista.',true);return;}
+        const created={nome:name,items:[],completata:false,createdAt:new Date().toISOString(),...(budget!==null?{budget}: {})};
+        shoppingLists[id]=created;
+        const saved=await persist();
+        if(saved){closeModal();detailId=id;drawDetail(id);notify('Lista creata! Aggiungi i tuoi articoli.');}
+        else{delete shoppingLists[id];mainRender();}
       }else if(li){
         li.nome=name;if(budget===null)delete li.budget;else li.budget=budget;
         closeModal();mainRender();if(await persist())notify('Lista aggiornata.');
@@ -21427,6 +21440,20 @@ body:has(#shell:not(.hidden)) {--focus-ring: 0 0 0 4px rgba(var(--pp-accent-rgb)
     else if(state.kind==='reset-items'&&li){itemsOf(li).forEach(i=>i.completato=false);li.completata=false;}
     else{return;}
     closeModal();mainRender();if(await persist())notify('Modifica completata.');
+  }
+  async function createFromTemplate(template){
+    const templates={
+      weekly:{nome:'Spesa settimanale',items:[['Latte','Alimentari'],['Pane','Alimentari'],['Pasta','Alimentari'],['Uova','Alimentari'],['Frutta','Frutta e verdura'],['Verdura','Frutta e verdura']]},
+      home:{nome:'Prodotti per la casa',items:[['Detersivo piatti','Casa'],['Detersivo bucato','Casa'],['Carta igienica','Casa'],['Sacchetti rifiuti','Casa']]},
+      produce:{nome:'Frutta e verdura',items:[['Mele','Frutta e verdura'],['Banane','Frutta e verdura'],['Pomodori','Frutta e verdura'],['Insalata','Frutta e verdura']]}
+    };
+    const preset=templates[template];if(!preset)return;
+    if(!currentUser||!currentFamilyId){notify('Accedi alla tua famiglia per creare liste condivise.',true);return;}
+    const id=Date.now().toString(36)+Math.random().toString(36).slice(2,9);
+    shoppingLists[id]={nome:preset.nome,items:preset.items.map(([nome,categoria])=>({nome,categoria,quantita:1,completato:false})),completata:false,createdAt:new Date().toISOString()};
+    detailId=id;mainRender();
+    if(await persist())notify('Lista pronta: personalizza gli articoli quando vuoi.');
+    else{delete shoppingLists[id];detailId=null;mainRender();}
   }
   async function duplicate(id){const li=safeId(id);if(!li)return;
     const newId=Date.now().toString(36)+Math.random().toString(36).slice(2,9);
@@ -21468,6 +21495,7 @@ body:has(#shell:not(.hidden)) {--focus-ring: 0 0 0 4px rgba(var(--pp-accent-rgb)
       e.preventDefault();e.stopPropagation();
       const li=safeId(id);
       if(action==='new-list'){showModal('new-list');return;}
+      if(action==='quick-template'){await createFromTemplate(button.dataset.template);return;}
       if(action==='back'){drawOverview();return;}
       if(action==='list-filter'){listing.filter=button.dataset.filter;$$('[data-sp-action="list-filter"]').forEach(b=>{const on=b===button;b.classList.toggle('is-active',on);b.setAttribute('aria-pressed',String(on));});renderCards();return;}
       if(action==='item-filter'){detailFilter.filter=button.dataset.filter;$$('[data-sp-action="item-filter"]').forEach(b=>{const on=b===button;b.classList.toggle('is-active',on);b.setAttribute('aria-pressed',String(on));});renderedItems(detailId);return;}
@@ -21520,7 +21548,8 @@ body:has(#shell:not(.hidden)) {--focus-ring: 0 0 0 4px rgba(var(--pp-accent-rgb)
   openListDetail=openDetail;
   showCreateListModal=()=>showModal('new-list');
   initListPage=initialize;
-  if(page.classList.contains('active'))initialize();
+  // Installa gli eventi subito: il click funziona anche dopo navigazioni o rendering asincroni.
+  initialize();
 })();
 
 </script>
