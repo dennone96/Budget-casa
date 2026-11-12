@@ -11940,6 +11940,11 @@ let familyMembers = {};
 
 // === VARIABILI PER LE LISTE DELLA SPESA ===
 let shoppingLists = {};
+// Impedisce ai vecchi caricamenti/snapshot di sovrascrivere una lista appena creata.
+let shoppingListsRevision = 0;
+let shoppingListsWriteDepth = 0;
+let shoppingListsWriteQueue = Promise.resolve();
+let shoppingListsLastError = '';
 let currentListId = null;
 let eventsData = {};  
   
@@ -12646,8 +12651,11 @@ function attachFirestoreListener() {
     // Liste e calendario sono anch'essi condivisi: il listener aggiorna
     // immediatamente gli altri dispositivi quando un membro salva modifiche.
     if (Object.prototype.hasOwnProperty.call(data, 'shoppingLists')) {
-      shoppingLists = data.shoppingLists && typeof data.shoppingLists === 'object' ? data.shoppingLists : {};
-      if (document.getElementById('liste-container-principale')) renderShoppingLists();
+      // Una risposta remota più vecchia non deve annullare una modifica locale in corso.
+      if (shoppingListsWriteDepth === 0) {
+        shoppingLists = data.shoppingLists && typeof data.shoppingLists === 'object' && !Array.isArray(data.shoppingLists) ? data.shoppingLists : {};
+        if (document.getElementById('liste-container-principale')) renderShoppingLists();
+      }
     }
     if (Object.prototype.hasOwnProperty.call(data, 'events')) {
       eventsData = data.events && typeof data.events === 'object' ? data.events : {};
@@ -16271,35 +16279,51 @@ function initListPage() {
 
 // 1. loadShoppingLists - Carica le liste dal database
 async function loadShoppingLists() {
-  if (!currentUser || !currentFamilyId) {
-    console.warn('Famiglia non verificata: caricamento liste sospeso');
-    return;
-  }
+  if (!currentUser || !currentFamilyId) return false;
+  const revision = shoppingListsRevision;
+  const familyId = currentFamilyId;
   try {
     const snap = await sharedFamilyDocRef().get();
     if (!snap.exists) throw new Error('Documento famiglia non disponibile.');
+    // Non sovrascrivere le modifiche effettuate mentre il download era in corso.
+    if (shoppingListsRevision !== revision || shoppingListsWriteDepth > 0 || currentFamilyId !== familyId) return false;
     const data = snap.data() || {};
-    shoppingLists = data.shoppingLists && typeof data.shoppingLists === 'object' ? data.shoppingLists : {};
+    shoppingLists = data.shoppingLists && typeof data.shoppingLists === 'object' && !Array.isArray(data.shoppingLists) ? data.shoppingLists : {};
     renderShoppingLists();
+    return true;
   } catch (err) {
     console.error('Errore caricamento liste condivise:', err);
+    return false;
   }
 }
 
-// 2. saveShoppingLists - Salva le liste nel documento della famiglia
+// Scritture serializzate: un aggiornamento non può arrivare dopo un altro più recente.
 async function saveShoppingLists() {
   if (!currentUser || !currentFamilyId) {
-    console.warn('Famiglia non verificata: salvataggio liste sospeso');
+    shoppingListsLastError = 'Accedi e seleziona una famiglia prima di salvare.';
     return false;
   }
-  try {
-    await sharedFamilyDocRef().set({ shoppingLists: shoppingLists || {}, updatedAt: new Date().toISOString() }, { merge: true });
-    console.log('Liste condivise salvate.');
-    return true;
-  } catch (err) {
-    console.error('Errore salvataggio liste condivise:', err);
-    return false;
-  }
+  const familyId = currentFamilyId;
+  const snapshot = JSON.parse(JSON.stringify(shoppingLists || {}));
+  shoppingListsRevision++;
+  shoppingListsWriteDepth++;
+  const write = async () => {
+    try {
+      if (currentFamilyId !== familyId) throw new Error('La famiglia selezionata è cambiata.');
+      await sharedFamilyDocRef().set({shoppingLists: snapshot, updatedAt: new Date().toISOString()}, {merge:true});
+      shoppingListsLastError = '';
+      return true;
+    } catch (err) {
+      shoppingListsLastError = err?.message || 'Controlla connessione o autorizzazioni Firebase.';
+      console.error('Errore salvataggio liste condivise:', err);
+      return false;
+    } finally {
+      shoppingListsWriteDepth = Math.max(0, shoppingListsWriteDepth - 1);
+    }
+  };
+  const result = shoppingListsWriteQueue.then(write, write);
+  shoppingListsWriteQueue = result.then(() => {}, () => {});
+  return result;
 }
 
 // 3. renderShoppingLists - Mostra le liste nella pagina
@@ -21251,7 +21275,7 @@ body:has(#shell:not(.hidden)) {--focus-ring: 0 0 0 4px rgba(var(--pp-accent-rgb)
   const persist=async()=>{
     try{
       const result=await saveShoppingLists();
-      if(result===false){notify('Modifica non salvata: controlla la connessione.',true);return false;}
+      if(result===false){notify(typeof shoppingListsLastError !== 'undefined' && shoppingListsLastError ? 'Salvataggio non riuscito: '+shoppingListsLastError : 'Modifica non salvata: controlla connessione e famiglia.',true);return false;}
       return true;
     }catch(error){console.error('Salvataggio liste:',error);notify('Impossibile salvare le modifiche.',true);return false;}
   };
@@ -21403,6 +21427,7 @@ body:has(#shell:not(.hidden)) {--focus-ring: 0 0 0 4px rgba(var(--pp-accent-rgb)
   }
   async function submitModal(event){
     event.preventDefault();if(!activeModal)return;
+    if (activeModal.saving) return;
     const state={...activeModal};
     const form=$('#sp-modal-form');if(!form?.reportValidity())return;
     const name=$('#sp-modal-name')?.value.trim();const modalBudget=$('#sp-modal-budget')?.value.trim();const li=state.id?safeId(state.id):null;
@@ -21416,9 +21441,18 @@ body:has(#shell:not(.hidden)) {--focus-ring: 0 0 0 4px rgba(var(--pp-accent-rgb)
         if(!currentUser||!currentFamilyId){notify('Accedi alla tua famiglia per salvare una lista.',true);return;}
         const created={nome:name,items:[],completata:false,createdAt:new Date().toISOString(),...(budget!==null?{budget}: {})};
         shoppingLists[id]=created;
+        activeModal.saving=true;
+        const submitButton=$('#sp-modal-form .sp-modal-confirm');
+        if(submitButton){submitButton.disabled=true;submitButton.textContent='Salvataggio...';}
         const saved=await persist();
         if(saved){closeModal();detailId=id;drawDetail(id);notify('Lista creata! Aggiungi i tuoi articoli.');}
-        else{delete shoppingLists[id];mainRender();}
+        else{
+          delete shoppingLists[id];
+          // Il modulo resta aperto per riprovare senza riscrivere il nome.
+          if (activeModal?.kind === 'new-list') activeModal.saving=false;
+          if(submitButton){submitButton.disabled=false;submitButton.textContent='Riprova a creare';}
+          mainRender();
+        }
       }else if(li){
         li.nome=name;if(budget===null)delete li.budget;else li.budget=budget;
         closeModal();mainRender();if(await persist())notify('Lista aggiornata.');
@@ -21529,7 +21563,7 @@ body:has(#shell:not(.hidden)) {--focus-ring: 0 0 0 4px rgba(var(--pp-accent-rgb)
     else if(event.target.id==='sp-search-items'){detailFilter.search=event.target.value;renderedItems(detailId);}
   }
   function onKey(event){
-    if(event.key==='Escape'&&$('#sp-modal')){closeModal();return;}
+    if(event.key==='Escape'&&$('#sp-modal')){event.preventDefault();closeModal();return;}
     if((event.key==='Enter'||event.key===' ')&&event.target.matches('[data-sp-open]')){event.preventDefault();openDetail(event.target.dataset.spOpen);return;}
     if(event.key==='/'&&!event.ctrlKey&&!event.metaKey&&!event.altKey&&page.classList.contains('active')){
       if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName))return;
@@ -21541,7 +21575,10 @@ body:has(#shell:not(.hidden)) {--focus-ring: 0 0 0 4px rgba(var(--pp-accent-rgb)
       page.addEventListener('submit',event=>{if(event.target.id==='sp-add-item-form')addItem(event);});document.addEventListener('keydown',onKey);}
     // Show stale data immediately, then update from the existing shared family document.
     mainRender();
-    if(typeof currentUser!=='undefined'&&currentUser&&typeof currentFamilyId!=='undefined'&&currentFamilyId){loadShoppingLists();}
+    if(typeof currentUser!=='undefined'&&currentUser&&typeof currentFamilyId!=='undefined'&&currentFamilyId && !loading){
+      loading=true;
+      Promise.resolve(loadShoppingLists()).finally(()=>{loading=false;});
+    }
   }
   // Global functions are called by the app's existing navigation and Firebase snapshot listener.
   renderShoppingLists=mainRender;
@@ -21550,8 +21587,13 @@ body:has(#shell:not(.hidden)) {--focus-ring: 0 0 0 4px rgba(var(--pp-accent-rgb)
   initListPage=initialize;
   // Installa gli eventi subito: il click funziona anche dopo navigazioni o rendering asincroni.
   initialize();
+  page.dataset.shoppingReady='true';
 })();
 
 </script>
+<style id="shopping-create-reliability-styles">
+#sp-modal button:disabled{cursor:progress!important;opacity:.7}
+#page-liste [data-sp-action="new-list"]:focus-visible{outline:3px solid #a1b1f9;outline-offset:3px}
+</style>
 </body>
 </html>
