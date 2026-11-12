@@ -11030,7 +11030,7 @@ Movimenti in contanti. Stesse colonne del conto corrente.
         <div class="cs-calendar-top"><div><div class="cs-kicker">CALENDARIO MENSILE</div><h2 id="cs-month-title">Calendario</h2></div><div class="cs-nav"><button class="cs-nav-today" data-cs="today" type="button">Oggi</button><button data-cs="prev" type="button" aria-label="Mese precedente"><span aria-hidden="true">‹</span></button><button data-cs="next" type="button" aria-label="Mese successivo"><span aria-hidden="true">›</span></button><button type="button" id="cs-create" class="cs-button cs-primary cs-top-create" data-cs="create" aria-label="Crea nuovo evento"><i class="ti ti-plus"></i> <span>Nuovo evento</span></button></div></div>
         <div class="cs-weekdays" aria-hidden="true"><span>Lun</span><span>Mar</span><span>Mer</span><span>Gio</span><span>Ven</span><span>Sab</span><span>Dom</span></div>
         <div id="cs-days" class="cs-days" role="grid" aria-label="Giorni del mese"></div>
-        <div class="cs-legend"><span><i class="cs-dot violet"></i> Personale</span><span><i class="cs-dot blue"></i> Famiglia</span><span><i class="cs-dot mint"></i> Salute</span><span><i class="cs-dot amber"></i> Scadenze</span></div>
+        <div class="cs-legend"><span><i class="cs-dot violet"></i> Casa</span><span><i class="cs-dot mint"></i> Dennis</span><span><i class="cs-dot blue"></i> Tati</span></div>
       </section>
     <div id="cs-connection" class="cs-connection" role="status" aria-live="polite"></div>
     <section id="cs-summary" class="cs-summary" aria-label="Riepilogo eventi"></section>
@@ -11044,7 +11044,7 @@ Movimenti in contanti. Stesse colonne del conto corrente.
     </div>
     <section class="cs-agenda-panel" aria-label="Agenda e ricerca appuntamenti">
       <div class="cs-agenda-head"><div><div class="cs-kicker">TUTTI GLI IMPEGNI</div><h2>La tua agenda <span id="cs-agenda-count" class="cs-count">0</span></h2><p>Gli appuntamenti del mese, in ordine cronologico.</p></div><button type="button" class="cs-button cs-secondary" data-cs="export-month"><i class="ti ti-download"></i> Esporta mese</button></div>
-      <div class="cs-agenda-toolbar"><label class="cs-search" for="cs-search"><i class="ti ti-search"></i><input id="cs-search" type="search" placeholder="Cerca eventi, note, luoghi..." autocomplete="off" aria-label="Cerca eventi"></label><select id="cs-category-filter" aria-label="Filtra eventi per categoria"><option value="all">Tutte le categorie</option><option value="Personale">Personale</option><option value="Famiglia">Famiglia</option><option value="Salute">Salute</option><option value="Scadenze">Scadenze</option><option value="Altro">Altro</option></select></div>
+      <div class="cs-agenda-toolbar"><label class="cs-search" for="cs-search"><i class="ti ti-search"></i><input id="cs-search" type="search" placeholder="Cerca eventi, note, luoghi..." autocomplete="off" aria-label="Cerca eventi"></label><select id="cs-category-filter" aria-label="Filtra eventi per categoria"><option value="all">Tutte le categorie</option><option value="Casa">Casa</option><option value="Dennis">Dennis</option><option value="Tati">Tati</option></select></div>
       <div id="cs-agenda-list" class="cs-agenda-list"></div>
     </section>
     <p class="cs-footnote"><i class="ti ti-cloud-check"></i> Gli eventi vengono condivisi con i membri della famiglia collegata.</p>
@@ -19798,9 +19798,8 @@ body:has(#shell:not(.hidden)) {--focus-ring: 0 0 0 4px rgba(var(--pp-accent-rgb)
       <div class="shopping3-budget ${over?'is-over':''}"><div class="shopping3-budgetline"><span>${icon('wallet')} ${hasBudget?'Budget della lista':'Budget facoltativo'}</span><strong>${hasBudget?eur(s.estimate.total)+' / '+eur(b):'Inserisci il budget da Modifica'}</strong></div><div class="shopping3-bar ${over?'over':''}" role="progressbar" aria-valuenow="${hasBudget?Math.min(100,Math.round(s.estimate.total/b*100)):s.percent}" aria-valuemin="0" aria-valuemax="100" aria-label="Budget o avanzamento"><span style="--pct:${hasBudget?Math.min(100,Math.round(s.estimate.total/b*100)):s.percent}%"></span></div>${over?'<p class="shopping3-budgetnote">Attenzione: il totale stimato supera il budget impostato.</p>':''}</div>
       <section class="shopping3-addbox"><h3>${icon('plus')} Aggiungi articolo</h3><form id="shopping3-add-form" class="shopping3-addform" autocomplete="off">
       <div class="shopping3-field"><label for="shopping3-newname">Nome articolo</label><input id="shopping3-newname" name="name" placeholder="Es. Latte, pane..." maxlength="120" required></div>
-      <div class="shopping3-field"><label for="shopping3-newqty">Quantità</label><input id="shopping3-newqty" name="quantity" type="number" inputmode="decimal" min="0.01" max="100000" step="any" value="1" required></div>
+      <div class="shopping3-field shopping3-quantity-field"><label for="shopping3-newqty">Quantità</label><div class="shopping3-new-stepper" role="group" aria-label="Quantità del nuovo articolo"><button type="button" data-shop3="newqty-minus" aria-label="Diminuisci quantità del nuovo articolo">−</button><input id="shopping3-newqty" name="quantity" type="number" inputmode="numeric" min="1" max="9999" step="1" value="1" readonly required aria-label="Quantità"><button type="button" data-shop3="newqty-plus" aria-label="Aumenta quantità del nuovo articolo">+</button></div></div>
       <div class="shopping3-field"><label for="shopping3-newprice">Prezzo / unità</label><input id="shopping3-newprice" name="price" type="number" inputmode="decimal" min="0" max="1000000" step="0.01" placeholder="€ (opzionale)"></div>
-      <div class="shopping3-field"><label for="shopping3-newcategory">Categoria</label><select id="shopping3-newcategory" name="category">${categoriesHTML()}</select></div>
       <button type="submit" class="shopping3-button shopping3-primary">${icon('plus')} Aggiungi</button></form></section>
       <section class="shopping3-itembox"><div class="shopping3-itemtoolbar"><h3 id="shopping3-itemscount">Articoli (${s.count})</h3><label class="shopping3-search" for="shopping3-search-items">${icon('search')}<input id="shopping3-search-items" type="search" placeholder="Cerca articoli..." value="${esc(filters.itemSearch)}"></label><div class="shopping3-segments" role="group" aria-label="Filtra articoli">${[['all','Tutti'],['pending','Da comprare'],['bought','Acquistati']].map(([k,v])=>`<button type="button" data-shop3="filter-item" data-value="${k}" aria-pressed="${filters.item===k}">${v}</button>`).join('')}</div><select id="shopping3-item-sort" class="shopping3-select" aria-label="Ordina articoli">${[['added','Inserimento'],['name','Nome A–Z'],['category','Categoria']].map(([k,v])=>option(k,v,filters.itemSort)).join('')}</select></div>
       <div id="shopping3-items" class="shopping3-items">${itemsHTML(li)}</div><div class="shopping3-bulkactions"><button type="button" class="shopping3-button" data-shop3="all-bought" ${s.pending?'':'disabled'}>${icon('checks')} Segna tutti acquistati</button><button type="button" class="shopping3-button" data-shop3="reset-bought" ${s.bought?'':'disabled'}>${icon('refresh')} Ripristina</button><button type="button" class="shopping3-button" data-shop3="clear-bought" ${s.bought?'':'disabled'}>${icon('brush')} Rimuovi acquistati</button><button type="button" class="shopping3-button" data-shop3="csv">${icon('download')} Esporta CSV</button><button type="button" class="shopping3-button shopping3-danger" data-shop3="delete-list" data-id="${esc(selected)}">${icon('trash')} Elimina lista</button><button type="button" class="shopping3-button ${li.completata?'':'shopping3-primary'}" data-shop3="complete">${icon(li.completata?'restore':'check')} ${li.completata?'Riapri lista':'Termina lista'}</button></div></section>
@@ -19812,7 +19811,7 @@ body:has(#shell:not(.hidden)) {--focus-ring: 0 0 0 4px rgba(var(--pp-accent-rgb)
     if(filters.itemSort==='category')result.sort((a,b)=>String(a.i.categoria||'Altro').localeCompare(String(b.i.categoria||'Altro'),'it'));
     if(!data.length)return blank('basket','Questa lista è vuota','Aggiungi il primo articolo utilizzando il modulo sopra.');
     if(!result.length)return blank('search-off','Nessun articolo trovato','Prova a modificare i filtri.');
-    return result.map(({i,index})=>{const p=price(i),n=qty(i);return `<div class="shopping3-item ${i.completato?'is-bought':''}"><input type="checkbox" class="shopping3-check" data-shop3="toggle-item" data-index="${index}" aria-label="${i.completato?'Segna da comprare':'Segna acquistato'}: ${esc(i.nome||'Articolo')}" ${i.completato?'checked':''}><div class="shopping3-itemname"><strong>${esc(i.nome||'Articolo')}</strong><div class="shopping3-itemmeta"><span class="shopping3-catpill">${esc(i.categoria||'Altro')}</span>${i.note?`<span title="${esc(i.note)}">${icon('note')} ${esc(i.note)}</span>`:''}</div></div><div class="shopping3-qty" aria-label="Quantità"><button type="button" data-shop3="qty-minus" data-index="${index}" aria-label="Diminuisci quantità">−</button><span>${esc(n)}</span><button type="button" data-shop3="qty-plus" data-index="${index}" aria-label="Aumenta quantità">+</button></div><div class="shopping3-itemprice">${p===null?'—':eur(p*n)}<small>${p===null?'Prezzo mancante':eur(p)+' / unità'}</small></div><div class="shopping3-itemactions"><button type="button" class="shopping3-iconbtn" data-shop3="edit-item" data-index="${index}" title="Modifica articolo" aria-label="Modifica articolo">${icon('pencil')}</button><button type="button" class="shopping3-iconbtn danger" data-shop3="delete-item" data-index="${index}" title="Elimina articolo" aria-label="Elimina articolo">${icon('trash')}</button></div></div>`;}).join('');
+    return result.map(({i,index})=>{const p=price(i),n=qty(i);return `<div class="shopping3-item ${i.completato?'is-bought':''}"><input type="checkbox" class="shopping3-check" data-shop3="toggle-item" data-index="${index}" aria-label="${i.completato?'Segna da comprare':'Segna acquistato'}: ${esc(i.nome||'Articolo')}" ${i.completato?'checked':''}><div class="shopping3-itemname"><strong title="${esc(i.note||i.nome||'Articolo')}">${esc(i.nome||'Articolo')}</strong><div class="shopping3-itemmeta"><span class="shopping3-catpill">${esc(i.categoria||'Altro')}</span>${i.note?`<span title="${esc(i.note)}">${icon('note')} ${esc(i.note)}</span>`:''}</div></div><div class="shopping3-qty" aria-label="Quantità"><button type="button" data-shop3="qty-minus" data-index="${index}" aria-label="Diminuisci quantità">−</button><span>${esc(n)}</span><button type="button" data-shop3="qty-plus" data-index="${index}" aria-label="Aumenta quantità">+</button></div><div class="shopping3-itemprice">${p===null?'—':eur(p*n)}<small>${p===null?'Prezzo mancante':eur(p)+' / unità'}</small></div><div class="shopping3-itemactions"><button type="button" class="shopping3-iconbtn" data-shop3="edit-item" data-index="${index}" title="Modifica articolo" aria-label="Modifica articolo">${icon('pencil')}</button><button type="button" class="shopping3-iconbtn danger" data-shop3="delete-item" data-index="${index}" title="Elimina articolo" aria-label="Elimina articolo">${icon('trash')}</button></div></div>`;}).join('');
   }
   function render(){
     status();stats();
@@ -19963,6 +19962,14 @@ body:has(#shell:not(.hidden)) {--focus-ring: 0 0 0 4px rgba(var(--pp-accent-rgb)
   }
   async function quickAction(action,target){
     const id=target.dataset.id||selected,li=get(id),index=Number(target.dataset.index);
+    if(action==='newqty-plus'||action==='newqty-minus'){
+      const input=$('#shopping3-newqty');if(!input)return;
+      const current=Math.max(1,Math.floor(num(input.value)||1));
+      const updated=Math.max(1,Math.min(9999,current+(action==='newqty-plus'?1:-1)));
+      input.value=String(updated);
+      input.dispatchEvent(new Event('change',{bubbles:true}));
+      return;
+    }
     if(action==='create')return create();
     if(action==='template')return create(target.dataset.template);
     if(action==='back'){selected=null;return render();}
@@ -19998,18 +20005,18 @@ body:has(#shell:not(.hidden)) {--focus-ring: 0 0 0 4px rgba(var(--pp-accent-rgb)
   async function addItem(event){
     event.preventDefault();const li=get(selected);if(!li)return;
     const input=$('#shopping3-newname'),name=input?.value.trim();const amount=num($('#shopping3-newqty')?.value);
-    const raw=$('#shopping3-newprice')?.value.trim()||'';const p=raw===''?null:num(raw),cat=$('#shopping3-newcategory')?.value||'Alimentari';
+    const raw=$('#shopping3-newprice')?.value.trim()||'';const p=raw===''?null:num(raw);const cat='';
     if(!name){toast('Inserisci il nome dell’articolo.',true);return;}
     if(!Number.isFinite(amount)||amount<.01||amount>100000){toast('Quantità non valida.',true);return;}
     if(raw!==''&&(!Number.isFinite(p)||p<0||p>1000000)){toast('Prezzo non valido.',true);return;}
     const ok=await mutate(data=>{
       const target=data[selected];if(!target)throw Error('Lista non trovata');if(!Array.isArray(target.items))target.items=[];
-      const existing=target.items.find(i=>!i.completato&&String(i.nome||'').trim().toLocaleLowerCase('it-IT')===name.toLocaleLowerCase('it-IT')&&String(i.categoria||'Alimentari')===cat);
+      const existing=target.items.find(i=>!i.completato&&String(i.nome||'').trim().toLocaleLowerCase('it-IT')===name.toLocaleLowerCase('it-IT')&&String(i.categoria||'')===cat);
       if(existing){existing.quantita=Number((qty(existing)+amount).toFixed(2));if(p!==null)existing.prezzo=p;}
-      else target.items.push({nome:name,quantita:amount,categoria:cat,completato:false,...(p!==null?{prezzo:p}:{})});
+      else target.items.push({nome:name,quantita:amount,completato:false,...(p!==null?{prezzo:p}:{})});
       target.completata=false;
     },'Articolo salvato.');
-    if(ok){$('#shopping3-newcategory').value=cat;$('#shopping3-newname')?.focus();}
+    if(ok){$('#shopping3-newname')?.focus();}
   }
   function onInput(event){
     if(event.target.id==='shopping3-search-lists'){
@@ -20246,15 +20253,21 @@ body.cs-page-active #pp-quick-toggle,body.cs-page-active #pp-quick-menu,body.cs-
   const shiftDays=(date,days)=>new Date(date.getFullYear(),date.getMonth(),date.getDate()+days,12);
   const monthKey=d=>iso(d).slice(0,7);
   const dateFmt=(day,opts)=>day.toLocaleDateString('it-IT',opts);
-  const categories=['Personale','Famiglia','Salute','Scadenze','Altro'];
-  const tones={Personale:'violet',Famiglia:'blue',Salute:'mint',Scadenze:'amber',Altro:'gray'};
+  const categories=['Casa','Dennis','Tati'];
+  const tones={Casa:'violet',Dennis:'mint',Tati:'blue'};
   const tone=c=>tones[c]||'gray';
   const stored=()=>window.CalendarStudioStorage||null;
   const eventGroups=()=>{const d=stored()?.events;return d&&typeof d==='object'&&!Array.isArray(d)?d:{};};
   const group=date=>Array.isArray(eventGroups()[date])?eventGroups()[date]:[];
   const timed=e=>!(e?.allDay===true||e?.tuttoGiorno===true||!e?.ora||e?.ora==='Tutto il giorno');
   const eventTime=e=>timed(e)?String(e.ora).slice(0,5):'Tutto il giorno';
-  const eventCategory=e=>categories.includes(e?.categoria)?e.categoria:'Personale';
+  const eventCategory=e=>{
+    const value=String(e?.categoria||'');
+    if(categories.includes(value))return value;
+    // Legacy events are read as new categories without changing stored Firebase documents.
+    const legacy={Personale:'Casa',Famiglia:'Tati',Salute:'Dennis',Scadenze:'Casa',Altro:'Casa'};
+    return legacy[value]||'Casa';
+  };
   const sortedDay=date=>group(date).map((event,index)=>({event,date,index})).sort((a,b)=>{
     const x=timed(a.event),y=timed(b.event);
     if(x!==y)return x?1:-1;
@@ -20318,7 +20331,7 @@ body.cs-page-active #pp-quick-toggle,body.cs-page-active #pp-quick-menu,body.cs-
   function empty(title,description,showAdd=false){return `<div class="cs-empty">${icon('calendar-off')}<strong>${esc(title)}</strong><p>${esc(description)}</p>${showAdd?`<button type="button" class="cs-button cs-secondary" data-cs="create">${icon('plus')} Aggiungi evento</button>`:''}</div>`;}
   function eventCard({event,date,index}){
     const title=esc(event?.titolo||'Senza titolo'),cat=eventCategory(event),clock=eventTime(event);
-    return `<article class="cs-event"><div class="cs-event-tone ${tone(cat)}">${icon(cat==='Salute'?'heart':cat==='Scadenze'?'alert-circle':cat==='Famiglia'?'users':'calendar-event')}</div><div class="cs-event-info"><strong>${title}</strong><div class="cs-event-meta"><span>${icon('clock')} ${esc(clock)}</span><span>${icon('tag')} ${esc(cat)}</span>${event?.luogo?`<span>${icon('map-pin')} ${esc(event.luogo)}</span>`:''}</div>${event?.note?`<p class="cs-event-note">${esc(event.note)}</p>`:''}<div class="cs-event-actions"><button class="cs-iconbtn" data-cs="edit" data-date="${date}" data-index="${index}" title="Modifica evento" aria-label="Modifica ${title}">${icon('pencil')}</button><button class="cs-iconbtn" data-cs="duplicate" data-date="${date}" data-index="${index}" title="Duplica evento" aria-label="Duplica ${title}">${icon('copy')}</button><button class="cs-iconbtn" data-cs="export-one" data-date="${date}" data-index="${index}" title="Scarica file calendario .ics" aria-label="Esporta ${title}">${icon('download')}</button><button class="cs-iconbtn evento-calendar" data-date="${date}" data-event-title="${title}" data-event-time="${esc(event?.ora||'')}" data-event-note="${esc(event?.note||'')}" data-event-allday="${timed(event)?'0':'1'}" title="Apri Google Calendar" aria-label="Apri ${title} in Google Calendar">${icon('calendar-plus')}</button><button class="cs-iconbtn danger" data-cs="delete" data-date="${date}" data-index="${index}" title="Elimina evento" aria-label="Elimina ${title}">${icon('trash')}</button></div></div></article>`;
+    return `<article class="cs-event"><div class="cs-event-tone ${tone(cat)}">${icon(cat==='Casa'?'home':cat==='Dennis'?'user':cat==='Tati'?'user':'calendar-event')}</div><div class="cs-event-info"><strong>${title}</strong><div class="cs-event-meta"><span>${icon('clock')} ${esc(clock)}</span><span>${icon('tag')} ${esc(cat)}</span>${event?.luogo?`<span>${icon('map-pin')} ${esc(event.luogo)}</span>`:''}</div>${event?.note?`<p class="cs-event-note">${esc(event.note)}</p>`:''}<div class="cs-event-actions"><button class="cs-iconbtn" data-cs="edit" data-date="${date}" data-index="${index}" title="Modifica evento" aria-label="Modifica ${title}">${icon('pencil')}</button><button class="cs-iconbtn" data-cs="duplicate" data-date="${date}" data-index="${index}" title="Duplica evento" aria-label="Duplica ${title}">${icon('copy')}</button><button class="cs-iconbtn" data-cs="export-one" data-date="${date}" data-index="${index}" title="Scarica file calendario .ics" aria-label="Esporta ${title}">${icon('download')}</button><button class="cs-iconbtn evento-calendar" data-date="${date}" data-event-title="${title}" data-event-time="${esc(event?.ora||'')}" data-event-note="${esc(event?.note||'')}" data-event-allday="${timed(event)?'0':'1'}" title="Apri Google Calendar" aria-label="Apri ${title} in Google Calendar">${icon('calendar-plus')}</button><button class="cs-iconbtn danger" data-cs="delete" data-date="${date}" data-index="${index}" title="Elimina evento" aria-label="Elimina ${title}">${icon('trash')}</button></div></div></article>`;
   }
   function renderSelected(){
     const day=fromISO(selected)||now();
@@ -20407,7 +20420,7 @@ body.cs-page-active #pp-quick-toggle,body.cs-page-active #pp-quick-menu,body.cs-
       if(!allDay&&!/^([01]\d|2[0-3]):[0-5]\d$/.test(time)){modalError('Inserisci un orario valido oppure attiva «Tutto il giorno».');return;}
       const original=kind==='edit'?group(oldDate)[index]:kind==='duplicate'?group(oldDate)[index]:null;
       event={...(original||{}),titolo:title,ora:allDay?'':time,allDay,tuttoGiorno:allDay,
-        note:$('#cs-modal-note')?.value.trim()||'',categoria:$('#cs-modal-category')?.value||'Personale',luogo:$('#cs-modal-location')?.value.trim()||'',
+        note:$('#cs-modal-note')?.value.trim()||'',categoria:$('#cs-modal-category')?.value||'Casa',luogo:$('#cs-modal-location')?.value.trim()||'',
         createdAt:kind==='edit'&&original?.createdAt?original.createdAt:new Date().toISOString()};
       if(kind==='duplicate')delete event.id;
     }
@@ -20543,5 +20556,74 @@ body.cs-page-active #pp-quick-toggle,body.cs-page-active #pp-quick-menu,body.cs-
 }
 @media(prefers-reduced-motion:reduce){#page-liste.shopping3-detail-screen #shopping3-content{animation:none}}
 </style>
+
+<style id="shopping-calendar-compact-v2">
+/* Form compact with tap-friendly plus / minus; category is no longer part of new item creation. */
+#page-liste .shopping3-addform{
+  display:grid!important;grid-template-columns:minmax(0,1.65fr) minmax(135px,.8fr) minmax(125px,.85fr) auto!important;
+  align-items:end;gap:11px!important;
+}
+#page-liste .shopping3-addform .shopping3-quantity-field{min-width:0}
+#page-liste .shopping3-new-stepper{display:flex;align-items:center;justify-content:space-between;gap:4px;height:44px;min-width:0;padding:3px;border:1px solid #dfe6f2;border-radius:12px;background:#f7f9ff}
+#page-liste .shopping3-new-stepper:focus-within{border-color:#869bec;box-shadow:0 0 0 3px rgba(90,112,231,.10)}
+#page-liste .shopping3-new-stepper button{flex:0 0 36px;height:36px;min-width:36px;display:grid;place-items:center;border:0;border-radius:9px;background:#e8edfe;color:#4c65cb;font-size:24px;font-weight:700;line-height:1;cursor:pointer;touch-action:manipulation}
+#page-liste .shopping3-new-stepper button:active{background:#d9e2fd}
+#page-liste .shopping3-new-stepper input#shopping3-newqty{flex:1;min-width:23px!important;width:23px!important;height:34px!important;padding:0!important;border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;text-align:center!important;font-size:15px!important;font-weight:850!important;color:#344e76!important;appearance:textfield;-moz-appearance:textfield}
+#page-liste .shopping3-new-stepper input::-webkit-inner-spin-button,#page-liste .shopping3-new-stepper input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+/* Single-row product layout: checkbox | quantity | name | total | edit/delete. */
+#page-liste .shopping3-item{
+  display:grid!important;grid-template-columns:24px 91px minmax(0,1fr) minmax(70px,auto) 65px!important;
+  gap:9px!important;align-items:center!important;flex-wrap:nowrap!important;padding:10px 12px!important;min-width:0!important;
+}
+#page-liste .shopping3-item>.shopping3-check{grid-column:1;grid-row:1;margin:0!important;justify-self:center}
+#page-liste .shopping3-item>.shopping3-qty{grid-column:2;grid-row:1;justify-self:start;margin:0!important;gap:0!important;padding:2px!important}
+#page-liste .shopping3-item>.shopping3-itemname{grid-column:3;grid-row:1;min-width:0!important;max-width:100%}
+#page-liste .shopping3-itemname strong{display:-webkit-box!important;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden!important;overflow-wrap:anywhere;line-height:1.27;font-size:12px!important}
+#page-liste .shopping3-itemmeta{display:none!important}
+#page-liste .shopping3-item>.shopping3-itemprice{grid-column:4;grid-row:1;min-width:0!important;max-width:100%;text-align:right!important;font-variant-numeric:tabular-nums;white-space:nowrap;font-size:11px!important}
+#page-liste .shopping3-item>.shopping3-itemactions{grid-column:5;grid-row:1;display:flex;justify-self:end;align-items:center;min-width:0!important}
+#page-liste .shopping3-item .shopping3-iconbtn{width:30px;height:32px}
+#page-liste .shopping3-item .shopping3-qty button{width:27px;height:29px;min-width:27px;touch-action:manipulation}
+#page-liste .shopping3-item .shopping3-qty span{min-width:23px}
+@media(max-width:800px){
+  #page-liste .shopping3-addform{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:11px!important}
+  #page-liste .shopping3-addform>.shopping3-field:first-child{grid-column:1/-1}
+  #page-liste .shopping3-addform>.shopping3-button{grid-column:1/-1;min-height:44px}
+}
+@media(max-width:600px){
+  #page-liste .shopping3-item{
+    grid-template-columns:22px 76px minmax(0,1fr) 60px 43px!important;
+    gap:5px!important;padding:9px 7px!important;border-radius:12px;
+  }
+  #page-liste .shopping3-item .shopping3-check{width:22px!important;height:22px!important;flex-basis:22px!important}
+  #page-liste .shopping3-item .shopping3-qty{padding:1px!important;gap:0!important;border-radius:9px}
+  #page-liste .shopping3-item .shopping3-qty button{width:23px!important;height:29px!important;min-width:23px!important;font-size:17px}
+  #page-liste .shopping3-item .shopping3-qty span{min-width:21px!important;font-size:11px}
+  #page-liste .shopping3-itemname strong{font-size:11px!important;line-height:1.25}
+  #page-liste .shopping3-itemprice{font-size:10px!important;letter-spacing:-.35px;white-space:nowrap}
+  #page-liste .shopping3-itemprice small{display:none!important}
+  #page-liste .shopping3-item .shopping3-iconbtn{width:21px!important;height:29px!important;font-size:15px!important}
+  #page-liste .shopping3-itemactions{gap:0!important}
+}
+@media(max-width:365px){
+  #page-liste .shopping3-item{grid-template-columns:21px 70px minmax(0,1fr) 48px 39px!important;gap:4px!important;padding:8px 5px!important}
+  #page-liste .shopping3-item .shopping3-qty button{width:22px!important;min-width:22px!important}
+  #page-liste .shopping3-item .shopping3-qty span{min-width:18px!important}
+  #page-liste .shopping3-item .shopping3-iconbtn{width:19px!important}
+}
+
+/* Reset the original app's global 10px 16px button/input padding and 36px
+   minimum control height, which otherwise widens this compact row. */
+#page-liste .shopping3-item .shopping3-check{padding:0!important;min-width:0!important;min-height:0!important;box-sizing:border-box!important}
+#page-liste .shopping3-item .shopping3-qty button,
+#page-liste .shopping3-item .shopping3-iconbtn{
+  padding:0!important;min-width:0!important;min-height:0!important;box-sizing:border-box!important;
+}
+#page-liste .shopping3-item .shopping3-qty{width:max-content!important;min-width:0!important}
+#page-liste .shopping3-item .shopping3-qty span{padding:0!important}
+#page-liste .shopping3-item>.shopping3-itemprice{overflow:hidden!important;text-overflow:ellipsis!important}
+#page-liste .shopping3-new-stepper button{padding:0!important;min-width:0!important;min-height:0!important}
+</style>
+
 </body>
 </html>
