@@ -11028,19 +11028,23 @@ Movimenti in contanti. Stesse colonne del conto corrente.
   </div>
 </div>
 </div>
-<div class="page" id="page-liste">
-  <div class="sp-shell">
-    <header class="sp-hero" id="sp-hero">
-      <div class="sp-hero-content">
-        <div class="sp-kicker">IL TUO SHOPPING PLANNER</div>
-        <h1 id="sp-page-title">La spesa, <span>senza stress.</span></h1>
-        <p id="sp-page-description">Tutte le tue liste, gli acquisti e il budget in un unico spazio.</p>
-        <div class="sp-hero-actions"><button type="button" id="sp-create-list" class="sp-btn sp-btn-main" data-sp-action="new-list"><i class="ti ti-plus" aria-hidden="true"></i> Nuova lista</button><span class="sp-pill"><i class="ti ti-users" aria-hidden="true"></i> Liste condivise</span></div>
+<div class="page" id="page-liste" aria-label="Liste della spesa">
+  <div class="shopping3-app">
+    <section class="shopping3-hero" aria-label="Shopping Planner Premium">
+      <div class="shopping3-hero-content">
+        <div class="shopping3-eyebrow"><span class="shopping3-hero-dot"></span> SHOPPING PLANNER <span class="shopping3-vlabel">PREMIUM</span></div>
+        <h1>La tua spesa,<br><em>organizzata meglio.</em></h1>
+        <p>Crea liste condivise, pianifica il budget e spunta gli acquisti mentre fai la spesa.</p>
+        <div class="shopping3-hero-actions">
+          <button id="shopping3-create" type="button" class="shopping3-button shopping3-primary" data-shop3="create"><i class="ti ti-plus" aria-hidden="true"></i> Nuova lista</button>
+          <span class="shopping3-family-chip"><i class="ti ti-users" aria-hidden="true"></i> Spazio famiglia</span>
+        </div>
       </div>
-      <div class="sp-hero-decoration" aria-hidden="true"><i class="ti ti-basket"></i></div>
-    </header>
-    <section class="sp-metrics" id="sp-metrics" aria-label="Riepilogo liste della spesa"></section>
-    <div id="liste-container-principale" aria-live="polite"><div class="sp-empty"><strong>Caricamento liste...</strong></div></div>
+      <div class="shopping3-hero-art" aria-hidden="true"><span class="shopping3-circle"></span><i class="ti ti-shopping-cart-check"></i><span class="shopping3-hero-star">✦</span></div>
+    </section>
+    <div id="shopping3-status" class="shopping3-connection" role="status" aria-live="polite"></div>
+    <section id="shopping3-summary" class="shopping3-summary" aria-label="Riepilogo spesa"></section>
+    <div id="shopping3-content" class="shopping3-content"><div class="shopping3-empty">Caricamento liste...</div></div>
   </div>
 </div>
 <div class="page" id="page-eventi">
@@ -16253,481 +16257,103 @@ async function fixMemberFamilyId() {
   return true;
 }
 
-// === INIZIALIZZAZIONE PAGINA LISTE ===
-function initListPage() {
-  console.log('🔄 Inizializzazione pagina liste...');
-  
-  // Carica le liste
-  loadShoppingLists();
-  
-  // Inizializza i pulsanti
-  const btnNuovaLista = document.getElementById('btn-nuova-lista-principale');
-  if (btnNuovaLista) {
-    btnNuovaLista.addEventListener('click', function(e) {
-      e.preventDefault();
-      console.log('📋 Click su Nuova lista!');
-      showCreateListModal();
-    });
-    console.log('✅ Pulsante "Nuova lista" inizializzato');
-  } else {
-    console.warn('⚠️ Pulsante "Nuova lista" non trovato!');
-    // Riprova dopo 500ms
-    setTimeout(initListPage, 500);
-  }
-}
-// === FUNZIONI PER LE LISTE DELLA SPESA ===
-
-// 1. loadShoppingLists - Carica le liste dal database
+// ================= SHOPPING STUDIO V3 — STORAGE ADAPTER ==================
+// Keep all Firestore operations in the original app closure. The new UI only
+// invokes this narrow adapter, so it never depends on inaccessible variables.
 async function loadShoppingLists() {
   if (!currentUser || !currentFamilyId) return false;
-  const revision = shoppingListsRevision;
   const familyId = currentFamilyId;
+  const revision = shoppingListsRevision;
   try {
     const snap = await sharedFamilyDocRef().get();
-    if (!snap.exists) throw new Error('Documento famiglia non disponibile.');
-    // Non sovrascrivere le modifiche effettuate mentre il download era in corso.
-    if (shoppingListsRevision !== revision || shoppingListsWriteDepth > 0 || currentFamilyId !== familyId) return false;
-    const data = snap.data() || {};
-    shoppingLists = data.shoppingLists && typeof data.shoppingLists === 'object' && !Array.isArray(data.shoppingLists) ? data.shoppingLists : {};
+    if (!snap.exists) throw new Error('Archivio famiglia non disponibile.');
+    if (familyId !== currentFamilyId || revision !== shoppingListsRevision || shoppingListsWriteDepth > 0) return false;
+    const value = snap.data()?.shoppingLists;
+    shoppingLists = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
     renderShoppingLists();
     return true;
-  } catch (err) {
-    console.error('Errore caricamento liste condivise:', err);
+  } catch (error) {
+    console.warn('Caricamento liste spesa:', error);
     return false;
   }
 }
 
-// Scritture serializzate: un aggiornamento non può arrivare dopo un altro più recente.
+// Serialize writes to avoid out-of-order Firestore updates.
 async function saveShoppingLists() {
   if (!currentUser || !currentFamilyId) {
-    shoppingListsLastError = 'Accedi e seleziona una famiglia prima di salvare.';
+    shoppingListsLastError = 'Accedi e seleziona una famiglia per salvare le liste.';
     return false;
   }
   const familyId = currentFamilyId;
-  const snapshot = JSON.parse(JSON.stringify(shoppingLists || {}));
-  shoppingListsRevision++;
-  shoppingListsWriteDepth++;
+  const snapshot = JSON.parse(JSON.stringify(shoppingLists));
   const write = async () => {
+    if (!currentUser || currentFamilyId !== familyId) {
+      shoppingListsLastError = 'La famiglia selezionata è cambiata. Riprova.';
+      return false;
+    }
+    shoppingListsWriteDepth++;
     try {
-      if (currentFamilyId !== familyId) throw new Error('La famiglia selezionata è cambiata.');
-      await sharedFamilyDocRef().set({shoppingLists: snapshot, updatedAt: new Date().toISOString()}, {merge:true});
-      shoppingListsLastError = '';
+      await sharedFamilyDocRef().update({shoppingLists:snapshot});
+      shoppingListsLastError='';
       return true;
-    } catch (err) {
-      shoppingListsLastError = err?.message || 'Controlla connessione o autorizzazioni Firebase.';
-      console.error('Errore salvataggio liste condivise:', err);
+    } catch (error) {
+      console.error('Salvataggio liste spesa:',error);
+      shoppingListsLastError = error?.message || 'Impossibile salvare le liste.';
       return false;
     } finally {
-      shoppingListsWriteDepth = Math.max(0, shoppingListsWriteDepth - 1);
+      shoppingListsWriteDepth=Math.max(0,shoppingListsWriteDepth-1);
     }
   };
-  const result = shoppingListsWriteQueue.then(write, write);
-  shoppingListsWriteQueue = result.then(() => {}, () => {});
-  return result;
+  const queued=shoppingListsWriteQueue.then(write,write);
+  shoppingListsWriteQueue=queued.then(()=>{},()=>{});
+  return queued;
 }
 
-// 3. renderShoppingLists - Mostra le liste nella pagina
-function renderShoppingLists() {
-  const container = document.getElementById('liste-container-principale');
-  if (!container) {
-    console.error('❌ Container liste-container-principale non trovato!');
-    return;
-  }
-  
-  const listKeys = Object.keys(shoppingLists);
-  const countEl = document.getElementById('shopping-lists-count');
-  if (countEl) countEl.textContent = `${listKeys.length} ${listKeys.length === 1 ? 'lista' : 'liste'}`;
-  
-  if (listKeys.length === 0) {
-    container.innerHTML = `
-      <div style="text-align:center; padding:60px 20px; color:var(--text-muted);">
-        <div style="font-size:64px; margin-bottom:16px;">🛒</div>
-        <p style="font-size:18px; font-weight:700; color:var(--text-primary);">Nessuna lista</p>
-        <p style="font-size:14px;">Clicca su "Nuova lista" per creare la tua prima lista della spesa</p>
-      </div>
-    `;
-    return;
-  }
-  
-  // Ordina: prima le non completate
-  const sortedKeys = Object.keys(shoppingLists).sort((a, b) => {
-    if (shoppingLists[a].completata === shoppingLists[b].completata) return 0;
-    return shoppingLists[a].completata ? 1 : -1;
-  });
-  
-  let html = '';
-  sortedKeys.forEach(key => {
-    const lista = shoppingLists[key];
-    const itemsCount = lista.items ? lista.items.length : 0;
-    const completati = lista.items ? lista.items.filter(item => item.completato).length : 0;
-    const isCompletata = lista.completata || false;
-    
-    html += `
-      <div class="lista-card-principale ${isCompletata ? 'completata' : ''}" data-id="${key}">
-        <div class="lista-info-principale">
-          <input type="checkbox" class="lista-checkbox-principale" data-id="${key}" ${isCompletata ? 'checked' : ''}>
-          <div class="shopping-list-icon" aria-hidden="true">🛒</div>
-          <div class="lista-dettagli-principale">
-            <div class="lista-nome-principale ${isCompletata ? 'completato' : ''}">${escapeHtml(lista.nome)}</div>
-            <div class="lista-meta-principale"><strong>${completati}</strong> di ${itemsCount} ${itemsCount === 1 ? 'elemento' : 'elementi'} acquistati</div>
-            <div class="lista-progress-principale"><span style="width:${itemsCount ? Math.round((completati / itemsCount) * 100) : 0}%"></span></div>
-          </div>
-        </div>
-        <div class="lista-actions-principale">
-          <span class="lista-arrow-principale">›</span>
-          <button class="lista-delete-principale" data-id="${key}" title="Elimina lista">✕</button>
-        </div>
-      </div>
-    `;
-  });
-  
-  container.innerHTML = html;
-  
-  // Event listener: Click sulla card per aprire la lista
-  container.querySelectorAll('.lista-card-principale').forEach(card => {
-    card.addEventListener('click', function(e) {
-      if (e.target.classList.contains('lista-checkbox-principale') || e.target.classList.contains('lista-delete-principale')) return;
-      const id = this.getAttribute('data-id');
-      if (id && shoppingLists[id]) {
-        openListDetail(id);
-      }
-    });
-  });
-  
-  // Event listener: Checkbox completamento lista
-  container.querySelectorAll('.lista-checkbox-principale').forEach(checkbox => {
-    checkbox.addEventListener('change', async function(e) {
-      e.stopPropagation();
-      const id = this.getAttribute('data-id');
-      if (id && shoppingLists[id]) {
-        shoppingLists[id].completata = this.checked;
-        await saveShoppingLists();
+// UI callbacks called by navigation and family snapshot listener.
+function initListPage(){
+  window.ShoppingStudioV3?.mount();
+  // Family loading is already done by auth, but refresh on first open too.
+  if(currentUser && currentFamilyId && !shoppingListsWriteDepth) loadShoppingLists();
+}
+function renderShoppingLists(){window.ShoppingStudioV3?.render();}
+function openListDetail(id){window.ShoppingStudioV3?.open(id);}
+function showCreateListModal(){window.ShoppingStudioV3?.create();}
+
+let shoppingStudioActionQueue=Promise.resolve();
+window.ShoppingStudioStorage=Object.freeze({
+  get lists(){return shoppingLists;},
+  get ready(){return Boolean(currentUser && currentFamilyId);},
+  get lastError(){return shoppingListsLastError;},
+  get familyId(){return currentFamilyId;},
+  async update(mutator){
+    // Each mutation receives the live family-scoped document. Avoid calling a
+    // UI callback until the operation was actually saved.
+    const action=async()=>{
+      if(!currentUser || !currentFamilyId)return {ok:false,error:'Effettua l’accesso e collega una famiglia prima di salvare.'};
+      const familyId=currentFamilyId;
+      let backup;
+      try {backup=JSON.parse(JSON.stringify(shoppingLists));}
+      catch(error){return {ok:false,error:'Impossibile preparare la modifica.'};}
+      shoppingListsWriteDepth++;
+      try {
+        const result=mutator(shoppingLists);
+        shoppingListsRevision++;
         renderShoppingLists();
-      }
-    });
-  });
-  
-  // Event listener: Elimina lista
-  container.querySelectorAll('.lista-delete-principale').forEach(btn => {
-    btn.addEventListener('click', async function(e) {
-      e.stopPropagation();
-      const id = this.getAttribute('data-id');
-      const lista = shoppingLists[id];
-      if (lista && confirm(`Eliminare la lista "${lista.nome}"?`)) {
-        delete shoppingLists[id];
-        await saveShoppingLists();
-        renderShoppingLists();
-      }
-    });
-  });
-}
-
-// 4. openListDetail - Apre il dettaglio di una lista
-function openListDetail(listId) {
-  const lista = shoppingLists[listId];
-  if (!lista) return;
-  
-  currentListId = listId;
-  const container = document.getElementById('liste-container-principale');
-  
-  const items = lista.items || [];
-  const completati = items.filter(item => item.completato).length;
-  
-  let html = `
-    <button class="btn-back-liste-principale" id="btn-back-liste">← Torna alle liste</button>
-    
-    <div class="lista-detail-header">
-      <div class="shopping-detail-main">
-        <div class="shopping-detail-icon">🛒</div>
-        <div class="shopping-detail-copy">
-        <div class="shopping-title-line">
-          <div class="lista-titolo ${lista.completata ? 'completato' : ''}">${escapeHtml(lista.nome)}</div>
-          <button class="btn-delete-lista-principale" id="btn-delete-lista" aria-label="Elimina lista" title="Elimina lista">🗑️</button>
-        </div>
-        <div class="lista-conteggio">${completati}/${items.length} elementi</div>
-        <div class="lista-detail-progress"><span style="width:${items.length ? Math.round((completati / items.length) * 100) : 0}%"></span></div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- BARRA AGGIUNGI ELEMENTI SPOSTATA IN CIMA -->
-    <div class="lista-add-bar shopping-add-quantity" style="margin-top: 0; margin-bottom: 16px;">
-      <input type="text" id="nuovo-item-input" placeholder="Nome articolo..." autocomplete="off">
-      <div class="shopping-quantity-stepper" aria-label="Imposta quantità da aggiungere">
-        <button type="button" class="quantity-step-btn" data-target="nuovo-item-quantita" data-step="-1" aria-label="Diminuisci quantità">−</button>
-        <input type="number" id="nuovo-item-quantita" min="0.01" step="1" value="1" inputmode="decimal" aria-label="Quantità articolo">
-        <button type="button" class="quantity-step-btn" data-target="nuovo-item-quantita" data-step="1" aria-label="Aumenta quantità">+</button>
-      </div>
-      <button class="btn-add-item-principale" id="btn-add-item">Aggiungi</button>
-    </div>
-    
-    <div class="shopping-items-heading"><span>Articoli</span><span>${items.length} ${items.length === 1 ? 'voce' : 'voci'}</span></div>
-    <div id="items-container-principale">
-  `;
-  
-  if (items.length === 0) {
-    html += `
-      <div style="text-align:center; padding:30px 20px; color:var(--text-muted);">
-        <div style="font-size:36px; margin-bottom:8px;">📝</div>
-        <p style="font-size:14px; font-weight:600;">Lista vuota</p>
-        <p style="font-size:13px;">Aggiungi i primi elementi</p>
-      </div>
-    `;
-  } else {
-    items.forEach((item, index) => {
-      html += `
-        <div class="item-row-principale">
-          <input type="checkbox" class="item-checkbox-principale" data-index="${index}" ${item.completato ? 'checked' : ''}>
-          <span class="item-nome-principale ${item.completato ? 'completato' : ''}">${escapeHtml(item.nome)}</span>
-          <div class="item-quantity-stepper" aria-label="Quantità di ${escapeHtml(item.nome)}">
-            <button type="button" class="quantity-step-btn item-quantity-change" data-index="${index}" data-step="-1" aria-label="Diminuisci quantità di ${escapeHtml(item.nome)}">−</button>
-            <span class="item-quantita-principale">${escapeHtml(String(item.quantita ?? 1))}</span>
-            <button type="button" class="quantity-step-btn item-quantity-change" data-index="${index}" data-step="1" aria-label="Aumenta quantità di ${escapeHtml(item.nome)}">+</button>
-          </div>
-          <button class="item-delete-principale" data-index="${index}" aria-label="Elimina ${escapeHtml(item.nome)}">✕</button>
-        </div>
-      `;
-    });
+        const ok=await saveShoppingLists();
+        if(!ok)throw new Error(shoppingListsLastError||'Salvataggio non riuscito.');
+        return {ok:true,value:result};
+      } catch(error){
+        if(familyId===currentFamilyId){shoppingLists=backup;shoppingListsRevision++;renderShoppingLists();}
+        return {ok:false,error:error?.message||'Modifica non salvata.'};
+      } finally {shoppingListsWriteDepth=Math.max(0,shoppingListsWriteDepth-1);}
+    };
+    const queued=shoppingStudioActionQueue.then(action,action);
+    shoppingStudioActionQueue=queued.then(()=>{},()=>{});
+    return queued;
   }
-  
-  html += `
-    </div>
-  `;
-  
-  container.innerHTML = html;
-  
-  // Event listener: Torna alle liste
-  document.getElementById('btn-back-liste').addEventListener('click', renderShoppingLists);
-  
-  // Event listener: Elimina lista
-  document.getElementById('btn-delete-lista').addEventListener('click', async function() {
-    if (confirm(`Eliminare la lista "${lista.nome}"?`)) {
-      delete shoppingLists[listId];
-      await saveShoppingLists();
-      renderShoppingLists();
-    }
-  });
-  
-  // Event listener: Aggiungi elemento
-  document.getElementById('btn-add-item').addEventListener('click', async function() {
-    const input = document.getElementById('nuovo-item-input');
-    const nome = input.value.trim();
-    const quantitaInput = document.getElementById('nuovo-item-quantita');
-    const quantita = quantitaInput ? Number(quantitaInput.value) : 1;
-    
-    if (!nome) {
-      input.style.borderColor = '#E74C3C';
-      input.style.boxShadow = '0 0 0 4px #FDE8E8';
-      setTimeout(() => {
-        input.style.borderColor = '';
-        input.style.boxShadow = '';
-      }, 1500);
-      return;
-    }
-    
-    if (!Number.isFinite(quantita) || quantita <= 0) {
-      if (quantitaInput) {
-        quantitaInput.style.borderColor = '#E74C3C';
-        quantitaInput.focus();
-      }
-      return;
-    }
+});
+// ================= END SHOPPING STUDIO STORAGE ===========================
 
-    if (!shoppingLists[listId].items) {
-      shoppingLists[listId].items = [];
-    }
-    
-    shoppingLists[listId].items.push({
-      nome: nome,
-      quantita: quantita,
-      completato: false
-    });
-    
-    await saveShoppingLists();
-    openListDetail(listId);
-  });
-  
-  // Event listener: Enter nel campo input
-  document.getElementById('nuovo-item-input').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-      document.getElementById('btn-add-item').click();
-    }
-  });
-
-  // Pulsanti +/- della quantità durante l'inserimento: il campo resta anche modificabile a mano.
-  document.querySelectorAll('#page-liste .quantity-step-btn[data-target="nuovo-item-quantita"]').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const field = document.getElementById(this.dataset.target);
-      if (!field) return;
-      const current = Number(field.value) || 1;
-      const step = Number(this.dataset.step) || 1;
-      const next = Math.max(0.01, current + step);
-      field.value = Number(next.toFixed(2));
-      field.dispatchEvent(new Event('change', { bubbles: true }));
-    });
-  });
-
-  // Pulsanti +/- degli articoli già inseriti: salva subito la nuova quantità.
-  document.querySelectorAll('#page-liste .item-quantity-change').forEach(btn => {
-    btn.addEventListener('click', async function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      const index = Number(this.dataset.index);
-      const step = Number(this.dataset.step) || 1;
-      const item = shoppingLists[listId] && shoppingLists[listId].items[index];
-      if (!item) return;
-      const current = Number(item.quantita ?? 1) || 1;
-      item.quantita = Math.max(0.01, Number((current + step).toFixed(2)));
-      await saveShoppingLists();
-      openListDetail(listId);
-    });
-  });
-  
-  // Event listener: Checkbox elemento
-  document.querySelectorAll('.item-checkbox-principale').forEach(checkbox => {
-    checkbox.addEventListener('change', async function() {
-      const index = parseInt(this.getAttribute('data-index'));
-      if (shoppingLists[listId] && shoppingLists[listId].items[index]) {
-        shoppingLists[listId].items[index].completato = this.checked;
-        await saveShoppingLists();
-        openListDetail(listId);
-      }
-    });
-  });
-  
-  // Event listener: Elimina elemento
-  document.querySelectorAll('.item-delete-principale').forEach(btn => {
-    btn.addEventListener('click', async function() {
-      const index = parseInt(this.getAttribute('data-index'));
-      if (shoppingLists[listId] && shoppingLists[listId].items[index]) {
-        const itemNome = shoppingLists[listId].items[index].nome;
-        if (confirm(`Eliminare "${itemNome}"?`)) {
-          shoppingLists[listId].items.splice(index, 1);
-          await saveShoppingLists();
-          openListDetail(listId);
-        }
-      }
-    });
-  });
-}
-
-function showCreateListModal() {
-  // Rimuovi eventuali modali aperti
-  const existingModal = document.querySelector('.lista-modal-principale');
-  if (existingModal) {
-    existingModal.remove();
-  }
-  
-  const overlay = document.createElement('div');
-  overlay.className = 'lista-modal-principale open';
-  overlay.id = 'lista-modal-overlay';
-  overlay.innerHTML = `
-    <div class="lista-modal-box">
-      <div class="shopping-modal-head">
-        <div class="shopping-modal-icon">🛒</div>
-        <button type="button" class="shopping-modal-close" id="modal-close-lista" aria-label="Chiudi">×</button>
-      </div>
-      <div class="shopping-modal-title">Nuova lista</div>
-      <p class="shopping-modal-subtitle">Crea una nuova lista per organizzare i tuoi acquisti.</p>
-      <label class="shopping-modal-label" for="new-lista-input">Nome della lista</label>
-      <div class="shopping-modal-input-wrap">
-        <span>✎</span>
-        <input type="text" id="new-lista-input" placeholder="Es. Spesa settimanale" autocomplete="off" autofocus>
-      </div>
-      <div class="modal-actions-principale">
-        <button class="btn-cancel-principale" id="modal-cancel-lista">Annulla</button>
-        <button class="btn-create-principale" id="modal-create-lista"><span>+</span> Crea lista</button>
-      </div>
-    </div>
-  `;
-  
-  document.body.appendChild(overlay);
-  
-  // Focus sul campo input
-  setTimeout(() => {
-    const input = document.getElementById('new-lista-input');
-    if (input) input.focus();
-  }, 100);
-  
-  // Event listener: Annulla / Chiudi
-  const closeModal = () => {
-    overlay.remove();
-  };
-  const cancelBtn = document.getElementById('modal-cancel-lista');
-  const closeBtn = document.getElementById('modal-close-lista');
-  if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
-  if (closeBtn) closeBtn.addEventListener('click', closeModal);
-  
-  // Event listener: Crea lista
-  const createBtn = document.getElementById('modal-create-lista');
-  if (createBtn) {
-    createBtn.addEventListener('click', async function() {
-      const input = document.getElementById('new-lista-input');
-      if (!input) return;
-      
-      const nome = input.value.trim();
-      
-      if (!nome) {
-        input.style.borderColor = '#E74C3C';
-        input.style.boxShadow = '0 0 0 4px #FDE8E8';
-        input.focus();
-        return;
-      }
-      
-      // Crea la nuova lista
-      const key = Date.now().toString(36) + Math.random().toString(36).slice(2,7);
-      shoppingLists[key] = {
-        nome: nome,
-        items: [],
-        completata: false,
-        createdAt: new Date().toISOString()
-      };
-      
-      await saveShoppingLists();
-      overlay.remove();
-      renderShoppingLists();
-    });
-  }
-  
-  // Event listener: Enter nel campo input
-  const inputField = document.getElementById('new-lista-input');
-  if (inputField) {
-    inputField.addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        const createBtn = document.getElementById('modal-create-lista');
-        if (createBtn) {
-          createBtn.click();
-        }
-      }
-    });
-  }
-  
-  // Event listener: Click fuori dal modale
-  overlay.addEventListener('click', function(e) {
-    if (e.target === overlay) {
-      overlay.remove();
-    }
-  });
-}
-
-// 6. initListPage - Inizializza la pagina liste
-function initListPage() {
-  console.log('🔄 Inizializzazione pagina liste...');
-  loadShoppingLists();
-  
-  const btnNuovaLista = document.getElementById('btn-nuova-lista-principale');
-  if (btnNuovaLista) {
-    btnNuovaLista.addEventListener('click', function(e) {
-      e.preventDefault();
-      console.log('📋 Click su Nuova lista!');
-      showCreateListModal();
-    });
-    console.log('✅ Pulsante "Nuova lista" inizializzato');
-  } else {
-    console.warn('⚠️ Pulsante "Nuova lista" non trovato!');
-    setTimeout(initListPage, 500);
-  }
-}  
 // === GESTIONE EVENTI CALENDARIO ===
 
 // Carica gli eventi
@@ -17064,7 +16690,8 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
- 
+
+
 })();
 </script>
 <script>
@@ -21064,159 +20691,6 @@ body:has(#shell:not(.hidden)) {--focus-ring: 0 0 0 4px rgba(var(--pp-accent-rgb)
 })();
 </script>
 
-<style id="shopping-premium-2026">
-/* === SHOPPING PREMIUM 2026 — componente isolato === */
-#page-liste{--sp-ink:#162c4d;--sp-sub:#71829b;--sp-border:#e5eaf3;--sp-blue:#596de2;--sp-pale:#eef1ff;--sp-green:#169e78;--sp-bg:#f7f9fd;max-width:1120px;margin:0 auto;padding-bottom:52px!important}
-#page-liste .sp-shell{min-width:0}
-#page-liste [hidden]{display:none!important}
-#page-liste .sp-hero{position:relative;overflow:hidden;isolation:isolate;border-radius:28px;padding:30px 32px;background:linear-gradient(112deg,#fff 1%,#f4f7ff 55%,#e9f0ff 100%);border:1px solid #e3eaf8;box-shadow:0 20px 42px rgba(45,65,118,.07);display:flex;align-items:center;justify-content:space-between;gap:22px}
-#page-liste .sp-hero::after{content:"";position:absolute;z-index:-1;width:230px;height:230px;border:1px solid #cfdaf9;border-radius:50%;right:-35px;top:-92px;box-shadow:0 0 0 30px rgba(147,170,246,.085),0 0 0 61px rgba(147,170,246,.045)}
-#page-liste .sp-kicker{font-size:10px;font-weight:850;letter-spacing:1.5px;color:#596fd1;text-transform:uppercase;display:flex;align-items:center;gap:8px;margin-bottom:10px}
-#page-liste .sp-kicker::before{content:"";height:7px;width:7px;border-radius:50%;background:#47cfa9;box-shadow:0 0 0 4px #e0f7ef}
-#page-liste .sp-hero h1{font-size:clamp(24px,3vw,37px);line-height:1.15;letter-spacing:-1.3px;font-weight:900;color:var(--sp-ink);margin:0 0 11px!important;text-align:left!important}
-#page-liste .sp-hero h1 span{color:#6178ea}
-#page-liste .sp-hero p{color:#7588a3;font-weight:550;font-size:13px;line-height:1.7;max-width:500px;margin:0}
-#page-liste .sp-hero-decoration{width:112px;height:112px;flex:none;display:grid;place-items:center;border-radius:28px;background:linear-gradient(145deg,#e6eaff,#fff);border:1px solid #d6defa;box-shadow:0 18px 35px rgba(64,91,175,.12),inset 0 2px 0 #fff;transform:rotate(-8deg);color:#6174e6;font-size:57px}
-#page-liste .sp-hero-decoration i{transform:rotate(8deg)}
-#page-liste .sp-hero-actions{display:flex;align-items:center;gap:10px;margin-top:19px;flex-wrap:wrap}
-#page-liste .sp-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:9px 14px;border-radius:12px;border:1px solid var(--sp-border);background:#fff;color:var(--sp-ink);font:800 12px inherit;font-size:12px;font-weight:750;cursor:pointer;transition:transform .18s,background .18s,box-shadow .18s,border-color .18s;white-space:nowrap;line-height:1.2}
-#page-liste .sp-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 7px 18px rgba(40,60,110,.08);border-color:#ced9f5}
-#page-liste .sp-btn:active:not(:disabled){transform:translateY(0) scale(.98)}
-#page-liste .sp-btn:disabled{opacity:.55;cursor:not-allowed}
-#page-liste .sp-btn-main{background:linear-gradient(125deg,#6378ef,#4d63d2);border-color:transparent;color:#fff;box-shadow:0 8px 21px rgba(84,101,214,.21)}
-#page-liste .sp-btn-main:hover:not(:disabled){box-shadow:0 12px 24px rgba(84,101,214,.28)}
-#page-liste .sp-btn-quiet{background:rgba(255,255,255,.84)}
-#page-liste .sp-btn-danger{color:#c95066;border-color:#ffdee4;background:#fff8f9}
-#page-liste .sp-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:26px 2px 14px}
-#page-liste .sp-section-head h2{margin:0;font-size:19px;font-weight:860;color:var(--sp-ink);letter-spacing:-.45px}
-#page-liste .sp-section-head small{color:#98a5bc;font-weight:650;font-size:11px}
-#page-liste .sp-eyebrow{color:#7393c5;text-transform:uppercase;letter-spacing:1.2px;font-size:10px;font-weight:850;margin-bottom:5px}
-#page-liste .sp-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-top:22px}
-#page-liste .sp-stat{position:relative;border-radius:20px;border:1px solid var(--sp-border);background:#fff;min-width:0;padding:17px 17px 16px;box-shadow:0 8px 24px rgba(31,57,93,.045);overflow:hidden;animation:sp-rise .42s both}
-#page-liste .sp-stat:nth-child(2){animation-delay:55ms}#page-liste .sp-stat:nth-child(3){animation-delay:110ms}#page-liste .sp-stat:nth-child(4){animation-delay:165ms}
-#page-liste .sp-stat-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:17px;color:#7b90ac;font-size:11px;font-weight:770}
-#page-liste .sp-stat-ic{display:grid;place-items:center;height:35px;width:35px;border-radius:12px;background:#edf0ff;color:#6174df;font-size:17px}
-#page-liste .sp-stat:nth-child(2) .sp-stat-ic{background:#e5f8ef;color:#16a176}#page-liste .sp-stat:nth-child(3) .sp-stat-ic{background:#fff4e7;color:#d18b37}#page-liste .sp-stat:nth-child(4) .sp-stat-ic{background:#ecf5ff;color:#3a91d7}
-#page-liste .sp-stat strong{display:block;color:var(--sp-ink);font-size:clamp(18px,2vw,27px);font-weight:900;letter-spacing:-.8px;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
-#page-liste .sp-stat small{display:block;font-size:10px;color:#9cabc0;font-weight:650;margin-top:3px;line-height:1.4}
-#page-liste .sp-panel{border:1px solid var(--sp-border);border-radius:22px;background:#fff;box-shadow:0 9px 24px rgba(27,50,88,.045);padding:17px}
-#page-liste .sp-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 15px}
-#page-liste .sp-search{position:relative;flex:1 1 230px;display:flex;align-items:center;color:#9aa9bb}
-#page-liste .sp-search i{position:absolute;left:13px;font-size:16px;pointer-events:none}
-#page-liste .sp-search input{width:100%;height:43px;box-sizing:border-box;border:1px solid #e1e8f3;border-radius:13px;background:#f8faff;padding:0 12px 0 37px;color:var(--sp-ink);font-size:12px;font-weight:650;outline:none;transition:border-color .18s,box-shadow .18s}
-#page-liste .sp-search input:focus{border-color:#94a6ed;background:#fff;box-shadow:0 0 0 3px #edf0ff}
-#page-liste .sp-search input::placeholder{color:#9daac0}
-#page-liste .sp-segments{display:inline-flex;align-items:center;gap:3px;border-radius:13px;padding:4px;background:#f2f5fb;border:1px solid #e7edf6}
-#page-liste .sp-segments button{border:0;padding:8px 11px;cursor:pointer;background:transparent;border-radius:9px;font-size:11px;font-weight:750;color:#8494a9;white-space:nowrap;transition:.17s}
-#page-liste .sp-segments button.is-active{background:#fff;color:#5063d1;box-shadow:0 2px 9px rgba(39,65,102,.09)}
-#page-liste select.sp-select{height:43px;min-width:120px;border:1px solid #e1e8f3;border-radius:12px;background:#fff;color:#657995;font-size:11px;font-weight:700;padding:0 28px 0 11px;outline:none;cursor:pointer}
-#page-liste .sp-result-caption{font-size:11px;color:#91a0b6;font-weight:650;margin:0 0 12px 2px}
-#page-liste .sp-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
-#page-liste .sp-list-card{position:relative;overflow:hidden;border:1px solid #e5eaf4;border-radius:19px;padding:17px;background:#fff;box-shadow:0 6px 19px rgba(40,62,106,.045);transition:transform .2s,box-shadow .2s,border-color .2s;cursor:pointer;min-width:0;animation:sp-rise .35s both}
-#page-liste .sp-list-card:hover{transform:translateY(-3px);border-color:#c9d4fb;box-shadow:0 15px 32px rgba(43,59,101,.105)}
-#page-liste .sp-list-card:focus-visible{outline:3px solid #a1b1f9;outline-offset:2px}
-#page-liste .sp-list-card.sp-complete{background:linear-gradient(135deg,#fff,#f8fcfb)}
-#page-liste .sp-card-head{display:flex;align-items:center;gap:11px;margin-bottom:15px}
-#page-liste .sp-card-icon{height:46px;width:46px;flex:none;display:grid;place-items:center;border-radius:15px;background:#edf0ff;color:#697deb;font-size:23px}
-#page-liste .sp-complete .sp-card-icon{background:#e9f9f1;color:#199e7b}
-#page-liste .sp-card-title{min-width:0;flex:1}
-#page-liste .sp-card-title strong{display:block;color:var(--sp-ink);font-size:15px;font-weight:860;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#page-liste .sp-card-title small{color:#a2afc2;font-size:10px;font-weight:660;display:block;margin-top:4px}
-#page-liste .sp-pill{border-radius:100px;padding:5px 9px;font-size:10px;font-weight:800;color:#5571d0;background:#edf1ff;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
-#page-liste .sp-pill.green{color:#129a71;background:#eaf9f0}#page-liste .sp-pill.orange{color:#bb863e;background:#fff3e5}
-#page-liste .sp-card-progress-title{display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:700;color:#8496b0;margin-bottom:8px}
-#page-liste .sp-card-progress-title strong{color:var(--sp-ink);font-size:11px}
-#page-liste .sp-progress{width:100%;height:7px;border-radius:20px;background:#edf1fa;overflow:hidden}
-#page-liste .sp-progress>span{display:block;height:100%;width:var(--sp-fill,0%);border-radius:inherit;background:linear-gradient(90deg,#7f91f4,#5069da);transition:width .45s ease}
-#page-liste .sp-progress.green>span{background:linear-gradient(90deg,#4fd0b5,#1aa47e)}
-#page-liste .sp-card-foot{margin-top:15px;display:flex;gap:10px;align-items:center;justify-content:space-between;border-top:1px solid #eff2f8;padding-top:12px;color:#8595ab;font-size:11px;font-weight:710}
-#page-liste .sp-card-foot strong{color:var(--sp-ink)}
-#page-liste .sp-card-controls{display:flex;gap:5px;align-items:center}
-#page-liste .sp-icon-btn{height:33px;width:33px;display:inline-grid;place-items:center;border-radius:10px;border:1px solid transparent;background:transparent;color:#96a6be;cursor:pointer;font-size:17px;transition:background .15s,color .15s}
-#page-liste .sp-icon-btn:hover{background:#eff2ff;color:#5266d9}
-#page-liste .sp-icon-btn.warn:hover{background:#fff0f1;color:#d7596b}
-#page-liste .sp-empty{padding:42px 20px;border:1px dashed #d8e1f0;border-radius:19px;background:#fafcff;text-align:center;color:#93a2b6;display:flex;flex-direction:column;align-items:center;gap:9px}
-#page-liste .sp-empty-icon{height:62px;width:62px;display:grid;place-items:center;background:#ecf0ff;color:#697de9;border-radius:21px;font-size:28px;margin-bottom:4px}
-#page-liste .sp-empty strong{color:#354966;font-size:16px;font-weight:820}
-#page-liste .sp-empty p{font-size:12px;line-height:1.6;margin:0 0 7px;max-width:350px}
-#page-liste .sp-detail-back{display:inline-flex;align-items:center;gap:8px;padding:8px 0;border:0;background:transparent;color:#7b8ca9;cursor:pointer;font-size:12px;font-weight:760;margin-bottom:15px}
-#page-liste .sp-detail-top{display:flex;gap:14px;align-items:flex-start;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap}
-#page-liste .sp-detail-top h2{font-size:clamp(21px,2.5vw,28px);font-weight:900;letter-spacing:-.8px;color:var(--sp-ink);margin:2px 0 7px;overflow-wrap:anywhere}
-#page-liste .sp-detail-top p{color:#8899b0;margin:0;font-size:12px;font-weight:670}
-#page-liste .sp-detail-actions{display:flex;gap:7px;flex-wrap:wrap}
-#page-liste .sp-detail-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:15px}
-#page-liste .sp-detail-stat{border:1px solid var(--sp-border);border-radius:17px;background:#fff;padding:15px;min-width:0}
-#page-liste .sp-detail-stat span{display:block;font-size:11px;color:#8799b1;font-weight:760;margin-bottom:7px}
-#page-liste .sp-detail-stat strong{font-size:22px;color:var(--sp-ink);font-weight:900;letter-spacing:-.7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
-#page-liste .sp-detail-stat small{display:block;font-size:10px;color:#a6b2c3;font-weight:650;margin-top:4px}
-#page-liste .sp-budget{border-radius:17px;padding:15px 17px;background:linear-gradient(95deg,#f0f3ff,#fbfcff);border:1px solid #e2e8ff;margin-bottom:17px}
-#page-liste .sp-budget-row{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#60729a;font-size:11px;font-weight:730;margin-bottom:8px}
-#page-liste .sp-budget strong{color:#31476a;font-size:12px}
-#page-liste .sp-budget.over .sp-progress>span{background:#ed6e72}
-#page-liste .sp-budget.over{border-color:#f6d3d6;background:#fff6f7}
-#page-liste .sp-entry{padding:18px;border:1px solid #e4eaf4;border-radius:21px;background:#fff;box-shadow:0 8px 24px rgba(36,59,103,.05);margin-bottom:19px}
-#page-liste .sp-entry h3{font-size:14px;font-weight:850;color:var(--sp-ink);margin:0 0 12px}
-#page-liste .sp-entry-form{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,.65fr) minmax(0,.8fr) minmax(0,1fr) auto;gap:9px;align-items:end}
-#page-liste .sp-field{display:flex;flex-direction:column;gap:6px;min-width:0}
-#page-liste .sp-field label{font-size:10px;font-weight:800;letter-spacing:.2px;color:#8091aa}
-#page-liste .sp-field input,#page-liste .sp-field select,#page-liste .sp-field textarea{width:100%;height:43px;border:1px solid #e2e8f1;border-radius:11px;padding:0 11px;font-size:12px;color:var(--sp-ink);background:#f9fbff;outline:none;box-sizing:border-box;font-weight:660;min-width:0}
-#page-liste .sp-field input:focus,#page-liste .sp-field select:focus,#page-liste .sp-field textarea:focus{border-color:#93a6ed;box-shadow:0 0 0 3px #eff2ff;background:#fff}
-#page-liste .sp-field textarea{height:auto;min-height:76px;padding:12px;resize:vertical}
-#page-liste .sp-entry-form .sp-btn{min-height:43px}
-#page-liste .sp-items-panel{padding:16px 17px}
-#page-liste .sp-items-toolbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:15px}
-#page-liste .sp-items-caption{font-size:13px;font-weight:860;color:var(--sp-ink);margin-right:auto;min-width:100px}
-#page-liste .sp-item-list{display:grid;gap:8px}
-#page-liste .sp-item-row{display:flex;align-items:center;gap:11px;border:1px solid #ebeff5;border-radius:15px;padding:12px 13px;background:#fff;transition:border-color .2s,background .2s,transform .2s;animation:sp-rise .24s both;min-width:0}
-#page-liste .sp-item-row:hover{background:#fafbff;border-color:#dce3fb}
-#page-liste .sp-item-row.checked{background:#f8fbfa;border-color:#e4f2ec}
-#page-liste .sp-item-check{appearance:none;-webkit-appearance:none;height:23px;width:23px;flex:0 0 23px;border:2px solid #b0bdd2;border-radius:8px;cursor:pointer;display:grid;place-items:center;background:#fff;transition:.14s}
-#page-liste .sp-item-check:checked{background:#1ca67f;border-color:#1ca67f}
-#page-liste .sp-item-check:checked::after{content:'✓';color:#fff;font-weight:900;font-size:15px}
-#page-liste .sp-item-info{flex:1;min-width:0}
-#page-liste .sp-item-info strong{display:block;font-size:13px;color:#32445f;font-weight:830;overflow-wrap:anywhere;line-height:1.3}
-#page-liste .sp-item-row.checked .sp-item-info strong{text-decoration:line-through;color:#9daaba}
-#page-liste .sp-item-meta{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin-top:5px;font-size:10px;font-weight:660;color:#a0aec1}
-#page-liste .sp-item-cat{color:#7187b7;background:#edf1ff;padding:3px 7px;border-radius:7px}
-#page-liste .sp-qty{display:flex;align-items:center;gap:2px;padding:3px;border:1px solid #e6ebf5;border-radius:11px;background:#f7f9fe;flex:none}
-#page-liste .sp-qty button{height:27px;width:26px;border:0;border-radius:7px;background:transparent;font-size:17px;font-weight:720;color:#667ba0;cursor:pointer}
-#page-liste .sp-qty button:hover{background:#e5ebfc;color:#566bda}
-#page-liste .sp-qty span{min-width:25px;text-align:center;font-size:11px;font-weight:850;color:#3d5476}
-#page-liste .sp-item-price{font-size:12px;font-weight:820;color:#435877;min-width:73px;text-align:right;white-space:nowrap}
-#page-liste .sp-item-price small{display:block;font-size:9px;color:#a3afc0;font-weight:650;margin-top:2px}
-#page-liste .sp-item-actions{display:flex;gap:2px;flex:none}
-#page-liste .sp-bulk-toolbar{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding-top:14px;margin-top:14px;border-top:1px solid #edf0f6}
-#page-liste .sp-bulk-toolbar .sp-btn{min-height:35px;padding:7px 10px;font-size:11px}
-#page-liste .sp-footer-note{margin-top:18px;color:#a5b1c3;font-size:10px;line-height:1.5;text-align:center}
-#page-liste .sp-footer-note i{color:#81a2d9}
-/* Modal isolato dal precedente popup */
-#sp-modal{position:fixed;inset:0;z-index:9000;background:rgba(14,29,55,.49);backdrop-filter:blur(9px);display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box}
-#sp-modal .sp-modal-box{width:min(100%,440px);max-height:min(90dvh,720px);overflow-y:auto;box-sizing:border-box;border-radius:23px;background:#fff;padding:23px;border:1px solid #e4ebf6;box-shadow:0 34px 80px rgba(16,30,64,.27);animation:sp-modal-pop .23s both}
-#sp-modal .sp-modal-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
-#sp-modal .sp-modal-icon{height:43px;width:43px;display:grid;place-items:center;background:#eef1ff;color:#5e71e0;border-radius:14px;font-size:20px}
-#sp-modal h2{font-size:21px;font-weight:870;letter-spacing:-.5px;color:#213553;margin:0 0 6px}
-#sp-modal p{color:#8292a9;font-size:12px;line-height:1.6;margin:0 0 18px}
-#sp-modal .sp-modal-form{display:grid;gap:12px}
-#sp-modal .sp-field{display:flex;flex-direction:column;gap:6px}
-#sp-modal .sp-field label{color:#72849f;font-size:11px;font-weight:780}
-#sp-modal .sp-field input,#sp-modal .sp-field select,#sp-modal .sp-field textarea{border:1px solid #e2e8f1;border-radius:12px;height:44px;padding:0 12px;outline:none;background:#f9fbff;color:#263c5c;box-sizing:border-box;font-size:13px;font-weight:640;width:100%}
-#sp-modal .sp-field textarea{min-height:78px;padding:11px;resize:vertical}
-#sp-modal .sp-field input:focus,#sp-modal .sp-field textarea:focus,#sp-modal .sp-field select:focus{border-color:#93a6ed;box-shadow:0 0 0 3px #eff2ff;background:#fff}
-#sp-modal .sp-modal-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:6px}
-#sp-modal .sp-modal-actions button,#sp-modal .sp-modal-close{border:1px solid #e0e7f0;border-radius:12px;height:42px;padding:0 16px;background:#f5f7fb;color:#566a86;font-size:12px;font-weight:790;cursor:pointer}
-#sp-modal .sp-modal-actions .sp-modal-confirm{color:#fff;background:#576cda;border-color:#576cda}
-#sp-modal .sp-modal-actions .sp-modal-confirm.danger{background:#d45c71;border-color:#d45c71}
-#sp-modal .sp-modal-close{height:34px;width:34px;padding:0;font-size:18px}
-#sp-toast{position:fixed;right:22px;bottom:22px;z-index:9100;display:flex;gap:10px;align-items:center;max-width:min(390px,calc(100vw - 34px));padding:13px 16px;border-radius:14px;border:1px solid #dde7f2;background:#fff;box-shadow:0 15px 38px rgba(21,40,71,.15);font-size:12px;color:#2e4460;font-weight:760;animation:sp-rise .25s both;pointer-events:none}
-#sp-toast i{font-size:19px;color:#20a77e}
-@keyframes sp-rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-@keyframes sp-modal-pop{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
-@media(max-width:1080px){#page-liste .sp-entry-form{grid-template-columns:repeat(2,minmax(0,1fr))}#page-liste .sp-entry-form .sp-btn{grid-column:1/-1}}
-@media(max-width:720px){#page-liste .sp-hero{padding:23px 20px;border-radius:23px}#page-liste .sp-hero-decoration{height:70px;width:70px;border-radius:20px;font-size:35px}#page-liste .sp-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}#page-liste .sp-stat{padding:13px}#page-liste .sp-stat-top{margin-bottom:11px}#page-liste .sp-stat strong{font-size:22px}#page-liste .sp-card-grid{grid-template-columns:1fr}#page-liste .sp-detail-metrics{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}#page-liste .sp-detail-stat{padding:11px}#page-liste .sp-detail-stat strong{font-size:18px}#page-liste .sp-items-toolbar .sp-search{order:1;flex-basis:100%}#page-liste .sp-items-toolbar .sp-segments{order:2}#page-liste .sp-items-toolbar .sp-select{order:3}#page-liste .sp-hero h1{font-size:25px}}
-@media(max-width:500px){#page-liste{padding-left:0!important;padding-right:0!important}#page-liste .sp-hero{padding:21px 17px}#page-liste .sp-hero-decoration{display:none}#page-liste .sp-hero h1{font-size:25px}#page-liste .sp-hero-actions .sp-btn{flex:1}#page-liste .sp-toolbar .sp-search{flex-basis:100%}#page-liste .sp-toolbar .sp-segments{flex:1;justify-content:space-between}#page-liste .sp-segments button{padding:8px 9px}#page-liste .sp-toolbar .sp-select{min-width:112px}#page-liste .sp-panel{padding:12px;border-radius:17px}#page-liste .sp-list-card{padding:13px}#page-liste .sp-section-head h2{font-size:17px}#page-liste .sp-detail-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}#page-liste .sp-detail-metrics .sp-detail-stat:last-child{grid-column:1/-1}#page-liste .sp-entry{padding:13px}#page-liste .sp-entry-form{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}#page-liste .sp-entry-form .sp-field:first-child{grid-column:1/-1}#page-liste .sp-entry-form .sp-field:nth-child(4){grid-column:1/-1}#page-liste .sp-item-row{gap:8px;padding:10px 8px;flex-wrap:wrap}#page-liste .sp-item-info{flex:1 1 calc(100% - 42px)}#page-liste .sp-qty{margin-left:31px}#page-liste .sp-item-price{margin-left:auto;min-width:60px}#page-liste .sp-item-actions{margin-left:3px}#page-liste .sp-detail-actions .sp-btn{min-height:35px;padding:8px 10px}#page-liste .sp-stat strong{font-size:20px}}
-@media(prefers-reduced-motion:reduce){#page-liste .sp-stat,#page-liste .sp-list-card,#page-liste .sp-item-row,#sp-modal .sp-modal-box,#sp-toast{animation:none!important}#page-liste .sp-btn,#page-liste .sp-progress>span,#page-liste .sp-list-card{transition:none!important}}
-
-</style>
 <style id="shopping-templates-fix">
 #page-liste .sp-templates{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:14px 0 16px;padding:13px 15px;border:1px solid #e3eafa;background:#f9fbff;border-radius:16px}
 #page-liste .sp-templates span{font-size:12px;font-weight:800;color:#667ca3;margin-right:4px}
@@ -21224,376 +20698,540 @@ body:has(#shell:not(.hidden)) {--focus-ring: 0 0 0 4px rgba(var(--pp-accent-rgb)
 #page-liste .sp-templates button:hover{border-color:#899ce8;background:#edf2ff}
 @media(max-width:520px){#page-liste .sp-templates{padding:11px;gap:7px}#page-liste .sp-templates span{flex-basis:100%}#page-liste .sp-templates button{flex:1 1 auto;font-size:11px;padding:6px 8px}}
 </style>
-<script id="shopping-premium-2026-script">
-/* SHOPPING PREMIUM PLUS — enhancement layer, preserves Firebase shoppingLists schema. */
-(() => {
-  'use strict';
-  const page = document.getElementById('page-liste');
-  const outlet = document.getElementById('liste-container-principale');
-  if (!page || !outlet) return;
-  const $ = (selector, base = document) => base.querySelector(selector);
-  const $$ = (selector, base = document) => Array.from(base.querySelectorAll(selector));
-  const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
-  const fmt = new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'});
-  const money = value => fmt.format(Number.isFinite(value) ? value : 0);
-  const number = value => {
-    if(typeof value === 'number') return Number.isFinite(value) ? value : NaN;
-    let s = String(value ?? '').trim().replace(/[\s€]/g,'');
-    if(s.includes(',') && s.includes('.')) s = s.lastIndexOf(',') > s.lastIndexOf('.') ? s.replace(/\./g,'').replace(',','.') : s.replace(/,/g,'');
-    else if(s.includes(',')) s = s.replace(',','.');
-    const val = Number(s); return s && Number.isFinite(val) ? val : NaN;
-  };
-  const qty = item => {const n=number(item?.quantita ?? 1);return Number.isFinite(n) && n>0 ? n : 1;};
-  const price = item => {const n=number(item?.prezzo ?? item?.price ?? '');return Number.isFinite(n) && n>=0 ? n : null;};
-  const sum = items => items.reduce((acc, item) => {
-    const n=price(item);if(n!==null){acc.value+=n*qty(item);acc.known++;}return acc;
-  },{value:0,known:0});
-  const lists=()=>shoppingLists && typeof shoppingLists==='object' ? shoppingLists : {};
-  const itemsOf=li=>Array.isArray(li?.items)?li.items:[];
-  const stats=li=>{const items=itemsOf(li);const done=items.filter(x=>x.completato);const remaining=items.filter(x=>!x.completato);return {total:items.length,done:done.length,remaining:remaining.length,totalPrice:sum(items),donePrice:sum(done),remainingPrice:sum(remaining),progress:items.length?Math.round(done.length/items.length*100):0};};
-  const isDone=li=>Boolean(li?.completata);
-  const safeId=id=>Object.prototype.hasOwnProperty.call(lists(),id) ? lists()[id] : null;
-  const categories=['Alimentari','Frutta e verdura','Casa','Cura personale','Animali','Altro'];
-  const icon=(name,extra='')=>`<i class="ti ti-${name} ${extra}" aria-hidden="true"></i>`;
-  const dateLabel=value=>{const d=new Date(value||'');return Number.isFinite(d.getTime())?new Intl.DateTimeFormat('it-IT',{day:'numeric',month:'short',year:'numeric'}).format(d):'Lista salvata';};
-  let detailId=null;
-  let initialized=false;
-  let loading=false;
-  let listing={search:'',filter:'all',sort:'recent'};
-  let detailFilter={search:'',filter:'all',sort:'added'};
-  let activeModal=null;
-  let toastTimer=null;
-  const readPref=(key,def)=>{try{return localStorage.getItem('bf-shop-'+key)||def;}catch{return def;}};
-  const pref=(key,val)=>{try{localStorage.setItem('bf-shop-'+key,val);}catch{}};
-  listing.sort=readPref('sort','recent');
-  const notify=(message,error=false)=>{
-    $('#sp-toast')?.remove();const node=document.createElement('div');node.id='sp-toast';node.setAttribute('role','status');
-    node.innerHTML=`${icon(error?'alert-circle':'circle-check')}<span>${esc(message)}</span>`;
-    if(error)node.querySelector('i').style.color='#d45c71';document.body.append(node);
-    clearTimeout(toastTimer);toastTimer=setTimeout(()=>node.remove(),3100);
-  };
-  const persist=async()=>{
-    try{
-      const result=await saveShoppingLists();
-      if(result===false){notify(typeof shoppingListsLastError !== 'undefined' && shoppingListsLastError ? 'Salvataggio non riuscito: '+shoppingListsLastError : 'Modifica non salvata: controlla connessione e famiglia.',true);return false;}
-      return true;
-    }catch(error){console.error('Salvataggio liste:',error);notify('Impossibile salvare le modifiche.',true);return false;}
-  };
-  function metrics(){
-    const all=Object.values(lists()), active=all.filter(li=>!isDone(li));
-    const allItems=all.flatMap(itemsOf);const done=allItems.filter(i=>i.completato).length;
-    const totals=sum(allItems);
-    const data=[
-      ['Liste attive',String(active.length),'Su '+all.length+' liste totali','list-check'],
-      ['Articoli acquistati',String(done),'Su '+allItems.length+' prodotti','circle-check'],
-      ['Ancora da comprare',String(allItems.length-done),'Articoli rimanenti','basket'],
-      ['Spesa stimata',totals.known?money(totals.value):'—',totals.known?`${totals.known} prodotti con prezzo`:'Aggiungi i prezzi','wallet']
-    ];
-    const target=$('#sp-metrics');if(!target)return;
-    target.innerHTML=data.map(([label,val,caption,ico])=>`<article class="sp-stat"><div class="sp-stat-top"><span>${esc(label)}</span><span class="sp-stat-ic">${icon(ico)}</span></div><strong>${esc(val)}</strong><small>${esc(caption)}</small></article>`).join('');
-    const head=$('#sp-page-title');if(head)head.innerHTML=detailId?'La lista, <span>nel dettaglio.</span>':'La spesa, <span>senza stress.</span>';
-    const sub=$('#sp-page-description');if(sub)sub.textContent=detailId?'Organizza gli articoli, monitora il budget e acquista senza dimenticare nulla.':'Tutte le tue liste, gli acquisti e il budget in un unico spazio.';
-    const hero=$('#sp-hero');hero?.classList.toggle('sp-hero-detail',Boolean(detailId));
-    target.hidden=Boolean(detailId);
-    const add=$('#sp-create-list');if(add)add.textContent='';
-    if(add)add.innerHTML=icon('plus')+' Nuova lista';
-  }
-  const empty=(ico,title,desc,button=false)=>`<div class="sp-empty"><div class="sp-empty-icon">${icon(ico)}</div><strong>${esc(title)}</strong><p>${esc(desc)}</p>${button?`<button type="button" class="sp-btn sp-btn-main" data-sp-action="new-list">${icon('plus')} Crea lista</button>`:''}</div>`;
-  const status=li=>isDone(li)?'<span class="sp-pill green">'+icon('check')+' Completata</span>':'<span class="sp-pill">'+icon('clock')+' In corso</span>';
-  function renderCards(){
-    const grid=$('#sp-card-grid');if(!grid)return;
-    const q=listing.search.toLocaleLowerCase('it-IT');
-    let entries=Object.entries(lists()).filter(([id,li])=>li && typeof li==='object');
-    entries=entries.filter(([id,li])=>{
-      if(listing.filter==='active'&&isDone(li))return false;
-      if(listing.filter==='complete'&&!isDone(li))return false;
-      return !q||String(li.nome||'').toLocaleLowerCase('it-IT').includes(q)||itemsOf(li).some(i=>String(i.nome||'').toLocaleLowerCase('it-IT').includes(q));
-    });
-    entries.sort((a,b)=>{
-      const pinned=Number(Boolean(b[1].pinned))-Number(Boolean(a[1].pinned));if(pinned)return pinned;
-      if(listing.sort==='name')return String(a[1].nome||'').localeCompare(String(b[1].nome||''),'it');
-      if(listing.sort==='progress')return stats(b[1]).progress-stats(a[1]).progress;
-      if(isDone(a[1])!==isDone(b[1]))return Number(isDone(a[1]))-Number(isDone(b[1]));
-      return Date.parse(b[1].createdAt||0)-Date.parse(a[1].createdAt||0);
-    });
-    const caption=$('#sp-list-count');if(caption)caption.textContent=`${entries.length} ${entries.length===1?'lista visualizzata':'liste visualizzate'}`;
-    if(!Object.keys(lists()).length){grid.innerHTML=empty('basket','Inizia dalla tua prima lista','Crea una lista della spesa e aggiungi tutto ciò che ti serve.',true);return;}
-    if(!entries.length){grid.innerHTML=empty('search','Nessuna lista trovata','Prova un nome diverso oppure cambia i filtri.');return;}
-    grid.innerHTML=entries.map(([id,li],index)=>{
-      const s=stats(li);const title=esc(li.nome||'Senza nome');const budget=number(li.budget);
-      const date=esc(dateLabel(li.createdAt));const progress=s.progress;
-      return `<article class="sp-list-card ${isDone(li)?'sp-complete':''}" data-sp-open="${esc(id)}" tabindex="0" role="button" aria-label="Apri ${title}" style="animation-delay:${Math.min(index,7)*35}ms">
-        <div class="sp-card-head"><span class="sp-card-icon">${icon('shopping-bag')}</span><div class="sp-card-title"><strong>${title}</strong><small>${date}</small></div>${status(li)}</div>
-        <div class="sp-card-progress-title"><span>${s.done} di ${s.total} acquistati</span><strong>${progress}%</strong></div>
-        <div class="sp-progress ${isDone(li)?'green':''}" role="progressbar" aria-label="Articoli acquistati" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${progress}"><span style="--sp-fill:${progress}%"></span></div>
-        <div class="sp-card-foot"><span>${icon('wallet')} ${s.totalPrice.known?`<strong>${money(s.totalPrice.value)}</strong>`:'Importo da stimare'}${Number.isFinite(budget)&&budget>0?' / '+money(budget):''}</span>
-          <div class="sp-card-controls"><button type="button" class="sp-icon-btn" data-sp-action="pin-list" data-id="${esc(id)}" title="${li.pinned?'Rimuovi dai preferiti':'Fissa in alto'}" aria-label="${li.pinned?'Rimuovi dai preferiti':'Fissa in alto'}">${icon(li.pinned?'pin-filled':'pin')}</button><button type="button" class="sp-icon-btn" data-sp-action="duplicate-list" data-id="${esc(id)}" title="Duplica" aria-label="Duplica lista">${icon('copy')}</button><button type="button" class="sp-icon-btn warn" data-sp-action="delete-list" data-id="${esc(id)}" title="Elimina" aria-label="Elimina lista">${icon('trash')}</button></div></div>
-      </article>`;
-    }).join('');
-  }
-  function drawOverview(){
-    detailId=null;currentListId=null;metrics();
-    outlet.innerHTML=`<div class="sp-section-head"><div><div class="sp-eyebrow">Le tue liste</div><h2>Organizza gli acquisti</h2></div><small>Condivise con la famiglia</small></div>
-      <div class="sp-templates" aria-label="Crea una lista pronta all’uso"><span>${icon('sparkles')} Inizia da un modello</span><button type="button" data-sp-action="quick-template" data-template="weekly">${icon('basket')} Spesa settimanale</button><button type="button" data-sp-action="quick-template" data-template="home">${icon('home')} Prodotti casa</button><button type="button" data-sp-action="quick-template" data-template="produce">${icon('carrot')} Frutta e verdura</button></div>
-      <section class="sp-panel" aria-label="Elenco liste spesa"><div class="sp-toolbar">
-        <label class="sp-search" for="sp-search-lists">${icon('search')}<input id="sp-search-lists" type="search" autocomplete="off" placeholder="Cerca una lista o un articolo..." value="${esc(listing.search)}"></label>
-        <div class="sp-segments" role="group" aria-label="Filtra liste">${[['all','Tutte'],['active','Attive'],['complete','Completate']].map(([key,label])=>`<button type="button" data-sp-action="list-filter" data-filter="${key}" class="${listing.filter===key?'is-active':''}" aria-pressed="${listing.filter===key}">${label}</button>`).join('')}</div>
-        <select id="sp-list-sort" class="sp-select" aria-label="Ordina liste"><option value="recent" ${listing.sort==='recent'?'selected':''}>Più recenti</option><option value="name" ${listing.sort==='name'?'selected':''}>Nome A–Z</option><option value="progress" ${listing.sort==='progress'?'selected':''}>Avanzamento</option></select>
-      </div><p class="sp-result-caption" id="sp-list-count" aria-live="polite"></p><div class="sp-card-grid" id="sp-card-grid"></div></section>
-      <p class="sp-footer-note">${icon('cloud-check')} Le liste sono archiviate nel tuo spazio famiglia condiviso.</p>`;
-    renderCards();
-  }
-  const categoryOpts=(selected='Alimentari')=>[...new Set([...categories,selected||'Altro'])].map(c=>`<option value="${esc(c)}" ${selected===c?'selected':''}>${esc(c)}</option>`).join('');
-  function renderedItems(id){
-    const li=safeId(id), target=$('#sp-item-list');if(!li||!target)return;
-    const data=itemsOf(li);const q=detailFilter.search.toLocaleLowerCase('it-IT');
-    let entries=data.map((item,index)=>({item,index})).filter(({item})=>{
-      if(detailFilter.filter==='pending'&&item.completato)return false;
-      if(detailFilter.filter==='bought'&&!item.completato)return false;
-      return !q||String(item.nome||'').toLocaleLowerCase('it-IT').includes(q)||String(item.categoria||'').toLocaleLowerCase('it-IT').includes(q);
-    });
-    if(detailFilter.sort==='name')entries.sort((a,b)=>String(a.item.nome||'').localeCompare(String(b.item.nome||''),'it'));
-    if(detailFilter.sort==='category')entries.sort((a,b)=>String(a.item.categoria||'Altro').localeCompare(String(b.item.categoria||'Altro'),'it'));
-    const count=$('#sp-items-count');if(count)count.textContent=`Articoli · ${entries.length} / ${data.length}`;
-    if(!data.length){target.innerHTML=empty('list-check','La lista è vuota','Aggiungi il primo articolo utilizzando il modulo qui sopra.');return;}
-    if(!entries.length){target.innerHTML=empty('search','Nessun articolo trovato','Modifica i filtri o la ricerca per mostrare altri prodotti.');return;}
-    target.innerHTML=entries.map(({item,index})=>{
-      const p=price(item),n=qty(item),category=String(item.categoria||'Altro');
-      const title=esc(item.nome||'Articolo');
-      return `<div class="sp-item-row ${item.completato?'checked':''}" data-sp-item-index="${index}">
-        <input type="checkbox" class="sp-item-check" aria-label="Segna ${title} come ${item.completato?'da comprare':'acquistato'}" data-sp-action="toggle-item" data-id="${esc(id)}" data-index="${index}" ${item.completato?'checked':''}>
-        <div class="sp-item-info"><strong>${title}</strong><div class="sp-item-meta"><span class="sp-item-cat">${esc(category)}</span>${item.note?`<span title="${esc(item.note)}">${icon('note')} ${esc(item.note)}</span>`:''}</div></div>
-        <div class="sp-qty" aria-label="Quantità"><button type="button" data-sp-action="qty-down" data-id="${esc(id)}" data-index="${index}" aria-label="Diminuisci ${title}">−</button><span>${esc(n)}</span><button type="button" data-sp-action="qty-up" data-id="${esc(id)}" data-index="${index}" aria-label="Aumenta ${title}">+</button></div>
-        <div class="sp-item-price">${p===null?'—':money(p*n)}<small>${p===null?'Prezzo non inserito':money(p)+' / unità'}</small></div>
-        <div class="sp-item-actions"><button type="button" class="sp-icon-btn" data-sp-action="edit-item" data-id="${esc(id)}" data-index="${index}" title="Modifica articolo" aria-label="Modifica ${title}">${icon('pencil')}</button><button type="button" class="sp-icon-btn warn" data-sp-action="delete-item" data-id="${esc(id)}" data-index="${index}" title="Elimina articolo" aria-label="Elimina ${title}">${icon('trash')}</button></div>
-      </div>`;
-    }).join('');
-  }
-  function drawDetail(id){
-    const li=safeId(id);if(!li){detailId=null;drawOverview();return;}
-    detailId=id;currentListId=id;metrics();
-    const s=stats(li);const budget=number(li.budget),hasBudget=Number.isFinite(budget)&&budget>0;
-    const budgetUsed=s.totalPrice.value;
-    outlet.innerHTML=`<button type="button" class="sp-detail-back" data-sp-action="back">${icon('arrow-left')} Tutte le liste</button>
-      <div class="sp-detail-top"><div><div class="sp-eyebrow">DETTAGLIO LISTA ${isDone(li)?' · COMPLETATA':''}</div><h2>${esc(li.nome||'Senza nome')}</h2><p>${s.done} di ${s.total} articoli acquistati · ${s.progress}% completato</p></div>
-      <div class="sp-detail-actions"><button class="sp-btn sp-btn-quiet" data-sp-action="edit-list" data-id="${esc(id)}">${icon('edit')} Modifica</button><button class="sp-btn sp-btn-quiet" data-sp-action="duplicate-list" data-id="${esc(id)}">${icon('copy')} Duplica</button><button class="sp-btn sp-btn-quiet" data-sp-action="share-list" data-id="${esc(id)}">${icon('share')} Condividi</button></div></div>
-      <div class="sp-detail-metrics"><div class="sp-detail-stat"><span>Completamento</span><strong>${s.progress}%</strong><small>${s.done} / ${s.total} prodotti</small></div><div class="sp-detail-stat"><span>Da acquistare</span><strong>${s.remaining}</strong><small>Articoli ancora in lista</small></div><div class="sp-detail-stat"><span>Totale stimato</span><strong>${s.totalPrice.known?money(s.totalPrice.value):'—'}</strong><small>${s.totalPrice.known?'Solo articoli con prezzo':'Prezzi facoltativi'}</small></div></div>
-      <div class="sp-budget ${hasBudget&&budgetUsed>budget?'over':''}"><div class="sp-budget-row"><span>${icon('wallet')} ${hasBudget?'Budget impostato':'Budget non impostato'}</span><strong>${hasBudget?money(budgetUsed)+' / '+money(budget):'Aggiungi un budget dalla voce Modifica'}</strong></div><div class="sp-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${hasBudget?Math.min(100,Math.round(budgetUsed/budget*100)):s.progress}" aria-label="${hasBudget?'Utilizzo budget':'Articoli acquistati'}"><span style="--sp-fill:${hasBudget?Math.min(100,Math.round(budgetUsed/budget*100)):s.progress}%"></span></div>${hasBudget&&budgetUsed>budget?'<small style="color:#c15e70;font-weight:730;font-size:10px;display:block;margin-top:7px">Budget superato per gli articoli con prezzo inserito.</small>':''}</div>
-      <section class="sp-entry"><h3>${icon('plus')} Aggiungi un articolo</h3><form id="sp-add-item-form" class="sp-entry-form" autocomplete="off">
-      <div class="sp-field"><label for="sp-new-name">Articolo</label><input id="sp-new-name" name="name" placeholder="Es. Latte, pasta, detersivo" maxlength="120" required></div>
-      <div class="sp-field"><label for="sp-new-qty">Quantità</label><input id="sp-new-qty" name="qty" type="number" min="0.01" max="100000" step="any" value="1" required inputmode="decimal"></div>
-      <div class="sp-field"><label for="sp-new-price">Prezzo / unità €</label><input id="sp-new-price" name="price" type="number" min="0" max="1000000" step="0.01" placeholder="Facoltativo" inputmode="decimal"></div>
-      <div class="sp-field"><label for="sp-new-category">Categoria</label><select id="sp-new-category" name="category">${categoryOpts('Alimentari')}</select></div>
-      <button type="submit" class="sp-btn sp-btn-main">${icon('plus')} Aggiungi</button></form></section>
-      <section class="sp-panel sp-items-panel"><div class="sp-items-toolbar"><span class="sp-items-caption" id="sp-items-count">Articoli</span>
-        <label class="sp-search" for="sp-search-items">${icon('search')}<input id="sp-search-items" type="search" placeholder="Cerca prodotti..." value="${esc(detailFilter.search)}"></label>
-        <div class="sp-segments" role="group" aria-label="Filtra articoli">${[['all','Tutti'],['pending','Da comprare'],['bought','Acquistati']].map(([f,label])=>`<button type="button" data-sp-action="item-filter" data-filter="${f}" class="${detailFilter.filter===f?'is-active':''}" aria-pressed="${detailFilter.filter===f}">${label}</button>`).join('')}</div>
-        <select id="sp-item-sort" class="sp-select" aria-label="Ordina articoli"><option value="added" ${detailFilter.sort==='added'?'selected':''}>Inserimento</option><option value="name" ${detailFilter.sort==='name'?'selected':''}>Nome A–Z</option><option value="category" ${detailFilter.sort==='category'?'selected':''}>Categoria</option></select></div>
-        <div id="sp-item-list" class="sp-item-list" aria-live="polite"></div><div class="sp-bulk-toolbar">
-        <button type="button" class="sp-btn" data-sp-action="mark-all" ${!s.remaining?'disabled':''}>${icon('checks')} Segna tutti acquistati</button>
-        <button type="button" class="sp-btn" data-sp-action="reset-items" ${!s.done?'disabled':''}>${icon('rotate-ccw')} Ripristina</button>
-        <button type="button" class="sp-btn" data-sp-action="clear-bought" ${!s.done?'disabled':''}>${icon('brush')} Rimuovi acquistati</button>
-        <button type="button" class="sp-btn" data-sp-action="csv-list">${icon('download')} CSV</button>
-        <button type="button" class="sp-btn sp-btn-danger" data-sp-action="delete-list" data-id="${esc(id)}">${icon('trash')} Elimina lista</button>
-        <button type="button" class="sp-btn ${isDone(li)?'sp-btn-quiet':'sp-btn-main'}" data-sp-action="complete-list" data-id="${esc(id)}">${icon(isDone(li)?'restore':'check')} ${isDone(li)?'Riapri lista':'Termina lista'}</button>
-      </div></section><p class="sp-footer-note">${icon('cloud-check')} Le modifiche sono condivise con gli altri membri della famiglia.</p>`;
-    renderedItems(id);
-  }
-  function mainRender(){metrics();if(detailId&&safeId(detailId))drawDetail(detailId);else drawOverview();}
-  const openDetail=id=>{if(!safeId(id))return;detailFilter={search:'',filter:'all',sort:'added'};detailId=id;drawDetail(id);};
-  function modalMarkup(state){
-    const li=state.id?safeId(state.id):null;const item=li&&Number.isInteger(state.index)?itemsOf(li)[state.index]:null;
-    const input=(id,label,type,value='',extra='')=>`<div class="sp-field"><label for="${id}">${label}</label><input id="${id}" name="${id}" type="${type}" value="${esc(value)}" ${extra}></div>`;
-    if(state.kind==='new-list'||state.kind==='edit-list'){
-      return {title:state.kind==='new-list'?'Crea una nuova lista':'Modifica lista',desc:'Assegna un nome e, se vuoi, imposta un limite di spesa.',ico:'list-check',confirm:state.kind==='new-list'?'Crea lista':'Salva modifiche',fields:input('sp-modal-name','Nome lista','text',li?.nome||'','required maxlength="120" placeholder="Es. Spesa settimanale"')+input('sp-modal-budget','Budget indicativo (€)','number',li?.budget??'','min="0" step="0.01" placeholder="Facoltativo"')};
-    }
-    if(state.kind==='edit-item'&&item){
-      return {title:'Modifica articolo',desc:'Aggiorna nome, quantità, categoria, prezzo o una nota.',ico:'pencil',confirm:'Salva articolo',fields:input('sp-modal-name','Articolo','text',item.nome||'','required maxlength="120"')+input('sp-modal-qty','Quantità','number',qty(item),'required min="0.01" max="100000" step="any"')+input('sp-modal-price','Prezzo per unità (€)','number',price(item)??'','min="0" max="1000000" step="0.01" placeholder="Facoltativo"')+`<div class="sp-field"><label for="sp-modal-category">Categoria</label><select id="sp-modal-category">${categoryOpts(item.categoria||'Altro')}</select></div><div class="sp-field"><label for="sp-modal-note">Nota (facoltativa)</label><textarea id="sp-modal-note" maxlength="250" placeholder="Es. marca preferita, formato, promemoria...">${esc(item.note||'')}</textarea></div>`};
-    }
-    const deleteItem=state.kind==='delete-item';const deleteList=state.kind==='delete-list';
-    const clear=state.kind==='clear-bought';const reset=state.kind==='reset-items';
-    const label=deleteItem?item?.nome:deleteList?li?.nome:null;
-    return {title:deleteItem?'Eliminare questo articolo?':deleteList?'Eliminare la lista?':clear?'Rimuovere gli acquisti completati?':'Ripristinare gli articoli?',desc:deleteItem||deleteList?`"${label||'Elemento'}" verrà eliminato dalla lista condivisa. Questa operazione non può essere annullata.`:clear?'Gli articoli contrassegnati come acquistati saranno cancellati.':'Gli articoli torneranno da acquistare, senza essere eliminati.',ico:'alert-circle',confirm:deleteItem||deleteList?'Elimina':clear?'Rimuovi acquistati':'Ripristina',danger:deleteItem||deleteList||clear,fields:''};
-  }
-  function closeModal(){const el=$('#sp-modal');if(el)el.remove();activeModal=null;}
-  function showModal(kind,id=null,index=null){
-    closeModal();if(kind==='edit-item'&&(!safeId(id)||!itemsOf(safeId(id))[index]))return;
-    activeModal={kind,id,index};const c=modalMarkup(activeModal);
-    const overlay=document.createElement('div');overlay.id='sp-modal';overlay.innerHTML=`<div class="sp-modal-box" role="dialog" aria-modal="true" aria-labelledby="sp-modal-title"><div class="sp-modal-top"><span class="sp-modal-icon">${icon(c.ico)}</span><button type="button" class="sp-modal-close" aria-label="Chiudi" data-modal-close>×</button></div><h2 id="sp-modal-title">${esc(c.title)}</h2><p>${esc(c.desc)}</p><form id="sp-modal-form" class="sp-modal-form">${c.fields}<div class="sp-modal-actions"><button type="button" data-modal-close>Annulla</button><button type="submit" class="sp-modal-confirm ${c.danger?'danger':''}">${esc(c.confirm)}</button></div></form></div>`;
-    overlay.addEventListener('click',e=>{if(e.target===overlay||e.target.closest('[data-modal-close]'))closeModal();});
-    $('#sp-modal-form',overlay).addEventListener('submit',submitModal);
-    document.body.append(overlay);
-    ($('#sp-modal-name',overlay)||$('.sp-modal-confirm',overlay))?.focus();
-  }
-  async function submitModal(event){
-    event.preventDefault();if(!activeModal)return;
-    if (activeModal.saving) return;
-    const state={...activeModal};
-    const form=$('#sp-modal-form');if(!form?.reportValidity())return;
-    const name=$('#sp-modal-name')?.value.trim();const modalBudget=$('#sp-modal-budget')?.value.trim();const li=state.id?safeId(state.id):null;
-    if((state.kind==='new-list'||state.kind==='edit-list'||state.kind==='edit-item')&&!name){notify('Inserisci un nome valido.',true);return;}
-    if(name&&name.length>120){notify('Nome troppo lungo.',true);return;}
-    if(state.kind==='new-list'||state.kind==='edit-list'){
-      const budget=modalBudget ? number(modalBudget) : null;
-      if(modalBudget && (!Number.isFinite(budget)||budget<0||budget>100000000)){notify('Controlla il budget inserito.',true);return;}
-      if(state.kind==='new-list'){
-        const id=Date.now().toString(36)+Math.random().toString(36).slice(2,9);
-        if(!currentUser||!currentFamilyId){notify('Accedi alla tua famiglia per salvare una lista.',true);return;}
-        const created={nome:name,items:[],completata:false,createdAt:new Date().toISOString(),...(budget!==null?{budget}: {})};
-        shoppingLists[id]=created;
-        activeModal.saving=true;
-        const submitButton=$('#sp-modal-form .sp-modal-confirm');
-        if(submitButton){submitButton.disabled=true;submitButton.textContent='Salvataggio...';}
-        const saved=await persist();
-        if(saved){closeModal();detailId=id;drawDetail(id);notify('Lista creata! Aggiungi i tuoi articoli.');}
-        else{
-          delete shoppingLists[id];
-          // Il modulo resta aperto per riprovare senza riscrivere il nome.
-          if (activeModal?.kind === 'new-list') activeModal.saving=false;
-          if(submitButton){submitButton.disabled=false;submitButton.textContent='Riprova a creare';}
-          mainRender();
-        }
-      }else if(li){
-        li.nome=name;if(budget===null)delete li.budget;else li.budget=budget;
-        closeModal();mainRender();if(await persist())notify('Lista aggiornata.');
-      }
-      return;
-    }
-    if(state.kind==='edit-item'&&li){
-      const item=itemsOf(li)[state.index];if(!item)return;
-      const amount=number($('#sp-modal-qty')?.value),raw=$('#sp-modal-price')?.value.trim()||'',p=raw?number(raw):null;
-      if(!Number.isFinite(amount)||amount<.01||amount>100000){notify('Quantità non valida.',true);return;}
-      if(raw&&(!Number.isFinite(p)||p<0||p>1000000)){notify('Prezzo non valido.',true);return;}
-      item.nome=name;item.quantita=amount;item.categoria=$('#sp-modal-category')?.value||'Altro';item.note=$('#sp-modal-note')?.value.trim().slice(0,250)||'';
-      if(p===null){delete item.prezzo;delete item.price;}else{item.prezzo=p;delete item.price;}
-      closeModal();drawDetail(state.id);if(await persist())notify('Articolo aggiornato.');return;
-    }
-    if(state.kind==='delete-list'&&li){delete shoppingLists[state.id];if(detailId===state.id)detailId=null;}
-    else if(state.kind==='delete-item'&&li)li.items.splice(state.index,1);
-    else if(state.kind==='clear-bought'&&li)li.items=itemsOf(li).filter(i=>!i.completato);
-    else if(state.kind==='reset-items'&&li){itemsOf(li).forEach(i=>i.completato=false);li.completata=false;}
-    else{return;}
-    closeModal();mainRender();if(await persist())notify('Modifica completata.');
-  }
-  async function createFromTemplate(template){
-    const templates={
-      weekly:{nome:'Spesa settimanale',items:[['Latte','Alimentari'],['Pane','Alimentari'],['Pasta','Alimentari'],['Uova','Alimentari'],['Frutta','Frutta e verdura'],['Verdura','Frutta e verdura']]},
-      home:{nome:'Prodotti per la casa',items:[['Detersivo piatti','Casa'],['Detersivo bucato','Casa'],['Carta igienica','Casa'],['Sacchetti rifiuti','Casa']]},
-      produce:{nome:'Frutta e verdura',items:[['Mele','Frutta e verdura'],['Banane','Frutta e verdura'],['Pomodori','Frutta e verdura'],['Insalata','Frutta e verdura']]}
-    };
-    const preset=templates[template];if(!preset)return;
-    if(!currentUser||!currentFamilyId){notify('Accedi alla tua famiglia per creare liste condivise.',true);return;}
-    const id=Date.now().toString(36)+Math.random().toString(36).slice(2,9);
-    shoppingLists[id]={nome:preset.nome,items:preset.items.map(([nome,categoria])=>({nome,categoria,quantita:1,completato:false})),completata:false,createdAt:new Date().toISOString()};
-    detailId=id;mainRender();
-    if(await persist())notify('Lista pronta: personalizza gli articoli quando vuoi.');
-    else{delete shoppingLists[id];detailId=null;mainRender();}
-  }
-  async function duplicate(id){const li=safeId(id);if(!li)return;
-    const newId=Date.now().toString(36)+Math.random().toString(36).slice(2,9);
-    const copy=JSON.parse(JSON.stringify(li));copy.nome=(String(li.nome||'Lista')+' (copia)').slice(0,120);copy.createdAt=new Date().toISOString();copy.completata=false;copy.pinned=false;
-    copy.items=itemsOf(copy).map(item=>({...item,completato:false}));shoppingLists[newId]=copy;detailId=newId;mainRender();if(await persist())notify('Lista duplicata: pronta per nuovi acquisti.');
-  }
-  const csvCell=value=>{let s=String(value??'');if(/^[\s]*[=+\-@\t\r]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';};
-  function exportCsv(id){const li=safeId(id);if(!li)return;const rows=[['Articolo','Quantità','Categoria','Prezzo unitario (€)','Totale (€)','Acquistato','Note'],...itemsOf(li).map(item=>[item.nome,qty(item),item.categoria||'',price(item)??'',price(item)===null?'':(price(item)*qty(item)).toFixed(2),item.completato?'Sì':'No',item.note||''])];
-    const blob=new Blob(['\ufeffsep=;\r\n'+rows.map(row=>row.map(csvCell).join(';')).join('\r\n')],{type:'text/csv;charset=utf-8'});
-    const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='spesa-'+String(li.nome||'lista').replace(/[^a-zA-Z0-9_-]/g,'-').slice(0,48)+'.csv';document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1800);notify('Elenco esportato in CSV.');
-  }
-  async function shareList(id){const li=safeId(id);if(!li)return;
-    const txt=[String(li.nome||'Lista'),'',...itemsOf(li).map(item=>(item.completato?'☑ ':'☐ ')+qty(item)+' × '+(item.nome||'')+(price(item)!==null?' · '+money(price(item)*qty(item)):'')+(item.note?' ('+item.note+')':''))].join('\n');
-    try{
-      if(navigator.share&&window.isSecureContext){await navigator.share({title:li.nome||'Lista della spesa',text:txt});return;}
-      if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(txt);notify('Lista copiata: puoi condividerla.');return;}
-      const area=document.createElement('textarea');area.value=txt;area.style.cssText='position:fixed;left:-10000px;top:-10000px';document.body.append(area);area.select();const ok=document.execCommand('copy');area.remove();if(ok)notify('Lista copiata negli appunti.');else throw Error('clipboard unavailable');
-    }catch(error){if(error.name!=='AbortError')notify('Condivisione non disponibile in questo browser.',true);}
-  }
-  async function addItem(event){event.preventDefault();if(!detailId||!safeId(detailId))return;
-    const form=event.target;const name=$('#sp-new-name',form)?.value.trim();const value=$('#sp-new-qty',form)?.value;const amount=number(value);const raw=$('#sp-new-price',form)?.value.trim()||'';const p=raw?number(raw):null;
-    if(!name){notify('Inserisci il nome dell’articolo.',true);$('#sp-new-name',form)?.focus();return;}
-    if(!Number.isFinite(amount)||amount<0.01||amount>100000){notify('La quantità deve essere maggiore di zero.',true);return;}
-    if(raw&&(!Number.isFinite(p)||p<0||p>1000000)){notify('Prezzo non valido.',true);return;}
-    const li=safeId(detailId);if(!Array.isArray(li.items))li.items=[];
-    const category=$('#sp-new-category',form)?.value||'Alimentari';
-    const same=li.items.find(item=>!item.completato&&String(item.nome||'').trim().toLocaleLowerCase('it-IT')===name.toLocaleLowerCase('it-IT')&&String(item.categoria||'Alimentari')===category);
-    let message='Articolo aggiunto.';
-    if(same){same.quantita=Number((qty(same)+amount).toFixed(2));if(p!==null)same.prezzo=p;message='Articolo esistente: quantità aggiornata.';}
-    else{li.items.push({nome:name,quantita:amount,completato:false,categoria:category,...(p!==null?{prezzo:p}:{})});}
-    li.completata=false;
-    const selectedCategory=category;drawDetail(detailId);$('#sp-new-category').value=selectedCategory;$('#sp-new-name')?.focus();if(await persist())notify(message);
-  }
-  async function onClick(e){
-    const button=e.target.closest('[data-sp-action]');
-    if(button&&page.contains(button)){
-      const action=button.dataset.spAction,id=button.dataset.id||detailId,index=Number(button.dataset.index);
-      if(action==='toggle-item')return; // gestito dall'evento change
-      e.preventDefault();e.stopPropagation();
-      const li=safeId(id);
-      if(action==='new-list'){showModal('new-list');return;}
-      if(action==='quick-template'){await createFromTemplate(button.dataset.template);return;}
-      if(action==='back'){drawOverview();return;}
-      if(action==='list-filter'){listing.filter=button.dataset.filter;$$('[data-sp-action="list-filter"]').forEach(b=>{const on=b===button;b.classList.toggle('is-active',on);b.setAttribute('aria-pressed',String(on));});renderCards();return;}
-      if(action==='item-filter'){detailFilter.filter=button.dataset.filter;$$('[data-sp-action="item-filter"]').forEach(b=>{const on=b===button;b.classList.toggle('is-active',on);b.setAttribute('aria-pressed',String(on));});renderedItems(detailId);return;}
-      if(action==='edit-list'){showModal('edit-list',id);return;}
-      if(action==='delete-list'){showModal('delete-list',id);return;}
-      if(action==='pin-list'&&li){li.pinned=!li.pinned;mainRender();await persist();return;}
-      if(action==='duplicate-list'){await duplicate(id);return;}
-      if(action==='share-list'){await shareList(id);return;}
-      if(action==='csv-list'){exportCsv(detailId);return;}
-      if(action==='complete-list'&&li){li.completata=!li.completata;mainRender();if(await persist())notify(li.completata?'Lista completata.':'Lista riaperta.');return;}
-      if(action==='mark-all'&&li){itemsOf(li).forEach(i=>i.completato=true);drawDetail(id);if(await persist())notify('Tutti gli articoli segnati come acquistati.');return;}
-      if(action==='reset-items'){showModal('reset-items',detailId);return;}
-      if(action==='clear-bought'){showModal('clear-bought',detailId);return;}
-      if(action==='qty-up'||action==='qty-down'){
-        const item=itemsOf(li)[index];if(!item)return;
-        const value=qty(item)+(action==='qty-up'?1:-1);item.quantita=Math.max(.01,Number(value.toFixed(2)));
-        drawDetail(id);await persist();return;
-      }
-      if(action==='edit-item'){showModal('edit-item',id,index);return;}
-      if(action==='delete-item'){showModal('delete-item',id,index);return;}
-      return;
-    }
-    const card=e.target.closest('[data-sp-open]');if(card&&page.contains(card))openDetail(card.dataset.spOpen);
-  }
-  async function onChange(event){const el=event.target;
-    if(el.matches('[data-sp-action="toggle-item"]')){const li=safeId(el.dataset.id),item=itemsOf(li)[Number(el.dataset.index)];if(!item)return;item.completato=Boolean(el.checked);if(!item.completato)li.completata=false;drawDetail(el.dataset.id);await persist();return;}
-    if(el.id==='sp-list-sort'){listing.sort=el.value;pref('sort',el.value);renderCards();return;}
-    if(el.id==='sp-item-sort'){detailFilter.sort=el.value;renderedItems(detailId);return;}
-  }
-  function onInput(event){if(event.target.id==='sp-search-lists'){listing.search=event.target.value;renderCards();}
-    else if(event.target.id==='sp-search-items'){detailFilter.search=event.target.value;renderedItems(detailId);}
-  }
-  function onKey(event){
-    if(event.key==='Escape'&&$('#sp-modal')){event.preventDefault();closeModal();return;}
-    if((event.key==='Enter'||event.key===' ')&&event.target.matches('[data-sp-open]')){event.preventDefault();openDetail(event.target.dataset.spOpen);return;}
-    if(event.key==='/'&&!event.ctrlKey&&!event.metaKey&&!event.altKey&&page.classList.contains('active')){
-      if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName))return;
-      const target=$(detailId?'#sp-search-items':'#sp-search-lists');if(target){event.preventDefault();target.focus();}
-    }
-  }
-  function initialize(){
-    if(!initialized){initialized=true;page.addEventListener('click',onClick);page.addEventListener('change',onChange);page.addEventListener('input',onInput);
-      page.addEventListener('submit',event=>{if(event.target.id==='sp-add-item-form')addItem(event);});document.addEventListener('keydown',onKey);}
-    // Show stale data immediately, then update from the existing shared family document.
-    mainRender();
-    if(typeof currentUser!=='undefined'&&currentUser&&typeof currentFamilyId!=='undefined'&&currentFamilyId && !loading){
-      loading=true;
-      Promise.resolve(loadShoppingLists()).finally(()=>{loading=false;});
-    }
-  }
-  // Global functions are called by the app's existing navigation and Firebase snapshot listener.
-  renderShoppingLists=mainRender;
-  openListDetail=openDetail;
-  showCreateListModal=()=>showModal('new-list');
-  initListPage=initialize;
-  // Installa gli eventi subito: il click funziona anche dopo navigazioni o rendering asincroni.
-  initialize();
-  page.dataset.shoppingReady='true';
-})();
-
-</script>
 <style id="shopping-create-reliability-styles">
+#page-liste #sp-create-list{touch-action:manipulation}
 #sp-modal button:disabled{cursor:progress!important;opacity:.7}
 #page-liste [data-sp-action="new-list"]:focus-visible{outline:3px solid #a1b1f9;outline-offset:3px}
 </style>
+<style id="shopping-studio-v3-style">
+/* =============================================================
+  SHOPPING STUDIO v3 — self-contained Light Premium shopping UI
+  All selectors scoped to #page-liste or shopping3-* elements.
+============================================================= */
+#page-liste{--sh-ink:#20314c;--sh-muted:#788ba7;--sh-indigo:#596dea;--sh-teal:#16a182;--sh-border:#e7ebf5;--sh-shadow:0 11px 32px rgba(38,56,98,.065);font-family:inherit;padding-bottom:80px;}
+#page-liste *,#page-liste *::before,#page-liste *::after{box-sizing:border-box}
+#page-liste .shopping3-app{width:100%;max-width:1190px;margin:0 auto;min-width:0}
+#page-liste button,#shopping3-modal button{font-family:inherit;cursor:pointer}
+#page-liste button:focus-visible,#page-liste input:focus-visible,#page-liste select:focus-visible,#shopping3-modal button:focus-visible,#shopping3-modal input:focus-visible{outline:3px solid rgba(89,109,234,.4);outline-offset:2px}
+#page-liste .shopping3-hero{display:flex;align-items:center;justify-content:space-between;gap:25px;padding:30px 36px;border:1px solid #dee6f9;border-radius:26px;background:linear-gradient(114deg,#fff 2%,#f6f8ff 51%,#ebf1ff 100%);box-shadow:var(--sh-shadow);position:relative;overflow:hidden;isolation:isolate;margin-bottom:19px}
+#page-liste .shopping3-hero::after{content:'';position:absolute;width:340px;height:340px;right:-120px;bottom:-200px;border-radius:50%;border:1px solid rgba(104,128,230,.12);box-shadow:0 0 0 45px rgba(104,128,230,.045),0 0 0 80px rgba(104,128,230,.025);z-index:-1}
+#page-liste .shopping3-hero-content{max-width:550px;z-index:1}
+#page-liste .shopping3-eyebrow{font-size:10px;font-weight:900;letter-spacing:1.6px;color:#6277da;display:flex;align-items:center;gap:9px}
+#page-liste .shopping3-hero-dot{width:7px;height:7px;display:inline-block;border-radius:50%;background:#30b89a;box-shadow:0 0 0 4px rgba(48,184,154,.14)}
+#page-liste .shopping3-vlabel{font-size:9px;letter-spacing:1px;color:#8f9abd;background:#eef0ff;border:1px solid #e0e6fb;padding:4px 7px;border-radius:6px}
+#page-liste .shopping3-hero h1{font-size:clamp(27px,3.25vw,42px)!important;line-height:1.13;font-weight:890;letter-spacing:-1.55px;color:#20304b;text-align:left!important;margin:13px 0 13px!important}
+#page-liste .shopping3-hero h1 em{font-style:normal;color:#6074de}
+#page-liste .shopping3-hero p{font-size:13px;color:#7a8ca8;line-height:1.7;max-width:500px;margin:0}
+#page-liste .shopping3-hero-actions{display:flex;align-items:center;gap:11px;margin-top:20px;flex-wrap:wrap}
+#page-liste .shopping3-hero-art{position:relative;display:grid;place-items:center;flex:0 0 150px;height:150px;margin-right:18px;border-radius:36px;background:linear-gradient(140deg,#fff,#dce6ff);border:1px solid #d8e2fa;box-shadow:0 17px 34px rgba(67,84,168,.12);transform:rotate(-8deg)}
+#page-liste .shopping3-hero-art>.ti{font-size:83px;color:#667be6;transform:rotate(8deg)}
+#page-liste .shopping3-hero-star{position:absolute;right:-24px;top:-16px;font-size:34px;color:#79c8aa;transform:rotate(8deg)}
+#page-liste .shopping3-family-chip{display:inline-flex;align-items:center;gap:7px;color:#8396b2;font-size:11px;font-weight:750;border:1px solid #e6ecf8;background:rgba(255,255,255,.6);padding:9px 12px;border-radius:11px}
+#page-liste .shopping3-button{display:inline-flex;justify-content:center;align-items:center;gap:8px;min-height:40px;padding:10px 15px;border-radius:12px;background:#fff;border:1px solid #e1e7f4;color:#60728e;font-size:12px;font-weight:790;line-height:1.15;white-space:nowrap;transition:background .19s,color .19s,box-shadow .19s,transform .19s,border-color .19s}
+#page-liste .shopping3-button .ti{font-size:17px}
+#page-liste .shopping3-button:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 7px 18px rgba(56,80,136,.10);border-color:#c5cfee;color:#586bdb}
+#page-liste .shopping3-button:disabled{opacity:.55;cursor:not-allowed}
+#page-liste .shopping3-primary{border-color:#6075e4;background:linear-gradient(135deg,#7085f0,#5269d8);color:#fff;box-shadow:0 9px 21px rgba(80,104,216,.2)}
+#page-liste .shopping3-primary:hover:not(:disabled){background:linear-gradient(135deg,#6075e5,#485fc9);color:#fff;box-shadow:0 12px 25px rgba(77,100,207,.25)}
+#page-liste .shopping3-danger{background:#fff7f8;border-color:#fbdfe5;color:#c95b72}
+#page-liste .shopping3-connection{font-size:11px;color:#8393a9;padding:0 3px;margin-bottom:19px;display:flex;align-items:center;gap:7px}
+#page-liste .shopping3-connection i{color:#1ca681;font-size:15px}
+#page-liste .shopping3-connection.is-offline{color:#b96c52}
+#page-liste .shopping3-connection.is-offline i{color:#de8358}
+#page-liste .shopping3-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-bottom:26px}
+#page-liste .shopping3-stat{min-width:0;padding:17px 17px 15px;background:#fff;border:1px solid var(--sh-border);box-shadow:var(--sh-shadow);border-radius:18px;animation:shopping3-up .42s ease both}
+#page-liste .shopping3-stat:nth-child(2){animation-delay:.05s}#page-liste .shopping3-stat:nth-child(3){animation-delay:.1s}#page-liste .shopping3-stat:nth-child(4){animation-delay:.15s}
+#page-liste .shopping3-stat-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+#page-liste .shopping3-stat-head span{color:#8b9bb1;font-size:11px;font-weight:750}
+#page-liste .shopping3-stat-head i{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;color:#6577dd;background:#ecf0ff;font-size:19px}
+#page-liste .shopping3-stat:nth-child(2) i{color:#159978;background:#e8f8f2}#page-liste .shopping3-stat:nth-child(3) i{color:#de9451;background:#fff4e8}#page-liste .shopping3-stat:nth-child(4) i{color:#478cca;background:#eef6fe}
+#page-liste .shopping3-stat strong{display:block;color:#203451;font-size:clamp(20px,2.25vw,27px);line-height:1.2;font-weight:880;letter-spacing:-.7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#page-liste .shopping3-stat small{display:block;color:#a0adbf;font-size:10px;font-weight:700;margin-top:6px;line-height:1.4}
+#page-liste .shopping3-sectionhead{display:flex;justify-content:space-between;align-items:end;gap:14px;margin:0 2px 15px}
+#page-liste .shopping3-sectionhead small{font-size:10px;letter-spacing:1.25px;font-weight:850;color:#7790c7;text-transform:uppercase}
+#page-liste .shopping3-sectionhead h2{font-weight:875;font-size:21px;letter-spacing:-.55px;color:#20344f;margin:5px 0 0}
+#page-liste .shopping3-muted{color:#93a2b8;font-size:11px;font-weight:700}
+#page-liste .shopping3-templates{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:16px;padding:12px 14px;background:#f6f8fe;border:1px solid #e8edf8;border-radius:15px}
+#page-liste .shopping3-templates>strong{font-size:11px;font-weight:850;color:#6c7d9b;display:flex;align-items:center;gap:7px;margin-right:auto;white-space:nowrap}
+#page-liste .shopping3-templates .shopping3-button{background:#fff;font-size:10px;min-height:36px;padding:8px 10px}
+#page-liste .shopping3-panel{padding:17px;border:1px solid var(--sh-border);border-radius:21px;background:#fff;box-shadow:var(--sh-shadow);min-width:0}
+#page-liste .shopping3-toolbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+#page-liste .shopping3-search{flex:1 1 215px;position:relative;display:flex;align-items:center;min-width:0}
+#page-liste .shopping3-search>i{position:absolute;left:13px;color:#9cabbe;font-size:17px;pointer-events:none}
+#page-liste .shopping3-search input{width:100%;height:42px;border:1px solid #e0e7f1;border-radius:12px;background:#f9faff;color:#344561;padding:0 12px 0 39px;outline:0;box-shadow:none;font-size:12px;font-weight:640;min-width:0}
+#page-liste .shopping3-search input:focus{border-color:#92a2e9;box-shadow:0 0 0 3px #eef1ff;background:#fff}
+#page-liste .shopping3-search input::placeholder{color:#a2aec0}
+#page-liste .shopping3-segments{display:flex;gap:3px;padding:4px;border:1px solid #e8ebf5;background:#f3f6fc;border-radius:12px}
+#page-liste .shopping3-segments button{border:0;background:transparent;color:#8293ac;font-size:11px;font-weight:780;border-radius:9px;padding:8px 12px;white-space:nowrap}
+#page-liste .shopping3-segments button[aria-pressed=true]{background:#fff;color:#5468dc;box-shadow:0 2px 8px rgba(61,76,118,.08)}
+#page-liste .shopping3-select{min-height:42px;padding:8px 9px;border-radius:11px;border:1px solid #e0e6f2;background:#fff;font-size:11px;font-weight:760;color:#6e809e;max-width:100%;outline:none}
+#page-liste .shopping3-resultcount{font-size:11px;color:#9ba8bb;font-weight:700;margin:10px 2px 12px}
+#page-liste .shopping3-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+#page-liste .shopping3-card{min-width:0;position:relative;border-radius:19px;border:1px solid #e7ebf4;background:#fff;padding:17px;transition:transform .23s,box-shadow .23s,border-color .23s;cursor:pointer;animation:shopping3-up .35s ease both}
+#page-liste .shopping3-card:hover{transform:translateY(-4px);box-shadow:0 17px 32px rgba(35,59,105,.10);border-color:#cad5f7}
+#page-liste .shopping3-card:focus-visible{outline:3px solid rgba(90,110,230,.45);outline-offset:2px}
+#page-liste .shopping3-card.is-done{background:linear-gradient(145deg,#fff,#f7fcfa)}
+#page-liste .shopping3-card-head{display:flex;align-items:center;gap:12px;margin-bottom:14px;min-width:0}
+#page-liste .shopping3-card-icon{flex:0 0 44px;width:44px;height:44px;display:grid;place-items:center;border-radius:14px;background:#edf1ff;color:#5c73e0;font-size:23px}
+#page-liste .shopping3-card.is-done .shopping3-card-icon{color:#1ca482;background:#e6f8ef}
+#page-liste .shopping3-card-name{flex:1;min-width:0}
+#page-liste .shopping3-card-name strong{display:block;font-size:14px;color:#263b59;font-weight:860;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#page-liste .shopping3-card-name small{display:block;color:#a3b0bf;font-size:10px;font-weight:700;margin-top:5px}
+#page-liste .shopping3-chip{background:#eff1ff;color:#6879db;font-size:10px;font-weight:800;padding:6px 9px;border-radius:99px;white-space:nowrap}
+#page-liste .shopping3-chip.green{color:#169d78;background:#e8f9f1}
+#page-liste .shopping3-progressline{display:flex;justify-content:space-between;gap:10px;margin-bottom:8px;font-size:11px;font-weight:760;color:#8e9cb0}
+#page-liste .shopping3-progressline strong{color:#365070}
+#page-liste .shopping3-bar{height:7px;width:100%;background:#edf1f8;overflow:hidden;border-radius:99px}
+#page-liste .shopping3-bar span{display:block;width:var(--pct,0%);height:100%;border-radius:inherit;background:linear-gradient(90deg,#8598f5,#566be1);transition:width .4s}
+#page-liste .shopping3-bar.green span{background:linear-gradient(90deg,#4ad4ab,#19a680)}
+#page-liste .shopping3-bar.over span{background:#e47078}
+#page-liste .shopping3-card-foot{border-top:1px solid #eef1f7;margin-top:14px;padding-top:11px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+#page-liste .shopping3-card-price{font-size:11px;font-weight:760;color:#7f90a9;min-width:0}
+#page-liste .shopping3-card-price strong{color:#2a4867}
+#page-liste .shopping3-controls{display:flex;gap:3px;align-items:center}
+#page-liste .shopping3-iconbtn{border:0;background:transparent;border-radius:9px;width:31px;height:31px;color:#98a5bb;font-size:17px;display:grid;place-items:center;flex:none}
+#page-liste .shopping3-iconbtn:hover{background:#eff1ff;color:#586bdf}
+#page-liste .shopping3-iconbtn.danger:hover{background:#fff0f2;color:#d66174}
+#page-liste .shopping3-empty{display:flex;flex-direction:column;align-items:center;gap:9px;text-align:center;background:#fafbff;border:1px dashed #dce3f0;border-radius:18px;padding:35px 18px;color:#98a9bd;font-size:12px;line-height:1.55}
+#page-liste .shopping3-empty>i{font-size:36px;color:#8495ea;background:#eef1ff;border-radius:18px;padding:14px}
+#page-liste .shopping3-empty strong{font-size:15px;color:#435876}
+#page-liste .shopping3-empty p{margin:0;max-width:400px}
+#page-liste .shopping3-back{border:0;background:transparent;color:#7388a4;font-weight:760;display:flex;align-items:center;gap:7px;font-size:12px;padding:9px 0;margin-bottom:15px}
+#page-liste .shopping3-detailhead{display:flex;justify-content:space-between;gap:15px;align-items:start;flex-wrap:wrap;margin:0 2px 16px}
+#page-liste .shopping3-detailhead h2{font-size:clamp(23px,2.5vw,31px);line-height:1.2;letter-spacing:-.75px;color:#1f3452;font-weight:900;overflow-wrap:anywhere;margin:3px 0 5px}
+#page-liste .shopping3-detailhead p{font-size:11px;font-weight:700;color:#99a9bb;margin:0}
+#page-liste .shopping3-detailactions{display:flex;flex-wrap:wrap;gap:7px}
+#page-liste .shopping3-detailactions .shopping3-button{min-height:36px;padding:8px 11px;font-size:11px}
+#page-liste .shopping3-detailstats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:15px}
+#page-liste .shopping3-detailstat{border:1px solid var(--sh-border);border-radius:18px;padding:16px;background:#fff;min-width:0}
+#page-liste .shopping3-detailstat span{display:block;color:#94a2b4;font-size:11px;font-weight:750;margin-bottom:7px}
+#page-liste .shopping3-detailstat strong{display:block;font-size:23px;font-weight:890;color:#283e5e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#page-liste .shopping3-detailstat small{display:block;color:#a6b3c4;font-size:10px;font-weight:670;margin-top:6px}
+#page-liste .shopping3-budget{background:#f3f6ff;border:1px solid #e3eafd;border-radius:17px;padding:16px 18px;margin-bottom:16px}
+#page-liste .shopping3-budget.is-over{background:#fff5f6;border-color:#ffd9e0}
+#page-liste .shopping3-budgetline{display:flex;justify-content:space-between;align-items:center;gap:12px;color:#7287ae;font-size:11px;font-weight:730;margin-bottom:10px}
+#page-liste .shopping3-budgetline strong{font-size:12px;color:#3c5282}
+#page-liste .shopping3-budgetnote{font-size:10px;color:#ca6877;font-weight:750;margin:9px 0 0}
+#page-liste .shopping3-addbox{border:1px solid var(--sh-border);border-radius:19px;background:#fff;padding:18px;margin-bottom:17px;box-shadow:var(--sh-shadow)}
+#page-liste .shopping3-addbox h3{color:#29405e;font-size:14px;font-weight:860;margin:0 0 12px}
+#page-liste .shopping3-addform{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,.65fr) minmax(0,.85fr) minmax(0,1fr) auto;gap:8px;align-items:end}
+#page-liste .shopping3-field,#shopping3-modal .shopping3-field{display:flex;flex-direction:column;gap:6px;min-width:0}
+#page-liste .shopping3-field label,#shopping3-modal .shopping3-field label{font-size:10px;font-weight:800;color:#7f91a9}
+#page-liste .shopping3-field input,#page-liste .shopping3-field select,#shopping3-modal .shopping3-field input,#shopping3-modal .shopping3-field select,#shopping3-modal .shopping3-field textarea{font:650 12px inherit;font-size:12px;font-weight:660;color:#2b405f;background:#f9fbff;border:1px solid #e1e7f1;border-radius:11px;height:42px;width:100%;min-width:0;padding:0 10px;outline:0;box-shadow:none}
+#page-liste .shopping3-field input:focus,#page-liste .shopping3-field select:focus,#shopping3-modal .shopping3-field input:focus,#shopping3-modal .shopping3-field select:focus,#shopping3-modal .shopping3-field textarea:focus{border-color:#8e9fec;background:#fff;box-shadow:0 0 0 3px #eef1ff}
+#page-liste .shopping3-addform .shopping3-button{height:42px}
+#page-liste .shopping3-itembox{border:1px solid var(--sh-border);border-radius:19px;background:#fff;box-shadow:var(--sh-shadow);padding:16px;min-width:0}
+#page-liste .shopping3-itemtoolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:13px}
+#page-liste .shopping3-itemtoolbar h3{font-size:14px;font-weight:870;color:#29405c;margin:0 auto 0 0;white-space:nowrap}
+#page-liste .shopping3-itemtoolbar .shopping3-search{flex-basis:170px}
+#page-liste .shopping3-items{display:grid;gap:8px}
+#page-liste .shopping3-item{display:flex;align-items:center;gap:10px;padding:11px;border:1px solid #e9edf4;border-radius:13px;transition:background .18s,border-color .18s;min-width:0}
+#page-liste .shopping3-item:hover{border-color:#d7e1f4;background:#fafbff}
+#page-liste .shopping3-item.is-bought{background:#f8fcfa;border-color:#e3f1eb}
+#page-liste .shopping3-check{appearance:none;display:grid;place-items:center;width:23px;height:23px;flex:0 0 23px;border-radius:8px;border:2px solid #bac7d7;background:#fff;cursor:pointer}
+#page-liste .shopping3-check:checked{background:#22ab85;border-color:#22ab85}
+#page-liste .shopping3-check:checked::after{content:'✓';color:#fff;font-weight:900;font-size:15px}
+#page-liste .shopping3-itemname{min-width:0;flex:1}
+#page-liste .shopping3-itemname strong{display:block;color:#354c68;font-size:12px;font-weight:820;overflow-wrap:anywhere}
+#page-liste .shopping3-item.is-bought .shopping3-itemname strong{text-decoration:line-through;color:#9dabbd}
+#page-liste .shopping3-itemmeta{display:flex;gap:7px;flex-wrap:wrap;color:#95a5b8;font-size:10px;font-weight:700;margin-top:5px;align-items:center}
+#page-liste .shopping3-catpill{background:#edf1ff;color:#7180c0;border-radius:6px;padding:3px 6px}
+#page-liste .shopping3-qty{display:flex;align-items:center;gap:2px;background:#f6f8fd;border:1px solid #e5e9f2;border-radius:10px;padding:3px;flex:none}
+#page-liste .shopping3-qty button{height:25px;width:25px;border:0;background:transparent;color:#7385aa;border-radius:6px;font-size:16px}
+#page-liste .shopping3-qty button:hover{background:#e5ebfa;color:#516adb}
+#page-liste .shopping3-qty span{min-width:24px;text-align:center;color:#395370;font-weight:850;font-size:11px}
+#page-liste .shopping3-itemprice{font-size:11px;font-weight:830;color:#3c5473;white-space:nowrap;text-align:right;min-width:70px}
+#page-liste .shopping3-itemprice small{display:block;font-size:9px;font-weight:600;color:#a2b0c2;margin-top:3px}
+#page-liste .shopping3-itemactions{display:flex;gap:1px}
+#page-liste .shopping3-bulkactions{display:flex;gap:8px;flex-wrap:wrap;border-top:1px solid #eef2f7;margin-top:13px;padding-top:13px}
+#page-liste .shopping3-bulkactions .shopping3-button{font-size:11px;min-height:35px;padding:8px 10px}
+#page-liste .shopping3-bottomhint{font-size:10px;color:#a2b0c4;text-align:center;margin:17px 0 0}
+/* Real modal: created once and mounted directly in body, never nested in the hidden app shell. */
+#shopping3-modal{position:fixed;inset:0;z-index:190000;display:flex;align-items:center;justify-content:center;background:rgba(17,30,55,.47);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);padding:16px;font-family:inherit}
+#shopping3-modal[hidden]{display:none!important}
+#shopping3-modal .shopping3-dialog{background:#fff;box-shadow:0 30px 80px rgba(18,35,67,.25);border:1px solid #e2e8f4;border-radius:23px;max-height:min(680px,92dvh);overflow-y:auto;width:min(445px,100%);padding:23px;animation:shopping3-pop .23s ease both}
+#shopping3-modal .shopping3-modaltop{display:flex;justify-content:space-between;gap:12px;align-items:start;margin-bottom:13px}
+#shopping3-modal .shopping3-modalicon{height:43px;width:43px;display:grid;place-items:center;border-radius:13px;background:#ecf0ff;color:#6075df;font-size:23px}
+#shopping3-modal .shopping3-close{height:34px;width:34px;border:1px solid #e3e8f3;border-radius:10px;background:#f8f9fc;color:#8ca0b6;font-size:18px}
+#shopping3-modal h2{margin:0 0 6px;color:#223957;font-size:22px;font-weight:880;letter-spacing:-.65px}
+#shopping3-modal p{font-size:12px;color:#7d8fa6;margin:0 0 17px;line-height:1.6}
+#shopping3-modal .shopping3-modalfields{display:grid;gap:12px}
+#shopping3-modal .shopping3-field label{font-size:11px}
+#shopping3-modal .shopping3-field input,#shopping3-modal .shopping3-field select{height:44px;font-size:13px}
+#shopping3-modal .shopping3-field textarea{height:auto;min-height:75px;font-size:12px;padding:10px;resize:vertical}
+#shopping3-modal .shopping3-modalactions{display:flex;justify-content:flex-end;gap:9px;margin-top:18px;flex-wrap:wrap}
+#shopping3-modal .shopping3-modalactions button{font-size:12px;font-weight:770;border-radius:12px;border:1px solid #e3e8f0;background:#f7f9fc;color:#647995;min-height:42px;padding:0 14px}
+#shopping3-modal .shopping3-modalactions .shopping3-confirm{border-color:#566de0;background:#566de0;color:#fff}
+#shopping3-modal .shopping3-modalactions .shopping3-confirm.is-danger{background:#cc5872;border-color:#cc5872}
+#shopping3-modal .shopping3-modalerror{font-size:11px;background:#fff4f4;border:1px solid #ffdadd;border-radius:10px;padding:10px;color:#b55768;line-height:1.55;margin-top:12px}
+#shopping3-toast-host{position:fixed;right:22px;bottom:24px;z-index:190010;display:grid;gap:8px;max-width:min(370px,calc(100vw - 32px));pointer-events:none}
+#shopping3-toast-host .shopping3-toast{display:flex;align-items:start;gap:9px;padding:12px 15px;border:1px solid #e3eaf3;border-radius:13px;background:#fff;box-shadow:0 16px 43px rgba(19,34,70,.16);color:#425775;font:750 12px inherit;font-size:12px;font-weight:750;line-height:1.5;animation:shopping3-up .2s both}
+#shopping3-toast-host .shopping3-toast i{font-size:17px;color:#20a780}
+#shopping3-toast-host .shopping3-toast.is-error i{color:#d66a73}
+@keyframes shopping3-up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shopping3-pop{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:1070px){#page-liste .shopping3-addform{grid-template-columns:repeat(2,minmax(0,1fr))}#page-liste .shopping3-addform .shopping3-button{grid-column:1/-1}}
+@media(max-width:850px){#page-liste .shopping3-summary{grid-template-columns:repeat(2,minmax(0,1fr))}#page-liste .shopping3-hero-art{flex-basis:108px;height:108px;margin-right:6px;border-radius:28px}#page-liste .shopping3-hero-art>.ti{font-size:61px}}
+@media(max-width:650px){#page-liste .shopping3-hero{padding:24px 20px;border-radius:22px;gap:10px}#page-liste .shopping3-hero h1{font-size:29px!important}#page-liste .shopping3-hero p{font-size:12px}#page-liste .shopping3-hero-art{display:none}#page-liste .shopping3-grid{grid-template-columns:1fr}#page-liste .shopping3-detailstats{gap:8px}#page-liste .shopping3-detailstat{padding:12px}#page-liste .shopping3-detailstat strong{font-size:19px}#page-liste .shopping3-itemtoolbar h3{width:100%}#page-liste .shopping3-toolbar .shopping3-search{flex-basis:100%}#page-liste .shopping3-itemtoolbar .shopping3-search{flex-basis:100%}#page-liste .shopping3-panel{padding:12px}}
+@media(max-width:450px){#page-liste .shopping3-hero{padding:21px 18px}#page-liste .shopping3-hero h1{font-size:26px!important}#page-liste .shopping3-summary{gap:9px}#page-liste .shopping3-stat{padding:13px;border-radius:15px}#page-liste .shopping3-stat-head{margin-bottom:9px}#page-liste .shopping3-stat-head span{font-size:10px}#page-liste .shopping3-stat-head i{width:28px;height:28px;font-size:16px}#page-liste .shopping3-stat strong{font-size:20px}#page-liste .shopping3-segments{flex:1;justify-content:space-between}#page-liste .shopping3-segments button{font-size:10px;padding:8px 7px}#page-liste .shopping3-templates>strong{width:100%}#page-liste .shopping3-templates .shopping3-button{flex:1}#page-liste .shopping3-detailstats{grid-template-columns:repeat(2,minmax(0,1fr))}#page-liste .shopping3-detailstat:last-child{grid-column:1/-1}#page-liste .shopping3-item{gap:7px;padding:10px 9px;flex-wrap:wrap}#page-liste .shopping3-itemname{flex:1 1 calc(100% - 36px)}#page-liste .shopping3-qty{margin-left:30px}#page-liste .shopping3-itemprice{margin-left:auto}#page-liste .shopping3-addform{grid-template-columns:repeat(2,minmax(0,1fr))}#page-liste .shopping3-addform>.shopping3-field:first-child,#page-liste .shopping3-addform>.shopping3-field:nth-child(4){grid-column:1/-1}#page-liste .shopping3-detailactions .shopping3-button{min-height:33px;padding:7px 10px}#page-liste .shopping3-card{padding:14px}#shopping3-modal .shopping3-dialog{padding:18px}}
+@media(prefers-reduced-motion:reduce){#page-liste *,#page-liste *::before,#page-liste *::after,#shopping3-modal *,#shopping3-toast-host *{animation:none!important;transition:none!important}}
+#page-liste [hidden]{display:none!important}
+#shopping3-modal .shopping3-modalerror[hidden]{display:none!important}
+
+</style>
+<script id="shopping-studio-v3-script">
+/* ===============================================================
+  SHOPPING STUDIO v3 — standalone presentation and interaction engine.
+  This script mounts even if the old app has not completed Firebase auth.
+  It NEVER reads the original app's closure-scoped variables directly.
+=============================================================== */
+(() => {
+  'use strict';
+  const page=document.getElementById('page-liste');
+  const root=document.getElementById('shopping3-content');
+  if(!page||!root||window.ShoppingStudioV3)return;
+  const $=(s,scope=document)=>scope.querySelector(s);
+  const $$=(s,scope=document)=>Array.from(scope.querySelectorAll(s));
+  const icon=n=>`<i class="ti ti-${n}" aria-hidden="true"></i>`;
+  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const currency=new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'});
+  const eur=n=>currency.format(Number.isFinite(n)?n:0);
+  const num=v=>{if(typeof v==='number')return Number.isFinite(v)?v:NaN;
+    let s=String(v??'').trim().replace(/[\s€]/g,'');
+    if(s.includes('.')&&s.includes(','))s=s.lastIndexOf(',')>s.lastIndexOf('.')?s.replace(/\./g,'').replace(',','.'):s.replace(/,/g,'');
+    else if(s.includes(','))s=s.replace(',','.');
+    return s===''?NaN:Number(s);
+  };
+  const when=v=>{let d=new Date(v||'');return Number.isFinite(d.getTime())?new Intl.DateTimeFormat('it-IT',{day:'numeric',month:'short',year:'numeric'}).format(d):'Data non disponibile';};
+  const qty=i=>{const n=num(i?.quantita??1);return Number.isFinite(n)&&n>0?n:1;};
+  const price=i=>{const n=num(i?.prezzo??i?.price??'');return Number.isFinite(n)&&n>=0?n:null;};
+  const entries=li=>Array.isArray(li?.items)?li.items:[];
+  const sum=arr=>arr.reduce((acc,i)=>{const p=price(i);if(p!==null){acc.total+=p*qty(i);acc.count++;}return acc;},{total:0,count:0});
+  const calc=li=>{const arr=entries(li),bought=arr.filter(i=>i.completato),pending=arr.filter(i=>!i.completato);return{count:arr.length,bought:bought.length,pending:pending.length,percent:arr.length?Math.round(bought.length/arr.length*100):0,estimate:sum(arr),boughtSum:sum(bought),pendingSum:sum(pending)};};
+  const store=()=>window.ShoppingStudioStorage||null;
+  const lists=()=>{const list=store()?.lists;return list&&typeof list==='object'&&!Array.isArray(list)?list:{};};
+  const get=id=>Object.prototype.hasOwnProperty.call(lists(),id)?lists()[id]:null;
+  const categories=['Alimentari','Frutta e verdura','Casa e pulizie','Igiene','Animali','Altro'];
+  const templates={
+    weekly:{label:'Spesa settimanale',name:'Spesa settimanale',items:[['Latte','Alimentari',2],['Pane','Alimentari',1],['Pasta','Alimentari',2],['Uova','Alimentari',6],['Mele','Frutta e verdura',4],['Verdure','Frutta e verdura',3]]},
+    home:{label:'Prodotti casa',name:'Prodotti per la casa',items:[['Detersivo','Casa e pulizie',1],['Carta igienica','Casa e pulizie',1],['Sapone','Igiene',2],['Sacchetti rifiuti','Casa e pulizie',1]]},
+    produce:{label:'Frutta e verdura',name:'Mercato ortofrutticolo',items:[['Banane','Frutta e verdura',4],['Pomodori','Frutta e verdura',5],['Insalata','Frutta e verdura',1],['Patate','Frutta e verdura',2]]}
+  };
+  let selected=null;
+  let filters={list:'all',listSearch:'',listSort:'recent',item:'all',itemSearch:'',itemSort:'added'};
+  let modal=null,previousFocus=null,toastTimer=null;
+  try{const saved=localStorage.getItem('shopping3-list-sort');if(['recent','name','progress'].includes(saved))filters.listSort=saved;}catch{}
+  const uid=()=>window.crypto?.randomUUID?.() || 'lista_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,10);
+  function toast(message,error=false){
+    let host=$('#shopping3-toast-host');if(!host){host=document.createElement('div');host.id='shopping3-toast-host';host.setAttribute('role','status');host.setAttribute('aria-live','polite');document.body.append(host);}
+    const note=document.createElement('div');note.className='shopping3-toast'+(error?' is-error':'');note.innerHTML=icon(error?'alert-circle':'circle-check')+'<span></span>';note.querySelector('span').textContent=message;host.replaceChildren(note);
+    clearTimeout(toastTimer);toastTimer=setTimeout(()=>note.remove(),3700);
+  }
+  function status(){
+    const node=$('#shopping3-status');if(!node)return;
+    const ready=Boolean(store()?.ready);
+    node.classList.toggle('is-offline',!ready);
+    node.innerHTML=ready?`${icon('users')} Famiglia collegata · Le modifiche vengono salvate nelle liste condivise.`:`${icon('info-circle')} Puoi preparare una lista. Per salvarla, accedi e collega una famiglia.`;
+  }
+  function stats(){
+    const arr=Object.values(lists()).filter(v=>v&&typeof v==='object');
+    const items=arr.flatMap(entries),completed=items.filter(i=>i.completato).length,budget=sum(items);
+    const metrics=[
+      ['Liste attive',String(arr.filter(x=>!x.completata).length),`${arr.length} liste in totale`,'clipboard-list'],
+      ['Articoli acquistati',String(completed),`Su ${items.length} prodotti`,'circle-check'],
+      ['Da acquistare',String(items.length-completed),'Articoli ancora da comprare','basket'],
+      ['Totale stimato',budget.count?eur(budget.total):'—',budget.count?`${budget.count} articoli con prezzo`:'Prezzi non indicati','wallet']
+    ];
+    $('#shopping3-summary').innerHTML=metrics.map(([label,value,hint,ic])=>`<div class="shopping3-stat"><div class="shopping3-stat-head"><span>${esc(label)}</span>${icon(ic)}</div><strong>${esc(value)}</strong><small>${esc(hint)}</small></div>`).join('');
+  }
+  function blank(term,title,info,create=false){return `<div class="shopping3-empty">${icon(term)}<strong>${esc(title)}</strong><p>${esc(info)}</p>${create?`<button type="button" class="shopping3-button shopping3-primary" data-shop3="create">${icon('plus')} Crea la prima lista</button>`:''}</div>`;}
+  const option=(value,label,current)=>`<option value="${esc(value)}" ${value===current?'selected':''}>${esc(label)}</option>`;
+  function categoriesHTML(value='Alimentari'){return [...new Set([...categories,value])].map(v=>option(v,v,value)).join('');}
+  function overview(){
+    const q=filters.listSearch.trim().toLocaleLowerCase('it-IT');
+    let data=Object.entries(lists()).filter(([,v])=>v&&typeof v==='object');
+    data=data.filter(([,li])=>(filters.list==='all'||(filters.list==='active'&&!li.completata)||(filters.list==='done'&&li.completata)) && (!q||String(li.nome||'').toLocaleLowerCase('it-IT').includes(q)||entries(li).some(i=>String(i.nome||'').toLocaleLowerCase('it-IT').includes(q))));
+    data.sort(([aid,a],[bid,b])=>{
+      if(Boolean(a.pinned)!==Boolean(b.pinned))return Number(Boolean(b.pinned))-Number(Boolean(a.pinned));
+      if(filters.listSort==='name')return String(a.nome||'').localeCompare(String(b.nome||''),'it');
+      if(filters.listSort==='progress')return calc(b).percent-calc(a).percent;
+      if(Boolean(a.completata)!==Boolean(b.completata))return Number(a.completata)-Number(b.completata);
+      return (Date.parse(b.createdAt)||0)-(Date.parse(a.createdAt)||0);
+    });
+    return `<div class="shopping3-sectionhead"><div><small>ORGANIZZA GLI ACQUISTI</small><h2>Le tue liste</h2></div><span class="shopping3-muted">${data.length} visualizzate</span></div>
+      <div class="shopping3-templates"><strong>${icon('sparkles')} Inizia da un modello</strong><button type="button" class="shopping3-button" data-shop3="template" data-template="weekly">${icon('basket')} Spesa settimanale</button><button type="button" class="shopping3-button" data-shop3="template" data-template="home">${icon('home')} Prodotti casa</button><button type="button" class="shopping3-button" data-shop3="template" data-template="produce">${icon('carrot')} Frutta e verdura</button></div>
+      <section class="shopping3-panel" aria-label="Elenco liste della spesa"><div class="shopping3-toolbar">
+      <label class="shopping3-search" for="shopping3-search-lists">${icon('search')}<input type="search" id="shopping3-search-lists" placeholder="Cerca liste o articoli..." autocomplete="off" value="${esc(filters.listSearch)}"></label>
+      <div class="shopping3-segments" role="group" aria-label="Filtra liste">${[['all','Tutte'],['active','Attive'],['done','Completate']].map(([k,v])=>`<button type="button" data-shop3="filter-list" data-value="${k}" aria-pressed="${k===filters.list}">${v}</button>`).join('')}</div>
+      <select id="shopping3-list-sort" class="shopping3-select" aria-label="Ordina liste">${[['recent','Più recenti'],['name','Nome A–Z'],['progress','Avanzamento']].map(([k,v])=>option(k,v,filters.listSort)).join('')}</select></div>
+      <p class="shopping3-resultcount" id="shopping3-list-result" aria-live="polite">${data.length} ${data.length===1?'lista trovata':'liste trovate'}</p>
+      <div class="shopping3-grid" id="shopping3-card-grid">${cards(data)}</div></section>
+      <p class="shopping3-bottomhint">${icon('lock-check')} Le liste condivise vengono salvate nella tua famiglia Firebase.</p>`;
+  }
+  function cards(data){
+    if(!Object.keys(lists()).length)return blank('basket','Non hai ancora creato liste','Premi Nuova lista o usa uno dei modelli qui sopra.',true);
+    if(!data.length)return blank('search-off','Nessun risultato','Prova un termine diverso oppure cambia filtro.');
+    return data.map(([id,li])=>{
+      const s=calc(li),b=num(li.budget),validB=Number.isFinite(b)&&b>0,done=Boolean(li.completata);
+      return `<article class="shopping3-card ${done?'is-done':''}" data-shop3-open="${esc(id)}" tabindex="0" role="button" aria-label="Apri la lista ${esc(li.nome||'Senza nome')}"><div class="shopping3-card-head"><span class="shopping3-card-icon">${icon(done?'circle-check':'shopping-bag')}</span><div class="shopping3-card-name"><strong>${esc(li.nome||'Senza nome')}</strong><small>${esc(when(li.createdAt))}</small></div><span class="shopping3-chip ${done?'green':''}">${done?'Completata':'In corso'}</span></div>
+      <div class="shopping3-progressline"><span>${s.bought} di ${s.count} acquistati</span><strong>${s.percent}%</strong></div><div class="shopping3-bar ${done?'green':''}" role="progressbar" aria-valuenow="${s.percent}" aria-valuemin="0" aria-valuemax="100" aria-label="Avanzamento"><span style="--pct:${s.percent}%"></span></div>
+      <div class="shopping3-card-foot"><div class="shopping3-card-price">${s.estimate.count?`<strong>${eur(s.estimate.total)}</strong>`:'Prezzo da stimare'}${validB?' / '+eur(b):''}</div><div class="shopping3-controls"><button type="button" class="shopping3-iconbtn" data-shop3="pin" data-id="${esc(id)}" title="${li.pinned?'Rimuovi dai preferiti':'Fissa in alto'}" aria-label="${li.pinned?'Rimuovi dai preferiti':'Fissa in alto'}">${icon(li.pinned?'pin-filled':'pin')}</button><button type="button" class="shopping3-iconbtn" data-shop3="duplicate" data-id="${esc(id)}" title="Duplica lista" aria-label="Duplica lista">${icon('copy')}</button><button type="button" class="shopping3-iconbtn danger" data-shop3="delete-list" data-id="${esc(id)}" title="Elimina lista" aria-label="Elimina lista">${icon('trash')}</button></div></div></article>`;
+    }).join('');
+  }
+  function detail(){
+    const li=get(selected);if(!li){selected=null;return overview();}
+    const s=calc(li),b=num(li.budget),hasBudget=Number.isFinite(b)&&b>0,over=hasBudget&&s.estimate.total>b;
+    return `<button type="button" data-shop3="back" class="shopping3-back">${icon('arrow-left')} Tutte le liste</button>
+      <div class="shopping3-detailhead"><div><div class="shopping3-eyebrow">DETTAGLIO LISTA</div><h2>${esc(li.nome||'Senza nome')}</h2><p>${s.bought} su ${s.count} articoli acquistati • ${s.percent}% completato</p></div><div class="shopping3-detailactions"><button type="button" class="shopping3-button" data-shop3="edit-list">${icon('pencil')} Modifica</button><button type="button" class="shopping3-button" data-shop3="duplicate" data-id="${esc(selected)}">${icon('copy')} Duplica</button><button type="button" class="shopping3-button" data-shop3="share">${icon('share')} Condividi</button></div></div>
+      <div class="shopping3-detailstats"><div class="shopping3-detailstat"><span>Completamento</span><strong>${s.percent}%</strong><small>${s.bought} di ${s.count} articoli</small></div><div class="shopping3-detailstat"><span>Da acquistare</span><strong>${s.pending}</strong><small>Prodotti rimanenti</small></div><div class="shopping3-detailstat"><span>Totale stimato</span><strong>${s.estimate.count?eur(s.estimate.total):'—'}</strong><small>${s.estimate.count?`${s.estimate.count} prezzi inseriti`:'Prezzi facoltativi'}</small></div></div>
+      <div class="shopping3-budget ${over?'is-over':''}"><div class="shopping3-budgetline"><span>${icon('wallet')} ${hasBudget?'Budget della lista':'Budget facoltativo'}</span><strong>${hasBudget?eur(s.estimate.total)+' / '+eur(b):'Inserisci il budget da Modifica'}</strong></div><div class="shopping3-bar ${over?'over':''}" role="progressbar" aria-valuenow="${hasBudget?Math.min(100,Math.round(s.estimate.total/b*100)):s.percent}" aria-valuemin="0" aria-valuemax="100" aria-label="Budget o avanzamento"><span style="--pct:${hasBudget?Math.min(100,Math.round(s.estimate.total/b*100)):s.percent}%"></span></div>${over?'<p class="shopping3-budgetnote">Attenzione: il totale stimato supera il budget impostato.</p>':''}</div>
+      <section class="shopping3-addbox"><h3>${icon('plus')} Aggiungi articolo</h3><form id="shopping3-add-form" class="shopping3-addform" autocomplete="off">
+      <div class="shopping3-field"><label for="shopping3-newname">Nome articolo</label><input id="shopping3-newname" name="name" placeholder="Es. Latte, pane..." maxlength="120" required></div>
+      <div class="shopping3-field"><label for="shopping3-newqty">Quantità</label><input id="shopping3-newqty" name="quantity" type="number" inputmode="decimal" min="0.01" max="100000" step="any" value="1" required></div>
+      <div class="shopping3-field"><label for="shopping3-newprice">Prezzo / unità</label><input id="shopping3-newprice" name="price" type="number" inputmode="decimal" min="0" max="1000000" step="0.01" placeholder="€ (opzionale)"></div>
+      <div class="shopping3-field"><label for="shopping3-newcategory">Categoria</label><select id="shopping3-newcategory" name="category">${categoriesHTML()}</select></div>
+      <button type="submit" class="shopping3-button shopping3-primary">${icon('plus')} Aggiungi</button></form></section>
+      <section class="shopping3-itembox"><div class="shopping3-itemtoolbar"><h3 id="shopping3-itemscount">Articoli (${s.count})</h3><label class="shopping3-search" for="shopping3-search-items">${icon('search')}<input id="shopping3-search-items" type="search" placeholder="Cerca articoli..." value="${esc(filters.itemSearch)}"></label><div class="shopping3-segments" role="group" aria-label="Filtra articoli">${[['all','Tutti'],['pending','Da comprare'],['bought','Acquistati']].map(([k,v])=>`<button type="button" data-shop3="filter-item" data-value="${k}" aria-pressed="${filters.item===k}">${v}</button>`).join('')}</div><select id="shopping3-item-sort" class="shopping3-select" aria-label="Ordina articoli">${[['added','Inserimento'],['name','Nome A–Z'],['category','Categoria']].map(([k,v])=>option(k,v,filters.itemSort)).join('')}</select></div>
+      <div id="shopping3-items" class="shopping3-items">${itemsHTML(li)}</div><div class="shopping3-bulkactions"><button type="button" class="shopping3-button" data-shop3="all-bought" ${s.pending?'':'disabled'}>${icon('checks')} Segna tutti acquistati</button><button type="button" class="shopping3-button" data-shop3="reset-bought" ${s.bought?'':'disabled'}>${icon('refresh')} Ripristina</button><button type="button" class="shopping3-button" data-shop3="clear-bought" ${s.bought?'':'disabled'}>${icon('brush')} Rimuovi acquistati</button><button type="button" class="shopping3-button" data-shop3="csv">${icon('download')} Esporta CSV</button><button type="button" class="shopping3-button shopping3-danger" data-shop3="delete-list" data-id="${esc(selected)}">${icon('trash')} Elimina lista</button><button type="button" class="shopping3-button ${li.completata?'':'shopping3-primary'}" data-shop3="complete">${icon(li.completata?'restore':'check')} ${li.completata?'Riapri lista':'Termina lista'}</button></div></section>
+      <p class="shopping3-bottomhint">${icon('users')} Le modifiche vengono condivise con la tua famiglia collegata.</p>`;
+  }
+  function itemsHTML(li){
+    const data=entries(li);const q=filters.itemSearch.trim().toLocaleLowerCase('it-IT');let result=data.map((i,index)=>({i,index})).filter(({i})=>(filters.item==='all'||(filters.item==='pending'&&!i.completato)||(filters.item==='bought'&&i.completato)) && (!q||String(i.nome||'').toLocaleLowerCase('it-IT').includes(q)||String(i.categoria||'').toLocaleLowerCase('it-IT').includes(q)));
+    if(filters.itemSort==='name')result.sort((a,b)=>String(a.i.nome||'').localeCompare(String(b.i.nome||''),'it'));
+    if(filters.itemSort==='category')result.sort((a,b)=>String(a.i.categoria||'Altro').localeCompare(String(b.i.categoria||'Altro'),'it'));
+    if(!data.length)return blank('basket','Questa lista è vuota','Aggiungi il primo articolo utilizzando il modulo sopra.');
+    if(!result.length)return blank('search-off','Nessun articolo trovato','Prova a modificare i filtri.');
+    return result.map(({i,index})=>{const p=price(i),n=qty(i);return `<div class="shopping3-item ${i.completato?'is-bought':''}"><input type="checkbox" class="shopping3-check" data-shop3="toggle-item" data-index="${index}" aria-label="${i.completato?'Segna da comprare':'Segna acquistato'}: ${esc(i.nome||'Articolo')}" ${i.completato?'checked':''}><div class="shopping3-itemname"><strong>${esc(i.nome||'Articolo')}</strong><div class="shopping3-itemmeta"><span class="shopping3-catpill">${esc(i.categoria||'Altro')}</span>${i.note?`<span title="${esc(i.note)}">${icon('note')} ${esc(i.note)}</span>`:''}</div></div><div class="shopping3-qty" aria-label="Quantità"><button type="button" data-shop3="qty-minus" data-index="${index}" aria-label="Diminuisci quantità">−</button><span>${esc(n)}</span><button type="button" data-shop3="qty-plus" data-index="${index}" aria-label="Aumenta quantità">+</button></div><div class="shopping3-itemprice">${p===null?'—':eur(p*n)}<small>${p===null?'Prezzo mancante':eur(p)+' / unità'}</small></div><div class="shopping3-itemactions"><button type="button" class="shopping3-iconbtn" data-shop3="edit-item" data-index="${index}" title="Modifica articolo" aria-label="Modifica articolo">${icon('pencil')}</button><button type="button" class="shopping3-iconbtn danger" data-shop3="delete-item" data-index="${index}" title="Elimina articolo" aria-label="Elimina articolo">${icon('trash')}</button></div></div>`;}).join('');
+  }
+  function render(){
+    status();stats();
+    const focus=document.activeElement;const focusKey=focus?.id;
+    const cursor=focus?.selectionStart;
+    root.innerHTML=selected&&get(selected)?detail():overview();
+    if(selected&&!get(selected))selected=null;
+    if(focusKey&&['shopping3-search-lists','shopping3-search-items'].includes(focusKey)){
+      const input=document.getElementById(focusKey);input?.focus({preventScroll:true});
+      if(input&&typeof cursor==='number')try{input.setSelectionRange(cursor,cursor)}catch{}
+    }
+  }
+  function open(id){if(!get(id))return;selected=id;filters.item='all';filters.itemSearch='';filters.itemSort='added';render();}
+  const field=(id,label,value='',type='text',other='')=>`<div class="shopping3-field"><label for="${id}">${esc(label)}</label><input id="${id}" value="${esc(value)}" type="${type}" ${other}></div>`;
+  function dialogFields(){
+    const state=modal;if(!state)return '';
+    const li=state.id?get(state.id):null;
+    if(state.kind==='create'||state.kind==='edit-list'){
+      const preset=state.template?templates[state.template]:null;
+      return field('shopping3-modal-name','Nome lista',state.kind==='edit-list'?li?.nome:preset?.name||'','text','required maxlength="120" placeholder="Es. Spesa settimanale"')+
+        field('shopping3-modal-budget','Budget (€), facoltativo',state.kind==='edit-list'?li?.budget??'':'','number','min="0" max="100000000" step="0.01" placeholder="Nessun limite"')+
+        (preset?`<div class="shopping3-modalpreview" style="font-size:11px;line-height:1.6;color:#7485a2">${icon('list-check')} Il modello comprende ${preset.items.length} articoli, modificabili dopo la creazione.</div>`:'');
+    }
+    if(state.kind==='edit-item'){
+      const item=entries(li)[state.index];if(!item)return '';
+      return field('shopping3-modal-name','Articolo',item.nome||'','text','required maxlength="120"')+
+        field('shopping3-modal-qty','Quantità',qty(item),'number','required min="0.01" max="100000" step="any"')+
+        field('shopping3-modal-price','Prezzo per unità (€), facoltativo',price(item)??'','number','min="0" max="1000000" step="0.01"')+
+        `<div class="shopping3-field"><label for="shopping3-modal-cat">Categoria</label><select id="shopping3-modal-cat">${categoriesHTML(item.categoria||'Altro')}</select></div><div class="shopping3-field"><label for="shopping3-modal-note">Note</label><textarea id="shopping3-modal-note" maxlength="250" placeholder="Marca, dimensioni, promemoria...">${esc(item.note||'')}</textarea></div>`;
+    }
+    return '';
+  }
+  function modalText(){
+    const state=modal;if(!state)return {};
+    const li=get(state.id),item=state.kind==='delete-item'?entries(li)[state.index]:null;
+    if(state.kind==='create')return{title:'Crea una nuova lista',description:'Assegna un nome e, se vuoi, un budget. Puoi aggiungere gli articoli dopo il salvataggio.',button:'Crea lista',symbol:'basket'};
+    if(state.kind==='edit-list')return{title:'Modifica la lista',description:'Aggiorna nome e budget senza perdere i prodotti.',button:'Salva modifiche',symbol:'pencil'};
+    if(state.kind==='edit-item')return{title:'Modifica articolo',description:'Modifica quantità, prezzo, categoria e note.',button:'Salva articolo',symbol:'pencil'};
+    if(state.kind==='delete-list')return{title:'Eliminare questa lista?',description:`La lista «${li?.nome||'Senza nome'}» e tutti i suoi articoli saranno cancellati.`,button:'Elimina lista',symbol:'trash',danger:true};
+    if(state.kind==='delete-item')return{title:'Eliminare questo articolo?',description:`«${item?.nome||'Articolo'}» verrà rimosso dalla lista.`,button:'Elimina articolo',symbol:'trash',danger:true};
+    if(state.kind==='clear-bought')return{title:'Rimuovere gli articoli acquistati?',description:'Gli articoli già spuntati verranno eliminati dalla lista.',button:'Rimuovi acquistati',symbol:'brush',danger:true};
+    return{title:'Ripristinare gli acquisti?',description:'Gli articoli resteranno nella lista, ma non risulteranno più acquistati.',button:'Ripristina',symbol:'refresh'};
+  }
+  function create(template=null){showModal('create',null,null,template);}
+  function showModal(kind,id=null,index=null,template=null){
+    hideModal();
+    previousFocus=document.activeElement;
+    modal={kind,id,index,template,busy:false};
+    const meta=modalText();
+    const el=document.createElement('div');el.id='shopping3-modal';
+    el.innerHTML=`<section class="shopping3-dialog" role="dialog" aria-modal="true" aria-labelledby="shopping3-modal-title"><div class="shopping3-modaltop"><span class="shopping3-modalicon">${icon(meta.symbol||'basket')}</span><button type="button" class="shopping3-close" data-shop3-modal="close" aria-label="Chiudi">×</button></div><h2 id="shopping3-modal-title">${esc(meta.title)}</h2><p>${esc(meta.description)}</p><form id="shopping3-modal-form"><div class="shopping3-modalfields">${dialogFields()}</div><div class="shopping3-modalerror" id="shopping3-modal-error" role="alert" hidden></div><div class="shopping3-modalactions"><button type="button" data-shop3-modal="close">Annulla</button><button type="submit" class="shopping3-confirm ${meta.danger?'is-danger':''}" id="shopping3-modal-confirm">${esc(meta.button)}</button></div></form></section>`;
+    document.body.append(el);
+    document.body.style.overflow='hidden';
+    ($('#shopping3-modal-name')||$('#shopping3-modal-confirm'))?.focus();
+  }
+  function hideModal(){
+    $('#shopping3-modal')?.remove();modal=null;document.body.style.overflow='';
+    if(previousFocus?.isConnected)previousFocus.focus({preventScroll:true});previousFocus=null;
+  }
+  function modalError(message){const el=$('#shopping3-modal-error');if(el){el.hidden=false;el.textContent=message;}else toast(message,true);}
+  async function mutate(change,message){
+    const adapter=store();
+    if(!adapter?.update){toast('Salvataggio non disponibile: ricarica l’app e accedi alla famiglia.',true);return false;}
+    let result;
+    try{result=await adapter.update(change);}catch(error){result={ok:false,error:error?.message||'Salvataggio non riuscito'};}
+    if(!result?.ok){toast(result?.error||'Impossibile salvare le modifiche.',true);render();return false;}
+    render();if(message)toast(message);return true;
+  }
+  async function handleModalSubmit(e){
+    e.preventDefault();if(!modal||modal.busy)return;
+    const form=e.target;if(typeof form.reportValidity === "function" && !form.reportValidity())return;
+    const state={...modal};
+    const name=$('#shopping3-modal-name')?.value.trim();
+    if(['create','edit-list','edit-item'].includes(state.kind)&&(!name||name.length>120)){modalError('Inserisci un nome valido (massimo 120 caratteri).');return;}
+    const rawBudget=$('#shopping3-modal-budget')?.value.trim()||'';
+    const budget=rawBudget===''?null:num(rawBudget);
+    if(['create','edit-list'].includes(state.kind)&&rawBudget!==''&&(!Number.isFinite(budget)||budget<0||budget>100000000)){modalError('Budget non valido.');return;}
+    const q=num($('#shopping3-modal-qty')?.value),rawPrice=$('#shopping3-modal-price')?.value.trim()||'',p=rawPrice===''?null:num(rawPrice);
+    if(state.kind==='edit-item'&&(!Number.isFinite(q)||q<0.01||q>100000||rawPrice!==''&&(!Number.isFinite(p)||p<0||p>1000000))){modalError('Controlla quantità e prezzo.');return;}
+    modal.busy=true;
+    const confirm=$('#shopping3-modal-confirm');if(confirm){confirm.disabled=true;confirm.textContent='Salvataggio...';}
+    let newId=null;
+    const desc={create:'Lista creata correttamente.', 'edit-list':'Lista aggiornata.', 'edit-item':'Articolo modificato.', 'delete-list':'Lista eliminata.', 'delete-item':'Articolo eliminato.', 'clear-bought':'Articoli acquistati rimossi.',reset:'Articoli ripristinati.'};
+    const adapter=store();let result;
+    try{
+      if(!adapter?.update){throw new Error('Archivio dati non pronto: ricarica la pagina e accedi alla famiglia.');}
+      result=await adapter.update(data=>{
+        if(state.kind==='create'){
+          newId=uid();const preset=state.template?templates[state.template]:null;
+          data[newId]={nome:name,items:preset?preset.items.map(([nome,categoria,quantita])=>({nome,categoria,quantita,completato:false})):[],completata:false,createdAt:new Date().toISOString(),...(budget!==null?{budget}:{})};return;
+        }
+        const li=Object.prototype.hasOwnProperty.call(data,state.id)?data[state.id]:null;
+        if(!li)throw new Error('La lista non esiste più.');
+        if(state.kind==='edit-list'){li.nome=name;if(budget===null)delete li.budget;else li.budget=budget;return;}
+        if(state.kind==='edit-item'){
+          const i=entries(li)[state.index];if(!i)throw new Error('Articolo non trovato.');
+          i.nome=name;i.quantita=q;i.categoria=$('#shopping3-modal-cat')?.value||'Altro';i.note=($('#shopping3-modal-note')?.value||'').trim().slice(0,250);
+          if(p===null){delete i.prezzo;delete i.price;}else{i.prezzo=p;delete i.price;}return;
+        }
+        if(state.kind==='delete-list'){delete data[state.id];return;}
+        if(state.kind==='delete-item'){entries(li).splice(state.index,1);return;}
+        if(state.kind==='clear-bought'){li.items=entries(li).filter(i=>!i.completato);return;}
+        if(state.kind==='reset'){entries(li).forEach(i=>i.completato=false);li.completata=false;}
+      });
+    }catch(error){result={ok:false,error:error?.message||'Salvataggio non riuscito.'};}
+    if(!result?.ok){if(modal){modal.busy=false;}if(confirm){confirm.disabled=false;confirm.textContent=modalText().button;}modalError(result?.error||'Impossibile salvare, riprova.');render();return;}
+    if(state.kind==='delete-list'&&selected===state.id)selected=null;
+    if(newId)selected=newId;
+    hideModal();render();toast(desc[state.kind]||'Modifica salvata.');
+  }
+  function exportCSV(){
+    const li=get(selected);if(!li)return;
+    const rows=[['Articolo','Quantità','Categoria','Prezzo unitario (€)','Totale (€)','Acquistato','Note'],...entries(li).map(i=>[i.nome,qty(i),i.categoria||'',price(i)??'',price(i)===null?'':(price(i)*qty(i)).toFixed(2),i.completato?'Sì':'No',i.note||''])];
+    const cell=v=>{let s=String(v??'');if(/^[\s]*[=+\-@\t\r]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';};
+    const blob=new Blob(['\ufeffsep=;\r\n'+rows.map(r=>r.map(cell).join(';')).join('\r\n')],{type:'text/csv;charset=utf-8'});
+    const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='lista-spesa-'+String(li.nome||'lista').replace(/[^a-z0-9-]/ig,'-').slice(0,48)+'.csv';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);toast('Lista esportata in CSV.');
+  }
+  async function shareList(){
+    const li=get(selected);if(!li)return;
+    const text=[li.nome||'Lista della spesa','',...entries(li).map(i=>`${i.completato?'☑':'☐'} ${qty(i)} × ${i.nome||''}${price(i)!==null?' · '+eur(price(i)*qty(i)):''}${i.note?' ('+i.note+')':''}`)].join('\n');
+    try{
+      if(navigator.share&&window.isSecureContext){await navigator.share({title:li.nome||'Lista della spesa',text});return;}
+      if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(text);toast('Lista copiata negli appunti.');return;}
+      const input=document.createElement('textarea');input.value=text;input.style.cssText='position:fixed;left:-9999px';document.body.append(input);input.select();const ok=document.execCommand('copy');input.remove();if(!ok)throw Error('clipboard');toast('Lista copiata negli appunti.');
+    }catch(error){if(error.name!=='AbortError')toast('Condivisione non disponibile su questo dispositivo.',true);}
+  }
+  async function duplicate(id){
+    const li=get(id);if(!li)return;let newId=null;
+    const ok=await mutate(data=>{const original=data[id];if(!original)throw Error('Lista non trovata');newId=uid();const copy=JSON.parse(JSON.stringify(original));copy.nome=(String(copy.nome||'Lista')+' (copia)').slice(0,120);copy.createdAt=new Date().toISOString();copy.completata=false;copy.pinned=false;copy.items=entries(copy).map(i=>({...i,completato:false}));data[newId]=copy;},'Lista duplicata.');
+    if(ok){selected=newId;render();}
+  }
+  async function quickAction(action,target){
+    const id=target.dataset.id||selected,li=get(id),index=Number(target.dataset.index);
+    if(action==='create')return create();
+    if(action==='template')return create(target.dataset.template);
+    if(action==='back'){selected=null;return render();}
+    if(action==='filter-list'){filters.list=target.dataset.value;return render();}
+    if(action==='filter-item'){filters.item=target.dataset.value;return render();}
+    if(action==='pin'&&li)return mutate(data=>{data[id].pinned=!data[id].pinned;},'Preferiti aggiornati.');
+    if(action==='duplicate')return duplicate(id);
+    if(action==='edit-list')return showModal('edit-list',id);
+    if(action==='delete-list')return showModal('delete-list',id);
+    if(action==='edit-item')return showModal('edit-item',id,index);
+    if(action==='delete-item')return showModal('delete-item',id,index);
+    if(action==='share')return shareList();
+    if(action==='csv')return exportCSV();
+    if(action==='clear-bought')return showModal('clear-bought',id);
+    if(action==='reset-bought')return showModal('reset',id);
+    if(action==='complete'&&li)return mutate(data=>{data[id].completata=!data[id].completata;},li.completata?'Lista riaperta.':'Lista completata.');
+    if(action==='all-bought'&&li)return mutate(data=>{entries(data[id]).forEach(i=>i.completato=true);},'Tutti gli articoli segnati come acquistati.');
+    if(action==='qty-plus'||action==='qty-minus'){
+      if(!li)return;return mutate(data=>{const item=entries(data[id])[index];if(!item)return;item.quantita=Number(Math.max(.01,qty(item)+(action==='qty-plus'?1:-1)).toFixed(2));});
+    }
+  }
+  function onClick(event){
+    const trigger=event.target.closest('[data-shop3]');
+    if(trigger&&page.contains(trigger)){
+      if(trigger.dataset.shop3==='toggle-item')return;
+      event.preventDefault();event.stopPropagation();
+      quickAction(trigger.dataset.shop3,trigger);
+      return;
+    }
+    const card=event.target.closest('[data-shop3-open]');
+    if(card&&page.contains(card)){event.preventDefault();open(card.dataset.shop3Open);}
+  }
+  async function addItem(event){
+    event.preventDefault();const li=get(selected);if(!li)return;
+    const input=$('#shopping3-newname'),name=input?.value.trim();const amount=num($('#shopping3-newqty')?.value);
+    const raw=$('#shopping3-newprice')?.value.trim()||'';const p=raw===''?null:num(raw),cat=$('#shopping3-newcategory')?.value||'Alimentari';
+    if(!name){toast('Inserisci il nome dell’articolo.',true);return;}
+    if(!Number.isFinite(amount)||amount<.01||amount>100000){toast('Quantità non valida.',true);return;}
+    if(raw!==''&&(!Number.isFinite(p)||p<0||p>1000000)){toast('Prezzo non valido.',true);return;}
+    const ok=await mutate(data=>{
+      const target=data[selected];if(!target)throw Error('Lista non trovata');if(!Array.isArray(target.items))target.items=[];
+      const existing=target.items.find(i=>!i.completato&&String(i.nome||'').trim().toLocaleLowerCase('it-IT')===name.toLocaleLowerCase('it-IT')&&String(i.categoria||'Alimentari')===cat);
+      if(existing){existing.quantita=Number((qty(existing)+amount).toFixed(2));if(p!==null)existing.prezzo=p;}
+      else target.items.push({nome:name,quantita:amount,categoria:cat,completato:false,...(p!==null?{prezzo:p}:{})});
+      target.completata=false;
+    },'Articolo salvato.');
+    if(ok){$('#shopping3-newcategory').value=cat;$('#shopping3-newname')?.focus();}
+  }
+  function onInput(event){
+    if(event.target.id==='shopping3-search-lists'){
+      filters.listSearch=event.target.value;
+      const q=filters.listSearch.trim().toLocaleLowerCase('it-IT');let data=Object.entries(lists()).filter(([,v])=>v&&typeof v==='object');
+      data=data.filter(([,li])=>(filters.list==='all'||(filters.list==='active'&&!li.completata)||(filters.list==='done'&&li.completata))&&(!q||String(li.nome||'').toLocaleLowerCase('it-IT').includes(q)||entries(li).some(i=>String(i.nome||'').toLocaleLowerCase('it-IT').includes(q))));
+      // Changing only the grid avoids re-creating the focused search input.
+      const grid=$('#shopping3-card-grid');if(grid){grid.innerHTML=cards(data);$('#shopping3-list-result').textContent=`${data.length} ${data.length===1?'lista trovata':'liste trovate'}`;}
+    }
+    if(event.target.id==='shopping3-search-items'){
+      filters.itemSearch=event.target.value;
+      const li=get(selected);if(li)$('#shopping3-items').innerHTML=itemsHTML(li);
+    }
+  }
+  function onChange(event){
+    const el=event.target;
+    if(el.id==='shopping3-list-sort'){filters.listSort=el.value;try{localStorage.setItem('shopping3-list-sort',el.value)}catch{}render();}
+    else if(el.id==='shopping3-item-sort'){filters.itemSort=el.value;const li=get(selected);if(li)$('#shopping3-items').innerHTML=itemsHTML(li);}
+    else if(el.dataset.shop3==='toggle-item'){
+      const id=selected,index=Number(el.dataset.index),isBought=el.checked;
+      mutate(data=>{const li=data[id];if(!li)return;const item=entries(li)[index];if(!item)return;item.completato=isBought;if(!isBought)li.completata=false;},isBought?'Articolo segnato come acquistato.':'Articolo da acquistare.');
+    }
+  }
+  function onKeydown(event){
+    if(event.key==='Escape'&&modal){hideModal();return;}
+    if(modal&&event.key==='Tab'){
+      const box=$('#shopping3-modal'),focusables=$$('input:not([disabled]),select:not([disabled]),textarea:not([disabled]),button:not([disabled])',box);
+      if(focusables.length){const first=focusables[0],last=focusables[focusables.length-1];if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}}
+    }
+    if(!modal&&(event.key==='Enter'||event.key===' ')&&event.target.matches('[data-shop3-open]')){event.preventDefault();open(event.target.dataset.shop3Open);}
+  }
+  function modalClick(event){
+    const target=event.target;
+    if(!modal)return;
+    if(target.id==='shopping3-modal'||target.closest('[data-shop3-modal="close"]')){if(!modal.busy)hideModal();}
+  }
+  function mount(){render();}
+  window.ShoppingStudioV3=Object.freeze({mount,render,open,create});
+  // Attach listeners right now, independent of login, Firebase and navigation.
+  page.addEventListener('click',onClick,true);
+  page.addEventListener('input',onInput);
+  page.addEventListener('change',onChange);
+  page.addEventListener('submit',event=>{if(event.target.id==='shopping3-add-form')addItem(event);});
+  document.addEventListener('click',modalClick);
+  document.addEventListener('submit',event=>{if(event.target.id==='shopping3-modal-form')handleModalSubmit(event);});
+  document.addEventListener('keydown',onKeydown);
+  render();
+  page.dataset.shoppingStudioReady='true';
+})();
+
+</script>
 </body>
 </html>
