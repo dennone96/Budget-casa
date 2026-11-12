@@ -11047,38 +11047,39 @@ Movimenti in contanti. Stesse colonne del conto corrente.
     <div id="shopping3-content" class="shopping3-content"><div class="shopping3-empty">Caricamento liste...</div></div>
   </div>
 </div>
-<div class="page" id="page-eventi">
-<h1>📅 Promemoria eventi</h1>
-<!-- Mese corrente -->
-<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-<button id="btn-mese-prec" onmouseout="this.style.background='transparent'" onmouseover="this.style.background='var(--surface-2)'" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--text-secondary); padding:8px 16px; border-radius:var(--radius-sm); transition:all 0.2s;">‹</button>
-<h2 id="mese-titolo" style="margin:0; font-size:20px; font-weight:800;">Agosto 2026</h2>
-<button id="btn-mese-succ" onmouseout="this.style.background='transparent'" onmouseover="this.style.background='var(--surface-2)'" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--text-secondary); padding:8px 16px; border-radius:var(--radius-sm); transition:all 0.2s;">›</button>
-</div>
-<!-- Calendario -->
-<div style="background:var(--surface); border-radius:var(--radius); padding:16px; border:1px solid var(--border); margin-bottom:20px;">
-<div style="display:grid; grid-template-columns:repeat(7, 1fr); gap:4px; text-align:center; font-weight:700; font-size:12px; color:var(--text-muted); margin-bottom:8px;">
-<div>L</div><div>M</div><div>M</div><div>G</div><div>V</div><div>S</div><div>D</div>
-</div>
-<div id="calendario-giorni" style="display:grid; grid-template-columns:repeat(7, 1fr); gap:4px;">
-<!-- Generato da JavaScript -->
-</div>
-</div>
-<!-- Eventi del giorno selezionato -->
-<div style="background:var(--surface); border-radius:var(--radius); padding:16px; border:1px solid var(--border);">
-<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-<h3 id="giorno-selezionato-titolo" style="margin:0; font-size:16px; font-weight:700;">Oggi - Lunedì 10 Agosto</h3>
-<button id="btn-nuovo-evento" onmouseout="this.style.transform='scale(1)'" onmouseover="this.style.transform='scale(1.05)'" style="background:var(--accent-gradient); color:#fff; border:none; border-radius:999px; padding:8px 18px; font-weight:700; font-size:13px; cursor:pointer; transition:all 0.2s;">
-        + Nuovo evento
-      </button>
-</div>
-<div id="eventi-del-giorno">
-<div style="text-align:center; padding:20px; color:var(--text-muted);">
-<p style="font-size:14px;">Niente programmato</p>
-<p style="font-size:12px;">Clicca su "+ Nuovo evento" per aggiungere un evento</p>
-</div>
-</div>
-</div>
+<div class="page" id="page-eventi" aria-label="Eventi e calendario">
+  <main class="calendar-studio">
+    <section class="cs-hero">
+      <div class="cs-hero-content"><div class="cs-eyebrow"><span class="cs-spark"></span> PLANNER FAMILIARE <span class="cs-premium">PREMIUM</span></div>
+        <h1>Ogni momento,<br><em>al posto giusto.</em></h1>
+        <p>Appuntamenti, ricorrenze e impegni: tutto organizzato in un calendario condiviso con la famiglia.</p>
+        <div class="cs-hero-actions"><button type="button" id="cs-create" class="cs-button cs-primary" data-cs="create"><i class="ti ti-plus"></i> Nuovo evento</button><span class="cs-family-chip"><i class="ti ti-users"></i> Calendario famiglia</span></div>
+      </div>
+      <div class="cs-hero-art" aria-hidden="true"><span class="cs-art-orbit"></span><span class="cs-art-sheet"><i class="ti ti-calendar-event"></i><b>12</b></span><span class="cs-art-star">✦</span></div>
+    </section>
+    <div id="cs-connection" class="cs-connection" role="status" aria-live="polite"></div>
+    <section id="cs-summary" class="cs-summary" aria-label="Riepilogo eventi"></section>
+    <div class="cs-main-grid">
+      <section class="cs-calendar-panel" aria-label="Calendario mensile">
+        <div class="cs-calendar-top"><div><div class="cs-kicker">CALENDARIO MENSILE</div><h2 id="cs-month-title">Calendario</h2></div><div class="cs-nav"><button class="cs-nav-today" data-cs="today" type="button">Oggi</button><button data-cs="prev" type="button" aria-label="Mese precedente"><span aria-hidden="true">‹</span></button><button data-cs="next" type="button" aria-label="Mese successivo"><span aria-hidden="true">›</span></button></div></div>
+        <div class="cs-weekdays" aria-hidden="true"><span>Lun</span><span>Mar</span><span>Mer</span><span>Gio</span><span>Ven</span><span>Sab</span><span>Dom</span></div>
+        <div id="cs-days" class="cs-days" role="grid" aria-label="Giorni del mese"></div>
+        <div class="cs-legend"><span><i class="cs-dot violet"></i> Personale</span><span><i class="cs-dot blue"></i> Famiglia</span><span><i class="cs-dot mint"></i> Salute</span><span><i class="cs-dot amber"></i> Scadenze</span></div>
+      </section>
+      <section class="cs-day-panel" aria-label="Eventi del giorno selezionato">
+        <div class="cs-day-head"><div><div class="cs-kicker">IL GIORNO SELEZIONATO</div><h2 id="cs-day-title">Oggi</h2><p id="cs-day-caption">Seleziona una data</p></div><button type="button" class="cs-day-add" data-cs="create" aria-label="Aggiungi evento al giorno selezionato"><i class="ti ti-plus"></i></button></div>
+        <div id="cs-day-events" class="cs-day-events"></div>
+        <div class="cs-upcoming"><h3>In arrivo <span>Prossimi impegni</span></h3><div id="cs-upcoming-list"></div></div>
+        <div class="cs-tips"><i class="ti ti-bulb"></i> Seleziona un giorno nel calendario per vedere, modificare o aggiungere appuntamenti.</div>
+      </section>
+    </div>
+    <section class="cs-agenda-panel" aria-label="Agenda e ricerca appuntamenti">
+      <div class="cs-agenda-head"><div><div class="cs-kicker">TUTTI GLI IMPEGNI</div><h2>La tua agenda <span id="cs-agenda-count" class="cs-count">0</span></h2><p>Gli appuntamenti del mese, in ordine cronologico.</p></div><button type="button" class="cs-button cs-secondary" data-cs="export-month"><i class="ti ti-download"></i> Esporta mese</button></div>
+      <div class="cs-agenda-toolbar"><label class="cs-search" for="cs-search"><i class="ti ti-search"></i><input id="cs-search" type="search" placeholder="Cerca eventi, note, luoghi..." autocomplete="off" aria-label="Cerca eventi"></label><select id="cs-category-filter" aria-label="Filtra eventi per categoria"><option value="all">Tutte le categorie</option><option value="Personale">Personale</option><option value="Famiglia">Famiglia</option><option value="Salute">Salute</option><option value="Scadenze">Scadenze</option><option value="Altro">Altro</option></select></div>
+      <div id="cs-agenda-list" class="cs-agenda-list"></div>
+    </section>
+    <p class="cs-footnote"><i class="ti ti-cloud-check"></i> Gli eventi vengono condivisi con i membri della famiglia collegata.</p>
+  </main>
 </div>
 <div class="page" id="page-profilo">
 <h1>Profilo</h1>
@@ -11952,338 +11953,118 @@ let shoppingListsLastError = '';
 let currentListId = null;
 let eventsData = {};  
   
-// === GESTIONE EVENTI CALENDARIO ===
+// ================= CALENDAR STUDIO PREMIUM — FAMILY DATA ADAPTER =================
+// Defined inside the original Firebase closure. UI operates through the bridge only.
+let calendarStudioRevision = 0;
+let calendarStudioWriteDepth = 0;
+let calendarStudioWriteQueue = Promise.resolve();
+let calendarStudioActionQueue = Promise.resolve();
+let calendarStudioLastError = '';
 
-// Carica gli eventi
+function calendarStudioNormalize(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+  const normalized = {};
+  Object.entries(value).forEach(([day, events]) => {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(day) && Array.isArray(events)) normalized[day] = events;
+  });
+  return normalized;
+}
+
 async function loadEvents() {
-  if (!currentUser || !currentFamilyId) return;
+  if (!currentUser || !currentFamilyId) return false;
+  const id = currentFamilyId;
+  const version = calendarStudioRevision;
   try {
-    const snap = await sharedFamilyDocRef().get();
-    if (!snap.exists) throw new Error('Documento famiglia non disponibile.');
-    const data = snap.data() || {};
-    eventsData = data.events && typeof data.events === 'object' ? data.events : {};
+    const snapshot = await sharedFamilyDocRef().get();
+    if (!snapshot.exists) throw new Error('Documento famiglia non disponibile.');
+    if (id !== currentFamilyId || version !== calendarStudioRevision || calendarStudioWriteDepth) return false;
+    eventsData = calendarStudioNormalize((snapshot.data() || {}).events);
     renderCalendar();
+    return true;
   } catch (err) {
-    console.error('Errore caricamento eventi condivisi:', err);
+    console.error('Caricamento calendario condiviso:', err);
+    calendarStudioLastError = err?.message || 'Impossibile caricare gli eventi.';
+    return false;
   }
 }
 
-// Salva gli eventi nel documento della famiglia verificata.
 async function saveEvents() {
-  if (!currentUser || !currentFamilyId) return;
-  try {
-    await sharedFamilyDocRef().set({ events: eventsData || {}, updatedAt: new Date().toISOString() }, { merge: true });
-  } catch (err) {
-    console.error('Errore salvataggio eventi condivisi:', err);
+  if (!currentUser || !currentFamilyId) {
+    calendarStudioLastError = 'Accedi e seleziona una famiglia per salvare.';
+    return false;
   }
+  const familyId = currentFamilyId;
+  const snapshot = JSON.parse(JSON.stringify(eventsData));
+  const task = async () => {
+    if (!currentUser || currentFamilyId !== familyId) {
+      calendarStudioLastError = 'La famiglia collegata è cambiata: riprova.';
+      return false;
+    }
+    calendarStudioWriteDepth++;
+    try {
+      // Update the complete events field so deletions also remain deleted.
+      await sharedFamilyDocRef().update({events: snapshot});
+      calendarStudioLastError = '';
+      return true;
+    } catch (err) {
+      console.error('Salvataggio eventi condivisi:', err);
+      calendarStudioLastError = err?.message || 'Impossibile salvare gli eventi.';
+      return false;
+    } finally {
+      calendarStudioWriteDepth = Math.max(0, calendarStudioWriteDepth - 1);
+    }
+  };
+  const pending = calendarStudioWriteQueue.then(task, task);
+  calendarStudioWriteQueue = pending.then(() => {}, () => {});
+  return pending;
 }
 
-// Renderizza il calendario
-function renderCalendar() {
-  const container = document.getElementById('calendario-giorni');
-  if (!container) return;
-  
-  const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
-  const meseTitolo = document.getElementById('mese-titolo');
-  if (meseTitolo) {
-    meseTitolo.textContent = monthNames[currentMonth] + ' ' + currentYear;
-  }
-  
-  const firstDay = new Date(currentYear, currentMonth, 1);
-  const lastDay = new Date(currentYear, currentMonth + 1, 0);
-  const daysInMonth = lastDay.getDate();
-  const startDay = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
-  
-  const today = new Date();
-  const todayStr = today.toISOString().slice(0, 10);
-  
-  let html = '';
-  
-  const prevMonthLastDay = new Date(currentYear, currentMonth, 0).getDate();
-  for (let i = startDay - 1; i >= 0; i--) {
-    const day = prevMonthLastDay - i;
-    html += `<div class="giorno-cell altro-mese" data-date="${currentYear}-${String(currentMonth).padStart(2,'0')}-${String(day).padStart(2,'0')}">${day}</div>`;
-  }
-  
-  for (let day = 1; day <= daysInMonth; day++) {
-    const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-    const isToday = dateStr === todayStr;
-    const isSelected = dateStr === selectedDate.toISOString().slice(0, 10);
-    const hasEvent = eventsData[dateStr] && eventsData[dateStr].length > 0;
-    
-    let classes = 'giorno-cell';
-    if (isToday) classes += ' oggi';
-    if (isSelected) classes += ' selezionato';
-    if (hasEvent) classes += ' has-event';
-    
-    html += `<div class="${classes}" data-date="${dateStr}">${day}</div>`;
-  }
-  
-  const totalCells = startDay + daysInMonth;
-  const remainingCells = (7 - (totalCells % 7)) % 7;
-  for (let day = 1; day <= remainingCells; day++) {
-    html += `<div class="giorno-cell altro-mese" data-date="${currentYear}-${String(currentMonth + 2).padStart(2,'0')}-${String(day).padStart(2,'0')}">${day}</div>`;
-  }
-  
-  container.innerHTML = html;
-  
-  // Seleziona il giorno corrente
-  const todayDateStr = today.toISOString().slice(0, 10);
-  renderEventsForDay(todayDateStr);
+function renderCalendar() { window.CalendarStudioPremium?.render(); }
+function renderEventsForDay(dateStr) { window.CalendarStudioPremium?.select(dateStr); }
+function showNewEventModal(editDate=null, editIndex=null) { window.CalendarStudioPremium?.create(editDate, editIndex); }
+function initEventPage() {
+  window.CalendarStudioPremium?.mount();
+  if (currentUser && currentFamilyId && calendarStudioWriteDepth === 0) loadEvents();
 }
 
-// Renderizza gli eventi del giorno selezionato
-function renderEventsForDay(dateStr) {
-  const container = document.getElementById('eventi-del-giorno');
-  if (!container) return;
-  
-  const date = new Date(dateStr);
-  const dayNames = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica'];
-  const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
-  
-  const isToday = dateStr === new Date().toISOString().slice(0, 10);
-  const dayName = dayNames[date.getDay() === 0 ? 6 : date.getDay() - 1];
-  const giornoTitolo = document.getElementById('giorno-selezionato-titolo');
-  if (giornoTitolo) {
-    giornoTitolo.textContent = (isToday ? 'Oggi - ' : '') + dayName + ' ' + date.getDate() + ' ' + monthNames[date.getMonth()];
-  }
-  
-  const events = eventsData[dateStr] || [];
-  
-  if (events.length === 0) {
-    container.innerHTML = `
-      <div style="text-align:center; padding:20px; color:var(--text-muted);">
-        <p style="font-size:14px;">Niente programmato</p>
-        <p style="font-size:12px;">Clicca su "+ Nuovo evento" per aggiungere un evento</p>
-      </div>
-    `;
-    return;
-  }
-  
-  let html = '';
-  events.forEach((event, index) => {
-    html += `
-      <div class="evento-card">
-        <div class="evento-ora">${event.ora || 'Tutto il giorno'}</div>
-        <div class="evento-titolo">${escapeHtml(event.titolo)}</div>
-        <button class="evento-edit" data-index="${index}" data-date="${dateStr}" title="Modifica evento">✎</button>
-        <button class="evento-delete" data-index="${index}" data-date="${dateStr}" title="Elimina evento">✕</button>
-      </div>
-    `;
-  });
-  
-  container.innerHTML = html;
-}
-
-// Mostra il modale per nuovo evento
-function showNewEventModal(editDate = null, editIndex = null) {
-  const isEdit = editDate !== null && editIndex !== null;
-  const dateStr = isEdit ? editDate : selectedDate.toISOString().slice(0, 10);
-  const existing = isEdit && eventsData[dateStr] && eventsData[dateStr][editIndex] ? eventsData[dateStr][editIndex] : null;
-  if (isEdit && !existing) return;
-
-  const overlay = document.createElement('div');
-  overlay.className = 'evento-modal-overlay open';
-  overlay.id = 'evento-modal-overlay';
-
-  const existingAllDay = existing ? (existing.allDay === true || existing.tuttoGiorno === true || !existing.ora || existing.ora === 'Tutto il giorno') : false;
-  const existingOra = existing && !existingAllDay ? (existing.ora || '') : '';
-
-  overlay.innerHTML = `
-    <div class="evento-modal">
-      <h3>${isEdit ? '✏️ Modifica evento' : '📝 Nuovo evento'}</h3>
-      <p>${isEdit ? "Modifica i dettagli dell'evento" : "Inserisci i dettagli dell'evento per il giorno selezionato"}</p>
-
-      <div class="campo">
-        <label>Titolo evento *</label>
-        <input type="text" id="evento-titolo-input" placeholder="es. Riunione famiglia" value="${existing ? escapeHtml(existing.titolo || '') : ''}" autofocus>
-      </div>
-
-      <div class="campo evento-time-wrap ${existingAllDay ? 'hidden' : ''}" id="evento-time-wrap">
-        <label>Ora</label>
-        <input type="time" id="evento-ora-input" value="${existingOra}">
-      </div>
-
-      <div class="evento-all-day-toggle">
-        <div>
-          <div style="font-weight:700; font-size:14px;">Tutto il giorno</div>
-          <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">L'evento non ha un orario specifico</div>
-        </div>
-        <label class="evento-switch" title="Evento per tutta la giornata">
-          <input type="checkbox" id="evento-all-day-input" ${existingAllDay ? 'checked' : ''}>
-          <span class="evento-slider"></span>
-        </label>
-      </div>
-
-      <div class="campo">
-        <label>Note (opzionale)</label>
-        <textarea id="evento-note-input" placeholder="Aggiungi dettagli...">${existing ? escapeHtml(existing.note || '') : ''}</textarea>
-      </div>
-
-      <div class="modal-actions">
-        <button class="btn-cancel" id="evento-modal-cancel">Annulla</button>
-        <button class="btn-create" id="evento-modal-create">${isEdit ? 'Salva modifiche' : 'Crea evento'}</button>
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(overlay);
-
-  const titoloInput = document.getElementById('evento-titolo-input');
-  const oraInput = document.getElementById('evento-ora-input');
-  const noteInput = document.getElementById('evento-note-input');
-  const allDayInput = document.getElementById('evento-all-day-input');
-  const timeWrap = document.getElementById('evento-time-wrap');
-
-  function updateTimeVisibility() {
-    if (timeWrap) timeWrap.classList.toggle('hidden', !!allDayInput.checked);
-    if (oraInput) oraInput.disabled = !!allDayInput.checked;
-  }
-  allDayInput.addEventListener('change', updateTimeVisibility);
-  updateTimeVisibility();
-
-  setTimeout(() => { if (titoloInput) titoloInput.focus(); }, 100);
-
-  document.getElementById('evento-modal-cancel').addEventListener('click', () => overlay.remove());
-
-  document.getElementById('evento-modal-create').addEventListener('click', async function() {
-    const titolo = titoloInput.value.trim();
-    const allDay = !!allDayInput.checked;
-    const ora = allDay ? '' : (oraInput.value || '');
-    const note = noteInput.value.trim();
-
-    if (!titolo) {
-      titoloInput.style.borderColor = '#E74C3C';
-      titoloInput.style.boxShadow = '0 0 0 4px #FDE8E8';
-      titoloInput.focus();
-      return;
-    }
-    if (!allDay && !ora) {
-      oraInput.style.borderColor = '#E74C3C';
-      oraInput.focus();
-      return;
-    }
-
-    if (!eventsData[dateStr]) eventsData[dateStr] = [];
-
-    const eventObj = {
-      titolo,
-      ora,
-      allDay,
-      note,
-      createdAt: existing && existing.createdAt ? existing.createdAt : new Date().toISOString()
-    };
-
-    if (isEdit) {
-      eventsData[dateStr][editIndex] = eventObj;
-    } else {
-      eventsData[dateStr].push(eventObj);
-    }
-
-    await saveEvents();
-    overlay.remove();
-    renderCalendar();
-    renderEventsForDay(dateStr);
-  });
-
-  titoloInput.addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') document.getElementById('evento-modal-create').click();
-  });
-
-  overlay.addEventListener('click', function(e) {
-    if (e.target === overlay) overlay.remove();
-  });
-}
-
-// === DELEGAMENTO EVENTI PER IL CALENDARIO ===
-// UNICO LISTENER PER TUTTI GLI EVENTI DEL CALENDARIO
-document.addEventListener('click', function(e) {
-  // Click su giorno del calendario
-  const giornoCell = e.target.closest('.giorno-cell');
-  if (giornoCell) {
-    const dateStr = giornoCell.dataset.date;
-    if (dateStr) {
-      selectedDate = new Date(dateStr);
-      renderCalendar();
-      renderEventsForDay(dateStr);
-    }
-    return;
-  }
-  
-  // Pulsante mese precedente
-  const btnPrec = e.target.closest('#btn-mese-prec');
-  if (btnPrec) {
-    e.preventDefault();
-    if (currentMonth === 0) {
-      currentMonth = 11;
-      currentYear--;
-    } else {
-      currentMonth--;
-    }
-    renderCalendar();
-    return;
-  }
-  
-  // Pulsante mese successivo
-  const btnSucc = e.target.closest('#btn-mese-succ');
-  if (btnSucc) {
-    e.preventDefault();
-    if (currentMonth === 11) {
-      currentMonth = 0;
-      currentYear++;
-    } else {
-      currentMonth++;
-    }
-    renderCalendar();
-    return;
-  }
-  
-  // Pulsante nuovo evento
-  const btnNuovo = e.target.closest('#btn-nuovo-evento');
-  if (btnNuovo) {
-    e.preventDefault();
-    showNewEventModal();
-    return;
-  }
-  
-  // Modifica evento
-  const btnEdit = e.target.closest('.evento-edit');
-  if (btnEdit) {
-    e.preventDefault();
-    e.stopPropagation();
-    showNewEventModal(btnEdit.dataset.date, parseInt(btnEdit.dataset.index, 10));
-    return;
-  }
-
-  // Elimina evento
-  const btnDelete = e.target.closest('.evento-delete');
-  if (btnDelete) {
-    const date = btnDelete.dataset.date;
-    const index = parseInt(btnDelete.dataset.index);
-    
-    if (confirm('Eliminare questo evento?')) {
-      eventsData[date].splice(index, 1);
-      if (eventsData[date].length === 0) {
-        delete eventsData[date];
-      }
-      saveEvents().then(() => {
+window.CalendarStudioStorage = Object.freeze({
+  get events() { return eventsData; },
+  get ready() { return Boolean(currentUser && currentFamilyId); },
+  get lastError() { return calendarStudioLastError; },
+  get familyId() { return currentFamilyId; },
+  async update(mutator) {
+    const job = async () => {
+      if (!currentUser || !currentFamilyId) return {ok:false, error:'Accedi e collega una famiglia prima di salvare un evento.'};
+      const familyId = currentFamilyId;
+      let backup;
+      try { backup = JSON.parse(JSON.stringify(eventsData)); }
+      catch (err) { return {ok:false, error:'Impossibile preparare il salvataggio.'}; }
+      calendarStudioWriteDepth++;
+      try {
+        const result = mutator(eventsData);
+        calendarStudioRevision++;
         renderCalendar();
-        renderEventsForDay(date);
-      });
-    }
-    return;
+        const saved = await saveEvents();
+        if (!saved) throw new Error(calendarStudioLastError || 'Salvataggio non riuscito.');
+        return {ok:true, value:result};
+      } catch (err) {
+        if (familyId === currentFamilyId) {
+          eventsData = backup;
+          calendarStudioRevision++;
+          renderCalendar();
+        }
+        return {ok:false,error:err?.message || 'Non è stato possibile salvare l’evento.'};
+      } finally {
+        calendarStudioWriteDepth = Math.max(0, calendarStudioWriteDepth - 1);
+      }
+    };
+    const pending = calendarStudioActionQueue.then(job,job);
+    calendarStudioActionQueue = pending.then(()=>{},()=>{});
+    return pending;
   }
 });
+// ================= END CALENDAR STUDIO ADAPTER =================
 
-// Inizializza il calendario quando la pagina è pronta
-function initEventPage() {
-  console.log('📅 Inizializzazione pagina eventi...');
-  const now = new Date();
-  currentMonth = now.getMonth();
-  currentYear = now.getFullYear();
-  selectedDate = new Date();
-  loadEvents();
-}
 
 const FILTER_MONTHS = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
 const todayISO = () => fmtDate(new Date());
@@ -12662,8 +12443,10 @@ function attachFirestoreListener() {
       }
     }
     if (Object.prototype.hasOwnProperty.call(data, 'events')) {
-      eventsData = data.events && typeof data.events === 'object' ? data.events : {};
-      if (document.getElementById('calendario-giorni')) renderCalendar();
+      if (calendarStudioWriteDepth === 0) {
+        eventsData = calendarStudioNormalize(data.events);
+        renderCalendar();
+      }
     }
 
     setTab(state.currentType);
@@ -16354,343 +16137,7 @@ window.ShoppingStudioStorage=Object.freeze({
 });
 // ================= END SHOPPING STUDIO STORAGE ===========================
 
-// === GESTIONE EVENTI CALENDARIO ===
-
-// Carica gli eventi
-async function loadEvents() {
-  if (!currentUser || !currentFamilyId) return;
-  try {
-    const snap = await sharedFamilyDocRef().get();
-    if (!snap.exists) throw new Error('Documento famiglia non disponibile.');
-    const data = snap.data() || {};
-    eventsData = data.events && typeof data.events === 'object' ? data.events : {};
-    renderCalendar();
-  } catch (err) {
-    console.error('Errore caricamento eventi condivisi:', err);
-  }
-}
-
-// Salva gli eventi nel documento della famiglia verificata.
-async function saveEvents() {
-  if (!currentUser || !currentFamilyId) return;
-  try {
-    await sharedFamilyDocRef().set({ events: eventsData || {}, updatedAt: new Date().toISOString() }, { merge: true });
-  } catch (err) {
-    console.error('Errore salvataggio eventi condivisi:', err);
-  }
-}
-
-// Renderizza il calendario
-function renderCalendar() {
-  const container = document.getElementById('calendario-giorni');
-  if (!container) return;
-  
-  const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
-  document.getElementById('mese-titolo').textContent = monthNames[currentMonth] + ' ' + currentYear;
-  
-  const firstDay = new Date(currentYear, currentMonth, 1);
-  const lastDay = new Date(currentYear, currentMonth + 1, 0);
-  const daysInMonth = lastDay.getDate();
-  const startDay = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
-  
-  const today = new Date();
-  const todayStr = today.toISOString().slice(0, 10);
-  
-  let html = '';
-  
-  // Giorni del mese precedente
-  const prevMonthLastDay = new Date(currentYear, currentMonth, 0).getDate();
-  for (let i = startDay - 1; i >= 0; i--) {
-    const day = prevMonthLastDay - i;
-    html += `<div class="giorno-cell altro-mese" data-date="${currentYear}-${String(currentMonth).padStart(2,'0')}-${String(day).padStart(2,'0')}">${day}</div>`;
-  }
-  
-  // Giorni del mese corrente
-  for (let day = 1; day <= daysInMonth; day++) {
-    const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-    const isToday = dateStr === todayStr;
-    const isSelected = dateStr === selectedDate.toISOString().slice(0, 10);
-    const hasEvent = eventsData[dateStr] && eventsData[dateStr].length > 0;
-    
-    let classes = 'giorno-cell';
-    if (isToday) classes += ' oggi';
-    if (isSelected) classes += ' selezionato';
-    if (hasEvent) classes += ' has-event';
-    
-    html += `<div class="${classes}" data-date="${dateStr}">${day}</div>`;
-  }
-  
-  // Giorni del mese successivo
-  const totalCells = startDay + daysInMonth;
-  const remainingCells = (7 - (totalCells % 7)) % 7;
-  for (let day = 1; day <= remainingCells; day++) {
-    html += `<div class="giorno-cell altro-mese" data-date="${currentYear}-${String(currentMonth + 2).padStart(2,'0')}-${String(day).padStart(2,'0')}">${day}</div>`;
-  }
-  
-  container.innerHTML = html;
-  
-  // Event listener sui giorni
-  container.querySelectorAll('.giorno-cell').forEach(cell => {
-    cell.addEventListener('click', function() {
-      const dateStr = this.dataset.date;
-      if (dateStr) {
-        selectedDate = new Date(dateStr);
-        renderCalendar();
-        renderEventsForDay(dateStr);
-      }
-    });
-  });
-  
-  // Seleziona il giorno corrente
-  const todayDateStr = today.toISOString().slice(0, 10);
-  renderEventsForDay(todayDateStr);
-}
-
-// Renderizza gli eventi del giorno selezionato
-function renderEventsForDay(dateStr) {
-  const container = document.getElementById('eventi-del-giorno');
-  if (!container) return;
-  
-  const date = new Date(dateStr);
-  const dayNames = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica'];
-  const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
-  
-  const isToday = dateStr === new Date().toISOString().slice(0, 10);
-  const dayName = dayNames[date.getDay() === 0 ? 6 : date.getDay() - 1];
-  document.getElementById('giorno-selezionato-titolo').textContent = 
-    (isToday ? 'Oggi - ' : '') + dayName + ' ' + date.getDate() + ' ' + monthNames[date.getMonth()];
-  
-  const events = eventsData[dateStr] || [];
-  
-  if (events.length === 0) {
-    container.innerHTML = `
-      <div style="text-align:center; padding:20px; color:var(--text-muted);">
-        <p style="font-size:14px;">Niente programmato</p>
-        <p style="font-size:12px;">Clicca su "+ Nuovo evento" per aggiungere un evento</p>
-      </div>
-    `;
-    return;
-  }
-  
-  let html = '';
-  events.forEach((event, index) => {
-    html += `
-      <div class="evento-card">
-        <div class="evento-ora">${event.ora || 'Tutto il giorno'}</div>
-        <div class="evento-titolo">${escapeHtml(event.titolo)}</div>
-        <button class="evento-calendar"
-        data-index="${index}"
-        data-date="${dateStr}"
-        data-event-title="${escapeHtml(event.titolo || '')}"
-        data-event-time="${escapeHtml(event.ora || '')}"
-        data-event-note="${escapeHtml(event.note || '')}"
-        data-event-allday="${(event.allDay === true || event.tuttoGiorno === true || !event.ora || event.ora === 'Tutto il giorno') ? '1' : '0'}"
-        title="Aggiungi al calendario"
-        aria-label="Aggiungi al calendario">📅</button>
-        <button class="evento-edit" data-index="${index}" data-date="${dateStr}" title="Modifica evento">✎</button>
-        <button class="evento-delete" data-index="${index}" data-date="${dateStr}" title="Elimina evento">✕</button>
-      </div>
-    `;
-  });
-  
-  container.innerHTML = html;
-  
-  // Event listener per modificare evento
-  container.querySelectorAll('.evento-edit').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      showNewEventModal(this.dataset.date, parseInt(this.dataset.index, 10));
-    });
-  });
-
-  // Event listener per eliminare evento
-  container.querySelectorAll('.evento-delete').forEach(btn => {
-    btn.addEventListener('click', async function() {
-      const date = this.dataset.date;
-      const index = parseInt(this.dataset.index);
-      
-      if (confirm('Eliminare questo evento?')) {
-        eventsData[date].splice(index, 1);
-        if (eventsData[date].length === 0) {
-          delete eventsData[date];
-        }
-        await saveEvents();
-        renderCalendar();
-        renderEventsForDay(date);
-      }
-    });
-  });
-}
-
-// Mostra il modale per nuovo evento
-function showNewEventModal(editDate = null, editIndex = null) {
-  const isEdit = editDate !== null && editIndex !== null;
-  const dateStr = isEdit ? editDate : selectedDate.toISOString().slice(0, 10);
-  const existing = isEdit && eventsData[dateStr] && eventsData[dateStr][editIndex] ? eventsData[dateStr][editIndex] : null;
-  if (isEdit && !existing) return;
-
-  const overlay = document.createElement('div');
-  overlay.className = 'evento-modal-overlay open';
-  overlay.id = 'evento-modal-overlay';
-
-  const existingAllDay = existing ? (existing.allDay === true || existing.tuttoGiorno === true || !existing.ora || existing.ora === 'Tutto il giorno') : false;
-  const existingOra = existing && !existingAllDay ? (existing.ora || '') : '';
-
-  overlay.innerHTML = `
-    <div class="evento-modal">
-      <h3>${isEdit ? '✏️ Modifica evento' : '📝 Nuovo evento'}</h3>
-      <p>${isEdit ? "Modifica i dettagli dell'evento" : "Inserisci i dettagli dell'evento per il giorno selezionato"}</p>
-
-      <div class="campo">
-        <label>Titolo evento *</label>
-        <input type="text" id="evento-titolo-input" placeholder="es. Riunione famiglia" value="${existing ? escapeHtml(existing.titolo || '') : ''}" autofocus>
-      </div>
-
-      <div class="campo evento-time-wrap ${existingAllDay ? 'hidden' : ''}" id="evento-time-wrap">
-        <label>Ora</label>
-        <input type="time" id="evento-ora-input" value="${existingOra}">
-      </div>
-
-      <div class="evento-all-day-toggle">
-        <div>
-          <div style="font-weight:700; font-size:14px;">Tutto il giorno</div>
-          <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">L'evento non ha un orario specifico</div>
-        </div>
-        <label class="evento-switch" title="Evento per tutta la giornata">
-          <input type="checkbox" id="evento-all-day-input" ${existingAllDay ? 'checked' : ''}>
-          <span class="evento-slider"></span>
-        </label>
-      </div>
-
-      <div class="campo">
-        <label>Note (opzionale)</label>
-        <textarea id="evento-note-input" placeholder="Aggiungi dettagli...">${existing ? escapeHtml(existing.note || '') : ''}</textarea>
-      </div>
-
-      <div class="modal-actions">
-        <button class="btn-cancel" id="evento-modal-cancel">Annulla</button>
-        <button class="btn-create" id="evento-modal-create">${isEdit ? 'Salva modifiche' : 'Crea evento'}</button>
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(overlay);
-
-  const titoloInput = document.getElementById('evento-titolo-input');
-  const oraInput = document.getElementById('evento-ora-input');
-  const noteInput = document.getElementById('evento-note-input');
-  const allDayInput = document.getElementById('evento-all-day-input');
-  const timeWrap = document.getElementById('evento-time-wrap');
-
-  function updateTimeVisibility() {
-    if (timeWrap) timeWrap.classList.toggle('hidden', !!allDayInput.checked);
-    if (oraInput) oraInput.disabled = !!allDayInput.checked;
-  }
-  allDayInput.addEventListener('change', updateTimeVisibility);
-  updateTimeVisibility();
-
-  setTimeout(() => { if (titoloInput) titoloInput.focus(); }, 100);
-
-  document.getElementById('evento-modal-cancel').addEventListener('click', () => overlay.remove());
-
-  document.getElementById('evento-modal-create').addEventListener('click', async function() {
-    const titolo = titoloInput.value.trim();
-    const allDay = !!allDayInput.checked;
-    const ora = allDay ? '' : (oraInput.value || '');
-    const note = noteInput.value.trim();
-
-    if (!titolo) {
-      titoloInput.style.borderColor = '#E74C3C';
-      titoloInput.style.boxShadow = '0 0 0 4px #FDE8E8';
-      titoloInput.focus();
-      return;
-    }
-    if (!allDay && !ora) {
-      oraInput.style.borderColor = '#E74C3C';
-      oraInput.focus();
-      return;
-    }
-
-    if (!eventsData[dateStr]) eventsData[dateStr] = [];
-
-    const eventObj = {
-      titolo,
-      ora,
-      allDay,
-      note,
-      createdAt: existing && existing.createdAt ? existing.createdAt : new Date().toISOString()
-    };
-
-    if (isEdit) {
-      eventsData[dateStr][editIndex] = eventObj;
-    } else {
-      eventsData[dateStr].push(eventObj);
-    }
-
-    await saveEvents();
-    overlay.remove();
-    renderCalendar();
-    renderEventsForDay(dateStr);
-  });
-
-  titoloInput.addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') document.getElementById('evento-modal-create').click();
-  });
-
-  overlay.addEventListener('click', function(e) {
-    if (e.target === overlay) overlay.remove();
-  });
-}
-document.addEventListener('DOMContentLoaded', function() {
-  // === AGGIUNGI QUI ===
-  initCatEditModalListeners();
-  
-  // Navigazione mesi
-  const btnPrec = document.getElementById('btn-mese-prec');
-  const btnSucc = document.getElementById('btn-mese-succ');
-  const btnNuovo = document.getElementById('btn-nuovo-evento');
-  
-  if (btnPrec) {
-    btnPrec.addEventListener('click', function() {
-      console.log('⬅️ Mese precedente');
-      if (currentMonth === 0) {
-        currentMonth = 11;
-        currentYear--;
-      } else {
-        currentMonth--;
-      }
-      renderCalendar();
-    });
-  } else {
-    console.warn('⚠️ btn-mese-prec non trovato');
-  }
-  
-  if (btnSucc) {
-    btnSucc.addEventListener('click', function() {
-      console.log('➡️ Mese successivo');
-      if (currentMonth === 11) {
-        currentMonth = 0;
-        currentYear++;
-      } else {
-        currentMonth++;
-      }
-      renderCalendar();
-    });
-  } else {
-    console.warn('⚠️ btn-mese-succ non trovato');
-  }
-  
-  if (btnNuovo) {
-    btnNuovo.addEventListener('click', function() {
-      console.log('📝 Nuovo evento');
-      showNewEventModal();
-    });
-  } else {
-    console.warn('⚠️ btn-nuovo-evento non trovato');
-  }
-});
-
-
+// Calendar Studio uses the single storage adapter declared above.
 
 })();
 </script>
@@ -16790,97 +16237,6 @@ document.addEventListener('DOMContentLoaded', function() {
       if(ov && ov.classList.contains('open')){ ov.classList.remove('open'); ov.setAttribute('aria-hidden','true'); }
     }
   }, true);
-})();
-</script>
-<style id="calendar-event-popup-keyboard-fix">
-/* Calendario: popup realmente centrato e sempre sopra la tastiera mobile */
-#evento-modal-overlay {
-  position: fixed !important;
-  left: 0 !important;
-  right: 0 !important;
-  top: 0 !important;
-  bottom: auto !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  min-height: 0 !important;
-  box-sizing: border-box !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  padding: 20px !important;
-  overflow: hidden !important;
-  z-index: 99999 !important;
-}
-#evento-modal-overlay .evento-modal {
-  margin: 0 !important;
-  position: relative !important;
-  top: auto !important;
-  bottom: auto !important;
-  transform: none !important;
-  width: min(500px, calc(100vw - 32px)) !important;
-  max-height: calc(100vh - 40px) !important;
-  overflow-y: auto !important;
-  -webkit-overflow-scrolling: touch !important;
-}
-@media (max-width:600px) {
-  #evento-modal-overlay {
-    padding: 12px !important;
-    align-items: center !important;
-  }
-  #evento-modal-overlay .evento-modal {
-    width: calc(100vw - 24px) !important;
-    max-height: calc(100vh - 24px) !important;
-  }
-}
-</style>
-<script id="calendar-event-popup-keyboard-fix-js">
-(function(){
-  function adjustCalendarEventPopup(){
-    const overlay = document.getElementById('evento-modal-overlay');
-    if(!overlay) return;
-    const vv = window.visualViewport;
-    const h = vv ? vv.height : window.innerHeight;
-    const top = vv ? vv.offsetTop : 0;
-    overlay.style.height = h + 'px';
-    overlay.style.top = top + 'px';
-    overlay.style.bottom = 'auto';
-    overlay.style.alignItems = 'center';
-    const modal = overlay.querySelector('.evento-modal');
-    if(modal){
-      modal.style.maxHeight = Math.max(180, h - 24) + 'px';
-      modal.style.marginTop = '0';
-      modal.style.marginBottom = '0';
-    }
-  }
-  function bindCalendarPopupKeyboard(){
-    const overlay = document.getElementById('evento-modal-overlay');
-    if(!overlay || overlay.dataset.keyboardFixBound === '1') return;
-    overlay.dataset.keyboardFixBound = '1';
-    adjustCalendarEventPopup();
-    const inputs = overlay.querySelectorAll('input, textarea, select');
-    inputs.forEach(function(el){
-      el.addEventListener('focus', function(){
-        setTimeout(function(){
-          adjustCalendarEventPopup();
-          const modal = overlay.querySelector('.evento-modal');
-          if(modal) modal.scrollIntoView({block:'center', behavior:'instant'});
-          setTimeout(adjustCalendarEventPopup, 150);
-          setTimeout(adjustCalendarEventPopup, 400);
-        }, 50);
-      });
-    });
-  }
-  const observer = new MutationObserver(function(){ bindCalendarPopupKeyboard(); });
-  observer.observe(document.body,{childList:true,subtree:true});
-  if(window.visualViewport){
-    window.visualViewport.addEventListener('resize', adjustCalendarEventPopup);
-    window.visualViewport.addEventListener('scroll', adjustCalendarEventPopup);
-  }
-  window.addEventListener('resize', adjustCalendarEventPopup);
-  document.addEventListener('focusin', function(e){
-    if(e.target && e.target.closest && e.target.closest('#evento-modal-overlay')) bindCalendarPopupKeyboard();
-  });
-  setTimeout(bindCalendarPopupKeyboard, 300);
 })();
 </script>
 <script id="bollette-mobile-file-fix-js">
@@ -17126,517 +16482,6 @@ document.addEventListener('DOMContentLoaded', function() {
 <script>
 /* CLEAN 15 marker */
 </script>
-<style id="calendar-modern-overrides">
-/* =========================================================
-   CALENDARIO EVENTI — RESTYLING MODERNO
-   Solo stile: struttura e logica eventi invariate.
-   ========================================================= */
-#page-eventi {
-  padding-bottom: 28px;
-}
-
-#page-eventi > h1 {
-  margin: 0 0 18px !important;
-  font-size: 25px !important;
-  line-height: 1.15;
-  font-weight: 850 !important;
-  letter-spacing: -0.45px;
-  color: var(--ui-ink, #17273c) !important;
-}
-
-/* Header mese */
-#page-eventi > div:first-of-type {
-  background: #fff !important;
-  border: 1px solid var(--ui-line, #e6edf2) !important;
-  border-radius: 18px !important;
-  min-height: 58px;
-  padding: 8px 10px !important;
-  margin-bottom: 12px !important;
-  box-shadow: 0 7px 22px rgba(23,39,60,.055);
-}
-
-#page-eventi #mese-titolo {
-  font-size: 17px !important;
-  font-weight: 850 !important;
-  color: var(--ui-ink, #17273c) !important;
-  letter-spacing: -.15px;
-}
-
-#page-eventi #btn-mese-prec,
-#page-eventi #btn-mese-succ {
-  width: 40px !important;
-  height: 40px !important;
-  padding: 0 !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f6f9fb !important;
-  color: #587089 !important;
-  border: 1px solid #e5ecf1 !important;
-  border-radius: 12px !important;
-  font-size: 25px !important;
-  line-height: 1;
-  box-shadow: none !important;
-}
-
-#page-eventi #btn-mese-prec:hover,
-#page-eventi #btn-mese-succ:hover {
-  background: #edf5fb !important;
-  color: #2563a6 !important;
-}
-
-/* Card calendario */
-#page-eventi > div:nth-of-type(2) {
-  background: #fff !important;
-  border: 1px solid var(--ui-line, #e6edf2) !important;
-  border-radius: 20px !important;
-  padding: 15px !important;
-  margin-bottom: 12px !important;
-  box-shadow: 0 8px 25px rgba(23,39,60,.055);
-}
-
-#page-eventi > div:nth-of-type(2) > div:first-child {
-  color: #8a9aac !important;
-  font-size: 10px !important;
-  font-weight: 850 !important;
-  letter-spacing: .55px;
-  text-transform: uppercase;
-  margin-bottom: 9px !important;
-}
-
-#page-eventi #calendario-giorni {
-  gap: 5px !important;
-}
-
-#page-eventi .giorno-cell {
-  min-width: 0;
-  aspect-ratio: 1 / 1;
-  border: 1px solid transparent;
-  border-radius: 12px !important;
-  background: #f7f9fb !important;
-  color: #31465c !important;
-  font-size: 13px !important;
-  font-weight: 750 !important;
-  box-sizing: border-box;
-  box-shadow: none !important;
-  transform: none !important;
-  transition: background .18s ease, border-color .18s ease, box-shadow .18s ease;
-}
-
-#page-eventi .giorno-cell:hover {
-  background: #eef6fc !important;
-  border-color: #c9dff2 !important;
-  transform: none !important;
-}
-
-#page-eventi .giorno-cell.altro-mese {
-  background: #fafbfc !important;
-  color: #aab5c0 !important;
-  border-color: transparent !important;
-  opacity: .65;
-}
-
-/* Oggi: blu pulito */
-#page-eventi .giorno-cell.oggi {
-  background: #eaf4ff !important;
-  color: #145a94 !important;
-  border: 1.5px solid #5ba4df !important;
-  font-weight: 850 !important;
-}
-
-/* Giorno selezionato */
-#page-eventi .giorno-cell.selezionato {
-  background: #f2f8fd !important;
-  color: #173d61 !important;
-  border: 2px solid #2f80c8 !important;
-  box-shadow: 0 0 0 3px rgba(47,128,200,.10) !important;
-}
-
-/* Giorno con evento: AZZURRO CHIARO + BORDO BLU */
-#page-eventi .giorno-cell.has-event,
-#page-eventi .giorno-cell.has-event.oggi,
-#page-eventi .giorno-cell.has-event.selezionato {
-  background: #e9f5ff !important;
-  color: #174d78 !important;
-  border: 1.5px solid #3b82c4 !important;
-  box-shadow: inset 0 0 0 1px rgba(59,130,196,.08) !important;
-  font-weight: 850 !important;
-}
-
-#page-eventi .giorno-cell.has-event::after,
-#page-eventi .giorno-cell.oggi.has-event::after {
-  width: 5px !important;
-  height: 5px !important;
-  bottom: 4px !important;
-  background: #2f80c8 !important;
-  box-shadow: none !important;
-}
-
-/* Card eventi del giorno */
-#page-eventi > div:nth-of-type(3) {
-  background: #fff !important;
-  border: 1px solid var(--ui-line, #e6edf2) !important;
-  border-radius: 20px !important;
-  padding: 16px !important;
-  box-shadow: 0 8px 25px rgba(23,39,60,.055);
-}
-
-#page-eventi #giorno-selezionato-titolo {
-  color: var(--ui-ink, #17273c) !important;
-  font-size: 15px !important;
-  font-weight: 850 !important;
-  letter-spacing: -.1px;
-}
-
-#page-eventi #btn-nuovo-evento {
-  min-height: 40px;
-  padding: 0 16px !important;
-  background: var(--ui-ink, #17273c) !important;
-  color: #fff !important;
-  border-radius: 12px !important;
-  box-shadow: none !important;
-  font-size: 12px !important;
-  font-weight: 800 !important;
-  letter-spacing: -.05px;
-}
-
-#page-eventi #btn-nuovo-evento:hover {
-  transform: none !important;
-  background: #223b55 !important;
-}
-
-#page-eventi #eventi-del-giorno > div:not(.evento-card) {
-  padding: 28px 16px !important;
-  border: 1px dashed #dbe5ec;
-  border-radius: 15px;
-  background: #fafcfd;
-}
-
-#page-eventi #eventi-del-giorno > div:not(.evento-card) p:first-child {
-  margin: 0 0 5px !important;
-  color: #536a80 !important;
-  font-weight: 800 !important;
-}
-
-#page-eventi #eventi-del-giorno > div:not(.evento-card) p:last-child {
-  margin: 0 !important;
-  color: #95a4b3 !important;
-}
-
-/* Singolo evento */
-#page-eventi .evento-card {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-height: 62px;
-  margin-bottom: 9px;
-  padding: 11px 12px !important;
-  background: #fff !important;
-  border: 1px solid #e5edf3 !important;
-  border-left: 4px solid #4d98d0 !important;
-  border-radius: 15px !important;
-  box-shadow: 0 4px 14px rgba(23,39,60,.045);
-  transform: none !important;
-}
-
-#page-eventi .evento-card:hover {
-  background: #f8fbfe !important;
-  border-color: #d7e5ef !important;
-  transform: none !important;
-}
-
-#page-eventi .evento-card .evento-ora {
-  min-width: 72px;
-  color: #2874aa !important;
-  font-size: 11px !important;
-  font-weight: 850 !important;
-  padding: 7px 8px;
-  background: #eef7ff;
-  border-radius: 9px;
-  text-align: center;
-}
-
-#page-eventi .evento-card .evento-titolo {
-  color: #21364c !important;
-  font-size: 14px !important;
-  font-weight: 800 !important;
-  line-height: 1.3;
-}
-
-#page-eventi .evento-card .evento-edit,
-#page-eventi .evento-card .evento-delete {
-  width: 34px;
-  height: 34px;
-  padding: 0 !important;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #e3ebf1 !important;
-  border-radius: 10px !important;
-  background: #f8fafc !important;
-  font-size: 15px !important;
-  color: #71859a !important;
-}
-
-#page-eventi .evento-card .evento-edit:hover {
-  color: #2874aa !important;
-  background: #edf7ff !important;
-  border-color: #cfe4f4 !important;
-}
-
-#page-eventi .evento-card .evento-delete:hover {
-  color: #d94b57 !important;
-  background: #fff1f2 !important;
-  border-color: #f3d3d7 !important;
-}
-
-/* =========================================================
-   POPUP CREAZIONE / MODIFICA EVENTO
-   ========================================================= */
-.evento-modal-overlay {
-  background: rgba(20,34,49,.48) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  padding: 16px !important;
-}
-
-.evento-modal {
-  position: relative;
-  width: min(100%, 440px) !important;
-  max-width: 440px !important;
-  max-height: calc(100vh - 32px);
-  overflow-y: auto;
-  padding: 22px !important;
-  background: #fff !important;
-  border: 1px solid #e4ebf1 !important;
-  border-radius: 22px !important;
-  box-shadow: 0 24px 70px rgba(19,36,53,.20) !important;
-  animation: calendarModalIn .22s ease-out !important;
-}
-
-@keyframes calendarModalIn {
-  from { opacity: 0; transform: translateY(10px) scale(.985); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-.evento-modal h3 {
-  margin: 0 0 5px !important;
-  color: #172b40 !important;
-  font-size: 20px !important;
-  font-weight: 850 !important;
-  letter-spacing: -.35px;
-}
-
-.evento-modal > p {
-  margin: 0 0 20px !important;
-  color: #8798a8 !important;
-  font-size: 12px !important;
-  line-height: 1.5;
-  font-weight: 650 !important;
-}
-
-.evento-modal .campo {
-  margin-bottom: 15px !important;
-}
-
-.evento-modal .campo label {
-  margin-bottom: 7px !important;
-  color: #5d7185 !important;
-  font-size: 11px !important;
-  font-weight: 850 !important;
-  letter-spacing: .2px;
-}
-
-.evento-modal .campo input,
-.evento-modal .campo select,
-.evento-modal .campo textarea {
-  box-sizing: border-box;
-  width: 100% !important;
-  min-height: 46px;
-  height: 46px !important;
-  background: #f8fafc !important;
-  border: 1px solid #dfe8ef !important;
-  border-radius: 13px !important;
-  color: #24394e !important;
-  font-size: 13px !important;
-  font-weight: 700 !important;
-  box-shadow: none !important;
-}
-
-.evento-modal .campo textarea {
-  height: 88px !important;
-  min-height: 88px;
-  padding: 12px 13px !important;
-  line-height: 1.45;
-}
-
-.evento-modal .campo input::placeholder,
-.evento-modal .campo textarea::placeholder {
-  color: #a1afbc !important;
-  font-weight: 600;
-}
-
-.evento-modal .campo input:focus,
-.evento-modal .campo select:focus,
-.evento-modal .campo textarea:focus {
-  background: #fff !important;
-  border-color: #4b96cf !important;
-  box-shadow: 0 0 0 3px rgba(75,150,207,.11) !important;
-}
-
-/* Tutto il giorno */
-.evento-modal .evento-all-day-toggle {
-  min-height: 54px;
-  box-sizing: border-box;
-  margin: 3px 0 16px !important;
-  padding: 10px 12px !important;
-  background: #f6f9fb !important;
-  border: 1px solid #e5edf2 !important;
-  border-radius: 14px !important;
-}
-
-.evento-modal .evento-all-day-toggle > div:first-child > div:first-child {
-  color: #294057 !important;
-  font-size: 13px !important;
-  font-weight: 800 !important;
-}
-
-.evento-modal .evento-all-day-toggle > div:first-child > div:last-child {
-  color: #93a2b0 !important;
-  font-size: 11px !important;
-}
-
-.evento-modal .evento-switch {
-  width: 44px !important;
-  height: 25px !important;
-}
-
-.evento-modal .evento-slider {
-  background: #cbd5df !important;
-  border-radius: 999px !important;
-}
-
-.evento-modal .evento-slider:before {
-  width: 19px !important;
-  height: 19px !important;
-  left: 3px !important;
-  top: 3px !important;
-  box-shadow: 0 2px 5px rgba(24,44,61,.20) !important;
-}
-
-.evento-modal .evento-switch input:checked + .evento-slider {
-  background: #4b96cf !important;
-}
-
-.evento-modal .evento-switch input:checked + .evento-slider:before {
-  transform: translateX(19px) !important;
-}
-
-/* Pulsanti popup */
-.evento-modal .modal-actions {
-  gap: 9px !important;
-  margin-top: 20px !important;
-}
-
-.evento-modal .modal-actions button {
-  min-height: 46px;
-  height: 46px !important;
-  border-radius: 13px !important;
-  font-size: 12px !important;
-  font-weight: 850 !important;
-  box-shadow: none !important;
-}
-
-.evento-modal .btn-cancel {
-  background: #f7f9fb !important;
-  border: 1px solid #dfe7ed !important;
-  color: #62778a !important;
-}
-
-.evento-modal .btn-cancel:hover {
-  background: #eef3f6 !important;
-  transform: none !important;
-}
-
-.evento-modal .btn-create {
-  background: #172b40 !important;
-  border: none !important;
-  color: #fff !important;
-  box-shadow: 0 7px 16px rgba(23,43,64,.14) !important;
-}
-
-.evento-modal .btn-create:hover {
-  background: #223d58 !important;
-  transform: none !important;
-  box-shadow: 0 9px 20px rgba(23,43,64,.18) !important;
-}
-
-/* Mobile */
-@media (max-width: 600px) {
-  #page-eventi > h1 {
-    font-size: 22px !important;
-    margin-bottom: 14px !important;
-  }
-
-  #page-eventi > div:nth-of-type(2),
-  #page-eventi > div:nth-of-type(3) {
-    padding: 13px !important;
-    border-radius: 18px !important;
-  }
-
-  #page-eventi #calendario-giorni {
-    gap: 4px !important;
-  }
-
-  #page-eventi .giorno-cell {
-    border-radius: 10px !important;
-    font-size: 12px !important;
-  }
-
-  #page-eventi .evento-card {
-    gap: 8px;
-    min-height: 58px;
-    padding: 9px !important;
-  }
-
-  #page-eventi .evento-card .evento-ora {
-    min-width: 62px;
-    padding: 6px 5px;
-    font-size: 10px !important;
-  }
-
-  #page-eventi .evento-card .evento-titolo {
-    font-size: 13px !important;
-  }
-
-  #page-eventi .evento-card .evento-edit,
-  #page-eventi .evento-card .evento-delete {
-    width: 31px;
-    height: 31px;
-    font-size: 14px !important;
-  }
-
-  #page-eventi #btn-nuovo-evento {
-    min-height: 38px;
-    padding: 0 12px !important;
-    font-size: 11px !important;
-  }
-
-  .evento-modal-overlay {
-    align-items: flex-end !important;
-    padding: 10px !important;
-  }
-
-  .evento-modal {
-    width: 100% !important;
-    max-width: none !important;
-    max-height: calc(100vh - 20px);
-    padding: 19px !important;
-    border-radius: 22px 22px 18px 18px !important;
-  }
-}
-</style>
 <style id="sections-modern-restyle-2026">
 /* =========================================================
    RESTYLING MIRATO: TITOLI + IMPORTA EXCEL + CATEGORIE
@@ -21230,6 +20075,441 @@ body:has(#shell:not(.hidden)) {--focus-ring: 0 0 0 4px rgba(var(--pp-accent-rgb)
   document.addEventListener('keydown',onKeydown);
   render();
   page.dataset.shoppingStudioReady='true';
+})();
+
+</script>
+<style id="calendar-studio-premium-css">
+/* Calendar Studio Premium — custom interface, scoped to page-eventi */
+#page-eventi{--cs-ink:#192b4b;--cs-muted:#8291a9;--cs-line:#e7ebf4;--cs-indigo:#6678e9;--cs-green:#17a883;--cs-violet:#9575df;--cs-blue:#5a9cde;--cs-amber:#e5aa53;--cs-shadow:0 11px 27px rgba(27,48,100,.055);padding:0 0 60px;color:var(--cs-ink)}
+#page-eventi .calendar-studio,#page-eventi .calendar-studio *{box-sizing:border-box}
+#page-eventi .calendar-studio{max-width:1220px;margin:0 auto;padding-bottom:30px;min-width:0}
+#page-eventi .cs-hero{background:linear-gradient(118deg,#fff 5%,#f6f8ff 55%,#eaf1ff 100%);border:1px solid #e2e9fb;box-shadow:var(--cs-shadow);border-radius:27px;padding:30px 35px;display:flex;align-items:center;justify-content:space-between;gap:22px;min-height:217px;position:relative;overflow:hidden;isolation:isolate}
+#page-eventi .cs-hero:before{content:'';position:absolute;right:-90px;bottom:-180px;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,#d7e4ff65,transparent 69%);z-index:-1}
+#page-eventi .cs-eyebrow,#page-eventi .cs-kicker{font-size:10px;letter-spacing:1.25px;font-weight:850;color:#6881c7;text-transform:uppercase}
+#page-eventi .cs-eyebrow{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+#page-eventi .cs-spark{height:7px;width:7px;border-radius:50%;background:#45cba1;box-shadow:0 0 0 4px #e5faf2}
+#page-eventi .cs-premium{font-size:8px;background:#eef0ff;color:#7281d7;padding:5px 8px;border:1px solid #e0e7ff;border-radius:99px;letter-spacing:.6px}
+#page-eventi .cs-hero h1{font-size:clamp(27px,3.2vw,39px);font-weight:900;letter-spacing:-1.45px;line-height:1.16;color:var(--cs-ink);margin:13px 0 10px;text-align:left}
+#page-eventi .cs-hero h1 em{color:#6979de;font-style:normal}
+#page-eventi .cs-hero p{font-size:12px;color:#7589a4;line-height:1.7;max-width:490px;margin:0}
+#page-eventi .cs-hero-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:19px}
+#page-eventi .cs-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid #e0e7f2;border-radius:12px;background:#fff;color:#43597b;padding:10px 14px;min-height:41px;cursor:pointer;font-size:11px;font-weight:850;line-height:1.25;transition:transform .2s,box-shadow .2s,background .2s}
+#page-eventi .cs-button:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 18px rgba(62,80,134,.1)}
+#page-eventi .cs-button:disabled{opacity:.55;cursor:not-allowed}
+#page-eventi .cs-button.cs-primary{background:linear-gradient(135deg,#667aec,#5267d4);color:#fff;border-color:transparent;box-shadow:0 8px 22px rgba(86,105,218,.2)}
+#page-eventi .cs-button.cs-secondary{color:#5b70d8;background:#f6f7ff;border-color:#e5e8ff}
+#page-eventi .cs-family-chip{color:#7992b0;background:#fff9;border:1px solid #e5ebf5;border-radius:99px;padding:9px 11px;font-weight:750;font-size:10px;display:inline-flex;align-items:center;gap:7px}
+#page-eventi .cs-family-chip i{font-size:15px;color:#728add}
+#page-eventi .cs-hero-art{width:188px;height:163px;flex:0 0 188px;position:relative;display:grid;place-items:center}
+#page-eventi .cs-art-orbit{height:156px;width:156px;border:1px dashed #b4c6ef;border-radius:50%;display:block;box-shadow:0 0 0 25px #d9e4ff4d}
+#page-eventi .cs-art-sheet{width:106px;height:124px;position:absolute;transform:rotate(8deg);border-radius:21px;background:#fff;box-shadow:0 17px 32px rgba(44,80,155,.13);border:1px solid #d9e5f9;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#6477e4;gap:3px}
+#page-eventi .cs-art-sheet i{font-size:47px}
+#page-eventi .cs-art-sheet b{font-size:29px;line-height:1;font-weight:900;letter-spacing:-1px}
+#page-eventi .cs-art-star{position:absolute;font-size:23px;color:#e3b67f;right:5px;top:13px}
+#page-eventi .cs-connection{margin:12px 3px 0;color:#698b9b;font-size:11px;font-weight:700;display:flex;align-items:center;gap:8px;min-height:19px}
+#page-eventi .cs-connection i{font-size:15px;color:#29a586}
+#page-eventi .cs-connection.is-offline{color:#a78155}
+#page-eventi .cs-connection.is-offline i{color:#d5a25b}
+#page-eventi .cs-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin:18px 0 22px}
+#page-eventi .cs-stat{min-width:0;padding:17px;background:#fff;border:1px solid var(--cs-line);border-radius:19px;box-shadow:var(--cs-shadow);animation:cs-rise .45s both}
+#page-eventi .cs-stat:nth-child(2){animation-delay:.05s}#page-eventi .cs-stat:nth-child(3){animation-delay:.1s}#page-eventi .cs-stat:nth-child(4){animation-delay:.15s}
+#page-eventi .cs-stat-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;color:#8293ab;font-size:10px;font-weight:790}
+#page-eventi .cs-stat-icon{height:35px;width:35px;background:#eef0fe;color:#687be8;border-radius:12px;display:grid;place-items:center;font-size:18px;flex:0 0 35px}
+#page-eventi .cs-stat:nth-child(2) .cs-stat-icon{background:#eaf9f2;color:#1aa47d}#page-eventi .cs-stat:nth-child(3) .cs-stat-icon{background:#fff4e6;color:#d49a52}#page-eventi .cs-stat:nth-child(4) .cs-stat-icon{background:#edf6ff;color:#4a95d5}
+#page-eventi .cs-stat strong{font-size:clamp(21px,2.2vw,27px);line-height:1.2;display:block;color:#233853;font-weight:890;letter-spacing:-.65px}
+#page-eventi .cs-stat small{color:#a2afc0;font-size:10px;font-weight:680;margin-top:5px;display:block;line-height:1.4}
+#page-eventi .cs-main-grid{display:grid;grid-template-columns:minmax(0,1.42fr) minmax(330px,.9fr);gap:16px;align-items:stretch;margin-bottom:17px}
+#page-eventi .cs-calendar-panel,#page-eventi .cs-day-panel,#page-eventi .cs-agenda-panel{border-radius:23px;border:1px solid var(--cs-line);background:#fff;box-shadow:var(--cs-shadow);padding:20px;min-width:0}
+#page-eventi .cs-calendar-top,#page-eventi .cs-day-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+#page-eventi .cs-calendar-top h2,#page-eventi .cs-day-head h2{font-size:clamp(17px,2vw,22px);font-weight:890;letter-spacing:-.6px;color:#233853;margin:5px 0 0;text-transform:capitalize}
+#page-eventi .cs-nav{display:flex;align-items:center;gap:5px}
+#page-eventi .cs-nav button{height:35px;width:35px;border-radius:11px;border:1px solid #e5ebf6;background:#fff;color:#647a9a;font-weight:800;font-size:15px;cursor:pointer;display:inline-grid;place-items:center;transition:background .15s,color .15s}
+#page-eventi .cs-nav button:hover{background:#eef1ff;color:#586ce0}
+#page-eventi .cs-nav .cs-nav-today{width:auto;padding:0 11px;font-size:11px}
+#page-eventi .cs-weekdays,#page-eventi .cs-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+#page-eventi .cs-weekdays{margin-bottom:7px}
+#page-eventi .cs-weekdays span{text-align:center;font-size:10px;font-weight:800;color:#9aaac0;padding:5px 0}
+#page-eventi .cs-day{background:#f9fbfe;border:1px solid #edf1f7;border-radius:12px;min-width:0;min-height:70px;padding:10px 9px;display:flex;flex-direction:column;align-items:flex-start;gap:7px;cursor:pointer;text-align:left;color:#3b5474;position:relative;font:inherit;transition:background .15s,box-shadow .15s,border-color .15s,transform .15s}
+#page-eventi .cs-day:hover{background:#eef3ff;transform:translateY(-1px);border-color:#d5def8}
+#page-eventi .cs-day.other-month{background:#fff;border-color:#f1f3f7;color:#b6c2d0}
+#page-eventi .cs-day.is-today{border-color:#a4b4fd;box-shadow:inset 0 0 0 1px #bbc6ff}
+#page-eventi .cs-day.is-selected{background:linear-gradient(135deg,#6478eb,#5969d4);border-color:#576cdc;color:#fff;box-shadow:0 7px 16px #6878df36}
+#page-eventi .cs-day-number{font-size:12px;font-weight:860;line-height:1}
+#page-eventi .cs-day.is-today .cs-day-number{text-decoration:underline;text-underline-offset:4px}
+#page-eventi .cs-event-dots{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+#page-eventi .cs-dot{height:7px;width:7px;flex:0 0 7px;display:inline-block;border-radius:50%;background:#9575df}
+#page-eventi .cs-dot.blue{background:#5a9cde}#page-eventi .cs-dot.mint{background:#39b497}#page-eventi .cs-dot.amber{background:#e6a854}#page-eventi .cs-dot.gray{background:#96a0b5}
+#page-eventi .cs-day.is-selected .cs-dot{border:1px solid #fff}
+#page-eventi .cs-day-more{color:#91a2bc;font-size:9px;font-weight:850;margin-left:auto}
+#page-eventi .cs-day.is-selected .cs-day-more{color:#fff}
+#page-eventi .cs-legend{display:flex;align-items:center;flex-wrap:wrap;gap:13px;margin:15px 2px 0;font-size:10px;font-weight:730;color:#8596ab}
+#page-eventi .cs-legend span{display:flex;align-items:center;gap:5px}
+#page-eventi .cs-day-head{margin-bottom:18px}
+#page-eventi .cs-day-head h2{font-size:19px}
+#page-eventi .cs-day-head p{font-size:11px;color:#90a2b8;margin:4px 0 0}
+#page-eventi .cs-day-add{height:40px;width:40px;display:grid;place-items:center;border:0;border-radius:13px;background:#edf0ff;color:#6277df;font-size:22px;cursor:pointer;transition:background .2s,transform .2s;flex:0 0 40px}
+#page-eventi .cs-day-add:hover{background:#dfe5ff;transform:translateY(-2px)}
+#page-eventi .cs-day-events{display:grid;gap:10px}
+#page-eventi .cs-event{display:flex;gap:11px;align-items:flex-start;padding:13px;background:#f9fbfe;border:1px solid #edf1f7;border-radius:15px;min-width:0;transition:border-color .15s,background .15s}
+#page-eventi .cs-event:hover{background:#f5f8ff;border-color:#e0e9fb}
+#page-eventi .cs-event-tone{height:39px;width:39px;flex:0 0 39px;display:grid;place-items:center;border-radius:12px;background:#efeaff;color:#9277db;font-size:19px}
+#page-eventi .cs-event-tone.blue{background:#eaf5ff;color:#4d93d8}#page-eventi .cs-event-tone.mint{background:#eafbf3;color:#21a887}#page-eventi .cs-event-tone.amber{background:#fff5e9;color:#d99c4b}#page-eventi .cs-event-tone.gray{background:#f1f2f5;color:#8d96aa}
+#page-eventi .cs-event-info{flex:1;min-width:0}
+#page-eventi .cs-event-info strong{display:block;font-size:12px;line-height:1.45;font-weight:850;color:#2b4260;overflow-wrap:anywhere}
+#page-eventi .cs-event-meta{display:flex;flex-wrap:wrap;gap:7px;margin:5px 0 0;color:#8b9db2;font-size:10px;font-weight:650}
+#page-eventi .cs-event-meta span{display:inline-flex;align-items:center;gap:4px;max-width:100%;overflow-wrap:anywhere}
+#page-eventi .cs-event-note{margin:7px 0 0;font-size:10px;line-height:1.5;color:#90a0b5;overflow-wrap:anywhere;white-space:pre-wrap}
+#page-eventi .cs-event-actions{display:flex;align-items:center;gap:2px;flex-wrap:wrap;margin-top:9px}
+#page-eventi .cs-iconbtn{border:0;background:transparent;border-radius:8px;color:#91a2bb;height:28px;width:28px;display:inline-grid;place-items:center;cursor:pointer;font-size:16px;transition:background .15s,color .15s}
+#page-eventi .cs-iconbtn:hover{background:#e9edff;color:#6274dc}
+#page-eventi .cs-iconbtn.danger:hover{background:#fff0f2;color:#d45a71}
+#page-eventi .cs-tips{margin-top:18px;padding:12px;background:#f3f5ff;border:1px solid #e7eafd;border-radius:12px;color:#8791b0;line-height:1.55;font-size:10px;font-weight:650;display:flex;align-items:flex-start;gap:8px}
+#page-eventi .cs-tips i{font-size:17px;color:#7483d7;flex:0 0 17px}
+#page-eventi .cs-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px 12px;border:1px dashed #dfe7f3;background:#fbfcff;border-radius:16px;min-height:130px}
+#page-eventi .cs-empty i{font-size:29px;color:#96a9da;margin-bottom:9px}
+#page-eventi .cs-empty strong{font-size:12px;color:#506782;font-weight:850}
+#page-eventi .cs-empty p{font-size:11px;line-height:1.55;color:#9eacbd;margin:6px 0 0}
+#page-eventi .cs-empty button{margin-top:12px}
+#page-eventi .cs-agenda-panel{padding:21px}
+#page-eventi .cs-agenda-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+#page-eventi .cs-agenda-head h2{font-size:20px;font-weight:890;letter-spacing:-.55px;margin:5px 0;color:#223853;display:flex;align-items:center;gap:10px}
+#page-eventi .cs-agenda-head p{font-size:11px;color:#97a6b9;margin:0;line-height:1.6}
+#page-eventi .cs-count{display:grid;place-items:center;background:#eef2ff;color:#6476e1;border-radius:999px;padding:3px 9px;font-size:10px;font-weight:800;letter-spacing:0}
+#page-eventi .cs-agenda-toolbar{display:flex;align-items:center;gap:9px;margin-bottom:13px;flex-wrap:wrap}
+#page-eventi .cs-search{height:42px;min-width:0;flex:1 1 225px;display:flex;align-items:center;gap:8px;position:relative;border-radius:12px;background:#f8faff;border:1px solid #e3eaf5;padding:0 12px;color:#93a2b7}
+#page-eventi .cs-search i{font-size:17px}
+#page-eventi .cs-search:focus-within{border-color:#a1aff5;box-shadow:0 0 0 3px #eef0ff;background:#fff}
+#page-eventi .cs-search input{border:0!important;background:transparent!important;box-shadow:none!important;outline:0!important;width:100%;height:100%;font-size:11px;color:#29415f;font-weight:670;min-width:0;padding:0!important}
+#page-eventi .cs-search input::placeholder{color:#9eaac0}
+#page-eventi #cs-category-filter{height:42px;min-width:158px;background:#fff;border:1px solid #e3eaf5;border-radius:12px;padding:0 10px;color:#687e9f;font-size:11px;font-weight:730;outline:0}
+#page-eventi .cs-agenda-list{display:grid;gap:8px}
+#page-eventi .cs-agenda-item{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid #ebeff6;border-radius:14px;background:#fff;width:100%;cursor:pointer;text-align:left;transition:border-color .2s,background .2s}
+#page-eventi .cs-agenda-item:hover{background:#f7f9ff;border-color:#dbe4ff}
+#page-eventi .cs-agenda-date{border-radius:12px;flex:0 0 47px;width:47px;height:52px;background:#eff2ff;color:#6175d8;display:flex;flex-direction:column;align-items:center;justify-content:center}
+#page-eventi .cs-agenda-date b{font-size:19px;line-height:1;font-weight:900}
+#page-eventi .cs-agenda-date small{font-size:9px;text-transform:uppercase;font-weight:800;margin-top:4px}
+#page-eventi .cs-agenda-copy{flex:1;min-width:0}
+#page-eventi .cs-agenda-copy strong{display:block;overflow-wrap:anywhere;color:#2c4662;font-size:12px;font-weight:850}
+#page-eventi .cs-agenda-copy small{display:block;color:#95a5b8;font-size:10px;font-weight:700;margin-top:4px;overflow-wrap:anywhere}
+#page-eventi .cs-agenda-item>i{color:#a3b0c5;font-size:17px}
+#page-eventi .cs-footnote{display:flex;align-items:center;gap:7px;color:#a1afc0;font-size:10px;line-height:1.5;margin:18px 0 0}
+#page-eventi .cs-footnote i{color:#89b8af;font-size:15px}
+/* Dedicated accessible modal: independent of legacy overlays / touch patches */
+#cs-modal{position:fixed;inset:0;z-index:120000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(19,32,57,.55);backdrop-filter:blur(6px);box-sizing:border-box}
+#cs-modal *{box-sizing:border-box}
+#cs-modal .cs-modal-card{width:min(100%,520px);max-height:min(88dvh,740px);overflow-y:auto;background:#fff;border:1px solid #e2eaf6;border-radius:22px;box-shadow:0 28px 75px rgba(14,32,68,.25);padding:23px;animation:cs-modal-in .23s both;overscroll-behavior:contain}
+#cs-modal .cs-modal-top{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:11px}
+#cs-modal .cs-modal-icon{width:41px;height:41px;border-radius:13px;background:#edf0ff;color:#6579e3;display:grid;place-items:center;font-size:20px}
+#cs-modal .cs-modal-close{display:grid;place-items:center;height:35px;width:35px;background:#f4f6fb;border:1px solid #e6ebf4;border-radius:10px;color:#8595aa;font-size:19px;cursor:pointer}
+#cs-modal h2{font-size:21px;font-weight:890;letter-spacing:-.55px;color:#233955;margin:0 0 7px}
+#cs-modal p{font-size:11px;line-height:1.6;color:#8c9eb1;margin:0 0 16px}
+#cs-modal .cs-modal-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:14px}
+#cs-modal .cs-field{display:flex;flex-direction:column;gap:6px;min-width:0}
+#cs-modal .cs-field.full{grid-column:1/-1}
+#cs-modal .cs-field label{color:#7d91a9;font-size:10px;font-weight:800}
+#cs-modal .cs-field input,#cs-modal .cs-field select,#cs-modal .cs-field textarea{background:#fafbfe;border:1px solid #e0e8f3;border-radius:11px;height:42px;min-width:0;padding:0 11px;font-size:12px;font-weight:670;color:#2b4263;outline:0;width:100%}
+#cs-modal .cs-field textarea{padding:11px;height:auto;min-height:82px;resize:vertical;line-height:1.5}
+#cs-modal .cs-field input:focus,#cs-modal .cs-field select:focus,#cs-modal .cs-field textarea:focus{background:#fff;border-color:#a3b1f8;box-shadow:0 0 0 3px #eef0ff}
+#cs-modal .cs-all-day{display:flex;align-items:center;gap:9px;min-height:42px;background:#f8faff;border:1px solid #e9edf6;border-radius:11px;padding:0 12px;color:#617894;font-size:11px;font-weight:780}
+#cs-modal .cs-all-day input{height:17px;width:17px;accent-color:#667ae5;flex:none}
+#cs-modal .cs-modal-actions{display:flex;align-items:center;justify-content:flex-end;gap:9px;margin-top:16px;flex-wrap:wrap}
+#cs-modal .cs-modal-actions button{height:41px;padding:0 14px;font-size:11px;font-weight:830;border-radius:11px;border:1px solid #e0e6f1;background:#fff;color:#5f7390;cursor:pointer}
+#cs-modal .cs-modal-actions button[type=submit]{color:#fff;background:#6276df;border-color:#6276df}
+#cs-modal .cs-modal-actions .cs-delete-confirm{color:#fff;background:#d75e72;border-color:#d75e72}
+#cs-modal .cs-modal-actions button:disabled{opacity:.6;cursor:wait}
+#cs-modal #cs-modal-error{font-size:11px;color:#c54e67;font-weight:740;padding:11px;border:1px solid #ffdee3;border-radius:11px;background:#fff5f6;line-height:1.5;margin:10px 0}
+#cs-modal #cs-modal-error[hidden],#cs-modal .cs-field[hidden],#cs-modal .cs-modal-fields[hidden]{display:none!important}
+#cs-toast-host{position:fixed;bottom:20px;right:20px;z-index:121000;max-width:min(420px,calc(100vw - 40px))}
+#cs-toast-host .cs-toast{display:flex;gap:9px;align-items:center;padding:13px 15px;background:#fff;box-shadow:0 12px 35px #1d305133;border:1px solid #e2eaf5;border-radius:13px;font-size:11px;font-weight:760;color:#35516b;animation:cs-rise .25s both}
+#cs-toast-host .cs-toast i{color:#23a783;font-size:18px}
+#cs-toast-host .cs-toast.error i{color:#cf5f72}
+@keyframes cs-rise{from{opacity:0;transform:translateY(11px)}to{opacity:1;transform:translateY(0)}}
+@keyframes cs-modal-in{from{opacity:0;transform:translateY(14px) scale(.986)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:1000px){#page-eventi .cs-main-grid{grid-template-columns:1fr}#page-eventi .cs-summary{grid-template-columns:repeat(2,minmax(0,1fr))}#page-eventi .cs-day-events{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){#page-eventi{padding-bottom:86px}#page-eventi .cs-hero{padding:23px 20px;min-height:188px;border-radius:22px}#page-eventi .cs-hero-art{display:none}#page-eventi .cs-hero h1{font-size:29px}#page-eventi .cs-hero p{font-size:11px}#page-eventi .cs-summary{gap:9px;margin:14px 0}#page-eventi .cs-stat{padding:13px;border-radius:16px}#page-eventi .cs-stat-top{margin-bottom:9px;font-size:10px}#page-eventi .cs-stat strong{font-size:22px}#page-eventi .cs-stat-icon{height:30px;width:30px;flex-basis:30px;font-size:16px}#page-eventi .cs-main-grid{gap:12px;margin-bottom:12px}#page-eventi .cs-calendar-panel,#page-eventi .cs-day-panel,#page-eventi .cs-agenda-panel{padding:15px 12px;border-radius:19px}#page-eventi .cs-calendar-top{margin-bottom:11px}#page-eventi .cs-calendar-top h2{font-size:19px}#page-eventi .cs-weekdays,#page-eventi .cs-days{gap:4px}#page-eventi .cs-day{min-height:56px;padding:8px 5px;gap:6px;border-radius:9px}#page-eventi .cs-day-number{font-size:11px}#page-eventi .cs-event-dots{gap:3px}#page-eventi .cs-dot{width:6px;height:6px;flex-basis:6px}#page-eventi .cs-legend{gap:8px;font-size:9px}#page-eventi .cs-day-events{grid-template-columns:1fr}#page-eventi .cs-day-head h2{font-size:19px}#page-eventi .cs-day-head p{font-size:10px}#page-eventi .cs-agenda-head h2{font-size:18px}#page-eventi .cs-agenda-head .cs-button{padding:8px 10px;min-height:37px}#page-eventi .cs-agenda-toolbar{align-items:stretch}#page-eventi #cs-category-filter{flex:1}#page-eventi .cs-footnote{font-size:9px}#cs-modal .cs-modal-card{padding:17px;border-radius:18px;max-height:91dvh}#cs-modal .cs-modal-fields{gap:10px}#cs-modal .cs-field input,#cs-modal .cs-field select{font-size:12px}#cs-modal .cs-modal-actions button{padding:0 12px}}
+@media(max-width:370px){#page-eventi .cs-day{min-height:51px;padding:7px 4px}#page-eventi .cs-day-more{display:none}#page-eventi .cs-stat strong{font-size:19px}#page-eventi .cs-hero-actions .cs-family-chip{display:none}#cs-modal .cs-modal-fields{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){#page-eventi *,#page-eventi *:before,#page-eventi *:after,#cs-modal *,#cs-toast-host *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+#page-eventi .cs-upcoming{margin-top:19px;padding-top:15px;border-top:1px solid #edf0f7}
+#page-eventi .cs-upcoming h3{font-size:12px;color:#2e4262;font-weight:890;display:flex;justify-content:space-between;gap:6px;margin:0 0 10px}
+#page-eventi .cs-upcoming h3 span{color:#9aaac0;font-size:10px;font-weight:690}
+#page-eventi .cs-upcoming-row{width:100%;min-width:0;display:flex;align-items:center;gap:10px;text-align:left;padding:9px 6px;border:0;border-bottom:1px solid #f0f3f8;background:transparent;cursor:pointer;color:#3a506e;border-radius:8px}
+#page-eventi .cs-upcoming-row:hover{background:#f6f8ff}
+#page-eventi .cs-upcoming-row>span:nth-child(2){flex:1;min-width:0}
+#page-eventi .cs-upcoming-row strong{display:block;font-size:11px;font-weight:830;color:#354b68;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#page-eventi .cs-upcoming-row small{display:block;font-size:10px;font-weight:670;color:#9eacbd;margin-top:3px}
+#page-eventi .cs-upcoming-row>i{font-size:15px;color:#a1b0bf}
+#page-eventi .cs-upcoming-dot{height:8px;width:8px;flex:0 0 8px;border-radius:50%;background:#9575df}
+#page-eventi .cs-upcoming-dot.blue{background:#5a9cde}#page-eventi .cs-upcoming-dot.mint{background:#39b497}#page-eventi .cs-upcoming-dot.amber{background:#e6a854}#page-eventi .cs-upcoming-dot.gray{background:#96a0b5}
+#page-eventi .cs-upcoming-empty{font-size:11px;color:#9aa9bb;padding:8px 4px;margin:0}
+
+/* Keep the original global mobile FAB out of calendar dates and dialogs. */
+body.cs-page-active #pp-quick-toggle,body.cs-page-active #pp-quick-menu,body.cs-page-active .pp-quick-scrim{display:none!important}
+
+</style>
+<script id="calendar-studio-premium-js">
+/* Calendar Studio Premium — independent UI. All shared data through CalendarStudioStorage. */
+(() => {
+  'use strict';
+  const page=document.getElementById('page-eventi');
+  if (!page || window.CalendarStudioPremium) return;
+  const $=(q,base=document)=>base.querySelector(q);
+  const $$=(q,base=document)=>Array.from(base.querySelectorAll(q));
+  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const icon=n=>`<i class="ti ti-${n}" aria-hidden="true"></i>`;
+  const now=()=>new Date();
+  const iso=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
+  const fromISO=s=>{if(!/^\d{4}-\d{2}-\d{2}$/.test(s||''))return null;const [y,m,d]=s.split('-').map(Number);const dt=new Date(y,m-1,d,12,0,0);return dt.getFullYear()===y&&dt.getMonth()===m-1&&dt.getDate()===d?dt:null;};
+  const shiftDays=(date,days)=>new Date(date.getFullYear(),date.getMonth(),date.getDate()+days,12);
+  const monthKey=d=>iso(d).slice(0,7);
+  const dateFmt=(day,opts)=>day.toLocaleDateString('it-IT',opts);
+  const categories=['Personale','Famiglia','Salute','Scadenze','Altro'];
+  const tones={Personale:'violet',Famiglia:'blue',Salute:'mint',Scadenze:'amber',Altro:'gray'};
+  const tone=c=>tones[c]||'gray';
+  const stored=()=>window.CalendarStudioStorage||null;
+  const eventGroups=()=>{const d=stored()?.events;return d&&typeof d==='object'&&!Array.isArray(d)?d:{};};
+  const group=date=>Array.isArray(eventGroups()[date])?eventGroups()[date]:[];
+  const timed=e=>!(e?.allDay===true||e?.tuttoGiorno===true||!e?.ora||e?.ora==='Tutto il giorno');
+  const eventTime=e=>timed(e)?String(e.ora).slice(0,5):'Tutto il giorno';
+  const eventCategory=e=>categories.includes(e?.categoria)?e.categoria:'Personale';
+  const sortedDay=date=>group(date).map((event,index)=>({event,date,index})).sort((a,b)=>{
+    const x=timed(a.event),y=timed(b.event);
+    if(x!==y)return x?1:-1;
+    return String(a.event?.ora||'').localeCompare(String(b.event?.ora||''));
+  });
+  const isToday=date=>date===iso(now());
+  let view=new Date(now().getFullYear(),now().getMonth(),1,12);
+  let selected=iso(now());
+  let search='',categoryFilter='all';
+  let mounted=false,modal=null,focusBefore=null,toastTimeout=null;
+  const uid=()=>window.crypto?.randomUUID?.()||'calendar-'+Date.now()+'-'+Math.random().toString(36).slice(2);
+  const getMonthEntries=()=>Object.entries(eventGroups()).flatMap(([date,values])=>
+    date.startsWith(monthKey(view))&&Array.isArray(values)?values.map((event,index)=>({date,event,index})):[]);
+  const flattenAll=()=>Object.values(eventGroups()).reduce((total,arr)=>total+(Array.isArray(arr)?arr.length:0),0);
+  const validIndex=(date,index)=>fromISO(date)&&Number.isInteger(index)&&index>=0&&index<group(date).length;
+  function toast(message,error=false){
+    let host=$('#cs-toast-host');if(!host){host=document.createElement('div');host.id='cs-toast-host';host.setAttribute('role','status');host.setAttribute('aria-live','polite');document.body.append(host);}
+    host.innerHTML=`<div class="cs-toast ${error?'error':''}">${icon(error?'alert-triangle':'circle-check')}<span></span></div>`;
+    $('span',host).textContent=message;
+    clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>host.replaceChildren(),3300);
+  }
+  function status(){
+    const host=$('#cs-connection');if(!host)return;
+    const ready=Boolean(stored()?.ready);
+    host.classList.toggle('is-offline',!ready);
+    host.innerHTML=ready?`${icon('users')} Famiglia collegata · Gli eventi sono sincronizzati con il calendario condiviso.`:
+      `${icon('alert-circle')} Per salvare gli eventi, accedi all’app e collega una famiglia.`;
+  }
+  function renderSummary(){
+    const host=$('#cs-summary');if(!host)return;
+    const today=fromISO(iso(now())),day=iso(today);
+    const weekEnd=iso(shiftDays(today,6));
+    const upcoming=Object.entries(eventGroups()).reduce((sum,[date,arr])=>sum+(date>=day&&date<=weekEnd&&Array.isArray(arr)?arr.length:0),0);
+    const monthEvents=getMonthEntries();
+    const metrics=[
+      ['Eventi del mese',String(monthEvents.length),'Appuntamenti programmati','calendar-stats'],
+      ['Prossimi 7 giorni',String(upcoming),'Da oggi, inclusi','calendar-time'],
+      ['Eventi di oggi',String(group(day).length),'Nel calendario famiglia','sun'],
+      ['Tutto il giorno',String(monthEvents.filter(({event})=>!timed(event)).length),'Nel mese selezionato','clock']
+    ];
+    host.innerHTML=metrics.map(([title,value,description,ic])=>`<article class="cs-stat"><div class="cs-stat-top"><span>${title}</span><span class="cs-stat-icon">${icon(ic)}</span></div><strong>${value}</strong><small>${description}</small></article>`).join('');
+  }
+  function renderMonth(){
+    const host=$('#cs-days'),title=$('#cs-month-title');if(!host||!title)return;
+    title.textContent=dateFmt(view,{month:'long',year:'numeric'});
+    const year=view.getFullYear(),month=view.getMonth();
+    const firstDay=new Date(year,month,1,12),start=(firstDay.getDay()+6)%7;
+    const daysInMonth=new Date(year,month+1,0).getDate();
+    const rows=Math.ceil((start+daysInMonth)/7);
+    let out='';
+    for(let i=0;i<rows*7;i++){
+      const dt=new Date(year,month,1-start+i,12),key=iso(dt),array=group(key);
+      const other=dt.getMonth()!==month,selectedDay=key===selected,today=isToday(key);
+      const cls=['cs-day',other?'other-month':'',selectedDay?'is-selected':'',today?'is-today':''].filter(Boolean).join(' ');
+      const dateDescription=dateFmt(dt,{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+      const dots=array.slice(0,3).map(e=>`<i class="cs-dot ${tone(eventCategory(e))}"></i>`).join('');
+      out+=`<button type="button" role="gridcell" class="${cls}" data-cs="day" data-date="${key}" aria-selected="${selectedDay}" aria-label="${esc(dateDescription)}${array.length?' · '+array.length+' eventi':''}"><span class="cs-day-number">${dt.getDate()}</span><span class="cs-event-dots" aria-hidden="true">${dots}${array.length>3?`<small class="cs-day-more">+${array.length-3}</small>`:''}</span></button>`;
+    }
+    host.innerHTML=out;
+  }
+  function empty(title,description,showAdd=false){return `<div class="cs-empty">${icon('calendar-off')}<strong>${esc(title)}</strong><p>${esc(description)}</p>${showAdd?`<button type="button" class="cs-button cs-secondary" data-cs="create">${icon('plus')} Aggiungi evento</button>`:''}</div>`;}
+  function eventCard({event,date,index}){
+    const title=esc(event?.titolo||'Senza titolo'),cat=eventCategory(event),clock=eventTime(event);
+    return `<article class="cs-event"><div class="cs-event-tone ${tone(cat)}">${icon(cat==='Salute'?'heart':cat==='Scadenze'?'alert-circle':cat==='Famiglia'?'users':'calendar-event')}</div><div class="cs-event-info"><strong>${title}</strong><div class="cs-event-meta"><span>${icon('clock')} ${esc(clock)}</span><span>${icon('tag')} ${esc(cat)}</span>${event?.luogo?`<span>${icon('map-pin')} ${esc(event.luogo)}</span>`:''}</div>${event?.note?`<p class="cs-event-note">${esc(event.note)}</p>`:''}<div class="cs-event-actions"><button class="cs-iconbtn" data-cs="edit" data-date="${date}" data-index="${index}" title="Modifica evento" aria-label="Modifica ${title}">${icon('pencil')}</button><button class="cs-iconbtn" data-cs="duplicate" data-date="${date}" data-index="${index}" title="Duplica evento" aria-label="Duplica ${title}">${icon('copy')}</button><button class="cs-iconbtn" data-cs="export-one" data-date="${date}" data-index="${index}" title="Scarica file calendario .ics" aria-label="Esporta ${title}">${icon('download')}</button><button class="cs-iconbtn evento-calendar" data-date="${date}" data-event-title="${title}" data-event-time="${esc(event?.ora||'')}" data-event-note="${esc(event?.note||'')}" data-event-allday="${timed(event)?'0':'1'}" title="Apri Google Calendar" aria-label="Apri ${title} in Google Calendar">${icon('calendar-plus')}</button><button class="cs-iconbtn danger" data-cs="delete" data-date="${date}" data-index="${index}" title="Elimina evento" aria-label="Elimina ${title}">${icon('trash')}</button></div></div></article>`;
+  }
+  function renderSelected(){
+    const day=fromISO(selected)||now();
+    const title=$('#cs-day-title'),desc=$('#cs-day-caption'),host=$('#cs-day-events');if(!title||!host)return;
+    title.textContent=(isToday(selected)?'Oggi · ':'')+dateFmt(day,{weekday:'long',day:'numeric',month:'long'});
+    desc.textContent=group(selected).length===1?'1 evento in programma':`${group(selected).length} eventi in programma`;
+    const entries=sortedDay(selected);
+    host.innerHTML=entries.length?entries.map(eventCard).join(''):empty('Giornata libera','Nessun appuntamento in calendario per questa data.',true);
+  }
+  function renderUpcoming(){
+    const host=$('#cs-upcoming-list');if(!host)return;
+    const today=iso(now());const results=Object.entries(eventGroups()).filter(([date,arr])=>date>=today&&Array.isArray(arr)&&arr.length)
+      .flatMap(([date,arr])=>arr.map(event=>({date,event})))
+      .sort((a,b)=>a.date.localeCompare(b.date)||Number(timed(a.event))-Number(timed(b.event))||String(a.event?.ora||'').localeCompare(String(b.event?.ora||''))).slice(0,4);
+    if(!results.length){host.innerHTML='<p class="cs-upcoming-empty">Nessun appuntamento futuro da ricordare.</p>';return;}
+    host.innerHTML=results.map(({date,event})=>{
+      const day=fromISO(date),cat=eventCategory(event);
+      return `<button type="button" class="cs-upcoming-row" data-cs="day" data-date="${date}" aria-label="Apri appuntamento del ${esc(dateFmt(day,{day:'numeric',month:'long'}))}"><span class="cs-upcoming-dot ${tone(cat)}"></span><span><strong>${esc(event?.titolo||'Evento')}</strong><small>${esc(dateFmt(day,{day:'numeric',month:'short'}))} · ${esc(eventTime(event))}</small></span>${icon('arrow-up-right')}</button>`;
+    }).join('');
+  }
+  function renderAgenda(){
+    const host=$('#cs-agenda-list'),count=$('#cs-agenda-count');if(!host)return;
+    const q=search.toLocaleLowerCase('it-IT').trim();
+    let entries=getMonthEntries().filter(({event})=>{
+      const c=eventCategory(event);
+      if(categoryFilter!=='all'&&c!==categoryFilter)return false;
+      const hay=[event?.titolo,event?.note,event?.luogo,c].map(v=>String(v||'')).join(' ').toLocaleLowerCase('it-IT');
+      return !q||hay.includes(q);
+    });
+    entries.sort((a,b)=>a.date.localeCompare(b.date) || Number(timed(a.event))-Number(timed(b.event)) || String(a.event?.ora||'').localeCompare(String(b.event?.ora||'')));
+    if(count)count.textContent=entries.length;
+    host.innerHTML=entries.length?entries.map(({date,event})=>{
+      const dt=fromISO(date),name=esc(event?.titolo||'Senza titolo');
+      return `<button type="button" class="cs-agenda-item" data-cs="day" data-date="${date}" aria-label="Vai al ${esc(dateFmt(dt,{day:'numeric',month:'long'}))}: ${name}"><span class="cs-agenda-date"><b>${dt.getDate()}</b><small>${esc(dateFmt(dt,{month:'short'}))}</small></span><span class="cs-agenda-copy"><strong>${name}</strong><small>${icon('clock')} ${esc(eventTime(event))} · ${esc(eventCategory(event))}${event?.luogo?' · '+esc(event.luogo):''}</small></span>${icon('chevron-right')}</button>`;
+    }).join(''):empty(q||categoryFilter!=='all'?'Nessun risultato':'Nessun evento questo mese',q||categoryFilter!=='all'?'Prova altri termini o un filtro differente.':'Seleziona un giorno e aggiungi il primo appuntamento.',!q&&categoryFilter==='all');
+  }
+  function render(){status();renderSummary();renderMonth();renderSelected();renderUpcoming();renderAgenda();}
+  function select(date){const dt=fromISO(date);if(!dt)return;selected=iso(dt);if(dt.getFullYear()!==view.getFullYear()||dt.getMonth()!==view.getMonth())view=new Date(dt.getFullYear(),dt.getMonth(),1,12);render();}
+  function moveMonth(offset){view=new Date(view.getFullYear(),view.getMonth()+offset,1,12);const dt=fromISO(selected);if(dt.getMonth()!==view.getMonth()||dt.getFullYear()!==view.getFullYear())selected=iso(new Date(view.getFullYear(),view.getMonth(),1,12));render();}
+  function today(){view=new Date(now().getFullYear(),now().getMonth(),1,12);select(iso(now()));}
+  const categoriesOptions=selectedValue=>categories.map(c=>`<option value="${esc(c)}" ${c===selectedValue?'selected':''}>${esc(c)}</option>`).join('');
+  function closeModal(){if(!modal||modal.pending)return;$('#cs-modal')?.remove();modal=null;const focus=focusBefore;focusBefore=null;if(focus?.isConnected)focus.focus({preventScroll:true});}
+  function showModal(kind='create',date=null,index=null){
+    if(modal)closeModal();if(modal)return;
+    let existing=null;
+    const baseDate=fromISO(date)?date:selected;
+    if((kind==='edit'||kind==='duplicate'||kind==='delete')&&validIndex(baseDate,index))existing=group(baseDate)[index];
+    if(kind!=='create'&&!existing)return;
+    focusBefore=document.activeElement;
+    modal={kind,date:baseDate,index,pending:false};
+    const isEdit=kind==='edit',isDuplicate=kind==='duplicate',isDelete=kind==='delete';
+    const allDay=existing? !timed(existing) : false;
+    const title=isDelete?'Eliminare questo evento?':isEdit?'Modifica evento':isDuplicate?'Duplica evento':'Nuovo evento';
+    const overlay=document.createElement('div');overlay.id='cs-modal';
+    overlay.innerHTML=`<div class="cs-modal-card" role="dialog" aria-modal="true" aria-labelledby="cs-modal-title"><div class="cs-modal-top"><span class="cs-modal-icon">${icon(isDelete?'alert-triangle':isEdit?'edit':'calendar-plus')}</span><button type="button" data-cs-close class="cs-modal-close" aria-label="Chiudi">×</button></div>
+      <h2 id="cs-modal-title">${title}</h2><p>${isDelete?'L’evento verrà rimosso dal calendario condiviso. L’operazione non potrà essere annullata.':'Aggiungi i dettagli del tuo appuntamento. Gli eventi sono condivisi con la famiglia.'}</p>
+      <div id="cs-modal-error" hidden role="alert"></div><form id="cs-modal-form"><div class="cs-modal-fields" ${isDelete?'hidden':''}>
+        <div class="cs-field full"><label for="cs-modal-name">Titolo dell’evento *</label><input id="cs-modal-name" type="text" maxlength="160" required placeholder="Es. Visita, compleanno, riunione..." value="${esc(existing?.titolo||'')}"></div>
+        <div class="cs-field"><label for="cs-modal-date">Data *</label><input id="cs-modal-date" type="date" required value="${esc(baseDate)}"></div>
+        <div class="cs-field"><label for="cs-modal-time">Ora</label><input id="cs-modal-time" type="time" value="${esc(timed(existing)?String(existing.ora).slice(0,5):'09:00')}"></div>
+        <div class="cs-field full"><label class="cs-all-day" for="cs-modal-all-day"><input type="checkbox" id="cs-modal-all-day" ${allDay?'checked':''}> Evento per tutta la giornata</label></div>
+        <div class="cs-field"><label for="cs-modal-category">Categoria</label><select id="cs-modal-category">${categoriesOptions(eventCategory(existing||{}))}</select></div>
+        <div class="cs-field"><label for="cs-modal-location">Luogo</label><input id="cs-modal-location" type="text" maxlength="160" placeholder="Facoltativo" value="${esc(existing?.luogo||'')}"></div>
+        <div class="cs-field full"><label for="cs-modal-note">Note</label><textarea id="cs-modal-note" maxlength="2000" placeholder="Dettagli aggiuntivi (facoltativi)">${esc(existing?.note||'')}</textarea></div>
+      </div><div class="cs-modal-actions"><button type="button" data-cs-close>Annulla</button><button type="submit" class="${isDelete?'cs-delete-confirm':''}" id="cs-modal-submit">${isDelete?'Elimina evento':isEdit?'Salva modifiche':isDuplicate?'Duplica evento':'Crea evento'}</button></div></form></div>`;
+    if(isDelete) $('#cs-modal-form',overlay).noValidate=true;
+    overlay.addEventListener('click',e=>{if(e.target===overlay||e.target.closest('[data-cs-close]'))closeModal();});
+    $('#cs-modal-form',overlay).addEventListener('submit',submitModal);
+    $('#cs-modal-all-day',overlay)?.addEventListener('change',toggleTime);
+    document.body.append(overlay);
+    toggleTime();
+    ($('#cs-modal-name',overlay)||$('#cs-modal-submit',overlay))?.focus();
+  }
+  function toggleTime(){const time=$('#cs-modal-time');if(time)time.disabled=Boolean($('#cs-modal-all-day')?.checked);}
+  function modalError(message){const n=$('#cs-modal-error');if(!n)return;n.hidden=false;n.textContent=message;}
+  async function submitModal(e){
+    e.preventDefault();if(!modal||modal.pending)return;
+    const kind=modal.kind,oldDate=modal.date,index=modal.index;
+    let date=oldDate,event=null;
+    if(kind!=='delete'){
+      date=$('#cs-modal-date')?.value;
+      const title=$('#cs-modal-name')?.value.trim()||'';
+      const allDay=Boolean($('#cs-modal-all-day')?.checked),time=$('#cs-modal-time')?.value||'';
+      if(!title){modalError('Inserisci un titolo per l’evento.');$('#cs-modal-name')?.focus();return;}
+      if(!fromISO(date)){modalError('Scegli una data valida.');$('#cs-modal-date')?.focus();return;}
+      if(!allDay&&!/^([01]\d|2[0-3]):[0-5]\d$/.test(time)){modalError('Inserisci un orario valido oppure attiva «Tutto il giorno».');return;}
+      const original=kind==='edit'?group(oldDate)[index]:kind==='duplicate'?group(oldDate)[index]:null;
+      event={...(original||{}),titolo:title,ora:allDay?'':time,allDay,tuttoGiorno:allDay,
+        note:$('#cs-modal-note')?.value.trim()||'',categoria:$('#cs-modal-category')?.value||'Personale',luogo:$('#cs-modal-location')?.value.trim()||'',
+        createdAt:kind==='edit'&&original?.createdAt?original.createdAt:new Date().toISOString()};
+      if(kind==='duplicate')delete event.id;
+    }
+    modal.pending=true;const button=$('#cs-modal-submit');button.disabled=true;
+    const response=await (stored()?.update?.(data=>{
+      if(kind==='delete'){
+        if(!Array.isArray(data[oldDate])||!data[oldDate][index])throw new Error('Evento non disponibile.');
+        data[oldDate].splice(index,1);if(!data[oldDate].length)delete data[oldDate];return;
+      }
+      if(kind==='edit'){
+        if(!Array.isArray(data[oldDate])||!data[oldDate][index])throw new Error('Evento non disponibile.');
+        if(oldDate===date){data[date][index]=event;return;}
+        data[oldDate].splice(index,1);if(!data[oldDate].length)delete data[oldDate];
+      }
+      if(!Array.isArray(data[date]))data[date]=[];
+      data[date].push(event);
+    }) ?? Promise.resolve({ok:false,error:'Archivio non disponibile.'}));
+    if(response?.ok){modal.pending=false;closeModal();if(kind!=='delete')select(date);else select(oldDate);toast(kind==='delete'?'Evento eliminato dal calendario.':kind==='edit'?'Evento modificato.':kind==='duplicate'?'Evento duplicato.':'Evento creato con successo.');return;}
+    modal.pending=false;button.disabled=false;modalError(response?.error||'Non è stato possibile salvare l’evento.');
+  }
+  const icsEscape=s=>String(s||'').replace(/\\/g,'\\\\').replace(/\n/g,'\\n').replace(/,/g,'\\,').replace(/;/g,'\\;');
+  const stamp=s=>s.replace(/-/g,'');
+  const pad=n=>String(n).padStart(2,'0');
+  const monthStamp=d=>`${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}`;
+  function icsEvent(date,event){
+    const start=stamp(date),isAllDay=!timed(event),clock=String(event.ora||'09:00').split(':'),dt=fromISO(date),next=shiftDays(dt,1);
+    const h=Number(clock[0])||0,m=Number(clock[1])||0,dtEnd=new Date(dt.getFullYear(),dt.getMonth(),dt.getDate(),h+1,m,0);
+    const endDate=isAllDay?`DTEND;VALUE=DATE:${monthStamp(next)}`:`DTEND:${monthStamp(dtEnd)}T${pad(dtEnd.getHours())}${pad(dtEnd.getMinutes())}00`;
+    const startDate=isAllDay?`DTSTART;VALUE=DATE:${start}`:`DTSTART:${start}T${pad(h)}${pad(m)}00`;
+    const base=event.createdAt||new Date().toISOString();const unique=base.replace(/[^a-z0-9]/gi,'')+'-'+stamp(date)+'-'+(event.titolo||'event').replace(/\W/g,'').slice(0,18);
+    return ['BEGIN:VEVENT','UID:'+unique+'@bilancio-familiare','DTSTAMP:'+new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'') ,startDate,endDate,'SUMMARY:'+icsEscape(event.titolo),'DESCRIPTION:'+icsEscape(event.note||''),'LOCATION:'+icsEscape(event.luogo||''),'CATEGORIES:'+icsEscape(eventCategory(event)),'END:VEVENT'].join('\r\n');
+  }
+  function exportICS(entries,filename){
+    if(!entries.length){toast('Nessun evento da esportare per il mese selezionato.',true);return;}
+    const ics='BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Bilancio Familiare//Calendar Studio Premium//IT\r\nCALSCALE:GREGORIAN\r\n'+entries.map(({date,event})=>icsEvent(date,event)).join('\r\n')+'\r\nEND:VCALENDAR\r\n';
+    const blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});
+    const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=filename;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1700);toast('Calendario esportato in formato .ics.');
+  }
+  function navigateBackToGrid(){const target=$('#cs-days');target?.scrollIntoView({behavior:window.matchMedia?.('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'nearest'});}
+  function click(e){
+    const button=e.target.closest('[data-cs]');if(!button||!page.contains(button))return;
+    const action=button.dataset.cs,date=button.dataset.date,idx=Number(button.dataset.index);
+    e.preventDefault();
+    switch(action){
+      case 'create':showModal('create');break;
+      case 'prev':moveMonth(-1);break;
+      case 'next':moveMonth(1);break;
+      case 'today':today();break;
+      case 'day':select(date);if(button.classList.contains('cs-agenda-item')||button.classList.contains('cs-upcoming-row'))navigateBackToGrid();break;
+      case 'edit':showModal('edit',date,idx);break;
+      case 'duplicate':showModal('duplicate',date,idx);break;
+      case 'delete':showModal('delete',date,idx);break;
+      case 'export-one':if(validIndex(date,idx))exportICS([{date,event:group(date)[idx]}],'evento-'+date+'.ics');break;
+      case 'export-month':exportICS(getMonthEntries(),'eventi-'+monthKey(view)+'.ics');break;
+    }
+  }
+  function modalKeys(e){if(!modal)return;
+    if(e.key==='Escape'&&!modal.pending){e.preventDefault();closeModal();return;}
+    if(e.key==='Tab'){
+      const list=$$('button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled])',$('#cs-modal')).filter(x=>x.getClientRects().length);
+      if(!list.length)return;
+      if(e.shiftKey&&document.activeElement===list[0]){e.preventDefault();list.at(-1).focus();}
+      else if(!e.shiftKey&&document.activeElement===list.at(-1)){e.preventDefault();list[0].focus();}
+    }
+  }
+  function updatePageActive(){
+    // The original application's mobile floating action button has a very high
+    // z-index and would obscure calendar days and the new-event dialog.
+    document.body.classList.toggle('cs-page-active',page.classList.contains('active'));
+  }
+  const activeObserver=new MutationObserver(updatePageActive);
+  activeObserver.observe(page,{attributes:true,attributeFilter:['class']});
+  function mount(){
+    updatePageActive();
+    if(!mounted){
+      mounted=true;page.addEventListener('click',click);
+      $('#cs-search')?.addEventListener('input',e=>{search=e.target.value;renderAgenda();});
+      $('#cs-category-filter')?.addEventListener('change',e=>{categoryFilter=e.target.value;renderAgenda();});
+      document.addEventListener('keydown',modalKeys);
+    }
+    render();
+  }
+  window.CalendarStudioPremium=Object.freeze({mount,render,select,create:(date=null,index=null)=>date!==null&&index!==null?showModal('edit',date,index):showModal('create',date),today});
+  // Static UI mounts without requiring Firebase; later the adapter populates events.
+  mount();
 })();
 
 </script>
