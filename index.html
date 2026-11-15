@@ -17760,13 +17760,67 @@ document.addEventListener('DOMContentLoaded', function() {
  function loadFolderState(){try{openFolders=JSON.parse(localStorage.getItem(folderStateKey())||'{}')||{};}catch(e){openFolders={};}}
  function fillFolderSelect(selected){const el=$('personal-doc-folder');if(!el)return;const values=folders();el.innerHTML='';values.forEach(name=>{const o=document.createElement('option');o.value=name;o.textContent=name;el.appendChild(o)});el.value=values.includes(selected)?selected:DEFAULT_FOLDER;}
  function setupYears(){const years=new Set([currentYear,currentYear-1,currentYear-2]);files.forEach(f=>{if(Number(f.year)>1900)years.add(Number(f.year))});const sorted=[...years].sort((a,b)=>b-a);const filter=$('personal-doc-year-filter');const prev=filter.value;yearOptions(filter,sorted,sorted.includes(Number(prev))?Number(prev):(sorted.includes(Number(selectedYear))?Number(selectedYear):currentYear));selectedYear=filter.value;yearOptions($('personal-doc-year'),sorted,selectedYear);fillFolderSelect();}
- function render(){const list=$('personal-doc-files-list');if(!list)return;list.innerHTML='';const filtered=files.filter(f=>String(f.year)===String(selectedYear)).sort((a,b)=>String(b.uploadedAt||'').localeCompare(String(a.uploadedAt||'')));
- if(!filtered.length){const empty=document.createElement('div');empty.className='insurance-empty';empty.innerHTML='<div style="font-size:34px;margin-bottom:8px">📁</div><strong>Nessun documento per '+escapeHtml(selectedYear)+'</strong><div style="margin-top:5px">Carica un documento o crea una cartella.</div>';list.appendChild(empty);return;}
- const groups=new Map();filtered.forEach(item=>{const folder=(item.folder||DEFAULT_FOLDER).trim()||DEFAULT_FOLDER;if(!groups.has(folder))groups.set(folder,[]);groups.get(folder).push(item)});
- [...groups.entries()].sort((a,b)=>a[0].localeCompare(b[0],'it')).forEach(([folder,items])=>{const group=document.createElement('section');group.className='personal-doc-folder-group'+(isFolderOpen(folder)?' is-open':'');const heading=document.createElement('div');heading.className='personal-doc-folder-heading';const toggle=document.createElement('button');toggle.type='button';toggle.className='personal-doc-folder-toggle';toggle.setAttribute('aria-expanded',isFolderOpen(folder)?'true':'false');toggle.innerHTML='<i class="ti ti-folder"></i><span>'+escapeHtml(folder)+'</span><span class="folder-count">'+items.length+' file</span><i class="ti ti-chevron-right folder-chevron"></i>';toggle.addEventListener('click',()=>{setFolderOpen(folder,!isFolderOpen(folder));render();});const rename=document.createElement('button');rename.type='button';rename.className='personal-doc-folder-rename';rename.title='Rinomina cartella';rename.setAttribute('aria-label','Rinomina cartella '+folder);rename.innerHTML='<i class="ti ti-pencil"></i>';rename.addEventListener('click',()=>renameFolder(folder));heading.append(toggle,rename);group.appendChild(heading);const content=document.createElement('div');content.className='personal-doc-folder-content';
- items.forEach(item=>{const card=document.createElement('div');card.className='insurance-file-card';const icon=document.createElement('div');icon.className='insurance-file-icon';icon.innerHTML='<i class="ti ti-file-description"></i>';const copy=document.createElement('div');copy.className='insurance-file-copy';const title=document.createElement('strong');title.textContent=item.title||item.name||'Documento personale';const meta=document.createElement('span');const date=item.uploadedAt?new Date(item.uploadedAt):null;meta.textContent=(item.name||'File')+' · '+(date&&!isNaN(date)?date.toLocaleDateString('it-IT'):'Anno '+item.year);copy.append(title,meta);
- const move=document.createElement('select');move.className='personal-doc-move';move.setAttribute('aria-label','Sposta '+(item.title||item.name)+' in un’altra cartella');folders().forEach(name=>{const opt=document.createElement('option');opt.value=name;opt.textContent='Sposta in: '+name;move.appendChild(opt)});move.value=folder;move.addEventListener('change',()=>moveFile(item,move.value));copy.appendChild(move);
- const actions=document.createElement('div');actions.className='insurance-file-actions';const down=document.createElement('button');down.type='button';down.title='Apri o scarica';down.setAttribute('aria-label','Apri o scarica '+(item.title||item.name));down.innerHTML='<i class="ti ti-download"></i>';down.addEventListener('click',()=>download(item));const del=document.createElement('button');del.type='button';del.className='insurance-delete';del.title='Elimina documento';del.setAttribute('aria-label','Elimina '+(item.title||item.name));del.innerHTML='<i class="ti ti-trash"></i>';del.addEventListener('click',()=>remove(item));actions.append(down,del);card.append(icon,copy,actions);content.appendChild(card);});group.appendChild(content);list.appendChild(group);});
+ function render(){
+  const list=$('personal-doc-files-list');if(!list)return;
+  list.innerHTML='';
+  const filtered=files.filter(f=>String(f.year)===String(selectedYear)).sort((a,b)=>String(a.title||a.name||'').localeCompare(String(b.title||b.name||''),'it'));
+  const available=folders();
+  const intro=document.createElement('div');intro.className='doc-explorer-toolbar';
+  intro.innerHTML='<span><i class="ti ti-folders"></i> Esplora cartelle</span><span>'+filtered.length+' file · '+available.length+' cartelle</span>';
+  list.appendChild(intro);
+  const groups=new Map(available.map(name=>[name,[]]));
+  filtered.forEach(item=>{const folder=(item.folder||DEFAULT_FOLDER).trim()||DEFAULT_FOLDER;if(!groups.has(folder))groups.set(folder,[]);groups.get(folder).push(item)});
+  for(const [folder,items] of groups){
+   const opened=isFolderOpen(folder),group=document.createElement('section');group.className='personal-doc-folder-group doc-explorer-folder'+(opened?' is-open':'');
+   const heading=document.createElement('div');heading.className='personal-doc-folder-heading';
+   const toggle=document.createElement('button');toggle.type='button';toggle.className='personal-doc-folder-toggle';toggle.setAttribute('aria-expanded',String(opened));
+   toggle.innerHTML='<i class="ti ti-folder'+(opened?'-open':'')+' doc-folder-symbol"></i><span>'+escapeHtml(folder)+'</span><span class="folder-count">'+items.length+' file</span><i class="ti ti-chevron-right folder-chevron"></i>';
+   toggle.addEventListener('click',()=>{setFolderOpen(folder,!isFolderOpen(folder));render()});
+   const rename=document.createElement('button');rename.type='button';rename.className='personal-doc-folder-rename';rename.title='Rinomina cartella';rename.setAttribute('aria-label','Rinomina cartella '+folder);rename.innerHTML='<i class="ti ti-pencil"></i>';rename.addEventListener('click',()=>renameFolder(folder));
+   heading.append(toggle,rename);group.appendChild(heading);
+   const content=document.createElement('div');content.className='personal-doc-folder-content doc-explorer-content';
+   if(!items.length){const empty=document.createElement('p');empty.className='doc-folder-empty';empty.textContent='Cartella vuota';content.appendChild(empty)}
+   items.forEach(item=>{
+    const card=document.createElement('div');card.className='insurance-file-card doc-explorer-file';
+    const icon=document.createElement('div');icon.className='insurance-file-icon';
+    icon.innerHTML='<i class="ti ti-'+(/\.pdf$/i.test(item.name||'')?'file-type-pdf':'file-description')+'"></i>';
+    const copy=document.createElement('div');copy.className='insurance-file-copy';
+    const title=document.createElement('strong');title.textContent=item.title||item.name||'Documento personale';
+    const meta=document.createElement('span');const date=item.uploadedAt?new Date(item.uploadedAt):null;
+    meta.textContent=(item.name||'File')+' · '+(date&&!isNaN(date)?date.toLocaleDateString('it-IT'):'Anno '+item.year);
+    copy.append(title,meta);
+    const actions=document.createElement('div');actions.className='insurance-file-actions';
+    const open=document.createElement('button');open.type='button';open.title='Apri documento';open.setAttribute('aria-label','Apri '+(item.title||item.name));open.innerHTML='<i class="ti ti-external-link"></i>';open.addEventListener('click',()=>download(item));
+    const edit=document.createElement('button');edit.type='button';edit.title='Modifica nome o cartella';edit.setAttribute('aria-label','Modifica '+(item.title||item.name));edit.innerHTML='<i class="ti ti-pencil"></i>';edit.addEventListener('click',()=>editDocument(item));
+    const del=document.createElement('button');del.type='button';del.className='insurance-delete';del.title='Elimina documento';del.setAttribute('aria-label','Elimina '+(item.title||item.name));del.innerHTML='<i class="ti ti-trash"></i>';del.addEventListener('click',()=>remove(item));
+    actions.append(open,edit,del);card.append(icon,copy,actions);content.appendChild(card);
+   });
+   group.appendChild(content);list.appendChild(group);
+  }
+ }
+ function editDocument(item){
+  if(!item||!user)return;
+  document.getElementById('doc-explorer-edit-overlay')?.remove();
+  const overlay=document.createElement('div');overlay.id='doc-explorer-edit-overlay';overlay.className='doc-edit-overlay';
+  const dialog=document.createElement('form');dialog.className='doc-edit-dialog';dialog.setAttribute('role','dialog');dialog.setAttribute('aria-modal','true');dialog.setAttribute('aria-label','Modifica documento');
+  dialog.innerHTML='<h3><i class="ti ti-pencil"></i> Modifica documento</h3><label for="doc-edit-title">Nome del documento</label><input id="doc-edit-title" maxlength="150" required><label for="doc-edit-folder">Sposta nella cartella</label><select id="doc-edit-folder"></select><div class="doc-edit-actions"><button type="button" data-doc-cancel>Annulla</button><button type="submit" data-doc-save>Salva modifiche</button></div>';
+  const input=dialog.querySelector('#doc-edit-title'),select=dialog.querySelector('#doc-edit-folder');input.value=item.title||item.name||'';
+  folders().forEach(folder=>{const opt=document.createElement('option');opt.value=folder;opt.textContent=folder;select.appendChild(opt)});select.value=item.folder||DEFAULT_FOLDER;
+  function close(){overlay.remove();document.removeEventListener('keydown',onKey)}
+  function onKey(e){if(e.key==='Escape')close()}
+  dialog.querySelector('[data-doc-cancel]').addEventListener('click',close);
+  overlay.addEventListener('click',e=>{if(e.target===overlay)close()});
+  document.addEventListener('keydown',onKey);
+  dialog.addEventListener('submit',async e=>{
+   e.preventDefault();const newTitle=input.value.trim(),newFolder=select.value;
+   if(!newTitle)return;
+   const oldTitle=item.title,oldFolder=item.folder;
+   item.title=newTitle;item.folder=newFolder;
+   const btn=dialog.querySelector('[data-doc-save]');btn.disabled=true;btn.textContent='Salvataggio…';
+   try{await save();setFolderOpen(newFolder,true);close();render()}
+   catch(err){item.title=oldTitle;item.folder=oldFolder;btn.disabled=false;btn.textContent='Salva modifiche';alert('Impossibile modificare il documento: '+(err.message||err))}
+  });
+  overlay.appendChild(dialog);document.body.appendChild(overlay);input.focus();input.select();
  }
  async function load(){if(!user){files=[];setupYears();render();return;}try{const snap=await db.collection('documenti').doc(user.uid).get();files=snap.exists&&Array.isArray(snap.data().files)?snap.data().files:[];folderNames=snap.exists&&Array.isArray(snap.data().folders)?snap.data().folders:['Generale'];loadFolderState();}catch(e){console.error('Errore caricamento archivio documenti',e);files=[];if(e.code==='permission-denied')$('personal-doc-files-list').innerHTML='<div class="insurance-empty">Permessi Firestore non sufficienti: controlla le regole della raccolta documenti.</div>';}
  setupYears();render();}
@@ -19360,6 +19414,7 @@ body:has(#shell:not(.hidden)) {--focus-ring: 0 0 0 4px rgba(var(--pp-accent-rgb)
       const column=document.createElement('div');column.className='ap-chart-column'+(value===0?' is-empty':'')+(value>0&&value===max?' is-max':'');
       const wrap=document.createElement('div');wrap.className='ap-chart-bar-wrap';
       const bar=document.createElement('div');bar.className='ap-chart-bar';bar.setAttribute('role','img');
+      if(kind==='bills')bar.dataset.service=service;
       bar.setAttribute('aria-label',(longMonths[i]||'')+': '+euro(value));
       bar.title=(longMonths[i]||'')+' · '+euro(value);
       wrap.appendChild(bar);
@@ -19801,8 +19856,8 @@ body:has(#shell:not(.hidden)) {--focus-ring: 0 0 0 4px rgba(var(--pp-accent-rgb)
       <div class="shopping3-field shopping3-quantity-field"><label for="shopping3-newqty">Quantità</label><div class="shopping3-new-stepper" role="group" aria-label="Quantità del nuovo articolo"><button type="button" data-shop3="newqty-minus" aria-label="Diminuisci quantità del nuovo articolo">−</button><input id="shopping3-newqty" name="quantity" type="number" inputmode="numeric" min="1" max="9999" step="1" value="1" readonly required aria-label="Quantità"><button type="button" data-shop3="newqty-plus" aria-label="Aumenta quantità del nuovo articolo">+</button></div></div>
       <div class="shopping3-field"><label for="shopping3-newprice">Prezzo / unità</label><input id="shopping3-newprice" name="price" type="number" inputmode="decimal" min="0" max="1000000" step="0.01" placeholder="€ (opzionale)"></div>
       <button type="submit" class="shopping3-button shopping3-primary">${icon('plus')} Aggiungi</button></form></section>
-      <section class="shopping3-itembox"><div class="shopping3-itemtoolbar"><h3 id="shopping3-itemscount">Articoli (${s.count})</h3><label class="shopping3-search" for="shopping3-search-items">${icon('search')}<input id="shopping3-search-items" type="search" placeholder="Cerca articoli..." value="${esc(filters.itemSearch)}"></label><div class="shopping3-segments" role="group" aria-label="Filtra articoli">${[['all','Tutti'],['pending','Da comprare'],['bought','Acquistati']].map(([k,v])=>`<button type="button" data-shop3="filter-item" data-value="${k}" aria-pressed="${filters.item===k}">${v}</button>`).join('')}</div><select id="shopping3-item-sort" class="shopping3-select" aria-label="Ordina articoli">${[['added','Inserimento'],['name','Nome A–Z'],['category','Categoria']].map(([k,v])=>option(k,v,filters.itemSort)).join('')}</select></div>
-      <div id="shopping3-items" class="shopping3-items">${itemsHTML(li)}</div><div class="shopping3-bulkactions"><button type="button" class="shopping3-button" data-shop3="all-bought" ${s.pending?'':'disabled'}>${icon('checks')} Segna tutti acquistati</button><button type="button" class="shopping3-button" data-shop3="reset-bought" ${s.bought?'':'disabled'}>${icon('refresh')} Ripristina</button><button type="button" class="shopping3-button" data-shop3="clear-bought" ${s.bought?'':'disabled'}>${icon('brush')} Rimuovi acquistati</button><button type="button" class="shopping3-button" data-shop3="csv">${icon('download')} Esporta CSV</button><button type="button" class="shopping3-button shopping3-danger" data-shop3="delete-list" data-id="${esc(selected)}">${icon('trash')} Elimina lista</button><button type="button" class="shopping3-button ${li.completata?'':'shopping3-primary'}" data-shop3="complete">${icon(li.completata?'restore':'check')} ${li.completata?'Riapri lista':'Termina lista'}</button></div></section>
+      <section class="shopping3-itembox"><div class="shopping3-itemtoolbar"><h3 id="shopping3-itemscount">Articoli (${s.count})</h3><label class="shopping3-search" for="shopping3-search-items">${icon('search')}<input id="shopping3-search-items" type="search" placeholder="Cerca articoli..." value="${esc(filters.itemSearch)}"></label><div class="shopping3-segments" role="group" aria-label="Filtra articoli">${[['all','Tutti'],['pending','Da comprare'],['bought','Acquistati']].map(([k,v])=>`<button type="button" data-shop3="filter-item" data-value="${k}" aria-pressed="${filters.item===k}">${v}</button>`).join('')}</div></div>
+      <div id="shopping3-items" class="shopping3-items">${itemsHTML(li)}</div><div class="shopping3-bulkactions"><button type="button" class="shopping3-button shopping3-danger" data-shop3="delete-list" data-id="${esc(selected)}">${icon('trash')} Elimina lista</button><button type="button" class="shopping3-button ${li.completata?'':'shopping3-primary'}" data-shop3="complete">${icon(li.completata?'restore':'check')} ${li.completata?'Riapri lista':'Termina lista'}</button></div></section>
       <p class="shopping3-bottomhint">${icon('users')} Le modifiche vengono condivise con la tua famiglia collegata.</p>`;
   }
   function itemsHTML(li){
@@ -19857,7 +19912,7 @@ body:has(#shell:not(.hidden)) {--focus-ring: 0 0 0 4px rgba(var(--pp-accent-rgb)
       return field('shopping3-modal-name','Articolo',item.nome||'','text','required maxlength="120"')+
         field('shopping3-modal-qty','Quantità',qty(item),'number','required min="0.01" max="100000" step="any"')+
         field('shopping3-modal-price','Prezzo per unità (€), facoltativo',price(item)??'','number','min="0" max="1000000" step="0.01"')+
-        `<div class="shopping3-field"><label for="shopping3-modal-cat">Categoria</label><select id="shopping3-modal-cat">${categoriesHTML(item.categoria||'Altro')}</select></div><div class="shopping3-field"><label for="shopping3-modal-note">Note</label><textarea id="shopping3-modal-note" maxlength="250" placeholder="Marca, dimensioni, promemoria...">${esc(item.note||'')}</textarea></div>`;
+        `<div class="shopping3-field"><label for="shopping3-modal-note">Note</label><textarea id="shopping3-modal-note" maxlength="250" placeholder="Marca, dimensioni, promemoria...">${esc(item.note||'')}</textarea></div>`;
     }
     return '';
   }
@@ -19925,7 +19980,7 @@ body:has(#shell:not(.hidden)) {--focus-ring: 0 0 0 4px rgba(var(--pp-accent-rgb)
         if(state.kind==='edit-list'){li.nome=name;if(budget===null)delete li.budget;else li.budget=budget;return;}
         if(state.kind==='edit-item'){
           const i=entries(li)[state.index];if(!i)throw new Error('Articolo non trovato.');
-          i.nome=name;i.quantita=q;i.categoria=$('#shopping3-modal-cat')?.value||'Altro';i.note=($('#shopping3-modal-note')?.value||'').trim().slice(0,250);
+          i.nome=name;i.quantita=q;i.note=($('#shopping3-modal-note')?.value||'').trim().slice(0,250);
           if(p===null){delete i.prezzo;delete i.price;}else{i.prezzo=p;delete i.price;}return;
         }
         if(state.kind==='delete-list'){delete data[state.id];return;}
@@ -20625,5 +20680,38 @@ body.cs-page-active #pp-quick-toggle,body.cs-page-active #pp-quick-menu,body.cs-
 #page-liste .shopping3-new-stepper button{padding:0!important;min-width:0!important;min-height:0!important}
 </style>
 
+<style id="custom-ux-nov2026">
+/* Colori distinti per tipologia, prevalgono anche su hover e valore massimo */
+#page-bollette .ap-chart-bar[data-service="total"]{background:linear-gradient(180deg,#81aafa,#386ac8)}
+#page-bollette .ap-chart-bar[data-service="luce"]{background:linear-gradient(180deg,#ffe18a,#eca62f)}
+#page-bollette .ap-chart-bar[data-service="gas"]{background:linear-gradient(180deg,#ffab8d,#e76a42)}
+#page-bollette .ap-chart-bar[data-service="acqua"]{background:linear-gradient(180deg,#8be0d6,#269fba)}
+#page-bollette .ap-chart-column.is-empty .ap-chart-bar{background:#e3ebf4!important}
+#page-liste .shopping3-bulkactions{justify-content:flex-end}
+/* Esplora documenti: righe compatte, cartelle espandibili */
+#personal-doc-files-list .doc-explorer-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 3px 12px;color:#4c617b;font-size:12px;font-weight:800}
+#personal-doc-files-list .doc-explorer-toolbar i{font-size:18px;color:#487fbc;vertical-align:middle;margin-right:5px}
+#personal-doc-files-list .doc-explorer-folder{padding:0!important;margin:0 0 9px!important;border:1px solid #e2e8f1!important;border-radius:12px!important;overflow:hidden;background:#fff!important}
+#personal-doc-files-list .doc-explorer-folder .personal-doc-folder-heading{padding:9px 12px!important;margin:0;gap:8px}
+#personal-doc-files-list .doc-folder-symbol{font-size:22px;color:#e9b34e;margin-right:5px}
+#personal-doc-files-list .doc-explorer-content{padding:3px 10px 9px!important;margin:0!important;border-top:1px solid #edf1f6}
+#personal-doc-files-list .doc-explorer-file{display:flex;align-items:center;gap:9px;margin:5px 0!important;padding:8px!important;border:1px solid #eef1f6!important;border-radius:9px!important;box-shadow:none!important;min-width:0}
+#personal-doc-files-list .doc-explorer-file .insurance-file-icon{width:32px!important;height:36px!important;min-width:32px!important;flex:0 0 32px!important;border-radius:7px;font-size:20px}
+#personal-doc-files-list .doc-explorer-file .insurance-file-copy{flex:1;min-width:0;margin:0!important}
+#personal-doc-files-list .doc-explorer-file .insurance-file-copy strong{display:block;font-size:12px!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#personal-doc-files-list .doc-explorer-file .insurance-file-copy span{display:block;font-size:10px!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#personal-doc-files-list .doc-explorer-file .insurance-file-actions{display:flex;gap:3px;flex-shrink:0;margin:0!important}
+#personal-doc-files-list .doc-explorer-file .insurance-file-actions button{width:32px!important;height:34px!important;min-width:32px!important;padding:0!important;display:grid;place-items:center}
+#personal-doc-files-list .doc-folder-empty{margin:8px;color:#8394a8;font-size:12px}
+.doc-edit-overlay{position:fixed;inset:0;z-index:30000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(22,35,52,.65);backdrop-filter:blur(3px)}
+.doc-edit-dialog{width:min(100%,420px);display:flex;flex-direction:column;gap:9px;padding:22px;border-radius:18px;background:#fff;color:#21354d;box-shadow:0 20px 60px #0003}
+.doc-edit-dialog h3{margin:0 0 8px;color:#21354d;font-size:18px}
+.doc-edit-dialog label{font-size:12px;font-weight:800;color:#526681}
+.doc-edit-dialog input,.doc-edit-dialog select{width:100%;min-height:43px;background:#f8fafc;color:#21354d;border:1px solid #dce5ef;border-radius:10px;font-size:14px}
+.doc-edit-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:14px}
+.doc-edit-actions button{min-height:43px;border-radius:10px;padding:8px 16px}
+.doc-edit-actions [data-doc-save]{background:#3d7bd6;color:#fff;border:0}
+@media(max-width:450px){#personal-doc-files-list .doc-explorer-file{gap:5px;padding:6px!important}#personal-doc-files-list .doc-explorer-file .insurance-file-actions button{width:28px!important;min-width:28px!important}#personal-doc-files-list .doc-explorer-file .insurance-file-icon{width:27px!important;min-width:27px!important;flex-basis:27px!important}}
+</style>
 </body>
 </html>
